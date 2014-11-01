@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,13 +10,67 @@ namespace OTMonsterConverter
 {
     //https://github.com/otland/forgottenserver/blob/master/src/monsters.cpp
 
-    public enum namedImmunity
+    class TFSMonster : GenericMonster
+    {
+        // Constructor
+        public TFSMonster()
+            : base()
+        {
+        }
+
+        // Functions
+        public override void ReadMonster(string filename)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
+
+            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
+            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
+
+            // A FileStream is needed to read the XML document.
+            FileStream fs = new FileStream(filename, FileMode.Open);
+
+            /* Use the Deserialize method to restore the object's state with data from the XML document. */
+            TFSXmlMonster monster = (TFSXmlMonster)serializer.Deserialize(fs);
+
+            // Bring into "Common/Generic" class format
+            this.name        = monster.name;
+            this.description = monster.nameDescription;
+            this.health      = monster.health.max;
+            if (monster.voices != null)
+            {
+                foreach (Voice sound in monster.voices.voice)
+                {
+                    this.voices.Add(sound.sentence);
+                }
+            }
+        }
+
+        public override void WriteMonster()
+        {
+
+        }
+
+        private void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
+        {
+            Console.WriteLine("Unknown Node:" + e.Name + "\t" + e.Text);
+        }
+
+        private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
+        {
+            System.Xml.XmlAttribute attr = e.Attr;
+            Console.WriteLine("Unknown attribute " +
+            attr.Name + "='" + attr.Value + "'");
+        }
+    }
+
+    #region XML serializer classes
+    public enum namedImmunityXml
     {
         physical,
         energy,
         fire,
         poison,
-        earth = namedImmunity.poison,
+        earth = namedImmunityXml.poison,
         drown,
         ice,
         holy,
@@ -26,7 +81,7 @@ namespace OTMonsterConverter
         outfit,
         drunk,
         invisible,
-        invisibility = namedImmunity.invisible,
+        invisibility = namedImmunityXml.invisible,
         bleed,
         NA
     }
@@ -42,8 +97,17 @@ namespace OTMonsterConverter
         orange
     }
 
+    enum raceXml
+    {
+        venom  = 1,
+        blood  = 2,
+        undead = 3,
+        fire   = 4,
+        energy = 5
+    }
+
     [Serializable, XmlRoot("monster")]
-    public class Monster
+    public class TFSXmlMonster
     {
         [XmlAttribute]
         public string name;
@@ -60,14 +124,13 @@ namespace OTMonsterConverter
         [XmlAttribute]
         public string skull; //uses strings, "none", "yellow", "green", "white", "red", "black", "orange"
         //[XmlAttribute]
-        //public int script; //todo: how to handle, yes its an attribute
-        //public int script; //todo: how to handle, yes its also an element
+        //public int script; //todo: how to handle
 
         public Health health;
         public Flags flags;
         public Look look;
         public TargetChange targetchange;
-        //public Attacks attacks;
+        public Attacks attacks;
         //public Defenses defenses;
         public Immunities immunities;
         public Voices voices;
@@ -127,9 +190,11 @@ namespace OTMonsterConverter
     public class TargetChange
     {
         [XmlAttribute]
-        public int interval; //could be named "speed" or "interval"
+        public int interval = 0; //interval and speed are the same, default is 0
         [XmlAttribute]
-        public int chance;
+        public int speed = 0; //interval and speed are the same, default is 0
+        [XmlAttribute]
+        public int chance = 0; //default is 0
     }
 
     public class Look
@@ -156,7 +221,60 @@ namespace OTMonsterConverter
 
     public class Attacks
     {
-        //public attack[] Attack
+        [XmlElementAttribute]
+        public Attack[] attack;
+    }
+
+    public class Attack
+    {
+        //[XmlAttribute]
+        //public int script; //todo: how to handle
+        [XmlAttribute]
+        public string name;
+        public int interval = 2000; //interval and speed are the same //defaults to 2000 if missing
+        [XmlAttribute]
+        public int speed = 2000; //interval and speed are the same //defaults to 2000 if missing
+
+        //[XmlAttribute]
+        //public int chance = 100; //defaults to 100 if missing
+        //[XmlAttribute]
+        //public int range = 0; //defaults to 0 if missing
+        //[XmlAttribute]
+        //public int min = 0; //defaults to 0 if missing
+        //[XmlAttribute]
+        //public int max = 0; //defaults to 0 if missing
+        //[XmlAttribute]
+        //public int length = 0; //if length exists spread defaults to 3
+        //[XmlAttribute]
+        //public int radius = 0;
+
+        // the following only exist if name is melee
+        // when melee exists minMax and Max are set to 0
+        // interval is set to 200
+        [XmlAttribute]
+        public int skill;
+        [XmlAttribute]
+        public int attack;
+        [XmlAttribute]
+        public int fire;
+        [XmlAttribute]
+        public int poison;
+        [XmlAttribute]
+        public int energy;
+        [XmlAttribute]
+        public int drown;
+        [XmlAttribute]
+        public int freeze;
+        [XmlAttribute]
+        public int dazzle;
+        [XmlAttribute]
+        public int curse;
+        [XmlAttribute]
+        public int bleed; //bleed and physical are the same
+        [XmlAttribute]
+        public int physical; //bleed and physical are the same
+        [XmlAttribute]
+        public int tick; //only used if a condition is set
     }
 
     public class Defenses
@@ -178,7 +296,7 @@ namespace OTMonsterConverter
     public class Immunity
     {
         [XmlAttribute]
-        public namedImmunity name = namedImmunity.NA;
+        public namedImmunityXml name = namedImmunityXml.NA;
         [XmlAttribute]
         public int physical = -9999;
         [XmlAttribute]
@@ -308,6 +426,7 @@ namespace OTMonsterConverter
         [XmlAttribute]
         public int speed = 1000; //interval and speed are the same //defaults to 1000 if missing
         [XmlAttribute]
-        public int chance; //defaults to 100 if missing
+        public int chance = 100; //defaults to 100 if missing
     }
+    #endregion
 }
