@@ -43,7 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GenericMonster.cs" />
-    <Compile Include="XmlMonster.cs" />
+    <Compile Include="PyOTMonster.cs" />
+    <Compile Include="TFSMonster.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
