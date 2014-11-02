@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace OTMonsterConverter
@@ -35,7 +36,24 @@ namespace OTMonsterConverter
             // Bring into "Common/Generic" class format
             this.name        = monster.name;
             this.description = monster.nameDescription;
-            this.health      = monster.health.max;
+            this.health      = (uint)monster.health.max;
+            this.experience  = (uint)monster.experience;
+            this.speed       = (uint)monster.speed;
+            this.corpseId    = (uint)monster.look.corpse;
+            if (monster.look.type != 0)
+            {
+                this.lookId      = (uint)monster.look.type;
+            }
+            if (monster.look.head != -99)
+            {
+                this.lookTypeDetails = new DetailedLookType()
+                                          {
+                                              head = (uint)monster.look.head,
+                                              body = (uint)monster.look.body,
+                                              legs = (uint)monster.look.legs,
+                                              feet = (uint)monster.look.feet
+                                          };
+            }
             if (monster.voices != null)
             {
                 foreach (Voice sound in monster.voices.voice)
@@ -45,9 +63,16 @@ namespace OTMonsterConverter
             }
         }
 
-        public override void WriteMonster()
+        public override void WriteMonster(string filename)
         {
-
+            XDocument xDoc = XDocument.Load(filename);
+            xDoc.Root.Add(new XElement("monster",
+                            new XAttribute("name", this.name),
+                            new XAttribute("nameDescription", this.description),
+                            new XAttribute("experience", this.experience),
+                            new XAttribute("speed", this.speed)
+                        ));
+            xDoc.Save(filename);
         }
 
         private void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
@@ -200,17 +225,17 @@ namespace OTMonsterConverter
     public class Look
     {
         [XmlAttribute]
-        public int type;
+        public int type = -99;
         [XmlAttribute]
-        public int head; //only can exist if type exists
+        public int head = -99; //only can exist if type exists
         [XmlAttribute]
-        public int body; //only can exist if type exists
+        public int body = -99; //only can exist if type exists
         [XmlAttribute]
-        public int legs; //only can exist if type exists
+        public int legs = -99; //only can exist if type exists
         [XmlAttribute]
-        public int feet; //only can exist if type exists
+        public int feet = -99; //only can exist if type exists
         [XmlAttribute]
-        public int addons; //only can exist if type exists
+        public int addons = -99; //only can exist if type exists
         [XmlAttribute]
         public int typeex;
         [XmlAttribute]

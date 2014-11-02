@@ -20,7 +20,7 @@ namespace OTMonsterConverter
             //Console.Write("Enter Output Directory: ");
             //string outputPath = Console.ReadLine();
 
-            TFSMonster monster = new TFSMonster();
+            IGenericMonster monster = new TFSMonster();
             monster.ReadMonster(inputFile);
         }
     }
