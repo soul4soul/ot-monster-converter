@@ -11,16 +11,16 @@ namespace OTMonsterConverter
 {
     //https://github.com/otland/forgottenserver/blob/master/src/monsters.cpp
 
-    class TFSMonster : GenericMonster
+    class TFSConverter : CommonConverter
     {
         // Constructor
-        public TFSMonster()
+        public TFSConverter()
             : base()
         {
         }
 
         // Functions
-        public override void ReadMonster(string filename)
+        public override void ReadMonster(string filename, out GenericMonster monster)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
@@ -31,46 +31,48 @@ namespace OTMonsterConverter
             FileStream fs = new FileStream(filename, FileMode.Open);
 
             /* Use the Deserialize method to restore the object's state with data from the XML document. */
-            TFSXmlMonster monster = (TFSXmlMonster)serializer.Deserialize(fs);
+            TFSXmlMonster tfsMonster = (TFSXmlMonster)serializer.Deserialize(fs);
 
             // Bring into "Common/Generic" class format
-            this.name        = monster.name;
-            this.description = monster.nameDescription;
-            this.health      = (uint)monster.health.max;
-            this.experience  = (uint)monster.experience;
-            this.speed       = (uint)monster.speed;
-            this.corpseId    = (uint)monster.look.corpse;
-            if (monster.look.type != 0)
+            monster = new GenericMonster();
+
+            monster.Name        = tfsMonster.name;
+            monster.Description = tfsMonster.nameDescription;
+            monster.Health      = (uint)tfsMonster.health.max;
+            monster.Experience  = (uint)tfsMonster.experience;
+            monster.Speed       = (uint)tfsMonster.speed;
+            monster.corpseId    = (uint)tfsMonster.look.corpse;
+            if (tfsMonster.look.type != 0)
             {
-                this.lookId      = (uint)monster.look.type;
+                monster.lookId      = (uint)tfsMonster.look.type;
             }
-            if (monster.look.head != -99)
+            if (tfsMonster.look.head != -99)
             {
-                this.lookTypeDetails = new DetailedLookType()
+                monster.lookTypeDetails = new DetailedLookType()
                                           {
-                                              head = (uint)monster.look.head,
-                                              body = (uint)monster.look.body,
-                                              legs = (uint)monster.look.legs,
-                                              feet = (uint)monster.look.feet
+                                              head = (uint)tfsMonster.look.head,
+                                              body = (uint)tfsMonster.look.body,
+                                              legs = (uint)tfsMonster.look.legs,
+                                              feet = (uint)tfsMonster.look.feet
                                           };
             }
-            if (monster.voices != null)
+            if (tfsMonster.voices != null)
             {
-                foreach (Voice sound in monster.voices.voice)
+                foreach (Voice sound in tfsMonster.voices.voice)
                 {
-                    this.voices.Add(sound.sentence);
+                    monster.voices.Add(sound.sentence);
                 }
             }
         }
 
-        public override void WriteMonster(string filename)
+        public override void WriteMonster(string filename, ref GenericMonster monster)
         {
             XDocument xDoc = XDocument.Load(filename);
             xDoc.Root.Add(new XElement("monster",
-                            new XAttribute("name", this.name),
-                            new XAttribute("nameDescription", this.description),
-                            new XAttribute("experience", this.experience),
-                            new XAttribute("speed", this.speed)
+                            new XAttribute("name", monster.Name),
+                            new XAttribute("nameDescription", monster.Description),
+                            new XAttribute("experience", monster.Experience),
+                            new XAttribute("speed", monster.Speed)
                         ));
             xDoc.Save(filename);
         }
