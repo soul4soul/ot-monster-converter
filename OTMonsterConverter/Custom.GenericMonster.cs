@@ -6,11 +6,21 @@ using System.Threading.Tasks;
 
 namespace OTMonsterConverter
 {
+    //todo should I add proper display names?
+    public enum Blood
+    {
+        blood,
+        venom,
+        undead,
+        fire,
+        energy
+    }
+
     //todo should we add outfit ID to this class?
     public class DetailedLookType : IDetailedLookType
     {
         // Variables
-        private const ushort MAX_COLOR = 255; //todo check if correct
+        private const ushort MAX_COLOR = 132; //todo is this correct?
 
         private ushort _Head;
         private ushort _Body;
@@ -40,12 +50,12 @@ namespace OTMonsterConverter
         }
     }
 
-    //public class Summon
-    //{
-    //    public string name;
-    //    public uint rate;
-    //    public uint chance;
-    //}
+    public class CustomSummon : ICustomSummon
+    {
+        public string Name { get; set; }
+        public ushort Rate { get; set; }
+        public ushort Chance { get; set; }
+    }
 
     //public class Loot
     //{
@@ -54,12 +64,12 @@ namespace OTMonsterConverter
     //    public uint chance;
     //}
 
-    public class GenericMonster : IGenericMonster
+    public class CustomMonster : ICustomMonster
     {
         // Member Variables
 
         // Constructors
-        public GenericMonster()
+        public CustomMonster()
         {
         }
 
@@ -74,12 +84,13 @@ namespace OTMonsterConverter
         public uint Speed { get; set; }
         public List<string> Voices { get; set; }
         //public uint maxSummons;
-        //race or blood?
+        public Blood Race { get; set; }
         //public List<Summon> summons;
 
             // Look
         public uint CorpseId { get; set; }
-        public uint LookId { get; set; }
+        public uint OutfitIdLookType { get; set; }
+        public uint ItemIdLookType { get; set; } // none 0 means creature looks like an item
         public IDetailedLookType LookTypeDetails { get; set; }
 
             // Behavior
