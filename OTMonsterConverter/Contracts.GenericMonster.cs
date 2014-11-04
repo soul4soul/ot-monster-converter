@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OTMonsterConverter
 {
-    public interface IGenericMonster
+    public interface ICustomMonster
     {
         // Properties
             // Generic
@@ -16,10 +16,12 @@ namespace OTMonsterConverter
         uint Experience { get; set; }
         uint Speed { get; set; }
         List<string> Voices { get; set; }
+        Blood Race { get; set; }
 
             // Look
         uint CorpseId { get; set; }
-        uint LookId { get; set; }
+        uint OutfitIdLookType { get; set; }
+        uint ItemIdLookType { get; set; }
         IDetailedLookType LookTypeDetails { get; set; }
 
             // Behavior
@@ -58,5 +60,12 @@ namespace OTMonsterConverter
         ushort Body  { get; set; }
         ushort Legs  { get; set; }
         ushort Feet  { get; set; }
+    }
+
+    public interface ICustomSummon
+    {
+        string Name { get; set; }
+        ushort Rate { get; set; }
+        ushort Chance { get; set; }
     }
 }

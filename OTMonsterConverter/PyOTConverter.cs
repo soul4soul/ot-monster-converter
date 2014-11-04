@@ -19,21 +19,21 @@ namespace OTMonsterConverter
         }
 
                 // Functions
-        public override void ReadMonster(string filename, out IGenericMonster monster)
+        public override void ReadMonster(string filename, out ICustomMonster monster)
         {
-            monster = new GenericMonster();
+            monster = new CustomMonster();
         }
 
-        public override void WriteMonster(string filename, ref IGenericMonster monster)
+        public override void WriteMonster(string filename, ref ICustomMonster monster)
         {
             string lowerName = monster.Name.ToLower();
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-            string titleName = textInfo.ToTitleCase(lowerName); //War And Peace
+            string titleName = textInfo.ToTitleCase(lowerName);
 
             string[] lines =
             {
-                string.Format("{0} = genMonster(\"{1}\", ({2}, {3}), \"{4}\")", lowerName, titleName, monster.CorpseId, monster.LookId, monster.Description),
+                string.Format("{0} = genMonster(\"{1}\", ({2}, {3}), \"{4}\")", lowerName, titleName, monster.CorpseId, monster.OutfitIdLookType, monster.Description),
                 string.Format("{0}.setHealth({1})", lowerName, monster.Health),
                 //string.Format("{0}.bloodType({1})", lowerName, monster. ),
                 //string.Format("{0}.setDefense({1})", lowerName, monster. ),
