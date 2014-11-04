@@ -8,8 +8,11 @@ namespace OTMonsterConverter
 {
     interface IGenericMonster
     {
-        void ReadMonster(string filename);
-        void WriteMonster(string filename);
+        string Name { get; set; }
+        string Description { get; set; }
+        uint Health { get; set; }
+        uint Experience { get; set; }
+        uint Speed { get; set; }
     }
 
     public class DetailedLookType
@@ -34,15 +37,12 @@ namespace OTMonsterConverter
     //    public uint chance;
     //}
 
-    abstract class GenericMonster : IGenericMonster
+    public class GenericMonster : IGenericMonster
     {
+        //// Member Variables
+
         // General
-        public string name;
-        public string description;
-        public uint health;
         public List<string> voices;
-        public uint experience;
-        public uint speed;
         //public uint maxSummons;
         //race or blood?
         //public List<Summon> summons;
@@ -81,15 +81,21 @@ namespace OTMonsterConverter
         public bool drunk;
         public bool manaDrain;
 
-
-
+        // Constructors
         public GenericMonster()
         {
             voices = new List<string>();
         }
 
-        public abstract void ReadMonster(string filename);
+        // Events
 
-        public abstract void WriteMonster(string filename);
+        // Properties
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public uint Health { get; set; }
+        public uint Experience { get; set; }
+        public uint Speed { get; set; }
+
+        // Functions
     }
 }
