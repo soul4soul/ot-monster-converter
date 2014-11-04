@@ -20,7 +20,7 @@ namespace OTMonsterConverter
         }
 
         // Functions
-        public override void ReadMonster(string filename, out GenericMonster monster)
+        public override void ReadMonster(string filename, out IGenericMonster monster)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
@@ -34,38 +34,41 @@ namespace OTMonsterConverter
             TFSXmlMonster tfsMonster = (TFSXmlMonster)serializer.Deserialize(fs);
 
             // Bring into "Common/Generic" class format
-            monster = new GenericMonster();
-
-            monster.Name        = tfsMonster.name;
-            monster.Description = tfsMonster.nameDescription;
-            monster.Health      = (uint)tfsMonster.health.max;
-            monster.Experience  = (uint)tfsMonster.experience;
-            monster.Speed       = (uint)tfsMonster.speed;
-            monster.corpseId    = (uint)tfsMonster.look.corpse;
+            monster = new GenericMonster()
+                        {
+                            Name = tfsMonster.name,
+                            Description = tfsMonster.nameDescription,
+                            Health = (uint)tfsMonster.health.max,
+                            Experience = (uint)tfsMonster.experience,
+                            Speed = (uint)tfsMonster.speed,
+                            CorpseId = (uint)tfsMonster.look.corpse,
+                        };
             if (tfsMonster.look.type != 0)
             {
-                monster.lookId      = (uint)tfsMonster.look.type;
+                monster.LookId      = (uint)tfsMonster.look.type;
             }
             if (tfsMonster.look.head != -99)
             {
-                monster.lookTypeDetails = new DetailedLookType()
-                                          {
-                                              head = (uint)tfsMonster.look.head,
-                                              body = (uint)tfsMonster.look.body,
-                                              legs = (uint)tfsMonster.look.legs,
-                                              feet = (uint)tfsMonster.look.feet
-                                          };
+                monster.LookTypeDetails = new DetailedLookType()
+                                            {
+                                                Head = (ushort)tfsMonster.look.head,
+                                                Body = (ushort)tfsMonster.look.body,
+                                                Legs = (ushort)tfsMonster.look.legs,
+                                                Feet = (ushort)tfsMonster.look.feet
+                                            };
             }
             if (tfsMonster.voices != null)
             {
+                List<string> voices = new List<string>();
                 foreach (Voice sound in tfsMonster.voices.voice)
                 {
-                    monster.voices.Add(sound.sentence);
+                    voices.Add(sound.sentence);
                 }
+                monster.Voices = voices;
             }
         }
 
-        public override void WriteMonster(string filename, ref GenericMonster monster)
+        public override void WriteMonster(string filename, ref IGenericMonster monster)
         {
             XDocument xDoc = XDocument.Load(filename);
             xDoc.Root.Add(new XElement("monster",

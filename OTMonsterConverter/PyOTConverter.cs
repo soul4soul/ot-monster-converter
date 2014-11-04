@@ -19,12 +19,12 @@ namespace OTMonsterConverter
         }
 
                 // Functions
-        public override void ReadMonster(string filename, out GenericMonster monster)
+        public override void ReadMonster(string filename, out IGenericMonster monster)
         {
             monster = new GenericMonster();
         }
 
-        public override void WriteMonster(string filename, ref GenericMonster monster)
+        public override void WriteMonster(string filename, ref IGenericMonster monster)
         {
             string lowerName = monster.Name.ToLower();
 
@@ -33,7 +33,7 @@ namespace OTMonsterConverter
 
             string[] lines =
             {
-                string.Format("{0} = genMonster(\"{1}\", ({2}, {3}), \"{4}\")", lowerName, titleName, monster.corpseId, monster.lookId, monster.Description),
+                string.Format("{0} = genMonster(\"{1}\", ({2}, {3}), \"{4}\")", lowerName, titleName, monster.CorpseId, monster.LookId, monster.Description),
                 string.Format("{0}.setHealth({1})", lowerName, monster.Health),
                 //string.Format("{0}.bloodType({1})", lowerName, monster. ),
                 //string.Format("{0}.setDefense({1})", lowerName, monster. ),
