@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace OTMonsterConverter
 {
-    public interface ICommonConverter
+    interface ICommonConverter
     {
-        void ReadMonster(string filename, out GenericMonster monster);
+        void ReadMonster(string filename, out IGenericMonster monster);
 
-        void WriteMonster(string filename, ref GenericMonster monster);
+        void WriteMonster(string filename, ref IGenericMonster monster);
     }
 
     public abstract class CommonConverter : ICommonConverter
     {
-        public abstract void ReadMonster(string filename, out GenericMonster monster);
+        public abstract void ReadMonster(string filename, out IGenericMonster monster);
 
-        public abstract void WriteMonster(string filename, ref GenericMonster monster);
+        public abstract void WriteMonster(string filename, ref IGenericMonster monster);
     }
 }
