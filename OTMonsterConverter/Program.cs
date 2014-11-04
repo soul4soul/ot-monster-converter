@@ -21,7 +21,7 @@ namespace OTMonsterConverter
             //string outputPath = Console.ReadLine();
 
             ICommonConverter tfsConverter = new TFSConverter();
-            IGenericMonster monster;
+            ICustomMonster monster;
             tfsConverter.ReadMonster(inputFile, out monster);
         }
     }

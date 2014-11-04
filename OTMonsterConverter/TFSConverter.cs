@@ -20,7 +20,7 @@ namespace OTMonsterConverter
         }
 
         // Functions
-        public override void ReadMonster(string filename, out IGenericMonster monster)
+        public override void ReadMonster(string filename, out ICustomMonster monster)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
@@ -30,11 +30,28 @@ namespace OTMonsterConverter
             // A FileStream is needed to read the XML document.
             FileStream fs = new FileStream(filename, FileMode.Open);
 
-            /* Use the Deserialize method to restore the object's state with data from the XML document. */
+            // Use the Deserialize method to restore the object's state with data from the XML document.
             TFSXmlMonster tfsMonster = (TFSXmlMonster)serializer.Deserialize(fs);
 
-            // Bring into "Common/Generic" class format
-            monster = new GenericMonster()
+            // convert from xml monster classes to generic class
+            xmlToGeneric(tfsMonster, out monster);
+        }
+
+        public override void WriteMonster(string filename, ref ICustomMonster monster)
+        {
+            XDocument xDoc = XDocument.Load(filename);
+            xDoc.Root.Add(new XElement("monster",
+                            new XAttribute("name", monster.Name),
+                            new XAttribute("nameDescription", monster.Description),
+                            new XAttribute("experience", monster.Experience),
+                            new XAttribute("speed", monster.Speed)
+                        ));
+            xDoc.Save(filename);
+        }
+
+        private void xmlToGeneric(TFSXmlMonster tfsMonster, out ICustomMonster monster)
+        {
+            monster = new CustomMonster()
                         {
                             Name = tfsMonster.name,
                             Description = tfsMonster.nameDescription,
@@ -42,10 +59,11 @@ namespace OTMonsterConverter
                             Experience = (uint)tfsMonster.experience,
                             Speed = (uint)tfsMonster.speed,
                             CorpseId = (uint)tfsMonster.look.corpse,
+                            Race = tfsToGenericBlood(tfsMonster.race)
                         };
             if (tfsMonster.look.type != 0)
             {
-                monster.LookId      = (uint)tfsMonster.look.type;
+                monster.OutfitIdLookType      = (uint)tfsMonster.look.type;
             }
             if (tfsMonster.look.head != -99)
             {
@@ -68,16 +86,94 @@ namespace OTMonsterConverter
             }
         }
 
-        public override void WriteMonster(string filename, ref IGenericMonster monster)
+        private Blood tfsToGenericBlood(string blood)
         {
-            XDocument xDoc = XDocument.Load(filename);
-            xDoc.Root.Add(new XElement("monster",
-                            new XAttribute("name", monster.Name),
-                            new XAttribute("nameDescription", monster.Description),
-                            new XAttribute("experience", monster.Experience),
-                            new XAttribute("speed", monster.Speed)
-                        ));
-            xDoc.Save(filename);
+            Blood race = Blood.blood; //default
+
+            uint bloodId;
+            if (!uint.TryParse(blood, out bloodId))
+            {
+                switch (blood)
+                {
+                    case "venom":
+                        race = Blood.venom;
+                        break;
+
+                    case "blood":
+                        race = Blood.blood;
+                        break;
+
+                    case "undead":
+                        race = Blood.undead;
+                        break;
+
+                    case "fire":
+                        race = Blood.fire;
+                        break;
+
+                    case "energy":
+                        race = Blood.venom;
+                        break;
+                }
+            }
+            else
+            {
+                switch (bloodId)
+                {
+                    case 1:
+                        race = Blood.venom;
+                        break;
+
+                    case 2:
+                        race = Blood.blood;
+                        break;
+
+                    case 3:
+                        race = Blood.undead;
+                        break;
+
+                    case 4:
+                        race = Blood.fire;
+                        break;
+
+                    case 5:
+                        race = Blood.venom;
+                        break;
+                }
+            }
+
+
+            return race;
+        }
+
+        private string generictoTfsBlood(Blood race)
+        {
+            string bloodName = "blood";
+
+            switch (race)
+            {
+                case Blood.venom:
+                    bloodName = "venom";
+                    break;
+
+                case Blood.blood:
+                    bloodName = "blood";
+                    break;
+
+                case Blood.undead:
+                    bloodName = "undead";
+                    break;
+
+                case Blood.fire:
+                    bloodName = "fire";
+                    break;
+
+                case Blood.energy:
+                    bloodName = "energy";
+                    break;
+            }
+
+            return bloodName;
         }
 
         private void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
@@ -127,15 +223,6 @@ namespace OTMonsterConverter
         orange
     }
 
-    enum raceXml
-    {
-        venom  = 1,
-        blood  = 2,
-        undead = 3,
-        fire   = 4,
-        energy = 5
-    }
-
     [Serializable, XmlRoot("monster")]
     public class TFSXmlMonster
     {
@@ -156,7 +243,7 @@ namespace OTMonsterConverter
         //[XmlAttribute]
         //public int script; //todo: how to handle
 
-        public Health health;
+        public TFSXmlHealth health;
         public Flags flags;
         public Look look;
         public TargetChange targetchange;
@@ -169,7 +256,8 @@ namespace OTMonsterConverter
         public Summons summons;
     }
 
-    public class Health
+    [XmlRoot(ElementName = "health")]
+    public class TFSXmlHealth
     {
         [XmlAttribute]
         public int now;
@@ -385,6 +473,7 @@ namespace OTMonsterConverter
 
     public class Loot
     {
+        [XmlElementAttribute]
         public Item[] item;
     }
 
@@ -444,6 +533,7 @@ namespace OTMonsterConverter
     {
         [XmlAttribute]
         public int maxSummons;
+        [XmlElementAttribute]
         public Summon[] summon;
     }
 
