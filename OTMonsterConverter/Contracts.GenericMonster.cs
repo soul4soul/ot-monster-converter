@@ -17,6 +17,7 @@ namespace OTMonsterConverter
         uint Speed { get; set; }
         List<string> Voices { get; set; }
         Blood Race { get; set; }
+        uint retargetChance { get; set; }
 
             // Look
         uint CorpseId { get; set; }

@@ -114,9 +114,10 @@ namespace OTMonsterConverter
         public uint Experience { get; set; }
         public uint Speed { get; set; }
         public List<string> Voices { get; set; }
-        //public uint maxSummons;
         public Blood Race { get; set; }
-        uint manaCost { get; set; }
+        public uint manaCost { get; set; }
+        public uint retargetChance { get; set; }
+        //public uint maxSummons { get; set; }
         //public List<Summon> summons;
 
             // Look

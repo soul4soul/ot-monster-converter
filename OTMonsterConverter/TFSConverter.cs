@@ -53,13 +53,14 @@ namespace OTMonsterConverter
         {
             monster = new CustomMonster()
                         {
-                            Name        = tfsMonster.name,
-                            Description = tfsMonster.nameDescription,
-                            Health      = (uint)tfsMonster.health.max,
-                            Experience  = (uint)tfsMonster.experience,
-                            Speed       = (uint)tfsMonster.speed,
-                            CorpseId    = (uint)tfsMonster.look.corpse,
-                            Race        = tfsToGenericBlood(tfsMonster.race)
+                            Name           = tfsMonster.name,
+                            Description    = tfsMonster.nameDescription,
+                            Health         = (uint)tfsMonster.health.max,
+                            Experience     = (uint)tfsMonster.experience,
+                            Speed          = (uint)tfsMonster.speed,
+                            CorpseId       = (uint)tfsMonster.look.corpse,
+                            Race           = tfsToGenericBlood(tfsMonster.race),
+                            retargetChance = (uint)tfsMonster.targetchange.chance
                         };
 
             if (tfsMonster.look.type != 0)
