@@ -53,14 +53,15 @@ namespace OTMonsterConverter
         {
             monster = new CustomMonster()
                         {
-                            Name = tfsMonster.name,
+                            Name        = tfsMonster.name,
                             Description = tfsMonster.nameDescription,
-                            Health = (uint)tfsMonster.health.max,
-                            Experience = (uint)tfsMonster.experience,
-                            Speed = (uint)tfsMonster.speed,
-                            CorpseId = (uint)tfsMonster.look.corpse,
-                            Race = tfsToGenericBlood(tfsMonster.race)
+                            Health      = (uint)tfsMonster.health.max,
+                            Experience  = (uint)tfsMonster.experience,
+                            Speed       = (uint)tfsMonster.speed,
+                            CorpseId    = (uint)tfsMonster.look.corpse,
+                            Race        = tfsToGenericBlood(tfsMonster.race)
                         };
+
             if (tfsMonster.look.type != 0)
             {
                 monster.OutfitIdLookType      = (uint)tfsMonster.look.type;
@@ -84,6 +85,183 @@ namespace OTMonsterConverter
                 }
                 monster.Voices = voices;
             }
+
+            // Defenses
+            monster.TotalArmor = tfsMonster.defenses.armor;
+            monster.TotalArmor = tfsMonster.defenses.defense;
+            #region parseElements
+            foreach (Element element in tfsMonster.elements.element)
+            {
+                if (element.physicalPercent != -9999)
+                {
+                    monster.Physical = tfstoGenericElementalPercent(element.physicalPercent);
+                }
+                else if (element.icePercent != -9999)
+                {
+                    monster.Ice = tfstoGenericElementalPercent(element.icePercent);
+                }
+                else if (element.poisonPercent != -9999) //poisonPercent and earthPercent are the same
+                {
+                    monster.Earth = tfstoGenericElementalPercent(element.poisonPercent);
+                }
+                else if (element.earthPercent != -9999) //poisonPercent and earthPercent are the same
+                {
+                    monster.Earth = tfstoGenericElementalPercent(element.earthPercent);
+                }
+                else if (element.firePercent != -9999)
+                {
+                    monster.Fire = tfstoGenericElementalPercent(element.firePercent);
+                }
+                else if (element.energyPercent != -9999)
+                {
+                    monster.Energy = tfstoGenericElementalPercent(element.energyPercent);
+                }
+                else if (element.holyPercent != -9999)
+                {
+                    monster.Holy = tfstoGenericElementalPercent(element.holyPercent);
+                }
+                else if (element.deathPercent != -9999)
+                {
+                    monster.Death = tfstoGenericElementalPercent(element.deathPercent);
+                }
+                else if (element.drownPercent != -9999)
+                {
+                    monster.Drown = tfstoGenericElementalPercent(element.drownPercent);
+                }
+                else if (element.lifedrainPercent != -9999)
+                {
+                    monster.LifeDrain = tfstoGenericElementalPercent(element.lifedrainPercent);
+                }
+                else if (element.manadrainPercent != -9999)
+                {
+                    monster.ManaDrain = tfstoGenericElementalPercent(element.manadrainPercent);
+                }
+            }
+            #endregion
+            #region paraseImmunities
+            foreach (Immunity immunity in tfsMonster.immunities.immunity)
+            {
+                if (immunity.name != namedImmunityXml.NA)
+                {
+                    switch (immunity.name)
+                    {
+                        case namedImmunityXml.physical:
+                            monster.Physical = 0;
+                            break;
+                        case namedImmunityXml.energy:
+                            monster.Energy = 0;
+                            break;
+                        case namedImmunityXml.fire:
+                            monster.Fire = 0;
+                            break;
+                        case namedImmunityXml.poison: //namedImmunityXml.earth
+                            monster.Earth = 0;
+                            break;
+                        case namedImmunityXml.drown:
+                            monster.Drown = 0;
+                            break;
+                        case namedImmunityXml.ice:
+                            monster.Ice = 0;
+                            break;
+                        case namedImmunityXml.holy:
+                            monster.Holy = 0;
+                            break;
+                        case namedImmunityXml.death:
+                            monster.Death = 0;
+                            break;
+                        case namedImmunityXml.lifedrain:
+                            monster.LifeDrain = 0;
+                            break;
+                        case namedImmunityXml.manadrain:
+                            monster.ManaDrain = 0;
+                            break;
+                        case namedImmunityXml.paralyze:
+                            monster.IgnoreParalyze = true;
+                            break;
+                        case namedImmunityXml.outfit:
+                            monster.IgnoreOutfit = true;
+                            break;
+                        case namedImmunityXml.drunk:
+                            monster.IgnoreDrunk = true;
+                            break;
+                        case namedImmunityXml.invisible: //namedImmunityXml.invisibility
+                            monster.IgnoreInvisible = true;
+                            break;
+                        case namedImmunityXml.bleed:
+                            Console.WriteLine("Unknown Immunity Bleed");
+                            break;
+                    }
+                }
+                else if (immunity.physical != -9999)
+                {
+                    monster.Physical = 0;
+                }
+                else if (immunity.energy != -9999)
+                {
+                    monster.Energy = 0;
+                }
+                else if (immunity.fire != -9999)
+                {
+                    monster.Fire = 0;
+                }
+                else if (immunity.poison != -9999) //poison and earth are the same
+                {
+                    monster.Earth = 0;
+                }
+                else if (immunity.earth != -9999) //poison and earth are the same
+                {
+                    monster.Earth = 0;
+                }
+                else if (immunity.drown != -9999)
+                {
+                    monster.Drown = 0;
+                }
+                else if (immunity.ice != -9999)
+                {
+                    monster.Ice = 0;
+                }
+                else if (immunity.holy != -9999)
+                {
+                    monster.Holy = 0;
+                }
+                else if (immunity.death != -9999)
+                {
+                    monster.Death = 0;
+                }
+                else if (immunity.lifedrain != -9999)
+                {
+                    monster.LifeDrain = 0;
+                }
+                else if (immunity.manadrain != -9999)
+                {
+                    monster.ManaDrain = 0;
+                }
+                else if (immunity.paralyze != -9999)
+                {
+                    monster.IgnoreParalyze = true;
+                }
+                else if (immunity.outfit != -9999)
+                {
+                    monster.IgnoreOutfit = true;
+                }
+                else if (immunity.bleed != -9999)
+                {
+                    Console.WriteLine("Unknown Immunity Bleed");
+                }
+                else if (immunity.drunk != -9999)
+                {
+                    monster.IgnoreDrunk = true;
+                }
+                else if (immunity.invisible != -9999) //invisible and invisibility are the same
+                {
+                    monster.IgnoreInvisible = true;
+                }
+                else if (immunity.invisibility != -9999) //invisible and invisibility are the same
+                {
+                    monster.IgnoreInvisible = true;
+                }
+            }
+            #endregion
         }
 
         private Blood tfsToGenericBlood(string blood)
@@ -176,6 +354,11 @@ namespace OTMonsterConverter
             return bloodName;
         }
 
+        private double tfstoGenericElementalPercent(int percent)
+        {
+            return (1 - ((double)percent / 100));
+        }
+
         private void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
             Console.WriteLine("Unknown Node:" + e.Name + "\t" + e.Text);
@@ -184,8 +367,7 @@ namespace OTMonsterConverter
         private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
             System.Xml.XmlAttribute attr = e.Attr;
-            Console.WriteLine("Unknown attribute " +
-            attr.Name + "='" + attr.Value + "'");
+            Console.WriteLine("Unknown attribute " + attr.Name + "='" + attr.Value + "'");
         }
     }
 
@@ -248,7 +430,7 @@ namespace OTMonsterConverter
         public Look look;
         public TargetChange targetchange;
         public Attacks attacks;
-        //public Defenses defenses;
+        public Defenses defenses;
         public Immunities immunities;
         public Voices voices;
         public Loot loot;
@@ -398,9 +580,9 @@ namespace OTMonsterConverter
     public class Defenses
     {
         [XmlAttribute]
-        public int defense;
+        public uint defense;
         [XmlAttribute]
-        public int armor;
+        public uint armor;
 
         //public defense[] defense
     }
