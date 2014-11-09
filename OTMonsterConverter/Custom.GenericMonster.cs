@@ -71,6 +71,37 @@ namespace OTMonsterConverter
         // Constructors
         public CustomMonster()
         {
+            SummonCost     = 0;
+            Hostile        = true;
+            Illusionable   = false;
+            ConvinceCost   = 0;
+            Pushable       = false;
+            PushItems      = false;
+            PushCreatures  = false;
+            TargetDistance = 1;
+            RunOnHealth    = 0;
+
+            avoidFire   = false;
+            avoidEnergy = false;
+            avoidPoison = false;
+
+            IgnoreParalyze  = false;
+            IgnoreInvisible = false;
+            LifeDrain = 0;
+            IgnoreDrunk     = false;
+            ManaDrain = 0;
+            IgnoreOutfit    = false;
+
+            TotalArmor = 10;
+            Shielding  = 5;
+            Fire     = 1;
+            Earth    = 1;
+            Energy   = 1;
+            Ice      = 1;
+            Holy     = 1;
+            Death    = 1;
+            Physical = 1;
+            Drown    = 1;
         }
 
         // Events
@@ -85,6 +116,7 @@ namespace OTMonsterConverter
         public List<string> Voices { get; set; }
         //public uint maxSummons;
         public Blood Race { get; set; }
+        uint manaCost { get; set; }
         //public List<Summon> summons;
 
             // Look
@@ -94,33 +126,40 @@ namespace OTMonsterConverter
         public IDetailedLookType LookTypeDetails { get; set; }
 
             // Behavior
-        public uint Summonable { get; set; }
+        public uint SummonCost { get; set; }
         public bool Hostile { get; set; }
         public bool Illusionable { get; set; }
-        public uint Convinceable { get; set; }
+        public uint ConvinceCost { get; set; }
         public bool Pushable { get; set; }
         public bool PushItems { get; set; }
         public bool PushCreatures { get; set; }
-        public bool TargetDistance { get; set; }
+        public uint TargetDistance { get; set; }
         public uint RunOnHealth { get; set; }
 
+            // Walk Behavior
+        public bool avoidFire { get; set; }
+        public bool avoidEnergy { get; set; }
+        public bool avoidPoison { get; set; }
+
             // Defeneses
-        public uint Armor { get; set; }
-        public uint Fire { get; set; }
-        public uint Earth { get; set; }
-        public uint Energy { get; set; }
-        public uint Ice { get; set; }
-        public uint Holy { get; set; }
-        public uint Death { get; set; }
-        public uint Physical { get; set; }
-        public uint Drown { get; set; }
+        public uint TotalArmor { get; set; }
+        public uint Shielding { get; set; }
+        public double Fire { get; set; }
+        public double Earth { get; set; }
+        public double Energy { get; set; }
+        public double Ice { get; set; }
+        public double Holy { get; set; }
+        public double Death { get; set; }
+        public double Physical { get; set; }
+        public double Drown { get; set; }
+        public double LifeDrain { get; set; }
+        public double ManaDrain { get; set; }
 
             // Immunities
-        public bool Paralyze { get; set; }
-        public bool Invisible { get; set; }
-        public bool LifeDrain { get; set; }
-        public bool Drunk { get; set; }
-        public bool ManaDrain { get; set; }
+        public bool IgnoreParalyze { get; set; }
+        public bool IgnoreInvisible { get; set; }
+        public bool IgnoreDrunk { get; set; }
+        public bool IgnoreOutfit { get; set; }
 
         // Functions
     }
