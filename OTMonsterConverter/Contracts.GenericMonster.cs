@@ -25,33 +25,40 @@ namespace OTMonsterConverter
         IDetailedLookType LookTypeDetails { get; set; }
 
             // Behavior
-        uint Summonable { get; set; }
+        uint SummonCost { get; set; }
         bool Hostile { get; set; }
         bool Illusionable { get; set; }
-        uint Convinceable { get; set; }
+        uint ConvinceCost { get; set; }
         bool Pushable { get; set; }
         bool PushItems { get; set; }
         bool PushCreatures { get; set; }
-        bool TargetDistance { get; set; }
+        uint TargetDistance { get; set; }
         uint RunOnHealth { get; set; }
 
-            // Defeneses
-        uint Armor { get; set; }
-        uint Fire { get; set; }
-        uint Earth { get; set; }
-        uint Energy { get; set; }
-        uint Ice { get; set; }
-        uint Holy { get; set; }
-        uint Death { get; set; }
-        uint Physical { get; set; }
-        uint Drown { get; set; }
+            // Walk Behavior
+        bool avoidFire { get; set; }
+        bool avoidEnergy { get; set; }
+        bool avoidPoison { get; set; }
 
-            // Immunities
-        bool Paralyze { get; set; }
-        bool Invisible { get; set; }
-        bool LifeDrain { get; set; }
-        bool Drunk { get; set; }
-        bool ManaDrain { get; set; }
+            // Immunities Behavior
+        bool IgnoreParalyze { get; set; }
+        bool IgnoreInvisible { get; set; }
+        bool IgnoreDrunk { get; set; }
+        bool IgnoreOutfit { get; set; }
+
+            // Defeneses
+        uint TotalArmor { get; set; } // equal to what would be a players total armor
+        uint Shielding { get; set; }  // equal to what would be the shield of a player
+        double Fire { get; set; }
+        double Earth { get; set; }
+        double Energy { get; set; }
+        double Ice { get; set; }
+        double Holy { get; set; }
+        double Death { get; set; }
+        double Physical { get; set; }
+        double Drown { get; set; }
+        double LifeDrain { get; set; }
+        double ManaDrain { get; set; }
     }
 
     public interface IDetailedLookType
