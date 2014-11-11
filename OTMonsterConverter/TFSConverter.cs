@@ -60,7 +60,8 @@ namespace OTMonsterConverter
                             Speed          = (uint)tfsMonster.speed,
                             CorpseId       = (uint)tfsMonster.look.corpse,
                             Race           = tfsToGenericBlood(tfsMonster.race),
-                            retargetChance = (uint)tfsMonster.targetchange.chance
+                            RetargetChance = (uint)tfsMonster.targetchange.chance,
+                            MaxSummons     = (uint)tfsMonster.summons.maxSummons
                         };
 
             if (tfsMonster.look.type != 0)
@@ -77,14 +78,28 @@ namespace OTMonsterConverter
                                                 Feet = (ushort)tfsMonster.look.feet
                                             };
             }
+
+            // sounds
             if (tfsMonster.voices != null)
             {
-                List<string> voices = new List<string>();
                 foreach (Voice sound in tfsMonster.voices.voice)
                 {
-                    voices.Add(sound.sentence);
+                    monster.Voices.Add(sound.sentence);
                 }
-                monster.Voices = voices;
+            }
+
+            // summons
+            if (tfsMonster.summons.summon != null)
+            {
+                foreach (TFSXmlSummon summon in tfsMonster.summons.summon)
+                {
+                    monster.Summons.Add(new CustomSummon()
+                                            {
+                                                Name = summon.name,
+                                                Chance = (double)summon.chance / 100,
+                                                Rate = (uint)((summon.interval > 0) ? summon.interval : summon.speed)
+                                            });
+                }
             }
 
             // Defenses
@@ -436,7 +451,7 @@ namespace OTMonsterConverter
         public Voices voices;
         public Loot loot;
         public Elements elements;
-        public Summons summons;
+        public TFSXmlSummons summons;
     }
 
     [XmlRoot(ElementName = "health")]
@@ -712,15 +727,17 @@ namespace OTMonsterConverter
         public int manadrainPercent = -9999;
     }
 
-    public class Summons
+    [XmlRoot(ElementName = "summons")]
+    public class TFSXmlSummons
     {
         [XmlAttribute]
         public int maxSummons;
         [XmlElementAttribute]
-        public Summon[] summon;
+        public TFSXmlSummon[] summon;
     }
 
-    public class Summon
+    [XmlRoot(ElementName = "summon")]
+    public class TFSXmlSummon
     {
         [XmlAttribute]
         public string name;

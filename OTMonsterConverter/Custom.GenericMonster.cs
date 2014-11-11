@@ -53,8 +53,8 @@ namespace OTMonsterConverter
     public class CustomSummon : ICustomSummon
     {
         public string Name { get; set; }
-        public ushort Rate { get; set; }
-        public ushort Chance { get; set; }
+        public uint Rate { get; set; }
+        public double Chance { get; set; }
     }
 
     //public class Loot
@@ -71,6 +71,11 @@ namespace OTMonsterConverter
         // Constructors
         public CustomMonster()
         {
+            Voices = new List<string>();
+            MaxSummons = 0;
+            Summons = new List<CustomSummon>();
+
+
             SummonCost     = 0;
             Hostile        = true;
             Illusionable   = false;
@@ -115,10 +120,10 @@ namespace OTMonsterConverter
         public uint Speed { get; set; }
         public List<string> Voices { get; set; }
         public Blood Race { get; set; }
-        public uint manaCost { get; set; }
-        public uint retargetChance { get; set; }
-        //public uint maxSummons { get; set; }
-        //public List<Summon> summons;
+        public uint ManaCost { get; set; }
+        public uint RetargetChance { get; set; }
+        public uint MaxSummons { get; set; }
+        public List<CustomSummon> Summons { get; set; }
 
             // Look
         public uint CorpseId { get; set; }
