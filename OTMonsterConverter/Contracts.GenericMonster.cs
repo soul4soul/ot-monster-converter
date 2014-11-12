@@ -75,7 +75,7 @@ namespace OTMonsterConverter
     public interface ICustomSummon
     {
         string Name { get; set; }
-        ushort Rate { get; set; }
-        ushort Chance { get; set; }
+        uint Rate { get; set; }
+        double Chance { get; set; }
     }
 }
