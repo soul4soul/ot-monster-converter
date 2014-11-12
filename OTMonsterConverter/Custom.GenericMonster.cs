@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace OTMonsterConverter
 {
-    //todo should I add proper display names?
     public enum Blood
     {
         blood,
@@ -26,6 +25,8 @@ namespace OTMonsterConverter
         private ushort _Body;
         private ushort _Legs;
         private ushort _Feet;
+        //addons
+        //mount
 
         // Properties
         public ushort Head
