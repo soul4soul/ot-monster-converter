@@ -8,15 +8,15 @@ namespace OTMonsterConverter
 {
     interface ICommonConverter
     {
-        void ReadMonster(string filename, out ICustomMonster monster);
+        bool ReadMonster(string filename, out ICustomMonster monster);
 
-        void WriteMonster(string filename, ref ICustomMonster monster);
+        bool WriteMonster(string directory, ref ICustomMonster monster);
     }
 
     public abstract class CommonConverter : ICommonConverter
     {
-        public abstract void ReadMonster(string filename, out ICustomMonster monster);
+        public abstract bool ReadMonster(string filename, out ICustomMonster monster);
 
-        public abstract void WriteMonster(string filename, ref ICustomMonster monster);
+        public abstract bool WriteMonster(string directory, ref ICustomMonster monster);
     }
 }
