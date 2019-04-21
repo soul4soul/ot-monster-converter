@@ -11,16 +11,16 @@ namespace OTMonsterConverter
 {
     //https://github.com/otland/forgottenserver/blob/master/src/monsters.cpp
 
-    class TFSConverter : CommonConverter
+    class TfsXmlConverter : CommonConverter
     {
         // Constructor
-        public TFSConverter()
+        public TfsXmlConverter()
             : base()
         {
         }
 
         // Functions
-        public override void ReadMonster(string filename, out ICustomMonster monster)
+        public override bool ReadMonster(string filename, out ICustomMonster monster)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
@@ -35,18 +35,24 @@ namespace OTMonsterConverter
 
             // convert from xml monster classes to generic class
             xmlToGeneric(tfsMonster, out monster);
+
+            return true;
         }
 
-        public override void WriteMonster(string filename, ref ICustomMonster monster)
+        public override bool WriteMonster(string directory, ref ICustomMonster monster)
         {
-            XDocument xDoc = XDocument.Load(filename);
+            string fileName = Path.Combine(directory, monster.Name.ToLower());
+
+            XDocument xDoc = XDocument.Load(fileName);
             xDoc.Root.Add(new XElement("monster",
                             new XAttribute("name", monster.Name),
                             new XAttribute("nameDescription", monster.Description),
                             new XAttribute("experience", monster.Experience),
                             new XAttribute("speed", monster.Speed)
                         ));
-            xDoc.Save(filename);
+            xDoc.Save(fileName);
+
+            return true;
         }
 
         private void xmlToGeneric(TFSXmlMonster tfsMonster, out ICustomMonster monster)
