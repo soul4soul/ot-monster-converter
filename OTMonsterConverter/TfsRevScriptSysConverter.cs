@@ -110,7 +110,10 @@ namespace OTMonsterConverter
                 "",
                 "mType:register(monster)"
             };
-            string fileName = Path.Combine(directory, titleName);
+
+            Directory.CreateDirectory(directory);
+
+            string fileName = Path.Combine(directory, titleName + ".lua");
             File.WriteAllLines(fileName, lines);
 
             return true;
