@@ -10,26 +10,17 @@ namespace OTMonsterConverter
 {
     class Program
     {
-        public enum MonsterFormats
-        {
-            PyOT,
-            TfsXml,
-            TfsRevScriptSys
-        }
-
         static void Main(string[] args)
         {
             bool show_help = false;
-            string inputDirectory;
-            int desiredFormat;
-            string outputDirectory;
+            string inputDirectory = "";
+            int desiredFormat = 0;
+            string outputDirectory = "";
             bool mirrorFolderStructure = true;
 
             var p = new OptionSet()
             {
-                "Usage: greet [OPTIONS]+ message",
-                "Greet a list of individuals with an optional message.",
-                "If no message is specified, a generic greeting is used.",
+                "Usage: OTMonsterConverter [OPTIONS]+",
                 "",
                 "Options:",
                 { "i|inputDirectory=", "The directory of monster files to parse.", v => inputDirectory = v },
@@ -46,9 +37,9 @@ namespace OTMonsterConverter
             }
             catch (OptionException e)
             {
-                Console.Write("greet: ");
+                Console.Write("OTMonsterConverter: ");
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Try `greet --help' for more information.");
+                Console.WriteLine("Try `OTMonsterConverter --help' for more information.");
                 return;
             }
 
@@ -58,32 +49,11 @@ namespace OTMonsterConverter
                 return;
             }
 
-            // Call functions from converter class
-            // Get list of files?
-            // Get format from extensions?
-            // Do for each file:
-            ///
-            // Read in file
-            //  Print error for any unknown variables
-            // Print out file
-            //   Print error for any unknown variables
-            // For each file output new file
-            //  Print out erro
-            ///
-            // Done?
-
-            Console.Write("Enter Monster File to Parse: ");
-            string inputFile = Console.ReadLine();
-
-            //string[] array2 = Directory.GetFiles(inputDirectory, "*.xml");
-            //enumerate files?
-
-            //Console.Write("Enter Output Directory: ");
-            //string outputPath = Console.ReadLine();
-
-            ICommonConverter tfsConverter = new TfsXmlConverter();
-            ICustomMonster monster;
-            tfsConverter.ReadMonster(inputFile, out monster);
+            MonsterConverter converter = new MonsterConverter(inputDirectory,
+                                                              outputDirectory,
+                                                              (MonsterFormat)desiredFormat,
+                                                              mirrorFolderStructure);
+            converter.ParseFiles();
         }
     }
 }

@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="CommonConverter.cs" />
     <Compile Include="Custom.GenericMonster.cs" />
+    <Compile Include="MonsterConverter.cs" />
     <Compile Include="PyOTConverter.cs" />
     <Compile Include="TfsRevScriptSysConverter.cs" />
     <Compile Include="TfsXmlConverter.cs" />
