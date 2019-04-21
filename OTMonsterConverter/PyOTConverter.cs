@@ -18,13 +18,14 @@ namespace OTMonsterConverter
         {
         }
 
-                // Functions
-        public override void ReadMonster(string filename, out ICustomMonster monster)
+        // Functions
+        public override bool ReadMonster(string filename, out ICustomMonster monster)
         {
             monster = new CustomMonster();
+            return false; // Not Implemented
         }
 
-        public override void WriteMonster(string filename, ref ICustomMonster monster)
+        public override bool WriteMonster(string directory, ref ICustomMonster monster)
         {
             string lowerName = monster.Name.ToLower();
 
@@ -50,7 +51,10 @@ namespace OTMonsterConverter
                 //string.Format("{0}.voices({1})", lowerName, monster.health),
                 //string.Format("{0}.loot({1})", lowerName, monster.health),
             };
-            File.WriteAllLines(@filename, lines);
+            string fileName = Path.Combine(directory, lowerName);
+            File.WriteAllLines(fileName, lines);
+
+            return true;
         }
 
         private string generictoPyOTBlood(Blood race)
