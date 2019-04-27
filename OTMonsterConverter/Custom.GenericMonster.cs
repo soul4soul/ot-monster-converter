@@ -15,6 +15,13 @@ namespace OTMonsterConverter
         energy
     }
 
+    public enum SoundLevel
+    {
+        Whisper,
+        Say,
+        Yell
+    }
+
     //todo should we add outfit ID to this class?
     public class DetailedLookType : IDetailedLookType
     {
@@ -25,8 +32,6 @@ namespace OTMonsterConverter
         private ushort _Body;
         private ushort _Legs;
         private ushort _Feet;
-        //addons
-        //mount
 
         // Properties
         public ushort Head
@@ -49,6 +54,8 @@ namespace OTMonsterConverter
             get { return _Feet; }
             set { _Feet = (value > MAX_COLOR) ? MAX_COLOR : value; }
         }
+        public ushort Addons { get; set; }
+        public ushort Mount { get; set; }
     }
 
     public class CustomSummon : ICustomSummon
@@ -56,6 +63,12 @@ namespace OTMonsterConverter
         public string Name { get; set; }
         public uint Rate { get; set; }
         public double Chance { get; set; }
+    }
+
+    public class CustomVoice : ICustomVoice
+    {
+        public string Sound { get; set; }
+        public SoundLevel SoundLevel { get; set; }
     }
 
     //public class Loot
@@ -72,9 +85,9 @@ namespace OTMonsterConverter
         // Constructors
         public CustomMonster()
         {
-            Voices = new List<string>();
+            Voices = new List<ICustomVoice>();
             MaxSummons = 0;
-            Summons = new List<CustomSummon>();
+            Summons = new List<ICustomSummon>();
 
 
             SummonCost     = 0;
@@ -87,9 +100,9 @@ namespace OTMonsterConverter
             TargetDistance = 1;
             RunOnHealth    = 0;
 
-            avoidFire   = false;
-            avoidEnergy = false;
-            avoidPoison = false;
+            AvoidFire   = false;
+            AvoidEnergy = false;
+            AvoidPoison = false;
 
             IgnoreParalyze  = false;
             IgnoreInvisible = false;
@@ -119,12 +132,13 @@ namespace OTMonsterConverter
         public uint Health { get; set; }
         public uint Experience { get; set; }
         public uint Speed { get; set; }
-        public List<string> Voices { get; set; }
+        public IList<ICustomVoice> Voices { get; set; }
         public Blood Race { get; set; }
         public uint ManaCost { get; set; }
+        public uint RetargetInterval { get; set; }
         public uint RetargetChance { get; set; }
         public uint MaxSummons { get; set; }
-        public List<CustomSummon> Summons { get; set; }
+        public IList<ICustomSummon> Summons { get; set; }
 
             // Look
         public uint CorpseId { get; set; }
@@ -144,9 +158,9 @@ namespace OTMonsterConverter
         public uint RunOnHealth { get; set; }
 
             // Walk Behavior
-        public bool avoidFire { get; set; }
-        public bool avoidEnergy { get; set; }
-        public bool avoidPoison { get; set; }
+        public bool AvoidFire { get; set; }
+        public bool AvoidEnergy { get; set; }
+        public bool AvoidPoison { get; set; }
 
             // Defeneses
         public uint TotalArmor { get; set; }
@@ -167,6 +181,7 @@ namespace OTMonsterConverter
         public bool IgnoreInvisible { get; set; }
         public bool IgnoreDrunk { get; set; }
         public bool IgnoreOutfit { get; set; }
+        public bool IgnoreBleed { get; set; }
 
         // Functions
     }

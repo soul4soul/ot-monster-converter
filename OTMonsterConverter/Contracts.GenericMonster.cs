@@ -15,11 +15,12 @@ namespace OTMonsterConverter
         uint Health { get; set; }
         uint Experience { get; set; }
         uint Speed { get; set; }
-        List<string> Voices { get; set; }
+        IList<ICustomVoice> Voices { get; set; }
         Blood Race { get; set; }
+        uint RetargetInterval { get; set; }
         uint RetargetChance { get; set; }
         uint MaxSummons { get; set; }
-        List<CustomSummon> Summons { get; set; }
+        IList<ICustomSummon> Summons { get; set; }
 
             // Look
         uint CorpseId { get; set; }
@@ -39,17 +40,19 @@ namespace OTMonsterConverter
         uint RunOnHealth { get; set; }
 
             // Walk Behavior
-        bool avoidFire { get; set; }
-        bool avoidEnergy { get; set; }
-        bool avoidPoison { get; set; }
+        bool AvoidFire { get; set; }
+        bool AvoidEnergy { get; set; }
+        bool AvoidPoison { get; set; }
 
             // Immunities Behavior
         bool IgnoreParalyze { get; set; }
         bool IgnoreInvisible { get; set; }
         bool IgnoreDrunk { get; set; }
         bool IgnoreOutfit { get; set; }
+        bool IgnoreBleed { get; set; }
 
-            // Defeneses
+
+        // Defeneses
         uint TotalArmor { get; set; } // equal to what would be a players total armor
         uint Shielding { get; set; }  // equal to what would be the shield of a player
         double Fire { get; set; }
@@ -69,7 +72,9 @@ namespace OTMonsterConverter
         ushort Head { get; set; }
         ushort Body  { get; set; }
         ushort Legs  { get; set; }
-        ushort Feet  { get; set; }
+        ushort Feet { get; set; }
+        ushort Addons { get; set; }
+        ushort Mount { get; set; }
     }
 
     public interface ICustomSummon
@@ -77,5 +82,11 @@ namespace OTMonsterConverter
         string Name { get; set; }
         uint Rate { get; set; }
         double Chance { get; set; }
+    }
+
+    public interface ICustomVoice
+    {
+        string Sound { get; set; }
+        SoundLevel SoundLevel { get; set; }
     }
 }
