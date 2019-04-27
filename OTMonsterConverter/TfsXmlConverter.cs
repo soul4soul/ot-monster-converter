@@ -69,27 +69,51 @@ namespace OTMonsterConverter
                 RetargetChance = (uint)tfsMonster.targetchange.chance,
             };
 
-            if (tfsMonster.look.type != 0)
+            if ((tfsMonster.targetchange.interval != 0) &&
+                (tfsMonster.targetchange.speed == 0))
             {
-                monster.OutfitIdLookType      = (uint)tfsMonster.look.type;
+                monster.RetargetInterval = (uint)tfsMonster.targetchange.interval;
             }
-            if (tfsMonster.look.head != -99)
+            else if ((tfsMonster.targetchange.interval == 0) &&
+                     (tfsMonster.targetchange.speed != 0))
             {
-                monster.LookTypeDetails = new DetailedLookType()
-                                            {
-                                                Head = (ushort)tfsMonster.look.head,
-                                                Body = (ushort)tfsMonster.look.body,
-                                                Legs = (ushort)tfsMonster.look.legs,
-                                                Feet = (ushort)tfsMonster.look.feet
-                                            };
+                monster.RetargetInterval = (uint)tfsMonster.targetchange.speed;
             }
+            else if ((tfsMonster.targetchange.interval != 0) &&
+                (tfsMonster.targetchange.speed != 0))
+            {
+                Console.WriteLine("Warning duplicate target speed and target interval");
+            }
+
+            monster.OutfitIdLookType = (uint)tfsMonster.look.type;
+            monster.LookTypeDetails = new DetailedLookType()
+            {
+                Head = (ushort)tfsMonster.look.head,
+                Body = (ushort)tfsMonster.look.body,
+                Legs = (ushort)tfsMonster.look.legs,
+                Feet = (ushort)tfsMonster.look.feet,
+                Addons = (ushort)tfsMonster.look.addons,
+                Mount = (ushort)tfsMonster.look.mount
+            };
+            monster.ItemIdLookType = (uint)tfsMonster.look.typeex;
 
             // sounds
             if (tfsMonster.voices != null)
             {
                 foreach (Voice sound in tfsMonster.voices.voice)
                 {
-                    monster.Voices.Add(sound.sentence);
+                    ICustomVoice voice = new CustomVoice();
+                    voice.Sound = sound.sentence;
+                    if (!(string.IsNullOrEmpty(sound.yell)) &&
+                        ((sound.yell == "1") || (sound.yell == "true")))
+                    {
+                        voice.SoundLevel = SoundLevel.Yell;
+                    }
+                    else
+                    {
+                        voice.SoundLevel = SoundLevel.Say;
+                    }
+                    monster.Voices.Add(voice);
                 }
             }
 
@@ -114,7 +138,7 @@ namespace OTMonsterConverter
 
             // Defenses
             monster.TotalArmor = tfsMonster.defenses.armor;
-            monster.TotalArmor = tfsMonster.defenses.defense;
+            monster.Shielding = tfsMonster.defenses.defense;
 
             #region parseElements
             monster.Physical = tfstoGenericElementalPercent(tfsMonster.elements.element[0].physicalPercent);
@@ -200,75 +224,75 @@ namespace OTMonsterConverter
                             monster.IgnoreInvisible = true;
                             break;
                         case namedImmunityXml.bleed:
-                            Console.WriteLine("Unknown Immunity Bleed");
+                            monster.IgnoreBleed = true;
                             break;
                     }
                 }
-                else if (immunity.physical != -9999)
+                else if (immunity.physical != 0)
                 {
                     monster.Physical = 0;
                 }
-                else if (immunity.energy != -9999)
+                else if (immunity.energy != 0)
                 {
                     monster.Energy = 0;
                 }
-                else if (immunity.fire != -9999)
+                else if (immunity.fire != 0)
                 {
                     monster.Fire = 0;
                 }
-                else if (immunity.poison != -9999) //poison and earth are the same
+                else if (immunity.poison != 0) //poison and earth are the same
                 {
                     monster.Earth = 0;
                 }
-                else if (immunity.earth != -9999) //poison and earth are the same
+                else if (immunity.earth != 0) //poison and earth are the same
                 {
                     monster.Earth = 0;
                 }
-                else if (immunity.drown != -9999)
+                else if (immunity.drown != 0)
                 {
                     monster.Drown = 0;
                 }
-                else if (immunity.ice != -9999)
+                else if (immunity.ice != 0)
                 {
                     monster.Ice = 0;
                 }
-                else if (immunity.holy != -9999)
+                else if (immunity.holy != 0)
                 {
                     monster.Holy = 0;
                 }
-                else if (immunity.death != -9999)
+                else if (immunity.death != 0)
                 {
                     monster.Death = 0;
                 }
-                else if (immunity.lifedrain != -9999)
+                else if (immunity.lifedrain != 0)
                 {
                     monster.LifeDrain = 0;
                 }
-                else if (immunity.manadrain != -9999)
+                else if (immunity.manadrain != 0)
                 {
                     monster.ManaDrain = 0;
                 }
-                else if (immunity.paralyze != -9999)
+                else if (immunity.paralyze != 0)
                 {
                     monster.IgnoreParalyze = true;
                 }
-                else if (immunity.outfit != -9999)
+                else if (immunity.outfit != 0)
                 {
                     monster.IgnoreOutfit = true;
                 }
-                else if (immunity.bleed != -9999)
+                else if (immunity.bleed != 0)
                 {
-                    Console.WriteLine("Unknown Immunity Bleed");
+                    monster.IgnoreBleed = true;
                 }
-                else if (immunity.drunk != -9999)
+                else if (immunity.drunk != 0)
                 {
                     monster.IgnoreDrunk = true;
                 }
-                else if (immunity.invisible != -9999) //invisible and invisibility are the same
+                else if (immunity.invisible != 0) //invisible and invisibility are the same
                 {
                     monster.IgnoreInvisible = true;
                 }
-                else if (immunity.invisibility != -9999) //invisible and invisibility are the same
+                else if (immunity.invisibility != 0) //invisible and invisibility are the same
                 {
                     monster.IgnoreInvisible = true;
                 }
@@ -487,11 +511,11 @@ namespace OTMonsterConverter
         [XmlAttribute]
         public int targetdistance = 1;
         [XmlAttribute]
-        public int staticattack = -99;
+        public int staticattack = 95;
         [XmlAttribute]
-        public int lightlevel = -99;
+        public int lightlevel = 0;
         [XmlAttribute]
-        public int lightcolor = -99;
+        public int lightcolor = 0;
         [XmlAttribute]
         public int runonhealth = 0;
         [XmlAttribute]
