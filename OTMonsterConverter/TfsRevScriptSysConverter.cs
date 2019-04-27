@@ -16,55 +16,123 @@ namespace OTMonsterConverter
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
             string titleName = textInfo.ToTitleCase(lowerName);
-            string[] lines =
+
+            Directory.CreateDirectory(directory);
+
+            string fileName = Path.Combine(directory, titleName + ".lua");
+
+            using (var dest = File.AppendText(fileName))
             {
-                $"local mType = MonsterType({titleName})",
-                "local monster = {}",
-                "",
+                dest.WriteLine($"local mType = MonsterType(\"{titleName}\")");
+                dest.WriteLine("local monster = {}");
+                dest.WriteLine("");
                 //"monster.eventFile = true -- will try to load the file example.lua in data/scripts/monsters/events",
                 //"monster.eventFile = "test" -- will try to load the file test.lua in data/scripts/monsters/events",
-                $"monster.description = \"{monster.Description}\"",
-                $"monster.experience = {monster.Experience}",
-                "monster.outfit = {",
-                "	lookType = 37",
-                "}",
-                "",
-                $"monster.health = {monster.Health}",
-                $"monster.maxHealth = {monster.Health}",
-                $"monster.race = \"{monster.Race}\"", // TODO check if mapping is neeeded
-                $"monster.corpse = {monster.CorpseId}",
-                $"monster.speed = {monster.Speed}",
-                $"monster.maxSummons = {monster.Speed}",
-                "",
-                //"monster.changeTarget = {",
-                //"	interval = 4*1000,",
-                //"	chance = 20",
-                //"}",
-                "",
-                "monster.flags = {",
-                //"	summonable = {monster.SummonCost > 0 ? "true" : "false"},",
-                $"	attackable = true,",
-                $"	hostile = true,",
-                $"	convinceable = false,",
-                $"	illusionable = {monster.Illusionable},",
-                $"	canPushItems = {monster.PushItems},",
-                $"	canPushCreatures = {monster.PushCreatures},",
-                $"	targetDistance = {monster.TargetDistance},",
-                $"	staticAttackChance = 70",
-                "}",
-                "",
-                "monster.summons = {",
-                //"	{name = "demon", chance = 10, interval = 2*1000}",
-                "}",
-                "",
-                "monster.voices = {",
-                "	interval = 5000,",
-                "	chance = 10,",
-                //"	{text = "I'm an example", yell = false},",
-                //"	{text = "You shall bow", yell = false},",
-                "}",
-                "",
-                "monster.loot = {",
+                dest.WriteLine($"monster.description = \"{monster.Description}\"");
+                dest.WriteLine($"monster.experience = {monster.Experience}");
+                dest.WriteLine("monster.outfit = {");
+                if (monster.ItemIdLookType != 0)
+                {
+                    dest.WriteLine($"	lookTypeEx = {monster.ItemIdLookType}");
+                }
+                else
+                {
+                    dest.WriteLine($"	lookType, = {monster.OutfitIdLookType}");
+                    dest.WriteLine($"	lookHead, = {monster.LookTypeDetails.Head}");
+                    dest.WriteLine($"	lookBody, = {monster.LookTypeDetails.Body}");
+                    dest.WriteLine($"	lookLegs, = {monster.LookTypeDetails.Legs}");
+                    dest.WriteLine($"	lookFeet, = {monster.LookTypeDetails.Feet}");
+                    dest.WriteLine($"	lookAddons, = {monster.LookTypeDetails.Addons}");
+                    dest.WriteLine($"	lookMount = {monster.LookTypeDetails.Mount}");
+                }
+                dest.WriteLine("}");
+                dest.WriteLine("");
+                dest.WriteLine($"monster.health = {monster.Health}");
+                dest.WriteLine($"monster.maxHealth = {monster.Health}");
+                dest.WriteLine($"monster.race = \"{monster.Race}\""); // TODO check if mapping is neeeded
+                dest.WriteLine($"monster.corpse = {monster.CorpseId}");
+                dest.WriteLine($"monster.speed = {monster.Speed}");
+                dest.WriteLine($"monster.summonCost = {monster.SummonCost}");
+                dest.WriteLine($"monster.maxSummons = {monster.MaxSummons}");
+                dest.WriteLine("");
+
+                dest.WriteLine("monster.changeTarget = {");
+                dest.WriteLine($"	interval = {monster.RetargetInterval},");
+                dest.WriteLine($"	chance = {monster.RetargetChance}"); // Todo 20 = 20%, don't use 0.2 for 20%
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                // isPushable?
+                dest.WriteLine("monster.flags = {");
+                if (monster.SummonCost > 0)
+                {
+                    dest.WriteLine("	isSummonable = true,");
+                }
+                else
+                {
+                    dest.WriteLine("	isSummonable = false,");
+                }
+                dest.WriteLine($"	isAttackable = true,");
+                dest.WriteLine($"	isHostile = {monster.Hostile.ToString().ToLower()},");
+                if (monster.ConvinceCost > 0)
+                {
+                    dest.WriteLine($"	isConvinceable = true,");
+                }
+                else
+                {
+                    dest.WriteLine($"	isConvinceable = false,");
+                }
+                dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
+                dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
+                dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
+                dest.WriteLine($"	staticAttackChance = 70,");
+                dest.WriteLine($"	lightlevel = 0,");
+                dest.WriteLine($"	lightcolor = 0,");
+                dest.WriteLine($"	targetdistance = {monster.TargetDistance},");
+                dest.WriteLine($"	runonhealth = {monster.RunOnHealth},");
+                dest.WriteLine($"	isHealthHidden = false,");
+                dest.WriteLine($"	canwalkonenergy = {monster.AvoidEnergy.ToString().ToLower()},");
+                dest.WriteLine($"	canwalkonfire = {monster.AvoidFire.ToString().ToLower()},");
+                dest.WriteLine($"	canwalkonpoison = {monster.AvoidPoison.ToString().ToLower()}");
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                dest.WriteLine("monster.summons = {");
+                string summon;
+                for (int i = 0; i < monster.Summons.Count; i++)
+                {
+                    summon = $"	{{name = \"{monster.Summons[i].Name}\",chance = {monster.Summons[i].Chance}, interval = {monster.Summons[i].Rate}}},";
+                    if (i == monster.Summons.Count - 1)
+                    {
+                        summon = summon.TrimEnd(',');
+                    }
+                    dest.WriteLine(summon);
+                }
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                dest.WriteLine("monster.voices = {");
+                dest.WriteLine("	interval = 5000,");
+                dest.WriteLine("	chance = 10,");
+                string voice;
+                for (int i = 0; i < monster.Voices.Count; i++)
+                {
+                    bool yell = false;
+                    if (monster.Voices[i].SoundLevel == SoundLevel.Yell)
+                    {
+                        yell = true;
+                    }
+                    voice = $"	{{text = \"{monster.Voices[i].Sound}\", yell = {yell.ToString().ToLower()}}},";
+                    if (i == monster.Voices.Count - 1)
+                    {
+                        voice = voice.TrimEnd(',');
+                    }
+                    dest.WriteLine(voice);
+                }
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                dest.WriteLine("monster.loot = {");
                 //"	{id = "gold coin", chance = 60000, maxCount = 100},",
                 //"	{id = "bag", chance = 60000, ",
                 //"		child = {",
@@ -72,9 +140,10 @@ namespace OTMonsterConverter
                 //"			{id = "crystal coin", chance = 60000, maxCount = 100}",
                 //"		}",
                 //"	}",
-                "}",
-                "",
-                "monster.attacks = {",
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                dest.WriteLine("monster.attacks = {");
                 //"	{name = "melee", attack = 130, skill = 70, effect = CONST_ME_DRAWBLOOD, interval = 2*1000},",
                 //"	{name = "energy strike", range = 1, chance = 10, interval = 2*1000, minDamage = -210, maxDamage = -300, target = ","true},",
                 //"	{name = "combat", type = COMBAT_MANADRAIN, chance = 10, interval = 2*1000, minDamage = 0, maxDamage = -120, target ","= true, range = 7, effect = CONST_ME_MAGIC_BLUE},",
@@ -82,39 +151,42 @@ namespace OTMonsterConverter
                 //"	{name = "speed", chance = 15, interval = 2*1000, speed = -700, radius = 1, target = true, duration = 30*1000, ","effect = CONST_ME_MAGIC_RED},",
                 //"	{name = "firefield", chance = 10, interval = 2*1000, range = 7, radius = 1, target = true, shootEffect = ","CONST_ANI_FIRE},",
                 //"	{name = "combat", type = COMBAT_LIFEDRAIN, chance = 10, interval = 2*1000, length = 8, spread = 0, minDamage = -300,"," maxDamage = -490, effect = CONST_ME_PURPLEENERGY}",
-                "}",
-                "",
-                "monster.defenses = {",
-                //"	defense = 55,",
-                $"	armor = {monster.TotalArmor},",
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                dest.WriteLine("monster.defenses = {");
+                dest.WriteLine($"	defense = {monster.Shielding},");
+                dest.WriteLine($"	armor = {monster.TotalArmor}");
                 //"	{name = "combat", type = COMBAT_HEALING, chance = 15, interval = 2*1000, minDamage = 180, maxDamage = 250, effect = ","CONST_ME_MAGIC_BLUE},",
                 //"	{name = "speed", chance = 15, interval = 2*1000, speed = 320, effect = CONST_ME_MAGIC_RED}",
-                "}",
-                "",
-                "monster.elements = {",
-                //"	{type = COMBAT_PHYSICALDAMAGE, percent = 30},",
-                //"	{type = COMBAT_DEATHDAMAGE, percent = 30},",
-                //"	{type = COMBAT_ENERGYDAMAGE, percent = 50},",
-                //"	{type = COMBAT_EARTHDAMAGE, percent = 40},",
-                //"	{type = COMBAT_ICEDAMAGE, percent = -10},",
-                //"	{type = COMBAT_HOLYDAMAGE, percent = -10}",
-                "}",
-                "",
-                "monster.immunities = {",
-                //"	{type = "fire", combat = true, condition = true},",
-                //"	{type = "drown", condition = true},",
-                //"	{type = "lifedrain", combat = true},",
-                //"	{type = "paralyze", condition = true},",
-                //"	{type = "invisible", condition = true}",
-                "}",
-                "",
-                "mType:register(monster)"
-            };
+                dest.WriteLine("}");
+                dest.WriteLine("");
 
-            Directory.CreateDirectory(directory);
+                dest.WriteLine("monster.elements = {");
+                dest.WriteLine($"	{{type = COMBAT_PHYSICALDAMAGE, percent = {GenericToTfsElemementPercent(monster.Physical)}}},");
+                dest.WriteLine($"	{{type = COMBAT_ENERGYDAMAGE, percent = {GenericToTfsElemementPercent(monster.Energy)}}},");
+                dest.WriteLine($"	{{type = COMBAT_EARTHDAMAGE, percent = {GenericToTfsElemementPercent(monster.Earth)}}},");
+                dest.WriteLine($"	{{type = COMBAT_FIREDAMAGE, percent = {GenericToTfsElemementPercent(monster.Fire)}}},");
+                dest.WriteLine($"	{{type = COMBAT_LIFEDRAIN, percent = {GenericToTfsElemementPercent(monster.LifeDrain)}}},");
+                dest.WriteLine($"	{{type = COMBAT_MANADRAIN, percent = {GenericToTfsElemementPercent(monster.ManaDrain)}}},");
+                //dest.WriteLine($"	{{type = COMBAT_HEALING, percent = {GenericToTfsElemementPercent(monster.XXXX)}}},");
+                dest.WriteLine($"	{{type = COMBAT_DROWNDAMAGE, percent = {GenericToTfsElemementPercent(monster.Drown)}}},");
+                dest.WriteLine($"	{{type = COMBAT_ICEDAMAGE, percent = {GenericToTfsElemementPercent(monster.Ice)}}},");
+                dest.WriteLine($"	{{type = COMBAT_HOLYDAMAGE , percent = {GenericToTfsElemementPercent(monster.Holy)}}},");
+                dest.WriteLine($"	{{type = COMBAT_DEATHDAMAGE , percent = {GenericToTfsElemementPercent(monster.Death)}}}");
+                dest.WriteLine("}");
+                dest.WriteLine("");
 
-            string fileName = Path.Combine(directory, titleName + ".lua");
-            File.WriteAllLines(fileName, lines);
+                dest.WriteLine("monster.immunities = {");
+                dest.WriteLine($"	{{type = \"paralyze\", condition = {monster.IgnoreParalyze.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"outfit\", condition = {monster.IgnoreOutfit.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"invisible\", condition = {monster.IgnoreInvisible.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"bleed\", condition = {monster.IgnoreBleed.ToString().ToLower()}}}");
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                dest.WriteLine("mType:register(monster)");
+            }
 
             return true;
         }
@@ -122,6 +194,11 @@ namespace OTMonsterConverter
         public override bool ReadMonster(string filename, out ICustomMonster monster)
         {
             throw new NotImplementedException();
+        }
+
+        double GenericToTfsElemementPercent(double percent)
+        {
+            return (percent - 1) * 100;
         }
     }
 }
