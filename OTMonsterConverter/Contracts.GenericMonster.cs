@@ -9,7 +9,7 @@ namespace OTMonsterConverter
     public interface ICustomMonster
     {
         // Properties
-            // Generic
+        // Generic
         string Name { get; set; }
         string Description { get; set; }
         uint Health { get; set; }
@@ -22,13 +22,13 @@ namespace OTMonsterConverter
         uint MaxSummons { get; set; }
         IList<ICustomSummon> Summons { get; set; }
 
-            // Look
+        // Look
         uint CorpseId { get; set; }
         uint OutfitIdLookType { get; set; }
         uint ItemIdLookType { get; set; }
         IDetailedLookType LookTypeDetails { get; set; }
 
-            // Behavior
+        // Behavior
         uint SummonCost { get; set; }
         bool Hostile { get; set; }
         bool Illusionable { get; set; }
@@ -39,12 +39,12 @@ namespace OTMonsterConverter
         uint TargetDistance { get; set; }
         uint RunOnHealth { get; set; }
 
-            // Walk Behavior
+        // Walk Behavior
         bool AvoidFire { get; set; }
         bool AvoidEnergy { get; set; }
         bool AvoidPoison { get; set; }
 
-            // Immunities Behavior
+        // Immunities Behavior
         bool IgnoreParalyze { get; set; }
         bool IgnoreInvisible { get; set; }
         bool IgnoreDrunk { get; set; }
@@ -65,6 +65,9 @@ namespace OTMonsterConverter
         double Drown { get; set; }
         double LifeDrain { get; set; }
         double ManaDrain { get; set; }
+
+        // Loot
+        IList<ILoot> Items { get; set; }
     }
 
     public interface IDetailedLookType
@@ -88,5 +91,26 @@ namespace OTMonsterConverter
     {
         string Sound { get; set; }
         SoundLevel SoundLevel { get; set; }
+    }
+
+    public interface ILoot
+    {
+        string Item { get; set; }
+        decimal Chance { get; set; }
+        decimal Count { get; set; }
+    }
+
+    public interface ISpells
+    {
+        string Name { get; set; }
+        uint MinDamage { get; set; }
+        uint MaxDamage { get; set; }
+        //Target style, area or target
+        // DamageElement
+        // AreaEffert
+        // ShootEffect
+        uint Chance { get; set; }
+        uint Internal { get; set; }
+        uint Range { get; set; }
     }
 }
