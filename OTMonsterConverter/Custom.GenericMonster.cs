@@ -71,12 +71,12 @@ namespace OTMonsterConverter
         public SoundLevel SoundLevel { get; set; }
     }
 
-    //public class Loot
-    //{
-    //    //todo: name count be ID or string
-    //    public uint max;
-    //    public uint chance;
-    //}
+    public class Loot : ILoot
+    {
+        public string Item { get; set; }
+        public decimal Chance { get; set; }
+        public decimal Count { get; set; }
+    }
 
     public class CustomMonster : ICustomMonster
     {
@@ -88,7 +88,8 @@ namespace OTMonsterConverter
             Voices = new List<ICustomVoice>();
             MaxSummons = 0;
             Summons = new List<ICustomSummon>();
-
+            Items = new List<ILoot>();
+            LookTypeDetails = new DetailedLookType();
 
             SummonCost     = 0;
             Hostile        = true;
@@ -183,6 +184,7 @@ namespace OTMonsterConverter
         public bool IgnoreOutfit { get; set; }
         public bool IgnoreBleed { get; set; }
 
-        // Functions
+            // Loot
+        public IList<ILoot> Items { get; set; }
     }
 }
