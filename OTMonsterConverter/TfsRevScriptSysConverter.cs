@@ -10,6 +10,8 @@ namespace OTMonsterConverter
 {
     class TfsRevScriptSysConverter : CommonConverter
     {
+        const uint MAX_LOOTCHANCE = 100000;
+
         public override bool WriteMonster(string directory, ref ICustomMonster monster)
         {
             string lowerName = monster.Name.ToLower();
@@ -37,12 +39,12 @@ namespace OTMonsterConverter
                 }
                 else
                 {
-                    dest.WriteLine($"	lookType, = {monster.OutfitIdLookType}");
-                    dest.WriteLine($"	lookHead, = {monster.LookTypeDetails.Head}");
-                    dest.WriteLine($"	lookBody, = {monster.LookTypeDetails.Body}");
-                    dest.WriteLine($"	lookLegs, = {monster.LookTypeDetails.Legs}");
-                    dest.WriteLine($"	lookFeet, = {monster.LookTypeDetails.Feet}");
-                    dest.WriteLine($"	lookAddons, = {monster.LookTypeDetails.Addons}");
+                    dest.WriteLine($"	lookType = {monster.OutfitIdLookType},");
+                    dest.WriteLine($"	lookHead = {monster.LookTypeDetails.Head},");
+                    dest.WriteLine($"	lookBody = {monster.LookTypeDetails.Body},");
+                    dest.WriteLine($"	lookLegs = {monster.LookTypeDetails.Legs},");
+                    dest.WriteLine($"	lookFeet = {monster.LookTypeDetails.Feet},");
+                    dest.WriteLine($"	lookAddons = {monster.LookTypeDetails.Addons},");
                     dest.WriteLine($"	lookMount = {monster.LookTypeDetails.Mount}");
                 }
                 dest.WriteLine("}");
@@ -62,7 +64,6 @@ namespace OTMonsterConverter
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
-                // isPushable?
                 dest.WriteLine("monster.flags = {");
                 if (monster.SummonCost > 0)
                 {
@@ -82,6 +83,7 @@ namespace OTMonsterConverter
                 {
                     dest.WriteLine($"	isConvinceable = false,");
                 }
+                dest.WriteLine($"	isPushable = {monster.Pushable.ToString().ToLower()}");
                 dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
@@ -89,7 +91,7 @@ namespace OTMonsterConverter
                 dest.WriteLine($"	lightlevel = 0,");
                 dest.WriteLine($"	lightcolor = 0,");
                 dest.WriteLine($"	targetdistance = {monster.TargetDistance},");
-                dest.WriteLine($"	runonhealth = {monster.RunOnHealth},");
+                dest.WriteLine($"	runHealth = {monster.RunOnHealth},");
                 dest.WriteLine($"	isHealthHidden = false,");
                 dest.WriteLine($"	canwalkonenergy = {monster.AvoidEnergy.ToString().ToLower()},");
                 dest.WriteLine($"	canwalkonfire = {monster.AvoidFire.ToString().ToLower()},");
@@ -133,13 +135,24 @@ namespace OTMonsterConverter
                 dest.WriteLine("");
 
                 dest.WriteLine("monster.loot = {");
-                //"	{id = "gold coin", chance = 60000, maxCount = 100},",
-                //"	{id = "bag", chance = 60000, ",
-                //"		child = {",
-                //"			{id = "platin coin", chance = 60000, maxCount = 100},",
-                //"			{id = "crystal coin", chance = 60000, maxCount = 100}",
-                //"		}",
-                //"	}",
+                string loot;
+                for (int i = 0; i < monster.Items.Count; i++)
+                {
+                    decimal chance = monster.Items[i].Chance * MAX_LOOTCHANCE;
+                    if (monster.Items[i].Count > 1)
+                    {
+                        loot = $"	{{id = \"{monster.Items[i].Item}\", chance = {chance:0}, maxCount = {monster.Items[i].Count}}},";
+                    }
+                    else
+                    {
+                        loot = $"	{{id = \"{monster.Items[i].Item}\", chance = {chance:0}}},";
+                    }
+                    if (i == monster.Items.Count - 1)
+                    {
+                        loot = loot.TrimEnd(',');
+                    }
+                    dest.WriteLine(loot);
+                }
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
