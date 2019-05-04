@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -14,6 +15,7 @@ namespace OTMonsterConverter
     class TfsXmlConverter : CommonConverter
     {
         const uint MAX_LOOTCHANCE = 100000;
+        const uint ATTACK_INTERVAL_DEFAULT = 2000;
 
         // Constructor
         public TfsXmlConverter()
@@ -106,6 +108,99 @@ namespace OTMonsterConverter
                 monster.ItemIdLookType = (uint)tfsMonster.look.typeex;
             }
 
+            // flags
+            if ((tfsMonster.flags != null) &&
+                (tfsMonster.flags.flag != null))
+            {
+                foreach (var x in tfsMonster.flags.flag)
+                {
+                    int value;
+                    if (int.TryParse(x.attr[0].Value, out value))
+                    {
+                        if (x.attr[0].Name == "summonable")
+                        {
+                            monster.SummonCost = (uint)tfsMonster.manacost;
+                        }
+                        else if (x.attr[0].Name == "attackable")
+                        {
+                            monster.Attackable = value == 1;
+                        }
+                        else if (x.attr[0].Name == "hostile")
+                        {
+                            monster.Hostile = value == 1;
+                        }
+                        else if (x.attr[0].Name == "illusionable")
+                        {
+                            monster.Illusionable = value == 1;
+                        }
+                        else if (x.attr[0].Name == "convinceable")
+                        {
+                            monster.ConvinceCost = (uint)tfsMonster.manacost;
+                        }
+                        else if (x.attr[0].Name == "pushable")
+                        {
+                            monster.Pushable = value == 1;
+                        }
+                        else if (x.attr[0].Name == "canpushitems")
+                        {
+                            monster.PushItems = value == 1;
+                        }
+                        else if (x.attr[0].Name == "canpushcreatures")
+                        {
+                            monster.PushCreatures = value == 1;
+                        }
+                        else if (x.attr[0].Name == "targetdistance")
+                        {
+                            monster.TargetDistance = (uint)value;
+                        }
+                        else if (x.attr[0].Name == "staticattack")
+                        {
+                            Console.WriteLine("Can't parse static attack yet");
+                            // TODO
+                            //monster.StaticAttack = (uint)value;
+                        }
+                        else if (x.attr[0].Name == "lightlevel")
+                        {
+                            Console.WriteLine("Can't parse light yet");
+                            // TODO
+                            //monster.LightLevel = (uint)value;
+                        }
+                        else if (x.attr[0].Name == "lightcolor")
+                        {
+                            Console.WriteLine("Can't parse light yet");
+                            // TODO
+                            //monster.TargetDistance = (uint)value;
+                        }
+                        else if (x.attr[0].Name == "runonhealth")
+                        {
+                            monster.RunOnHealth = (uint)value;
+                        }
+                        else if (x.attr[0].Name == "hidehealth")
+                        {
+                            Console.WriteLine("Can't parse hide health yet");
+                            // TODO
+                            //monster.HideHealth = (uint)value;
+                        }
+                        else if (x.attr[0].Name == "canwalkonenergy")
+                        {
+                            monster.AvoidEnergy = value == 1;
+                        }
+                        else if (x.attr[0].Name == "canwalkonfire")
+                        {
+                            monster.AvoidFire = value == 1;
+                        }
+                        else if (x.attr[0].Name == "canwalkonpoison")
+                        {
+                            monster.AvoidPoison = value == 1;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Unknown name {x.attr[0].Name}");
+                        }
+                    }
+                }
+            }
+
             // sounds
             if ((tfsMonster.voices != null) &&
                 (tfsMonster.voices.voice != null))
@@ -146,6 +241,66 @@ namespace OTMonsterConverter
                 monster.MaxSummons = 0;
             }
 
+            if ((tfsMonster.attacks != null) &&
+                (tfsMonster.attacks.attack != null))
+            {
+                foreach (var attack in tfsMonster.attacks.attack)
+                {
+                    ISpells spell = new Spells();
+                    spell.Name = attack.name;
+                    if (attack.interval != 0)
+                    {
+                        spell.Interval = (uint)attack.interval;
+                    }
+                    else if (attack.speed != 0)
+                    {
+                        spell.Interval = (uint)attack.speed;
+                    }
+                    else
+                    {
+                        spell.Interval = ATTACK_INTERVAL_DEFAULT;
+                    }
+
+                    spell.Chance = (uint)attack.chance;
+
+                    if (attack.name == "melee")
+                    {
+                        // Has chance?
+                        spell.MinDamage = (uint)attack.min;
+                        spell.MaxDamage = (uint)attack.max;
+                    }
+                    else if (attack.name == "speed")
+                    {
+
+                    }
+                    else
+                    {
+                        if (attack.attribute != null)
+                        {
+                            foreach (var attr in attack.attribute)
+                            {
+                                if (attr.key == "shootEffect")
+                                {
+
+                                }
+                                else if (attr.key == "areaEffect")
+                                {
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Warning unkown attack attribute");
+                                }
+                            }
+                        }
+
+                        if ((attack.length != 0) && (attack.spread == 0))
+                        {
+                        }
+                    }
+                }
+            }
+
             // Defenses
             if (tfsMonster.defenses != null)
             {
@@ -155,40 +310,59 @@ namespace OTMonsterConverter
 
             #region parseElements
             if ((tfsMonster.elements != null) &&
-                (tfsMonster.elements.element != null) &&
-                (tfsMonster.elements.element.Length >= 1))
+                (tfsMonster.elements.element != null))
             {
-                monster.Physical = tfstoGenericElementalPercent(tfsMonster.elements.element[0].physicalPercent);
-                monster.Ice = tfstoGenericElementalPercent(tfsMonster.elements.element[0].icePercent);
-                if ((tfsMonster.elements.element[0].poisonPercent != 0) &&
-                        (tfsMonster.elements.element[0].earthPercent != 0))
+                foreach (var x in tfsMonster.elements.element)
                 {
-                    Console.WriteLine("Warning duplicate poisonPercent and earthPercent defined");
+                    int value;
+                    if (int.TryParse(x.attr[0].Value, out value))
+                    {
+                        if (x.attr[0].Name == "physicalPercent")
+                        {
+                            monster.Physical = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "icePercent")
+                        {
+                            monster.Ice = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "poisonPercent")
+                        {
+                            monster.Earth = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "earthPercent")
+                        {
+                            monster.Earth = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "firePercent")
+                        {
+                            monster.Fire = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "energyPercent")
+                        {
+                            monster.Energy = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "holyPercent")
+                        {
+                            monster.Holy = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "deathPercent")
+                        {
+                            monster.Death = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "drownPercent")
+                        {
+                            monster.Drown = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "lifedrainPercent")
+                        {
+                            monster.LifeDrain = tfstoGenericElementalPercent(value);
+                        }
+                        else if (x.attr[0].Name == "manadrainPercent")
+                        {
+                            monster.ManaDrain = tfstoGenericElementalPercent(value);
+                        }
+                    }
                 }
-                else if ((tfsMonster.elements.element[0].poisonPercent != 0) &&
-                        (tfsMonster.elements.element[0].earthPercent == 0))
-                {
-                    monster.Earth = tfstoGenericElementalPercent(tfsMonster.elements.element[0].poisonPercent);
-
-                }
-                else if ((tfsMonster.elements.element[0].poisonPercent == 0) &&
-                         (tfsMonster.elements.element[0].earthPercent != 0))
-                {
-                    monster.Earth = tfstoGenericElementalPercent(tfsMonster.elements.element[0].earthPercent);
-
-                }
-                else
-                {
-                    monster.Earth = 1;
-                }
-                monster.Earth = tfstoGenericElementalPercent(tfsMonster.elements.element[0].earthPercent);
-                monster.Fire = tfstoGenericElementalPercent(tfsMonster.elements.element[0].firePercent);
-                monster.Energy = tfstoGenericElementalPercent(tfsMonster.elements.element[0].energyPercent);
-                monster.Holy = tfstoGenericElementalPercent(tfsMonster.elements.element[0].holyPercent);
-                monster.Death = tfstoGenericElementalPercent(tfsMonster.elements.element[0].deathPercent);
-                monster.Drown = tfstoGenericElementalPercent(tfsMonster.elements.element[0].drownPercent);
-                monster.LifeDrain = tfstoGenericElementalPercent(tfsMonster.elements.element[0].lifedrainPercent);
-                monster.ManaDrain = tfstoGenericElementalPercent(tfsMonster.elements.element[0].manadrainPercent);
             }
             #endregion
 
@@ -462,8 +636,8 @@ namespace OTMonsterConverter
 
         private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
-            System.Xml.XmlAttribute attr = e.Attr;
-            Console.WriteLine("Unknown attribute " + attr.Name + "='" + attr.Value + "'");
+            //System.Xml.XmlAttribute attr = e.Attr;
+            //Console.WriteLine("Unknown attribute " + attr.Name + "='" + attr.Value + "'");
         }
     }
 
@@ -547,45 +721,13 @@ namespace OTMonsterConverter
     public class Flags
     {
         [XmlElementAttribute]
-        public Flag[] flag;
+        public MultiAttr[] flag;
     }
 
-    public class Flag
+    public class MultiAttr
     {
-        [XmlAttribute]
-        public int summonable = 0;
-        [XmlAttribute]
-        public int attackable = 1;
-        [XmlAttribute]
-        public int hostile = 1;
-        [XmlAttribute]
-        public int illusionable = 0;
-        [XmlAttribute]
-        public int convinceable = 0;
-        [XmlAttribute]
-        public int pushable = 1;
-        [XmlAttribute]
-        public int canpushitems = 0;
-        [XmlAttribute]
-        public int canpushcreatures = 0;
-        [XmlAttribute]
-        public int targetdistance = 1;
-        [XmlAttribute]
-        public int staticattack = 95;
-        [XmlAttribute]
-        public int lightlevel = 0;
-        [XmlAttribute]
-        public int lightcolor = 0;
-        [XmlAttribute]
-        public int runonhealth = 0;
-        [XmlAttribute]
-        public int hidehealth = 0;
-        [XmlAttribute]
-        public int canwalkonenergy = 1;
-        [XmlAttribute]
-        public int canwalkonfire = 1;
-        [XmlAttribute]
-        public int canwalkonpoison = 1;
+        [XmlAnyAttribute]
+        public XmlAttribute[] attr;
     }
 
     public class TargetChange
@@ -620,6 +762,13 @@ namespace OTMonsterConverter
         public int corpse = 0;
     }
 
+    [Serializable, XmlRoot("attribute")]
+    public class TfsXmlSpellAttributes
+    {
+        public string key { get; set; }
+        public string value { get; set; }
+    }
+
     public class Attacks
     {
         [XmlElementAttribute]
@@ -629,16 +778,16 @@ namespace OTMonsterConverter
     public class Attack
     {
         // only script or name not both
-        [XmlAttribute]
-        public string script;
+        //[XmlAttribute]
+        //public string script;
         [XmlAttribute]
         public string name;
 
         // Only one should exist, they represent the same information
         [XmlAttribute]
-        public int interval = 2000; //defaults to 2000 if missing
+        public int interval = 0; //defaults to 2000 if missing, default is handled in parsing
         [XmlAttribute]
-        public int speed = 2000; //defaults to 2000 if missing
+        public int speed = 0; //defaults to 2000 if missing, default is handled in parsing
 
         [XmlAttribute]
         public int chance = 100; //defaults to 100 if missing
@@ -651,35 +800,39 @@ namespace OTMonsterConverter
         [XmlAttribute]
         public int length = 0; //if length exists spread defaults to 3
         [XmlAttribute]
+        public int spread = 0; //if length exists spread defaults to 3
+        [XmlAttribute]
         public int radius = 0;
+
+        public TfsXmlSpellAttributes[] attribute { get; set; }
 
         // the following only exist when attack name is melee
         // when melee exists minMax and Max are set to 0
         // interval is set to 200
-        [XmlAttribute]
-        public int skill;
-        [XmlAttribute]
-        public int attack;
-        [XmlAttribute]
-        public int fire;
-        [XmlAttribute]
-        public int poison;
-        [XmlAttribute]
-        public int energy;
-        [XmlAttribute]
-        public int drown;
-        [XmlAttribute]
-        public int freeze;
-        [XmlAttribute]
-        public int dazzle;
-        [XmlAttribute]
-        public int curse;
-        [XmlAttribute]
-        public int bleed; //bleed and physical are the same
-        [XmlAttribute]
-        public int physical; //bleed and physical are the same
-        [XmlAttribute]
-        public int tick; //only used if a condition is set
+        ////[XmlAttribute]
+        ////public int skill;
+        ////[XmlAttribute]
+        ////public int attack;
+        //[XmlAttribute]
+        //public int fire;
+        //[XmlAttribute]
+        //public int poison;
+        //[XmlAttribute]
+        //public int energy;
+        //[XmlAttribute]
+        //public int drown;
+        //[XmlAttribute]
+        //public int freeze;
+        //[XmlAttribute]
+        //public int dazzle;
+        //[XmlAttribute]
+        //public int curse;
+        //[XmlAttribute]
+        //public int bleed; //bleed and physical are the same
+        //[XmlAttribute]
+        //public int physical; //bleed and physical are the same
+        //[XmlAttribute]
+        //public int tick; //only used if a condition is set
     }
 
     public class Defenses
@@ -727,7 +880,7 @@ namespace OTMonsterConverter
         [XmlAttribute]
         public int paralyze = 0;
         [XmlAttribute]
-        public int outfit = 0;
+        public int outfit = 0; // TODO should be true by default?
         [XmlAttribute]
         public int bleed = 0; // immue to only bleed condition
         [XmlAttribute]
@@ -795,34 +948,7 @@ namespace OTMonsterConverter
     public class Elements
     {
         [XmlElementAttribute]
-        public Element[] element;
-    }
-
-    // Default is 0 which means 100% damage, negative number is 100% minus negative,
-    public class Element
-    {
-        [XmlAttribute]
-        public int physicalPercent = 0;
-        [XmlAttribute]
-        public int icePercent = 0;
-        [XmlAttribute]
-        public int poisonPercent = 0; //poisonPercent and earthPercent are the same
-        [XmlAttribute]
-        public int earthPercent = 0; //poisonPercent and earthPercent are the same
-        [XmlAttribute]
-        public int firePercent = 0;
-        [XmlAttribute]
-        public int energyPercent = 0;
-        [XmlAttribute]
-        public int holyPercent = 0;
-        [XmlAttribute]
-        public int deathPercent = 0;
-        [XmlAttribute]
-        public int drownPercent = 0;
-        [XmlAttribute]
-        public int lifedrainPercent = 0;
-        [XmlAttribute]
-        public int manadrainPercent = 0;
+        public MultiAttr[] element;
     }
 
     [XmlRoot(ElementName = "summons")]

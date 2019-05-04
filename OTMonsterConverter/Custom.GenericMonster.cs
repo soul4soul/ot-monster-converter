@@ -6,6 +6,176 @@ using System.Threading.Tasks;
 
 namespace OTMonsterConverter
 {
+    public enum CombatDamage
+    {
+        Physical,
+        Energy,
+        Earth,
+        Fire,
+        LifeDrain,
+        ManaDrain,
+        Healing,
+        Drown,
+        Ice,
+        Holy,
+        Death
+    }
+
+    public enum TargetType
+    {
+        Direction,
+        Self,
+        Area
+    }
+
+    public enum Effect
+    {
+        DrawBlood,
+        LoseEnergy,
+        Poff,
+        BlockHit,
+        ExplosionArea,
+        ExplosionHit,
+        FireArea,
+        YellowRings,
+        GreenRings,
+        HitArea,
+        Teleport,
+        EnergyHit,
+        MagicBlue,
+        MagicRed,
+        MagicGreen,
+        HitByFire,
+        HitByPoison,
+        MortArea,
+        SoundGreen,
+        SoundRed,
+        PoisonArea,
+        SoundYellow,
+        SoundPurple,
+        SoundBlue,
+        SoundWhite,
+        Bubbles,
+        Craps,
+        GiftWraps,
+        FireworkYellow,
+        FireworkRed,
+        FireworkClue,
+        Stun,
+        Sleep,
+        WaterCreature,
+        GroundShaker,
+        Hearts,
+        FireAttack,
+        EnergyArea,
+        SmallClouds,
+        HolyDamage,
+        BigClouds,
+        IceArea,
+        IceTornado,
+        IceAttack,
+        Stones,
+        SmallPlants,
+        Carniphila,
+        PurpleEnergy,
+        YellowEnergy,
+        HolyArea,
+        BigPlants,
+        Cake,
+        Giantice,
+        WaterSplash,
+        PlantAttack,
+        TutorialArrow,
+        TutorialSquare,
+        MirrorHorizontal,
+        MirrorVertical,
+        SkullHorizontal,
+        SkullVertical,
+        Assassin,
+        StepsHorizontal,
+        BloodySteps,
+        StepsVertical,
+        YalahariGhost,
+        Bats,
+        Smoke,
+        Insects,
+        Dragonhead,
+        OrcShaman,
+        OrcShamanFire,
+        Thunder,
+        Ferumbras,
+        ConfettiHorizontal,
+        ConfettiVertical,
+        // 77-157 are empty
+        BlackSmoke = 158,
+        // 159-166 are empty
+        RedSmoke = 167,
+        YellowSmoke = 168,
+        GreenSmoke = 169,
+        PurpleSmoke = 170,
+        EarlyThunder = 171,
+        RagiazBoneCapsule = 172,
+        CriticalDamage = 173,
+        // 174 is empty
+        PlungingFish = 175,
+        None = 0
+    }
+
+    public enum Animation
+    {
+        Spear,
+        Bolt,
+        Arrow,
+        Fire,
+        Energy,
+        PoisonArrow,
+        BurstArrow,
+        ThrowingStar,
+        ThrowingKnife,
+        SmallStone,
+        Death,
+        LargeRock,
+        SnowBall,
+        PowerBolt,
+        Poison,
+        InfernalBolt,
+        HuntingSpear,
+        EnchantedSpear,
+        RedStar,
+        GreenStar,
+        RoyalSpear,
+        SniperArrow,
+        OnyxArrow,
+        PiercingBolt,
+        WhirlwindSword,
+        WhirlwindAxe,
+        WhirlwindClub,
+        EtherealSpear,
+        Ice,
+        Earth,
+        Holy,
+        SuddenSeath,
+        FlashArrow,
+        FlammingArrow,
+        ShiverArrow,
+        EnergyBall,
+        SmallEce,
+        SmallHoly,
+        SmallEarth,
+        EarthArrow,
+        Explosion,
+        Cake,
+        TarsalArrow = 44,
+        VortexBolt = 45,
+        PrismaticBolt,
+        CrystallineArrow,
+        DrillBolt,
+        EnvenomedArrow,
+        GloothSpear,
+        SimpleArrow,
+        None = 0
+    }
+
     public enum Blood
     {
         blood,
@@ -78,6 +248,20 @@ namespace OTMonsterConverter
         public decimal Count { get; set; }
     }
 
+    public class Spells : ISpells
+    {
+        public string Name { get; set; }
+        public uint MinDamage { get; set; }
+        public uint MaxDamage { get; set; }
+        public TargetType TargetStyle { get; set; }
+        public CombatDamage DamageElement { get; set; }
+        public Effect AreaEffect { get; set; }
+        public Animation ShootEffect { get; set; }
+        public uint Chance { get; set; }
+        public uint Interval { get; set; }
+        public uint Range { get; set; }
+    }
+
     public class CustomMonster : ICustomMonster
     {
         // Member Variables
@@ -90,8 +274,10 @@ namespace OTMonsterConverter
             Summons = new List<ICustomSummon>();
             Items = new List<ILoot>();
             LookTypeDetails = new DetailedLookType();
+            Attacks = new List<ISpells>();
 
             SummonCost     = 0;
+            Attackable     = true;
             Hostile        = true;
             Illusionable   = false;
             ConvinceCost   = 0;
@@ -99,35 +285,41 @@ namespace OTMonsterConverter
             PushItems      = false;
             PushCreatures  = false;
             TargetDistance = 1;
+            //staticattack
+            //lightlevel
+            //lightcolor
             RunOnHealth    = 0;
+            AvoidFire      = true;
+            AvoidEnergy    = true;
+            AvoidPoison    = true;
 
-            AvoidFire   = false;
-            AvoidEnergy = false;
-            AvoidPoison = false;
-
+            // Immunities
             IgnoreParalyze  = false;
             IgnoreInvisible = false;
-            LifeDrain = 0;
             IgnoreDrunk     = false;
-            ManaDrain = 0;
             IgnoreOutfit    = false;
 
+            // Defences
             TotalArmor = 10;
             Shielding  = 5;
-            Fire     = 1;
-            Earth    = 1;
-            Energy   = 1;
-            Ice      = 1;
-            Holy     = 1;
-            Death    = 1;
-            Physical = 1;
-            Drown    = 1;
+
+            // Elements
+            Fire      = 1;
+            Earth     = 1;
+            Energy    = 1;
+            Ice       = 1;
+            Holy      = 1;
+            Death     = 1;
+            Physical  = 1;
+            Drown     = 1;
+            LifeDrain = 1;
+            ManaDrain = 1;
         }
 
         // Events
 
         // Properties
-            // Generic
+        // Generic
         public string Name { get; set; }
         public string Description { get; set; }
         public uint Health { get; set; }
@@ -149,6 +341,7 @@ namespace OTMonsterConverter
 
             // Behavior
         public uint SummonCost { get; set; }
+        public bool Attackable { get; set; }
         public bool Hostile { get; set; }
         public bool Illusionable { get; set; }
         public uint ConvinceCost { get; set; }
@@ -163,7 +356,11 @@ namespace OTMonsterConverter
         public bool AvoidEnergy { get; set; }
         public bool AvoidPoison { get; set; }
 
-            // Defeneses
+        // Attacks
+        public IList<ISpells> Attacks { get; set; }
+
+
+        // Defeneses
         public uint TotalArmor { get; set; }
         public uint Shielding { get; set; }
         public double Fire { get; set; }
