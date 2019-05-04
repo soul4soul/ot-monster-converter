@@ -30,6 +30,7 @@ namespace OTMonsterConverter
 
         // Behavior
         uint SummonCost { get; set; }
+        bool Attackable { get; set; }
         bool Hostile { get; set; }
         bool Illusionable { get; set; }
         uint ConvinceCost { get; set; }
@@ -51,6 +52,8 @@ namespace OTMonsterConverter
         bool IgnoreOutfit { get; set; }
         bool IgnoreBleed { get; set; }
 
+        // Attacks
+        IList<ISpells> Attacks { get; set; }
 
         // Defeneses
         uint TotalArmor { get; set; } // equal to what would be a players total armor
@@ -105,12 +108,15 @@ namespace OTMonsterConverter
         string Name { get; set; }
         uint MinDamage { get; set; }
         uint MaxDamage { get; set; }
-        //Target style, area or target
-        // DamageElement
-        // AreaEffert
-        // ShootEffect
+        TargetType TargetStyle { get; set; }
+        CombatDamage DamageElement { get; set; }
+        Effect AreaEffect { get; set; }
+        Animation ShootEffect { get; set; }
         uint Chance { get; set; }
-        uint Internal { get; set; }
+        uint Interval { get; set; }
         uint Range { get; set; }
+        //uint Radius { get;set; }
+        //uint Length { get; set; }
+        //uint Spread { get; set; }
     }
 }
