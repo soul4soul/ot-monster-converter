@@ -211,7 +211,7 @@ namespace OTMonsterConverter
 
         double GenericToTfsElemementPercent(double percent)
         {
-            return (percent - 1) * 100;
+            return (1 - percent) * 100;
         }
     }
 }
