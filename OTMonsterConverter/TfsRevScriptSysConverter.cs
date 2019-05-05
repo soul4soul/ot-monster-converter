@@ -87,12 +87,12 @@ namespace OTMonsterConverter
                 dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
-                dest.WriteLine($"	staticAttackChance = 70,");
-                dest.WriteLine($"	lightlevel = 0,");
-                dest.WriteLine($"	lightcolor = 0,");
+                dest.WriteLine($"	staticAttackChance = {monster.StaticAttack},");
+                dest.WriteLine($"	lightlevel = {monster.LightLevel},");
+                dest.WriteLine($"	lightcolor = {monster.LightColor},");
                 dest.WriteLine($"	targetdistance = {monster.TargetDistance},");
                 dest.WriteLine($"	runHealth = {monster.RunOnHealth},");
-                dest.WriteLine($"	isHealthHidden = false,");
+                dest.WriteLine($"	isHealthHidden = {monster.HideHealth.ToString().ToLower()},");
                 dest.WriteLine($"	canwalkonenergy = {monster.AvoidEnergy.ToString().ToLower()},");
                 dest.WriteLine($"	canwalkonfire = {monster.AvoidFire.ToString().ToLower()},");
                 dest.WriteLine($"	canwalkonpoison = {monster.AvoidPoison.ToString().ToLower()}");
