@@ -285,10 +285,11 @@ namespace OTMonsterConverter
             PushItems      = false;
             PushCreatures  = false;
             TargetDistance = 1;
-            //staticattack
-            //lightlevel
-            //lightcolor
+            StaticAttack   = 95;
+            LightLevel     = 0;
+            LightColor     = 0;
             RunOnHealth    = 0;
+            HideHealth     = false;
             AvoidFire      = true;
             AvoidEnergy    = true;
             AvoidPoison    = true;
@@ -350,8 +351,13 @@ namespace OTMonsterConverter
         public bool PushCreatures { get; set; }
         public uint TargetDistance { get; set; }
         public uint RunOnHealth { get; set; }
+        public uint StaticAttack { get; set; }
+        public uint LightLevel { get; set; }
+        public uint LightColor { get; set; }
+        public bool HideHealth { get; set; }
 
-            // Walk Behavior
+
+        // Walk Behavior
         public bool AvoidFire { get; set; }
         public bool AvoidEnergy { get; set; }
         public bool AvoidPoison { get; set; }

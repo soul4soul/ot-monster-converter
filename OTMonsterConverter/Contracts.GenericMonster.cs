@@ -39,6 +39,10 @@ namespace OTMonsterConverter
         bool PushCreatures { get; set; }
         uint TargetDistance { get; set; }
         uint RunOnHealth { get; set; }
+        uint StaticAttack { get; set; }
+        uint LightLevel { get; set; }
+        uint LightColor { get; set; }
+        bool HideHealth { get; set; }
 
         // Walk Behavior
         bool AvoidFire { get; set; }

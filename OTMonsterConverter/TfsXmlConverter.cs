@@ -64,12 +64,20 @@ namespace OTMonsterConverter
             monster = new CustomMonster()
             {
                 Name           = tfsMonster.name,
-                Description    = tfsMonster.nameDescription,
                 Health         = (uint)tfsMonster.health.max,
                 Experience     = (uint)tfsMonster.experience,
                 Speed          = (uint)tfsMonster.speed,
                 Race           = tfsToGenericBlood(tfsMonster.race),
             };
+
+            if (!string.IsNullOrEmpty(tfsMonster.nameDescription))
+            {
+                monster.Description = tfsMonster.nameDescription;
+            }
+            if (!string.IsNullOrEmpty(tfsMonster.namedescription))
+            {
+                monster.Description = tfsMonster.namedescription;
+            }
 
             if (tfsMonster.targetchange != null)
             {
@@ -155,21 +163,15 @@ namespace OTMonsterConverter
                         }
                         else if (x.attr[0].Name == "staticattack")
                         {
-                            Console.WriteLine("Can't parse static attack yet");
-                            // TODO
-                            //monster.StaticAttack = (uint)value;
+                            monster.StaticAttack = (uint)value;
                         }
                         else if (x.attr[0].Name == "lightlevel")
                         {
-                            Console.WriteLine("Can't parse light yet");
-                            // TODO
-                            //monster.LightLevel = (uint)value;
+                            monster.LightLevel = (uint)value;
                         }
                         else if (x.attr[0].Name == "lightcolor")
                         {
-                            Console.WriteLine("Can't parse light yet");
-                            // TODO
-                            //monster.TargetDistance = (uint)value;
+                            monster.LightColor = (uint)value;
                         }
                         else if (x.attr[0].Name == "runonhealth")
                         {
@@ -177,9 +179,7 @@ namespace OTMonsterConverter
                         }
                         else if (x.attr[0].Name == "hidehealth")
                         {
-                            Console.WriteLine("Can't parse hide health yet");
-                            // TODO
-                            //monster.HideHealth = (uint)value;
+                            monster.HideHealth = value == 1;
                         }
                         else if (x.attr[0].Name == "canwalkonenergy")
                         {
@@ -241,64 +241,9 @@ namespace OTMonsterConverter
                 monster.MaxSummons = 0;
             }
 
-            if ((tfsMonster.attacks != null) &&
-                (tfsMonster.attacks.attack != null))
+            if (tfsMonster.attacks != null)
             {
-                foreach (var attack in tfsMonster.attacks.attack)
-                {
-                    ISpells spell = new Spells();
-                    spell.Name = attack.name;
-                    if (attack.interval != 0)
-                    {
-                        spell.Interval = (uint)attack.interval;
-                    }
-                    else if (attack.speed != 0)
-                    {
-                        spell.Interval = (uint)attack.speed;
-                    }
-                    else
-                    {
-                        spell.Interval = ATTACK_INTERVAL_DEFAULT;
-                    }
-
-                    spell.Chance = (uint)attack.chance;
-
-                    if (attack.name == "melee")
-                    {
-                        // Has chance?
-                        spell.MinDamage = (uint)attack.min;
-                        spell.MaxDamage = (uint)attack.max;
-                    }
-                    else if (attack.name == "speed")
-                    {
-
-                    }
-                    else
-                    {
-                        if (attack.attribute != null)
-                        {
-                            foreach (var attr in attack.attribute)
-                            {
-                                if (attr.key == "shootEffect")
-                                {
-
-                                }
-                                else if (attr.key == "areaEffect")
-                                {
-
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Warning unkown attack attribute");
-                                }
-                            }
-                        }
-
-                        if ((attack.length != 0) && (attack.spread == 0))
-                        {
-                        }
-                    }
-                }
+                monster.Attacks = XmlSpellsToGeneric(tfsMonster.attacks.attack);
             }
 
             // Defenses
@@ -594,6 +539,72 @@ namespace OTMonsterConverter
             return race;
         }
 
+        private IList<ISpells> XmlSpellsToGeneric(Attack[] spells)
+        {
+            IList<ISpells> monSpells = new List<ISpells>();
+            if (spells != null)
+            {
+                foreach (var attack in spells)
+                {
+                    ISpells spell = new Spells();
+                    spell.Name = attack.name;
+                    if (attack.interval != 0)
+                    {
+                        spell.Interval = (uint)attack.interval;
+                    }
+                    else if (attack.speed != 0)
+                    {
+                        spell.Interval = (uint)attack.speed;
+                    }
+                    else
+                    {
+                        spell.Interval = ATTACK_INTERVAL_DEFAULT;
+                    }
+
+                    spell.Chance = (uint)attack.chance;
+
+                    if (attack.name == "melee")
+                    {
+                        // Has chance?
+                        spell.MinDamage = (uint)attack.min;
+                        spell.MaxDamage = (uint)attack.max;
+                    }
+                    else if (attack.name == "speed")
+                    {
+
+                    }
+                    else
+                    {
+                        if (attack.attribute != null)
+                        {
+                            foreach (var attr in attack.attribute)
+                            {
+                                if (attr.key == "shootEffect")
+                                {
+
+                                }
+                                else if (attr.key == "areaEffect")
+                                {
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Warning unkown attack attribute");
+                                }
+                            }
+                        }
+
+                        if ((attack.length != 0) && (attack.spread == 0))
+                        {
+                        }
+                    }
+
+                    monSpells.Add(spell);
+                }
+            }
+            return monSpells;
+        }
+
         private string generictoTfsBlood(Blood race)
         {
             string bloodName = "blood";
@@ -682,6 +693,8 @@ namespace OTMonsterConverter
         public string name;
         [XmlAttribute]
         public string nameDescription;
+        [XmlAttribute]
+        public string namedescription;
         [XmlAttribute]
         public string race = "blood";
         [XmlAttribute]
@@ -803,6 +816,8 @@ namespace OTMonsterConverter
         public int spread = 0; //if length exists spread defaults to 3
         [XmlAttribute]
         public int radius = 0;
+        [XmlAttribute]
+        public int target = 0; // Defaults to 0 if missing
 
         public TfsXmlSpellAttributes[] attribute { get; set; }
 
@@ -842,7 +857,8 @@ namespace OTMonsterConverter
         [XmlAttribute]
         public uint armor;
 
-        //public defense[] defense
+        [XmlElementAttribute(ElementName = "defense")]
+        public Attack[] defenses;
     }
 
     public class Immunities
