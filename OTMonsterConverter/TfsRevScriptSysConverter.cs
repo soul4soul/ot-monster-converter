@@ -64,6 +64,7 @@ namespace OTMonsterConverter
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
+                // Flags
                 dest.WriteLine("monster.flags = {");
                 if (monster.SummonCost > 0)
                 {
@@ -88,8 +89,6 @@ namespace OTMonsterConverter
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
                 dest.WriteLine($"	staticAttackChance = {monster.StaticAttack},");
-                dest.WriteLine($"	lightlevel = {monster.LightLevel},");
-                dest.WriteLine($"	lightcolor = {monster.LightColor},");
                 dest.WriteLine($"	targetdistance = {monster.TargetDistance},");
                 dest.WriteLine($"	runHealth = {monster.RunOnHealth},");
                 dest.WriteLine($"	isHealthHidden = {monster.HideHealth.ToString().ToLower()},");
@@ -99,6 +98,14 @@ namespace OTMonsterConverter
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
+                // Light
+                dest.WriteLine("monster.light = {");
+                dest.WriteLine($"	level = {monster.LightLevel},");
+                dest.WriteLine($"	color = {monster.LightColor}");
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                // Summons
                 dest.WriteLine("monster.summons = {");
                 string summon;
                 for (int i = 0; i < monster.Summons.Count; i++)
@@ -113,6 +120,7 @@ namespace OTMonsterConverter
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
+                // Voices
                 dest.WriteLine("monster.voices = {");
                 dest.WriteLine("	interval = 5000,");
                 dest.WriteLine("	chance = 10,");
@@ -134,6 +142,7 @@ namespace OTMonsterConverter
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
+                // Loot
                 dest.WriteLine("monster.loot = {");
                 string loot;
                 for (int i = 0; i < monster.Items.Count; i++)
