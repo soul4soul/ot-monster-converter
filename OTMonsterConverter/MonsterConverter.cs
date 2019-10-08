@@ -88,7 +88,7 @@ namespace OTMonsterConverter
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error pasring {fileName}");
+                Console.WriteLine($"Error pasring {fileName}. Exception {ex.Message}");
                 return false;
             }
         }
