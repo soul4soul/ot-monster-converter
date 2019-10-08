@@ -57,7 +57,7 @@ namespace OTMonsterConverter
         bool IgnoreBleed { get; set; }
 
         // Attacks
-        IList<ISpells> Attacks { get; set; }
+        IList<ISpell> Attacks { get; set; }
 
         // Defeneses
         uint TotalArmor { get; set; } // equal to what would be a players total armor
@@ -107,20 +107,35 @@ namespace OTMonsterConverter
         decimal Count { get; set; }
     }
 
-    public interface ISpells
+    public interface ISpell
     {
         string Name { get; set; }
-        uint MinDamage { get; set; }
-        uint MaxDamage { get; set; }
-        TargetType TargetStyle { get; set; }
-        CombatDamage DamageElement { get; set; }
-        Effect AreaEffect { get; set; }
-        Animation ShootEffect { get; set; }
-        uint Chance { get; set; }
-        uint Interval { get; set; }
-        uint Range { get; set; }
-        //uint Radius { get;set; }
-        //uint Length { get; set; }
-        //uint Spread { get; set; }
+        int? MinDamage { get; set; }
+        int? MaxDamage { get; set; }
+        TargetType? TargetStyle { get; set; }
+        CombatDamage? DamageElement { get; set; }
+        Effect? AreaEffect { get; set; }
+        Animation? ShootEffect { get; set; }
+        uint? Chance { get; set; }
+        uint? Interval { get; set; }
+        uint? Range { get; set; }
+        uint? Radius { get;set; }
+        uint? Length { get; set; }
+        uint? Spread { get; set; }
+        bool? Target { get; set; }
+        // Speed Stuff
+        int? SpeedChange { get; set; }
+        int? Duration { get; set; }
+        // Melee Stuff
+        int? AttackValue { get; set; }
+        int? Skill { get; set; }
+        // Spell Condition stuff
+        int? Tick { get; set; }
+        int? StartDamage { get; set; }
+        Condition? Condition { get; set; }
+
+        // Outfit stuff
+        string MonsterName { get; set; }
+        int? ItemId { get; set; }
     }
 }
