@@ -6,6 +6,39 @@ using System.Threading.Tasks;
 
 namespace OTMonsterConverter
 {
+    public enum Condition
+    {
+        None,
+        Poison,
+        Fire,
+        Energy,
+        Bleeding,
+        Haste,
+        Paralyze,
+        Outfit,
+        Invisible,
+        Light,
+        ManaShield,
+        InFight,
+        Drunk,
+        ExhaustWeapon, // unused
+        Regeneration,
+        Soul,
+        Drown,
+        Muted,
+        ChannelMutedTicks,
+        YellTicks,
+        Attributes,
+        Freezing,
+        Dazzled,
+        Cursed,
+        ExhaustCombat, // unused
+        Exhaust_heal, // unused
+        Pacified,
+        SpellCoolDown,
+        SpellGroupCoolDown
+    }
+
     public enum CombatDamage
     {
         Physical,
@@ -30,6 +63,7 @@ namespace OTMonsterConverter
 
     public enum Effect
     {
+        None = 0,
         DrawBlood,
         LoseEnergy,
         Poff,
@@ -60,7 +94,7 @@ namespace OTMonsterConverter
         GiftWraps,
         FireworkYellow,
         FireworkRed,
-        FireworkClue,
+        FireworkBlue,
         Stun,
         Sleep,
         WaterCreature,
@@ -82,7 +116,7 @@ namespace OTMonsterConverter
         HolyArea,
         BigPlants,
         Cake,
-        Giantice,
+        GiantIce,
         WaterSplash,
         PlantAttack,
         TutorialArrow,
@@ -117,12 +151,12 @@ namespace OTMonsterConverter
         RagiazBoneCapsule = 172,
         CriticalDamage = 173,
         // 174 is empty
-        PlungingFish = 175,
-        None = 0
+        PlungingFish = 175
     }
 
     public enum Animation
     {
+        None = 0,
         Spear,
         Bolt,
         Arrow,
@@ -135,7 +169,7 @@ namespace OTMonsterConverter
         SmallStone,
         Death,
         LargeRock,
-        SnowBall,
+        Snowball,
         PowerBolt,
         Poison,
         InfernalBolt,
@@ -154,12 +188,12 @@ namespace OTMonsterConverter
         Ice,
         Earth,
         Holy,
-        SuddenSeath,
+        SuddenDeath,
         FlashArrow,
         FlammingArrow,
         ShiverArrow,
         EnergyBall,
-        SmallEce,
+        SmallIce,
         SmallHoly,
         SmallEarth,
         EarthArrow,
@@ -172,8 +206,7 @@ namespace OTMonsterConverter
         DrillBolt,
         EnvenomedArrow,
         GloothSpear,
-        SimpleArrow,
-        None = 0
+        SimpleArrow
     }
 
     public enum Blood
@@ -248,23 +281,41 @@ namespace OTMonsterConverter
         public decimal Count { get; set; }
     }
 
-    public class Spells : ISpells
+    public class Spell : ISpell
     {
         public string Name { get; set; }
-        public uint MinDamage { get; set; }
-        public uint MaxDamage { get; set; }
-        public TargetType TargetStyle { get; set; }
-        public CombatDamage DamageElement { get; set; }
-        public Effect AreaEffect { get; set; }
-        public Animation ShootEffect { get; set; }
-        public uint Chance { get; set; }
-        public uint Interval { get; set; }
-        public uint Range { get; set; }
+        public int? MinDamage { get; set; }
+        public int? MaxDamage { get; set; }
+        public TargetType? TargetStyle { get; set; }
+        public CombatDamage? DamageElement { get; set; }
+        public Effect? AreaEffect { get; set; }
+        public Animation? ShootEffect { get; set; }
+        public uint? Chance { get; set; }
+        public uint? Interval { get; set; }
+        public uint? Range { get; set; }
+        public uint? Radius { get; set; }
+        public uint? Length { get; set; }
+        public uint? Spread { get; set; }
+        public bool? Target { get; set; }
+        // Speed
+        public int? SpeedChange { get; set; }
+        public int? Duration { get; set; }
+        // Melee Stuff
+        public int? AttackValue { get; set; }
+        public int? Skill { get; set; }
+        // Spell Condition stuff
+        public int? Tick { get; set; }
+        public int? StartDamage { get; set; }
+        public Condition? Condition { get; set; }
+        // Outfit stuff
+        public string MonsterName { get; set; }
+        public int? ItemId { get; set; }
     }
 
     public class CustomMonster : ICustomMonster
     {
         // Member Variables
+
 
         // Constructors
         public CustomMonster()
@@ -274,7 +325,7 @@ namespace OTMonsterConverter
             Summons = new List<ICustomSummon>();
             Items = new List<ILoot>();
             LookTypeDetails = new DetailedLookType();
-            Attacks = new List<ISpells>();
+            Attacks = new List<ISpell>();
 
             SummonCost     = 0;
             Attackable     = true;
@@ -363,7 +414,7 @@ namespace OTMonsterConverter
         public bool AvoidPoison { get; set; }
 
         // Attacks
-        public IList<ISpells> Attacks { get; set; }
+        public IList<ISpell> Attacks { get; set; }
 
 
         // Defeneses

@@ -17,6 +17,161 @@ namespace OTMonsterConverter
         const uint MAX_LOOTCHANCE = 100000;
         const uint ATTACK_INTERVAL_DEFAULT = 2000;
 
+        IDictionary<string, Effect> magicEffectNames = new Dictionary<string, Effect>
+        {
+            {"redspark",            Effect.DrawBlood},
+            {"bluebubble",          Effect.LoseEnergy},
+            {"poff",                Effect.Poff},
+            {"yellowspark",         Effect.BlockHit},
+            {"explosionarea",       Effect.ExplosionArea},
+            {"explosion",           Effect.ExplosionHit},
+            {"firearea",            Effect.FireArea},
+            {"yellowbubble",        Effect.YellowRings},
+            {"greenbubble",         Effect.GreenRings},
+            {"blackspark",          Effect.HitArea},
+            {"teleport",            Effect.Teleport},
+            {"energy",              Effect.EnergyHit},
+            {"blueshimmer",         Effect.MagicBlue},
+            {"redshimmer",          Effect.MagicRed},
+            {"greenshimmer",        Effect.MagicGreen},
+            {"fire",                Effect.HitByFire},
+            {"greenspark",          Effect.HitByPoison},
+            {"mortarea",            Effect.MortArea},
+            {"greennote",           Effect.SoundGreen},
+            {"rednote",             Effect.SoundRed},
+            {"poison",              Effect.PoisonArea},
+            {"yellownote",          Effect.SoundYellow},
+            {"purplenote",          Effect.SoundPurple},
+            {"bluenote",            Effect.SoundBlue},
+            {"whitenote",           Effect.SoundWhite},
+            {"bubbles",             Effect.Bubbles},
+            {"dice",                Effect.Craps},
+            {"giftwraps",           Effect.GiftWraps},
+            {"yellowfirework",      Effect.FireworkYellow},
+            {"redfirework",         Effect.FireworkRed},
+            {"bluefirework",        Effect.FireworkBlue},
+            {"stun",                Effect.Stun},
+            {"sleep",               Effect.Sleep},
+            {"watercreature",       Effect.WaterCreature},
+            {"groundshaker",        Effect.GroundShaker},
+            {"hearts",              Effect.Hearts},
+            {"fireattack",          Effect.FireAttack},
+            {"energyarea",          Effect.EnergyArea},
+            {"smallclouds",         Effect.SmallClouds},
+            {"holydamage",          Effect.HolyDamage},
+            {"bigclouds",           Effect.BigClouds},
+            {"icearea",             Effect.IceArea},
+            {"icetornado",          Effect.IceTornado},
+            {"iceattack",           Effect.IceAttack},
+            {"stones",              Effect.Stones},
+            {"smallplants",         Effect.SmallPlants},
+            {"carniphila",          Effect.Carniphila},
+            {"purpleenergy",        Effect.PurpleEnergy},
+            {"yellowenergy",        Effect.YellowEnergy},
+            {"holyarea",            Effect.HolyArea},
+            {"bigplants",           Effect.BigPlants},
+            {"cake",                Effect.Cake},
+            {"giantice",            Effect.GiantIce},
+            {"watersplash",         Effect.WaterSplash},
+            {"plantattack",         Effect.PlantAttack},
+            {"tutorialarrow",       Effect.TutorialArrow},
+            {"tutorialsquare",      Effect.TutorialSquare},
+            {"mirrorhorizontal",    Effect.MirrorHorizontal},
+            {"mirrorvertical",      Effect.MirrorVertical},
+            {"skullhorizontal",     Effect.SkullHorizontal},
+            {"skullvertical",       Effect.SkullVertical},
+            {"assassin",            Effect.Assassin},
+            {"stepshorizontal",     Effect.StepsHorizontal},
+            {"bloodysteps",         Effect.BloodySteps},
+            {"stepsvertical",       Effect.StepsVertical},
+            {"yalaharighost",       Effect.YalahariGhost},
+            {"bats",                Effect.Bats},
+            {"smoke",               Effect.Smoke},
+            {"insects",             Effect.Insects},
+            {"dragonhead",          Effect.Dragonhead},
+            {"orcshaman",           Effect.OrcShaman},
+            {"orcshamanfire",       Effect.OrcShamanFire},
+            {"thunder",             Effect.Thunder},
+            {"ferumbras",           Effect.Ferumbras},
+            {"confettihorizontal",  Effect.ConfettiHorizontal},
+            {"confettivertical",    Effect.ConfettiVertical},
+            {"blacksmoke",          Effect.BlackSmoke},
+            {"redsmoke",            Effect.RedSmoke},
+            {"yellowsmoke",         Effect.YellowSmoke},
+            {"greensmoke",          Effect.GreenSmoke},
+            {"purplesmoke",         Effect.PurpleSmoke}
+        };
+
+        IDictionary<string, Animation> shootTypeNames = new Dictionary<string, Animation>
+        {
+            {"spear",               Animation.Spear},
+            {"bolt",                Animation.Bolt},
+            {"arrow",               Animation.Arrow},
+            {"fire",                Animation.Fire},
+            {"energy",              Animation.Energy},
+            {"poisonarrow",         Animation.PoisonArrow},
+            {"burstarrow",          Animation.BurstArrow},
+            {"throwingstar",        Animation.ThrowingStar},
+            {"throwingknife",       Animation.ThrowingKnife},
+            {"smallstone",          Animation.SmallStone},
+            {"death",               Animation.Death},
+            {"largerock",           Animation.LargeRock},
+            {"snowball",            Animation.Snowball},
+            {"powerbolt",           Animation.PowerBolt},
+            {"poison",              Animation.Poison},
+            {"infernalbolt",        Animation.InfernalBolt},
+            {"huntingspear",        Animation.HuntingSpear},
+            {"enchantedspear",      Animation.EnchantedSpear},
+            {"redstar",             Animation.RedStar},
+            {"greenstar",           Animation.GreenStar},
+            {"royalspear",          Animation.RoyalSpear},
+            {"sniperarrow",         Animation.SniperArrow},
+            {"onyxarrow",           Animation.OnyxArrow},
+            {"piercingbolt",        Animation.PiercingBolt},
+            {"whirlwindsword",      Animation.WhirlwindSword},
+            {"whirlwindaxe",        Animation.WhirlwindAxe},
+            {"whirlwindclub",       Animation.WhirlwindClub},
+            {"etherealspear",       Animation.EtherealSpear},
+            {"ice",                 Animation.Ice},
+            {"earth",               Animation.Earth},
+            {"holy",                Animation.Holy},
+            {"suddendeath",         Animation.SuddenDeath},
+            {"flasharrow",          Animation.FlashArrow},
+            {"flammingarrow",       Animation.FlammingArrow},
+            {"shiverarrow",         Animation.ShiverArrow},
+            {"energyball",          Animation.EnergyBall},
+            {"smallice",            Animation.SmallIce},
+            {"smallholy",           Animation.SmallHoly},
+            {"smallearth",          Animation.SmallEarth},
+            {"eartharrow",          Animation.EarthArrow},
+            {"explosion",           Animation.Explosion},
+            {"cake",                Animation.Cake},
+            {"tarsalarrow",         Animation.TarsalArrow},
+            {"vortexbolt",          Animation.VortexBolt},
+            {"prismaticbolt",       Animation.PrismaticBolt},
+            {"crystallinearrow",    Animation.CrystallineArrow},
+            {"drillbolt",           Animation.DrillBolt},
+            {"envenomedarrow",      Animation.EnvenomedArrow},
+            {"gloothspear",         Animation.GloothSpear},
+            {"simplearrow",         Animation.SimpleArrow}
+        };
+
+        IDictionary<string, CombatDamage> CombatDamageNames = new Dictionary<string, CombatDamage>
+        {
+            {"physical",    CombatDamage.Physical},
+            {"energy",      CombatDamage.Energy},
+            {"earth",       CombatDamage.Earth},
+            {"fire",        CombatDamage.Fire},
+            {"lifedrain",   CombatDamage.LifeDrain},
+            {"manadrain",   CombatDamage.ManaDrain},
+            {"healing",     CombatDamage.Healing},
+            {"drown",       CombatDamage.Drown},
+            {"ice",         CombatDamage.Ice},
+            {"holy",        CombatDamage.Holy},
+            {"death",       CombatDamage.Death}
+            //{"undefined",   CombatDamage.Undefined}
+        };
+
         // Constructor
         public TfsXmlConverter()
             : base()
@@ -539,14 +694,14 @@ namespace OTMonsterConverter
             return race;
         }
 
-        private IList<ISpells> XmlSpellsToGeneric(Attack[] spells)
+        private IList<ISpell> XmlSpellsToGeneric(Attack[] spells)
         {
-            IList<ISpells> monSpells = new List<ISpells>();
+            IList<ISpell> monSpells = new List<ISpell>();
             if (spells != null)
             {
                 foreach (var attack in spells)
                 {
-                    ISpells spell = new Spells();
+                    ISpell spell = new Spell();
                     spell.Name = attack.name;
                     if (attack.interval != 0)
                     {
@@ -565,37 +720,132 @@ namespace OTMonsterConverter
 
                     if (attack.name == "melee")
                     {
-                        // Has chance?
-                        spell.MinDamage = (uint)attack.min;
-                        spell.MaxDamage = (uint)attack.max;
+                        if ((attack.attack > 0) && (attack.skill > 0))
+                        {
+                            spell.AttackValue = attack.attack;
+                            spell.Skill = attack.skill;
+                        }
+                        else
+                        {
+                            spell.MinDamage = attack.min;
+                            spell.MaxDamage = attack.max;
+                        }
+
+                        if (attack.fire != 0)
+                        {
+                            spell.Condition = Condition.Fire;
+                            spell.StartDamage = attack.poison;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 9000;
+                        }
+                        else if (attack.poison != 0)
+                        {
+                            spell.Condition = Condition.Poison;
+                            spell.StartDamage = attack.poison;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
+                        }
+                        else if (attack.energy != 0)
+                        {
+                            spell.Condition = Condition.Energy;
+                            spell.StartDamage = attack.energy;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 10000;
+                        }
+                        else if (attack.drown != 0)
+                        {
+                            spell.Condition = Condition.Drown;
+                            spell.StartDamage = attack.drown;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 5000;
+                        }
+                        else if (attack.dazzle != 0)
+                        {
+                            spell.Condition = Condition.Dazzled;
+                            spell.StartDamage = attack.dazzle;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 10000;
+                        }
+                        else if (attack.curse != 0)
+                        {
+                            spell.Condition = Condition.Cursed;
+                            spell.StartDamage = attack.curse;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
+                        }
+                        else if (attack.bleed != 0)
+                        {
+                            spell.Condition = Condition.Bleeding;
+                            spell.StartDamage = attack.bleed;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
+                        }
+                        else if (attack.physical != 0)
+                        {
+                            spell.Condition = Condition.Bleeding;
+                            spell.StartDamage = attack.physical;
+                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
+                        }
                     }
                     else if (attack.name == "speed")
                     {
-
+                        spell.SpeedChange = attack.speedchange;
+                        spell.Duration = attack.duration;
+                        if (attack.duration == 0)
+                        {
+                            spell.Duration = 10000; // Default when no duration set
+                        }
                     }
                     else
                     {
+                        // Always default both if max is included to be explicit
+                        // Some spells don't have damage so don't include either of them
+                        if (attack.max > 0)
+                        {
+                            spell.MinDamage = attack.min;
+                            spell.MaxDamage = attack.max;
+                        }
+
                         if (attack.attribute != null)
                         {
                             foreach (var attr in attack.attribute)
                             {
-                                if (attr.key == "shootEffect")
+                                if (attr.key.ToLower() == "shootEffect".ToLower())
                                 {
-
+                                    spell.ShootEffect = shootTypeNames[attr.value.ToLower()];
                                 }
-                                else if (attr.key == "areaEffect")
+                                else if (attr.key.ToLower() == "areaEffect".ToLower())
                                 {
-
+                                    spell.AreaEffect = magicEffectNames[attr.value.ToLower()];
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Warning unkown attack attribute");
+                                    Console.WriteLine($"Unkown attack attribute {attr.key}");
                                 }
                             }
                         }
 
-                        if ((attack.length != 0) && (attack.spread == 0))
+                        if (attack.range > 0)
                         {
+                            spell.Range = (uint?)attack.range;
+                        }
+
+                        if (attack.length > 0)
+                        {
+                            spell.Length = (uint?)attack.length;
+                            spell.Spread = (uint?)attack.spread;
+                            if ((spell.Length > 3) && (spell.Spread == 0))
+                            {
+                                spell.Spread = 3;
+                            }
+                        }
+                        spell.Target = (attack.target == 1);
+
+                        if (CombatDamageNames.ContainsKey(spell.Name))
+                        {
+                            spell.DamageElement = CombatDamageNames[spell.Name];
+                        }
+
+                        if (!string.IsNullOrEmpty(attack.monster))
+                        {
+                            spell.MonsterName = attack.monster;
+                        }
+                        else if (attack.item > 0)
+                        {
+                            spell.ItemId = attack.item;
                         }
                     }
 
@@ -775,10 +1025,12 @@ namespace OTMonsterConverter
         public int corpse = 0;
     }
 
-    [Serializable, XmlRoot("attribute")]
     public class TfsXmlSpellAttributes
     {
+        [XmlAttribute]
         public string key { get; set; }
+
+        [XmlAttribute]
         public string value { get; set; }
     }
 
@@ -819,35 +1071,48 @@ namespace OTMonsterConverter
         [XmlAttribute]
         public int target = 0; // Defaults to 0 if missing
 
+        [XmlAttribute]
+        public int speedchange = 0;
+        [XmlAttribute]
+        public int duration = 0;
+
+        [XmlElementAttribute(ElementName = "attribute")]
         public TfsXmlSpellAttributes[] attribute { get; set; }
 
         // the following only exist when attack name is melee
         // when melee exists minMax and Max are set to 0
-        // interval is set to 200
-        ////[XmlAttribute]
-        ////public int skill;
-        ////[XmlAttribute]
-        ////public int attack;
-        //[XmlAttribute]
-        //public int fire;
-        //[XmlAttribute]
-        //public int poison;
-        //[XmlAttribute]
-        //public int energy;
-        //[XmlAttribute]
-        //public int drown;
-        //[XmlAttribute]
-        //public int freeze;
-        //[XmlAttribute]
-        //public int dazzle;
-        //[XmlAttribute]
-        //public int curse;
-        //[XmlAttribute]
-        //public int bleed; //bleed and physical are the same
-        //[XmlAttribute]
-        //public int physical; //bleed and physical are the same
-        //[XmlAttribute]
-        //public int tick; //only used if a condition is set
+        [XmlAttribute]
+        public int skill;
+        [XmlAttribute]
+        public int attack;
+        [XmlAttribute]
+        public int fire;
+        [XmlAttribute]
+        public int poison;
+        [XmlAttribute]
+        public int energy;
+        [XmlAttribute]
+        public int drown;
+        [XmlAttribute]
+        public int freeze;
+        [XmlAttribute]
+        public int dazzle;
+        [XmlAttribute]
+        public int curse;
+        [XmlAttribute]
+        public int bleed; //bleed and physical are the same
+        [XmlAttribute]
+        public int physical; //bleed and physical are the same
+
+        [XmlAttribute]
+        public int tick; //only used if a condition is set each type has its own default tick which can be overriden with this attr
+        [XmlAttribute]
+        public int start; //Start condition damage
+
+        [XmlAttribute]
+        public string monster;
+        [XmlAttribute]
+        public int item;
     }
 
     public class Defenses
