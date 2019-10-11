@@ -194,6 +194,7 @@ namespace OTMonsterConverter
 
             // convert from xml monster classes to generic class
             xmlToGeneric(tfsMonster, out monster);
+            monster.FileName = Path.GetFileNameWithoutExtension(filename);
 
             return true;
         }
