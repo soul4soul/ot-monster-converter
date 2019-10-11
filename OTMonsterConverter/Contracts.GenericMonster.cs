@@ -11,6 +11,7 @@ namespace OTMonsterConverter
         // Properties
         // Generic
         string Name { get; set; }
+        string FileName { get; set; }
         string Description { get; set; }
         uint Health { get; set; }
         uint Experience { get; set; }
