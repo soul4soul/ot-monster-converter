@@ -188,10 +188,8 @@ namespace OTMonsterConverter
 
         public override bool WriteMonster(string directory, ref ICustomMonster monster)
         {
-            string lowerName = monster.Name.ToLower();
-
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-            string titleName = textInfo.ToTitleCase(lowerName);
+            string titleName = textInfo.ToTitleCase(monster.FileName.ToLower());
 
             Directory.CreateDirectory(directory);
 
