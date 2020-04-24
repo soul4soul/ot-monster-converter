@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\info.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Mono.Options" Version="6.6.0.161" />
   </ItemGroup>
 
