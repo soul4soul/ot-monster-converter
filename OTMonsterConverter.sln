@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMonsterConverter", "OTMonsterConverter\OTMonsterConverter.csproj", "{8B704AA7-27B7-4E92-8952-8552FB002BEC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMonsterConverter", "OTMonsterConverter\OTMonsterConverter.csproj", "{BBD1B272-ACB9-4658-B13B-AE7FB35ECF1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8B704AA7-27B7-4E92-8952-8552FB002BEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B704AA7-27B7-4E92-8952-8552FB002BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B704AA7-27B7-4E92-8952-8552FB002BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B704AA7-27B7-4E92-8952-8552FB002BEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBD1B272-ACB9-4658-B13B-AE7FB35ECF1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBD1B272-ACB9-4658-B13B-AE7FB35ECF1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBD1B272-ACB9-4658-B13B-AE7FB35ECF1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBD1B272-ACB9-4658-B13B-AE7FB35ECF1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60E82F53-8F7A-42AC-8894-89C5CD6953AE}
 	EndGlobalSection
 EndGlobal
