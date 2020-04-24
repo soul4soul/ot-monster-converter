@@ -138,5 +138,11 @@ namespace OTMonsterConverter
         {
             ValidateControls();
         }
+
+        private void buttonAbout_Click(object sender, RoutedEventArgs e)
+        {
+            var about = new AboutWindow();
+            about.ShowDialog();
+        }
     }
 }
