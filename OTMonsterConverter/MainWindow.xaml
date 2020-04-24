@@ -14,6 +14,11 @@
             <StatusBarItem>
                 <ProgressBar x:Name="progressBarScan" Width="100" Height="15" IsIndeterminate="True" Visibility="Hidden"/>
             </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <Button x:Name="buttonAbout" Click="buttonAbout_Click">
+                    <Image Height="15" Width="15" Source="/Images/info.png"/>
+                </Button>
+            </StatusBarItem>
         </StatusBar>
 
         <Grid Margin="5">
