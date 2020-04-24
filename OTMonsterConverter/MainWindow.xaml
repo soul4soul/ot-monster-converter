@@ -63,8 +63,10 @@
             </Grid>
 
             <Label Grid.Row="3" Grid.Column="0" Content="Output Format"/>
-            <ComboBox x:Name="comboOutputFormat" Grid.Row="3" Grid.Column="1" Margin="5" SelectedIndex="0" SelectionChanged="comboOutputFormat_SelectionChanged">
+            <ComboBox x:Name="comboOutputFormat" Grid.Row="3" Grid.Column="1" Margin="5" SelectionChanged="comboOutputFormat_SelectionChanged">
+                <ComboBoxItem Content="TFS XML Format" Tag="1"/>
                 <ComboBoxItem Content="TFS Rev Script System Format" Tag="2"/>
+                <ComboBoxItem Content="PyOt Format" Tag="0"/>
             </ComboBox>
 
             <Button x:Name="buttonConvert" Grid.Row="4" Grid.ColumnSpan="2" Content="Convert" Margin="5" Click="buttonConvert_Click" IsEnabled="False"/>
