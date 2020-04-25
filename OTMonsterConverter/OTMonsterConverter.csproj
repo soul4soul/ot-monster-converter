@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\info.png" />
+    <PackageReference Include="Mono.Options" Version="6.6.0.161" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Options" Version="6.6.0.161" />
+    <Resource Include="Images\info.png" />
   </ItemGroup>
 
 </Project>
