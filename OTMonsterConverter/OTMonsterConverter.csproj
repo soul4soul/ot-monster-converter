@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <useWindowsForms>true</useWindowsForms>
     <ApplicationIcon>app.ico</ApplicationIcon>
+    <Authors>Soul4Soul</Authors>
   </PropertyGroup>
 
   <ItemGroup>
