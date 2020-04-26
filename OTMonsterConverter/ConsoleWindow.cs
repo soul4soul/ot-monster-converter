@@ -45,7 +45,7 @@ namespace OTMonsterConverter
         public bool ScanFiles()
         {
             Console.WriteLine("Scanning...");
-            ScanError result = fileProcessor.ConvertMonstorFiles(inputDirectory, inputFormat, outputDirectory, outputFormat, mirrorFolderStructure);
+            ScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, inputFormat, outputDirectory, outputFormat, mirrorFolderStructure);
             switch (result)
             {
                 case ScanError.Success:

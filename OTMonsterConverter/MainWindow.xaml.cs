@@ -106,7 +106,7 @@ namespace OTMonsterConverter
             ScanError result = ScanError.Success;
             await Task.Run(() =>
             {
-                result = fileProcessor.ConvertMonstorFiles(inputDir, inputFormat, outputDir, outputFormat, true);
+                result = fileProcessor.ConvertMonsterFiles(inputDir, inputFormat, outputDir, outputFormat, true);
             });
             switch (result)
             {

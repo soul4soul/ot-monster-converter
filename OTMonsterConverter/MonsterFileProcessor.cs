@@ -49,7 +49,7 @@ namespace OTMonsterConverter
         private string BaseOutputDirectory { get; set; }
 
         // Functions
-        public ScanError ConvertMonstorFiles(string monsterDirectory, MonsterFormat inputFormat, string outputDirectory, MonsterFormat outputFormat, bool mirroredFolderStructure = false)
+        public ScanError ConvertMonsterFiles(string monsterDirectory, MonsterFormat inputFormat, string outputDirectory, MonsterFormat outputFormat, bool mirroredFolderStructure = false)
         {
             MonsterDirectory = monsterDirectory;
             BaseOutputDirectory = outputDirectory;
