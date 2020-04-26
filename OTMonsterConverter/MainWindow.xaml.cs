@@ -57,6 +57,7 @@ namespace OTMonsterConverter
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            ValidateControls();
             monsterListDataTable = new DataTable("MonsterList");
             monsterListDataTable.Columns.Add("Monster", typeof(string));
             monsterListDataTable.Columns.Add("Destination", typeof(string));
