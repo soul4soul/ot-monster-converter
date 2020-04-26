@@ -789,7 +789,7 @@ namespace OTMonsterConverter.Converter
                     {
                         // Always default both if max is included to be explicit
                         // Some spells don't have damage so don't include either of them
-                        if (attack.max > 0)
+                        if (attack.max != 0)
                         {
                             spell.MinDamage = attack.min;
                             spell.MaxDamage = attack.max;
