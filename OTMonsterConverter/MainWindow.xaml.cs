@@ -99,12 +99,14 @@ namespace OTMonsterConverter
 
             monsterListDataTable.Rows.Clear();
 
+            string inputDir = textBoxInputPath.Text;
+            string outputDir = textBoxOutputPath.Text;
             MonsterFormat inputFormat = GetMonsterFormatFromCombo(comboInputFormat);
             MonsterFormat outputFormat = GetMonsterFormatFromCombo(comboOutputFormat);
             ScanError result = ScanError.Success;
             await Task.Run(() =>
             {
-                result = fileProcessor.ConvertMonstorFiles(textBoxInputPath.Text, inputFormat, textBoxOutputPath.Text, outputFormat, true);
+                result = fileProcessor.ConvertMonstorFiles(inputDir, inputFormat, outputDir, outputFormat, true);
             });
             switch (result)
             {
