@@ -35,7 +35,10 @@ namespace OTMonsterConverter
         {
             if (e != null)
             {
-                monsterListDataTable.Rows.Add(new object[] { System.IO.Path.GetFileName(e.SourceMonsterFile), e.DestinationFile, e.ConvertedSuccessfully });
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    monsterListDataTable.Rows.Add(new object[] { System.IO.Path.GetFileName(e.SourceMonsterFile), e.DestinationFile, e.ConvertedSuccessfully });
+                });
             }
         }
 
@@ -85,18 +88,23 @@ namespace OTMonsterConverter
             ValidateControls();
         }
 
-        private void buttonConvert_Click(object sender, RoutedEventArgs e)
+        private async void buttonConvert_Click(object sender, RoutedEventArgs e)
         {
             buttonConvert.IsEnabled = false;
             Cursor = Cursors.Wait;
             textBlockScanStatus.Text = "scanning...";
             progressBarScan.Visibility = Visibility.Visible;
+            taskBarProgressScan.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
 
             monsterListDataTable.Rows.Clear();
 
             MonsterFormat inputFormat = GetMonsterFormatFromCombo(comboInputFormat);
             MonsterFormat outputFormat = GetMonsterFormatFromCombo(comboOutputFormat);
-            ScanError result = fileProcessor.ConvertMonstorFiles(textBoxInputPath.Text, inputFormat, textBoxOutputPath.Text, outputFormat, true);
+            ScanError result = ScanError.Success;
+            await Task.Run(() =>
+            {
+                result = fileProcessor.ConvertMonstorFiles(textBoxInputPath.Text, inputFormat, textBoxOutputPath.Text, outputFormat, true);
+            });
             switch (result)
             {
                 case ScanError.Success:
@@ -118,6 +126,7 @@ namespace OTMonsterConverter
                     break;
             }
 
+            taskBarProgressScan.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
             progressBarScan.Visibility = Visibility.Hidden;
             Cursor = Cursors.Arrow;
             buttonConvert.IsEnabled = true;

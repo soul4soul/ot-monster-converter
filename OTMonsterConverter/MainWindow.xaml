@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:OTMonsterConverter"
         mc:Ignorable="d"
         Title="OT Monster Converter" Height="450" Width="800" Loaded="Window_Loaded">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo x:Name="taskBarProgressScan"/>
+    </Window.TaskbarItemInfo>
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
