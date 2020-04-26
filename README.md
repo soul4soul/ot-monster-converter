@@ -9,6 +9,8 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 
 ## Status
 
+Parsing and writing of nested loot is not yet supported by any formats. This is a low priority item as cipbia removed nested loot and its no longer commonly found in OT servers.
+
 ### Working input formats
 - :white_check_mark: TFS XML
 - :white_large_square: TFS Rev Script Sys
