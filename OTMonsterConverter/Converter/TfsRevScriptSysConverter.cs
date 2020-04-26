@@ -11,7 +11,7 @@ namespace OTMonsterConverter.Converter
     {
         const uint MAX_LOOTCHANCE = 100000;
 
-        IDictionary<Condition, string> ConditionNames = new Dictionary<Condition, string>
+        IDictionary<Condition, string> ConditioToTFsConstants = new Dictionary<Condition, string>
         {
             {Condition.Poison,      "CONDITION_POISON"},
             {Condition.Fire,        "CONDITION_FIRE"},
@@ -22,6 +22,19 @@ namespace OTMonsterConverter.Converter
             {Condition.Freezing,    "CONDITION_FREEZING"},
             {Condition.Dazzled,     "CONDITION_DAZZLED"},
             {Condition.Cursed,      "CONDITION_CURSED"}
+        };
+
+        IDictionary<Condition, string> ConditionToString = new Dictionary<Condition, string>
+        {
+            {Condition.Poison,      "poison"},
+            {Condition.Fire,        "fire"},
+            {Condition.Energy,      "energy"},
+            {Condition.Bleeding,    "bleeding"},
+            {Condition.Paralyze,    "poison"},
+            {Condition.Drown,       "drown"},
+            {Condition.Freezing,    "freezing"},
+            {Condition.Dazzled,     "dazzled"},
+            {Condition.Cursed,      "cursed"}
         };
 
         IDictionary<CombatDamage, string> CombatDamageNames = new Dictionary<CombatDamage, string>
@@ -378,7 +391,7 @@ namespace OTMonsterConverter.Converter
                         // Conditions only ever appear on melee damage?
                         if (spell.Condition != null)
                         {
-                            attack += $", condition = {{type = {ConditionNames[(Condition)spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
+                            attack += $", condition = {{type = {ConditioToTFsConstants[(Condition)spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
                         }
                     }
                     else if (spell.Name == "speed")
@@ -408,12 +421,8 @@ namespace OTMonsterConverter.Converter
                         }
                         else if (spell.Name.Contains("condition"))
                         {
-                            attack = $"	{{name =\"condition\", interval = {spell.Interval}, chance = {spell.Chance}";
-                            if (spell.Condition == Condition.Poison) { spell.DamageElement = CombatDamage.Earth; }
-                            else if (spell.Condition == Condition.Fire) { spell.DamageElement = CombatDamage.Fire; }
-                            else if (spell.Condition == Condition.Energy) { spell.DamageElement = CombatDamage.Energy; }
-                            else if (spell.Condition == Condition.Bleeding) { spell.DamageElement = CombatDamage.Physical; }
-                            else if (spell.Condition == Condition.Drown) { spell.DamageElement = CombatDamage.Drown; }
+                            string condition = spell.Name.Replace("condition", "");
+                            attack = $"	{{name =\"{condition}\", interval = {spell.Interval}, chance = {spell.Chance}";
                         }
                         else
                         {
