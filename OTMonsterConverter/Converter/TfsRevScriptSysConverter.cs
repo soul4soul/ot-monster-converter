@@ -321,14 +321,24 @@ namespace OTMonsterConverter.Converter
                 string loot;
                 for (int i = 0; i < monster.Items.Count; i++)
                 {
-                    decimal chance = monster.Items[i].Chance * MAX_LOOTCHANCE;
-                    if (monster.Items[i].Count > 1)
+                    string item;
+                    if (int.TryParse(monster.Items[i].Item, out int itemid))
                     {
-                        loot = $"	{{id = \"{monster.Items[i].Item}\", chance = {chance:0}, maxCount = {monster.Items[i].Count}}},";
+                        item = itemid.ToString();
                     }
                     else
                     {
-                        loot = $"	{{id = \"{monster.Items[i].Item}\", chance = {chance:0}}},";
+                        item = $"\"{monster.Items[i].Item}\"";
+                    }
+
+                    decimal chance = monster.Items[i].Chance * MAX_LOOTCHANCE;
+                    if (monster.Items[i].Count > 1)
+                    {
+                        loot = $"	{{id = {item}, chance = {chance:0}, maxCount = {monster.Items[i].Count}}},";
+                    }
+                    else
+                    {
+                        loot = $"	{{id = {item}, chance = {chance:0}}},";
                     }
                     if (i == monster.Items.Count - 1)
                     {
