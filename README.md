@@ -12,16 +12,21 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 Parsing and writing of nested loot is not yet supported by any formats. This is a low priority item as cipbia removed nested loot and its no longer commonly found in OT servers.
 
 ### Supported Input Formats
-- [X] TFS XML
-- [ ] TFS Rev Script Sys
-- [ ] PyOT
-- [ ] Long term goal [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page)
 
+| Format                                               | Percent Complete | Notes                                                                                                                                                                                       |
+|------------------------------------------------------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| TFS XML                                              | 95%              |  - Missing Support for variable haste<br/> - Missing support for converting attacks and defenses which are in scripts                                                                       |
+| PyOT                                                 | 0%               |                                                                                                                                                                                             |
+| TFS revscriptsys                                     | 0%               |                                                                                                                                                                                             |
+| [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | 0%               |  - Long term goal - Would be helpful for keeping monsters up to date with cipbia - Would generate templates for new monsters as it would be different to create spells on other attributes  |
 
 ### Supported Output Formats
-- [ ] TFS XML
-- [X] TFS Rev Script Sys
-- [ ] PyOT as output (partical support)
+
+| Format           | Percent Complete | Notes                                                                                                                 |
+|------------------|------------------|-----------------------------------------------------------------------------------------------------------------------|
+| TFS XML          | 0%               |                                                                                                                       |
+| PyOT             | 50%              | - Missing attacks and defenses                                                                                        |
+| TFS revscriptsys | 90%              |  - Missing support for attacks and defenses with are in scripts<br/> - Attacks which cause conditions are not working |
 
 ## Graphical Interface
 ![Alt text](https://user-images.githubusercontent.com/5142635/80318493-86a70580-87d8-11ea-85dc-cfc4e3fe2754.png)
