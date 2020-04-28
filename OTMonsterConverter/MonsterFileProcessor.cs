@@ -52,6 +52,13 @@ namespace OTMonsterConverter
         // Functions
         public ScanError ConvertMonsterFiles(string monsterDirectory, MonsterFormat inputFormat, string outputDirectory, MonsterFormat outputFormat, bool mirroredFolderStructure = false)
         {
+            if (Path.GetFullPath(monsterDirectory) == Path.GetFullPath(outputDirectory))
+            {
+                return ScanError.DirectoriesMatch;
+            }
+
+            // Input and output formats can match. Formats matching is an interesting run configuration.
+            // The generated files should match the input files
             if ((inputFormat != MonsterFormat.TibiaWiki) && (!Directory.Exists(monsterDirectory)))
             {
                 return ScanError.InvalidMonsterDirectory;
