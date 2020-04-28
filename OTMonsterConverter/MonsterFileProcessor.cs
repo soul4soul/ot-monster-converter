@@ -22,7 +22,8 @@ namespace OTMonsterConverter
     {
         PyOT,
         TfsXml,
-        TfsRevScriptSys
+        TfsRevScriptSys,
+        TibiaWiki
     }
 
     public sealed class FileProcessorEventArgs : EventArgs
