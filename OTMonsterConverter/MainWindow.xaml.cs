@@ -125,6 +125,9 @@ namespace OTMonsterConverter
                 case ScanError.CouldNotCreateDirectory:
                     textBlockScanStatus.Text = "Couldn't create destination directory.";
                     break;
+                case ScanError.DirectoriesMatch:
+                    textBlockScanStatus.Text = "Input and output directories can't be the same.";
+                    break;
                 default:
                     break;
             }

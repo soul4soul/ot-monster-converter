@@ -63,6 +63,9 @@ namespace OTMonsterConverter
                 case ScanError.CouldNotCreateDirectory:
                     Console.WriteLine("Couldn't create destination directory.");
                     break;
+                case ScanError.DirectoriesMatch:
+                    Console.WriteLine("Input and output directories can't be the same.");
+                    break;
                 default:
                     break;
             }
