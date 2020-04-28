@@ -175,5 +175,30 @@ namespace OTMonsterConverter.Converter
         {
             throw new NotImplementedException();
         }
+
+        public void ListMonsters()
+        {
+            string monsterlisturl = $"https://tibia.fandom.com/wiki/List_of_Creatures";
+            IList<string> names = new List<string>();
+
+            ScrapingBrowser browser = new ScrapingBrowser();
+            WebPage monsterspage = browser.NavigateToPage(new Uri(monsterlisturl));
+            var tables = monsterspage.Html.CssSelect("table");
+
+
+            //< a href = "/wiki/A_Shielded_Astral_Glyph" title = "A Shielded Astral Glyph" > A Shielded Astral Glyph </ a >
+            var nameregex = new Regex("/wiki/(?<name>[a-zA-Z_]+)");
+            foreach (var table in tables)
+            {
+                foreach (var namecell in table.SelectNodes("//td[1]"))
+                {
+                    if (nameregex.IsMatch(namecell.InnerHtml))
+                    {
+                        var namematches = nameregex.Matches(namecell.InnerHtml);
+                        names.Add(namematches.FindNamedGroupValue("name"));
+                    }
+                }
+            }
+        }
     }
 }
