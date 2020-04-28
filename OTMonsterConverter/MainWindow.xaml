@@ -38,8 +38,16 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Content="Input Directory"/>
-            <Grid Grid.Row="0" Grid.Column="1" Margin="5">
+            <Label Grid.Row="0" Grid.Column="0" Content="Input Format"/>
+            <ComboBox x:Name="comboInputFormat" Grid.Row="0" Grid.Column="1" Margin="5" SelectionChanged="comboInputFormat_SelectionChanged">
+                <ComboBoxItem Content="TFS XML Format" Tag="1"/>
+                <ComboBoxItem Content="TFS Rev Script System Format" Tag="2"/>
+                <ComboBoxItem Content="PyOt Format" Tag="0"/>
+                <ComboBoxItem Content="TibiaWiki Format" Tag="3"/>
+            </ComboBox>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Input Directory"/>
+            <Grid Grid.Row="1" Grid.Column="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
@@ -48,15 +56,15 @@
                 <Button x:Name="buttonInputPath" Grid.Column="1" Content="Browse" Width="75" Click="buttonInputPath_Click"/>
             </Grid>
 
-            <Label Grid.Row="1" Grid.Column="0" Content="Input Format"/>
-            <ComboBox x:Name="comboInputFormat" Grid.Row="1" Grid.Column="1" Margin="5" SelectionChanged="comboInputFormat_SelectionChanged">
+            <Label Grid.Row="2" Grid.Column="0" Content="Output Format"/>
+            <ComboBox x:Name="comboOutputFormat" Grid.Row="2" Grid.Column="1" Margin="5" SelectionChanged="comboOutputFormat_SelectionChanged">
                 <ComboBoxItem Content="TFS XML Format" Tag="1"/>
                 <ComboBoxItem Content="TFS Rev Script System Format" Tag="2"/>
                 <ComboBoxItem Content="PyOt Format" Tag="0"/>
             </ComboBox>
 
-            <Label Grid.Row="2" Grid.Column="0" Content="Output Directory"/>
-            <Grid Grid.Row="2" Grid.Column="1" Margin="5">
+            <Label Grid.Row="3" Grid.Column="0" Content="Output Directory"/>
+            <Grid Grid.Row="3" Grid.Column="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
@@ -64,13 +72,6 @@
                 <TextBox x:Name="textBoxOutputPath" Grid.Column="0" IsReadOnly="True" Margin="0, 0, 10, 0"/>
                 <Button x:Name="buttonOutputPath" Grid.Column="1" Content="Browse" Width="75" Click="buttonOutputPath_Click"/>
             </Grid>
-
-            <Label Grid.Row="3" Grid.Column="0" Content="Output Format"/>
-            <ComboBox x:Name="comboOutputFormat" Grid.Row="3" Grid.Column="1" Margin="5" SelectionChanged="comboOutputFormat_SelectionChanged">
-                <ComboBoxItem Content="TFS XML Format" Tag="1"/>
-                <ComboBoxItem Content="TFS Rev Script System Format" Tag="2"/>
-                <ComboBoxItem Content="PyOt Format" Tag="0"/>
-            </ComboBox>
 
             <Button x:Name="buttonConvert" Grid.Row="4" Grid.ColumnSpan="2" Content="Convert" Margin="5" Click="buttonConvert_Click"/>
 
