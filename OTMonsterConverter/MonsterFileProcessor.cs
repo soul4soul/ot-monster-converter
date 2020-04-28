@@ -14,7 +14,8 @@ namespace OTMonsterConverter
         InvalidMonsterDirectory,
         InvalidMonsterFormat,
         NoMonstersFound,
-        CouldNotCreateDirectory
+        CouldNotCreateDirectory,
+        DirectoriesMatch
     }
 
     public enum MonsterFormat
@@ -53,6 +54,14 @@ namespace OTMonsterConverter
         {
             MonsterDirectory = monsterDirectory;
             BaseOutputDirectory = outputDirectory;
+
+            if (Path.GetFullPath(monsterDirectory) == Path.GetFullPath(outputDirectory))
+            {
+                return ScanError.DirectoriesMatch;
+            }
+
+            // Input and output formats can match. Formats matching is an interesting run configuration.
+            // The generated files should match the input files
 
             if (Directory.Exists(monsterDirectory))
             {
