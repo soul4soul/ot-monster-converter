@@ -11,23 +11,15 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 
 Parsing and writing of nested loot is not yet supported by any formats. This is a low priority item as cipbia removed nested loot and its no longer commonly found in OT servers.
 
-### Supported Input Formats
+### Supported Formats
 
-| Format                                               | Percent Complete | Notes                                                                                                                                                                                       |
-|------------------------------------------------------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| TFS XML                                              | 95%              |  - Missing Support for variable haste<br/> - Missing support for converting attacks and defenses which are in scripts                                                                       |
-| [PyOT](https://bitbucket.org/vapus/pyot/) | 0%               |                                                                                                                                                                                             |
-| TFS revscriptsys                                     | 0%               |                                                                                                                                                                                             |
-| [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | 0%               |  - Helpful for keeping monsters up to date with cipbia<br/> - Monsters created from TibiaWiki will require corpse id, looktype, and spells to be created manually |
+| Format                                               | Input % Complete | Output % Complete | Notes                                                                                                                                                            |
+| ---------------------------------------------------- | ---------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TFS XML                                              | 95%              | 0%                | - Input: Missing Support for variable haste<br/> - Input: Missing support for converting attacks and defenses which are in scripts                                             |
+| [PyOT](https://bitbucket.org/vapus/pyot/)            | 0%               | 50%               | - Output: Missing attacks and defenses                                                                                                                                                      |
+| TFS revscriptsys                                     | 0%               | 90%               | - Missing support for attacks and defenses are written in Lua scripts<br/> - Attacks which cause conditions are not working                  |
+| [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | 0%               | 0%                | - Helpful for keeping monsters up to date with cipbia<br/> - See The [Infobox Creature Template](https://tibia.fandom.com/wiki/Template:Infobox_Creature) for information about TibiaWiki Format <br/> - Monsters created from TibiaWiki will require corpse id, looktype, and spells to be created manually |
 
-### Supported Output Formats
-
-| Format           | Percent Complete | Notes                                                                                                                 |
-|------------------|------------------|-----------------------------------------------------------------------------------------------------------------------|
-| TFS XML          | 0%               |                                                                                                                       |
-| [PyOT](https://bitbucket.org/vapus/pyot/) | 50%              | - Missing attacks and defenses                                                                                        |
-| TFS revscriptsys | 90%              |  - Missing support for attacks and defenses with are in scripts<br/> - Attacks which cause conditions are not working |
-| [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | 0%               |                                                                                                                       |
 
 ## Graphical Interface
 ![Alt text](https://user-images.githubusercontent.com/5142635/80318493-86a70580-87d8-11ea-85dc-cfc4e3fe2754.png)
