@@ -135,10 +135,10 @@ namespace OTMonsterConverter.Converter
                     var lootsection = lootsectionsRegEx.Match(elements);
                     string loots = lootsection.Captures[0].Value;
 
-                    // Note this fails on loot lines that appear as "|Golden Legs, times:138". This lines should only appear when there is not enough loot statistics for a creature
                     var killsmatches = new Regex(@"\|kills=(?<kills>\d+)").Matches(loots);
                     double.TryParse(killsmatches.FindNamedGroupValue("kills"), out double kills);
-                    var lootregex = new Regex(@"\|\s*(?<itemname>[a-z ()]*),\s*times:\s*(?<times>\d+), amount:\s*(?<amount>[0-9-]+), total:\s*(?<total>\d+)");
+                    // Show times TibiaWiki doesn't show the amount field
+                    var lootregex = new Regex(@"\|\s*(?<itemname>[a-z ()]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
                     var matches = lootregex.Matches(loots);
                     foreach (Match loot in matches)
                     {
@@ -146,24 +146,28 @@ namespace OTMonsterConverter.Converter
                         double.TryParse(loot.Groups["times"].Value, out double times);
                         string amount = loot.Groups["amount"].Value;
 
-                        double percent = times / kills;
-
-                        double count;
-                        if (!double.TryParse(amount, out count))
+                        if (item != "empty")
                         {
-                            var amounts = amount.Split("-");
-                            if (amounts.Length >= 2)
+                            double percent = times / kills;
+
+                            double count = 0;
+                            if (!double.TryParse(amount, out count))
                             {
-                                double.TryParse(amounts[1], out count);
+                                var amounts = amount.Split("-");
+                                if (amounts.Length >= 2)
+                                {
+                                    double.TryParse(amounts[1], out count);
+                                }
                             }
-                        }
+                            count = (count > 0) ? count : 1;
 
-                        monster.Items.Add(new Loot()
-                        {
-                            Item = item,
-                            Chance = (decimal)percent,
-                            Count = (decimal)count
-                        });
+                            monster.Items.Add(new Loot()
+                            {
+                                Item = item,
+                                Chance = (decimal)percent,
+                                Count = (decimal)count
+                            });
+                        }
                     }
                 }
             }
