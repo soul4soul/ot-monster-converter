@@ -28,8 +28,16 @@ namespace OTMonsterConverter.Converter
         }
 
         RegexPatternKeys[] monparams = new RegexPatternKeys[] {
-            new RegexPatternKeys("name", "(?<name>[a-z ]*)", (mon, mc) => mon.FileName = mc.FindNamedGroupValue("name")),
-            new RegexPatternKeys("actualname", "(?<actualname>[a-z ]*)", (mon, mc) => mon.Name = mc.FindNamedGroupValue("actualname")),
+            new RegexPatternKeys("name", "(?<name>[a-z'ñ.() -]*)", (mon, mc) => mon.FileName = mc.FindNamedGroupValue("name")),
+            new RegexPatternKeys("actualname", "(?<actualname>[a-z'ñ. -]*)", (mon, mc) => mon.Name = mc.FindNamedGroupValue("actualname")),
+
+            /// Needs better logic and handling of the letter casing for description
+            /// "Amarie (Creature)" should be "Amarie" captial
+            /// "Dragon" should be "a dragon"
+            /// "A Weak Spot" is "a Weak Spot" ?
+            /// "A Shielded Astral Glyph" is "a Shielded Astral Glyph"?
+            /// Some of this information on TibiaWiki could be wrong... but it does make sense for Amarie to be capital as it's a formal name
+            new RegexPatternKeys("article", "(?<article>[a-z ]*)", (mon, mc) => mon.Description = string.Format("{0} {1}", mc.FindNamedGroupValue("article"), mon.Name).Trim()),
             new RegexPatternKeys("hp", @"(?<hp>\d+)", (mon, mc) => mon.Health = uint.Parse(mc.FindNamedGroupValue("hp"))),
             new RegexPatternKeys("exp", @"(?<exp>\d+)", (mon, mc) => mon.Experience = uint.Parse(mc.FindNamedGroupValue("exp"))),
             new RegexPatternKeys("armor", @"(?<armor>\d+)", (mon, mc) => mon.TotalArmor = mon.Shielding = uint.Parse(mc.FindNamedGroupValue("armor"))),
@@ -47,6 +55,10 @@ namespace OTMonsterConverter.Converter
             new RegexPatternKeys("walksaround", @"(?<walksaround>\w+(, \w+)*)", (mon, mc) =>
             {
                 string walksaround = mc.FindNamedGroupValue("walksaround");
+
+                mon.AvoidFire = false;
+                mon.AvoidEnergy = false;
+                mon.AvoidPoison = false;
                 foreach (string field in walksaround.Split(","))
                 {
                     string fieldtrim = field.Trim();
@@ -75,7 +87,7 @@ namespace OTMonsterConverter.Converter
             new RegexPatternKeys("hpdraindmgmod", @"(?<hpdraindmgmod>\d+)%", (mon, mc) => mon.LifeDrain = double.Parse(mc.FindNamedGroupValue("hpdraindmgmod")) / 100.0),
             new RegexPatternKeys("drowndmgmod", @"(?<drowndmgmod>\d+)%", (mon, mc) => mon.Drown = double.Parse(mc.FindNamedGroupValue("drowndmgmod")) / 100.0),
             // TODO this needs to be on a none lowercase search
-            new RegexPatternKeys("sounds", @"{{sound list\|(?<sounds>[a-z !?.]+(\|[a-z !?.]+)*)", (mon, mc) =>
+            new RegexPatternKeys("sounds", @"{{sound list\|(?<sounds>[a-z !?.']+(\|[a-z !?.']+)*)", (mon, mc) =>
             {
                 string sounds = mc.FindNamedGroupValue("sounds");
                 foreach (string sound in sounds.Split("|"))
@@ -96,12 +108,13 @@ namespace OTMonsterConverter.Converter
 
         public bool ReadMonster(string filename, out Monster monster)
         {
-            filename = "demon";
             string monsterurl = $"https://tibia.fandom.com/wiki/{filename}?action=edit";
             string looturl = $"https://tibia.fandom.com/wiki/Loot_Statistics:{filename}?action=edit";
 
             monster = new Monster();
             ScrapingBrowser browser = new ScrapingBrowser();
+            // Have to explicitly set the encoding, AutoDetectCharsetEncoding set to true doesn't do it
+            browser.Encoding = Encoding.UTF8;
 
             WebPage monsterpage = browser.NavigateToPage(new Uri(monsterurl));
             var monsterElement = monsterpage.Html.CssSelect("#wpTextbox1").FirstOrDefault();
@@ -119,7 +132,7 @@ namespace OTMonsterConverter.Converter
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Pattern {x.Pattern} failed with \"{ex.Message}\"");
+                        System.Diagnostics.Debug.WriteLine($"{filename} Pattern \"{x.Pattern}\" failed with \"{ex.Message}\"");
                     }
                 }
             }
@@ -138,7 +151,7 @@ namespace OTMonsterConverter.Converter
                     var killsmatches = new Regex(@"\|kills=(?<kills>\d+)").Matches(loots);
                     double.TryParse(killsmatches.FindNamedGroupValue("kills"), out double kills);
                     // Show times TibiaWiki doesn't show the amount field
-                    var lootregex = new Regex(@"\|\s*(?<itemname>[a-z ()]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
+                    var lootregex = new Regex(@"\|\s*(?<itemname>[a-z'.() ]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
                     var matches = lootregex.Matches(loots);
                     foreach (Match loot in matches)
                     {
