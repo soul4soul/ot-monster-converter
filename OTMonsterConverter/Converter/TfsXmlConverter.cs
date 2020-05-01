@@ -344,6 +344,10 @@ namespace OTMonsterConverter.Converter
                         {
                             monster.AvoidPoison = value != 1;
                         }
+                        else if (x.attr[0].Name == "isboss")
+                        {
+                            monster.IsBoss = value == 1;
+                        }
                         else
                         {
                             Console.WriteLine($"Unknown name {x.attr[0].Name}");
