@@ -202,17 +202,14 @@ namespace OTMonsterConverter.Converter
 
         public bool WriteMonster(string directory, ref Monster monster)
         {
-            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-            string titleName = textInfo.ToTitleCase(monster.FileName.ToLower());
-
-            string fileName = Path.Combine(directory, titleName + ".lua");
+            string fileName = Path.Combine(directory, monster.FileName + ".lua");
 
             using (var fstream = File.OpenWrite(fileName))
             using (var dest = new StreamWriter(fstream))
             {
                 fstream.SetLength(0);
 
-                dest.WriteLine($"local mType = Game.createMonsterType(\"{titleName}\")");
+                dest.WriteLine($"local mType = Game.createMonsterType(\"{monster.Name}\")");
                 dest.WriteLine("local monster = {}");
                 dest.WriteLine("");
                 //"monster.eventFile = true -- will try to load the file example.lua in data/scripts/monsters/events",
@@ -271,7 +268,8 @@ namespace OTMonsterConverter.Converter
                 {
                     dest.WriteLine($"	isConvinceable = false,");
                 }
-                dest.WriteLine($"	isPushable = {monster.Pushable.ToString().ToLower()},");
+                dest.WriteLine($"	pushable = {monster.Pushable.ToString().ToLower()},");
+                dest.WriteLine($"	isboss = {monster.IsBoss.ToString().ToLower()},");
                 dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
