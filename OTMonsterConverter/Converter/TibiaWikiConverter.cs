@@ -3,6 +3,7 @@ using ScrapySharp.Extensions;
 using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -28,16 +29,9 @@ namespace OTMonsterConverter.Converter
         }
 
         RegexPatternKeys[] monparams = new RegexPatternKeys[] {
-            new RegexPatternKeys("name", "(?<name>[a-z'ñ.() -]*)", (mon, mc) => mon.FileName = mc.FindNamedGroupValue("name")),
+            new RegexPatternKeys("name", "(?<name>[A-Za-z'ñ.() -]*)", (mon, mc) => mon.FileName = mc.FindNamedGroupValue("name")),
             new RegexPatternKeys("actualname", "(?<actualname>[a-z'ñ. -]*)", (mon, mc) => mon.Name = mc.FindNamedGroupValue("actualname")),
-
-            /// Needs better logic and handling of the letter casing for description
-            /// "Amarie (Creature)" should be "Amarie" captial
-            /// "Dragon" should be "a dragon"
-            /// "A Weak Spot" is "a Weak Spot" ?
-            /// "A Shielded Astral Glyph" is "a Shielded Astral Glyph"?
-            /// Some of this information on TibiaWiki could be wrong... but it does make sense for Amarie to be capital as it's a formal name
-            new RegexPatternKeys("article", "(?<article>[a-z ]*)", (mon, mc) =>
+            new RegexPatternKeys("article", "(?<article>[A-Za-z ]*)", (mon, mc) =>
             {
                 if (mc.Count > 0)
                 {
@@ -56,14 +50,14 @@ namespace OTMonsterConverter.Converter
             new RegexPatternKeys("runsat", @"(?<runsat>\d+)", (mon, mc) => mon.RunOnHealth = uint.Parse(mc.FindNamedGroupValue("runsat"))),
             new RegexPatternKeys("summon", @"(?<summon>\d+)", (mon, mc) => mon.SummonCost = uint.Parse(mc.FindNamedGroupValue("summon"))),
             new RegexPatternKeys("convince", @"(?<convince>\d+)", (mon, mc) => mon.ConvinceCost = uint.Parse(mc.FindNamedGroupValue("convince"))),
-            new RegexPatternKeys("illusionable", @"(?<illusionable>yes)", (mon, mc) => mon.Illusionable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("illusionable"))),
-            new RegexPatternKeys("isboss", @"(?<isboss>yes)", (mon, mc) => mon.IsBoss = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("isboss"))),
+            new RegexPatternKeys("illusionable", @"(?<illusionable>((Y|y)(E|e)(S|s)))", (mon, mc) => mon.Illusionable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("illusionable"))),
+            new RegexPatternKeys("isboss", @"(?<isboss>((Y|y)(E|e)(S|s)))", (mon, mc) => mon.IsBoss = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("isboss"))),
             new RegexPatternKeys("priamrtype", @"(?<hidehealth>trap)", (mon, mc) => mon.HideHealth = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("hidehealth"))),
-            new RegexPatternKeys("pushable", @"(?<pushable>yes)", (mon, mc) => mon.Pushable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("pushable"))),
+            new RegexPatternKeys("pushable", @"(?<pushable>((Y|y)(E|e)(S|s)))", (mon, mc) => mon.Pushable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("pushable"))),
             // In cipbia ability to push objects means ability to push creatures too
-            new RegexPatternKeys("pushobjects", @"(?<pushobjects>yes)", (mon, mc) => mon.PushItems = mon.PushCreatures = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("pushobjects"))),
-            new RegexPatternKeys("senseinvis", @"(?<senseinvis>yes)", (mon, mc) => mon.IgnoreInvisible = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("senseinvis"))),
-            new RegexPatternKeys("paraimmune", @"(?<paraimmune>yes)", (mon, mc) => mon.IgnoreParalyze = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("paraimmune"))),
+            new RegexPatternKeys("pushobjects", @"(?<pushobjects>((Y|y)(E|e)(S|s)))", (mon, mc) => mon.PushItems = mon.PushCreatures = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("pushobjects"))),
+            new RegexPatternKeys("senseinvis", @"(?<senseinvis>((Y|y)(E|e)(S|s)))", (mon, mc) => mon.IgnoreInvisible = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("senseinvis"))),
+            new RegexPatternKeys("paraimmune", @"(?<paraimmune>((Y|y)(E|e)(S|s)))", (mon, mc) => mon.IgnoreParalyze = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("paraimmune"))),
             new RegexPatternKeys("walksaround", @"(?<walksaround>\w+(, \w+)*)", (mon, mc) =>
             {
                 string walksaround = mc.FindNamedGroupValue("walksaround");
@@ -73,7 +67,7 @@ namespace OTMonsterConverter.Converter
                 mon.AvoidPoison = false;
                 foreach (string field in walksaround.Split(","))
                 {
-                    string fieldtrim = field.Trim();
+                    string fieldtrim = field.Trim().ToLower();
                     if (fieldtrim == "fire")
                     {
                         mon.AvoidFire = true;
@@ -89,17 +83,16 @@ namespace OTMonsterConverter.Converter
                 }
                 return true; // to satisfy func
             }),
-            new RegexPatternKeys("physicaldmgmod", @"(?<physicaldmgmod>\d+)%", (mon, mc) => mon.Physical = double.Parse(mc.FindNamedGroupValue("physicaldmgmod")) / 100.0),
-            new RegexPatternKeys("earthdmgmod", @"(?<earthdmgmod>\d+)%", (mon, mc) => mon.Earth = double.Parse(mc.FindNamedGroupValue("earthdmgmod")) / 100.0),
-            new RegexPatternKeys("firedmgmod", @"(?<firedmgmod>\d*)%", (mon, mc) => mon.Fire = double.Parse(mc.FindNamedGroupValue("firedmgmod")) / 100.0),
-            new RegexPatternKeys("deathdmgmod", @"(?<deathdmgmod>\d*)%", (mon, mc) => mon.Death = double.Parse(mc.FindNamedGroupValue("deathdmgmod")) / 100.0),
-            new RegexPatternKeys("energydmgmod", @"(?<energydmgmod>\d+)%", (mon, mc) => mon.Energy = double.Parse(mc.FindNamedGroupValue("energydmgmod")) / 100.0),
-            new RegexPatternKeys("holydmgmod", @"(?<holydmgmod>\d+)%", (mon, mc) => mon.Holy = double.Parse(mc.FindNamedGroupValue("holydmgmod")) / 100.0),
-            new RegexPatternKeys("icedmgmod", @"(?<icedmgmod>\d+)%", (mon, mc) => mon.Ice = double.Parse(mc.FindNamedGroupValue("icedmgmod")) / 100.0),
-            new RegexPatternKeys("hpdraindmgmod", @"(?<hpdraindmgmod>\d+)%", (mon, mc) => mon.LifeDrain = double.Parse(mc.FindNamedGroupValue("hpdraindmgmod")) / 100.0),
-            new RegexPatternKeys("drowndmgmod", @"(?<drowndmgmod>\d+)%", (mon, mc) => mon.Drown = double.Parse(mc.FindNamedGroupValue("drowndmgmod")) / 100.0),
-            // TODO this needs to be on a none lowercase search
-            new RegexPatternKeys("sounds", @"{{sound list\|(?<sounds>[a-z !?.']+(\|[a-z !?.']+)*)", (mon, mc) =>
+            new RegexPatternKeys("physicalDmgMod", @"(?<physicaldmgmod>\d+)%", (mon, mc) => mon.Physical = double.Parse(mc.FindNamedGroupValue("physicaldmgmod")) / 100.0),
+            new RegexPatternKeys("earthDmgMod", @"(?<earthdmgmod>\d+)%", (mon, mc) => mon.Earth = double.Parse(mc.FindNamedGroupValue("earthdmgmod")) / 100.0),
+            new RegexPatternKeys("fireDmgMod", @"(?<firedmgmod>\d*)%", (mon, mc) => mon.Fire = double.Parse(mc.FindNamedGroupValue("firedmgmod")) / 100.0),
+            new RegexPatternKeys("deathDmgMod", @"(?<deathdmgmod>\d*)%", (mon, mc) => mon.Death = double.Parse(mc.FindNamedGroupValue("deathdmgmod")) / 100.0),
+            new RegexPatternKeys("energyDmgMod", @"(?<energydmgmod>\d+)%", (mon, mc) => mon.Energy = double.Parse(mc.FindNamedGroupValue("energydmgmod")) / 100.0),
+            new RegexPatternKeys("holyDmgMod", @"(?<holydmgmod>\d+)%", (mon, mc) => mon.Holy = double.Parse(mc.FindNamedGroupValue("holydmgmod")) / 100.0),
+            new RegexPatternKeys("iceDmgMod", @"(?<icedmgmod>\d+)%", (mon, mc) => mon.Ice = double.Parse(mc.FindNamedGroupValue("icedmgmod")) / 100.0),
+            new RegexPatternKeys("hpdrainDmgMod", @"(?<hpdraindmgmod>\d+)%", (mon, mc) => mon.LifeDrain = double.Parse(mc.FindNamedGroupValue("hpdraindmgmod")) / 100.0),
+            new RegexPatternKeys("drownDmgMod", @"(?<drowndmgmod>\d+)%", (mon, mc) => mon.Drown = double.Parse(mc.FindNamedGroupValue("drowndmgmod")) / 100.0),
+            new RegexPatternKeys("sounds", @"{{Sound List\|(?<sounds>[a-zA-Z !?.']+(\|[a-zA-Z !?.']+)*)", (mon, mc) =>
             {
                 string sounds = mc.FindNamedGroupValue("sounds");
                 foreach (string sound in sounds.Split("|"))
@@ -107,7 +100,7 @@ namespace OTMonsterConverter.Converter
                     mon.Voices.Add(new Voice(){ Sound = sound, SoundLevel = SoundLevel.Say });
                 }
                 return true; // to satisfy func
-            }),
+            })
             // blood from primarytype or creatureclasss?
             // No mon.ManaDrain in tibiawiki database
             // No healMod in OT monsters?
@@ -117,7 +110,7 @@ namespace OTMonsterConverter.Converter
         //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
         // Behavior maybe needs different parsing, we can try to make it smart searching for the term distance...
         //   TibiaWiki has inconsistent format and usually guesses or doesn't include distance stance, default to 4?
-        // Strategy likely provides no help on occasion will provide more details about beavhior and anilityies
+        // Strategy likely provides no help on occasion will provide more details about Behavior and Abilities
 
         public bool ReadMonster(string filename, out Monster monster)
         {
@@ -134,8 +127,6 @@ namespace OTMonsterConverter.Converter
             if (monsterElement != null)
             {
                 string element = monsterElement.InnerHtml;
-                element = element.ToLower();
-
                 foreach (var x in monparams)
                 {
                     var matches = new Regex(x.Pattern).Matches(element);
@@ -150,6 +141,9 @@ namespace OTMonsterConverter.Converter
                 }
             }
 
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            monster.Name = textInfo.ToTitleCase(monster.Name);
+
             WebPage lootpage = browser.NavigateToPage(new Uri(looturl));
             var statsElement = lootpage.Html.CssSelect("#wpTextbox1").FirstOrDefault();
             if (statsElement != null)
@@ -163,7 +157,7 @@ namespace OTMonsterConverter.Converter
 
                     var killsmatches = new Regex(@"\|kills=(?<kills>\d+)").Matches(loots);
                     double.TryParse(killsmatches.FindNamedGroupValue("kills"), out double kills);
-                    // Show times TibiaWiki doesn't show the amount field
+                    // sometimes TibiaWiki doesn't show the amount field
                     var lootregex = new Regex(@"\|\s*(?<itemname>[a-z'.() ]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
                     var matches = lootregex.Matches(loots);
                     foreach (Match loot in matches)
