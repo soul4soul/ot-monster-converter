@@ -268,8 +268,8 @@ namespace OTMonsterConverter.Converter
                 {
                     dest.WriteLine($"	isConvinceable = false,");
                 }
-                dest.WriteLine($"	ispushable = {monster.Pushable.ToString().ToLower()},");
-                dest.WriteLine($"	isboss = {monster.IsBoss.ToString().ToLower()},");
+                dest.WriteLine($"	isPushable = {monster.Pushable.ToString().ToLower()},");
+                dest.WriteLine($"	isBoss = {monster.IsBoss.ToString().ToLower()},");
                 dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
