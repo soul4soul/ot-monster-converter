@@ -382,7 +382,7 @@ namespace OTMonsterConverter.Converter
                     monster.Summons.Add(new Summon()
                     {
                         Name = summon.name,
-                        Chance = (uint)Math.Min(100, summon.chance),
+                        Chance = Math.Min(1, (double)summon.chance / 100),
                         Rate = (uint)((summon.interval > 0) ? summon.interval : summon.speed),
                         Max = summon.max,
                         Force = summon.force
@@ -1249,7 +1249,7 @@ namespace OTMonsterConverter.Converter
         [XmlAttribute]
         public int speed = 1000; //interval and speed are the same //defaults to 1000 if missing
         [XmlAttribute]
-        public int chance = 100; //defaults to 100 if missing
+        public double chance = 100; //defaults to 100 if missing
         [XmlAttribute]
         public int max;
         [XmlAttribute]

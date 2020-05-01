@@ -300,7 +300,7 @@ namespace OTMonsterConverter.Converter
                     string summon;
                     for (int i = 0; i < monster.Summons.Count; i++)
                     {
-                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance}, interval = {monster.Summons[i].Rate}";
+                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100}, interval = {monster.Summons[i].Rate}";
                         if (monster.Summons[i].Max > 0) {
                             summon += $", max = {monster.Summons[i].Max}";
                         }
@@ -320,8 +320,8 @@ namespace OTMonsterConverter.Converter
                         dest.WriteLine(summon);
                     }
                     dest.WriteLine("}");
+                    dest.WriteLine("");
                 }
-                dest.WriteLine("");
 
                 // Voices
                 dest.WriteLine("monster.voices = {");
