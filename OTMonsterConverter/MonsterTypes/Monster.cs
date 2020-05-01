@@ -96,7 +96,7 @@ namespace OTMonsterConverter.MonsterTypes
         public uint LightLevel { get; set; }
         public uint LightColor { get; set; }
         public bool HideHealth { get; set; }
-
+        public bool IsBoss { get; set; }
 
         // Walk Behavior
         public bool AvoidFire { get; set; }
