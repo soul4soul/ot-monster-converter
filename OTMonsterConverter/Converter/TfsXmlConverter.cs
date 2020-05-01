@@ -334,15 +334,15 @@ namespace OTMonsterConverter.Converter
                         }
                         else if (x.attr[0].Name == "canwalkonenergy")
                         {
-                            monster.AvoidEnergy = value == 1;
+                            monster.AvoidEnergy = value != 1;
                         }
                         else if (x.attr[0].Name == "canwalkonfire")
                         {
-                            monster.AvoidFire = value == 1;
+                            monster.AvoidFire = value != 1;
                         }
                         else if (x.attr[0].Name == "canwalkonpoison")
                         {
-                            monster.AvoidPoison = value == 1;
+                            monster.AvoidPoison = value != 1;
                         }
                         else
                         {
