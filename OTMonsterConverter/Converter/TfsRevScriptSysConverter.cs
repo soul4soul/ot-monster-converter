@@ -314,6 +314,8 @@ namespace OTMonsterConverter.Converter
                         if (i == monster.Summons.Count - 1)
                         {
                             summon = summon.TrimEnd(',');
+                        } else {
+                            summon += ",";
                         }
                         dest.WriteLine(summon);
                     }
