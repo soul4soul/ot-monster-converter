@@ -37,7 +37,18 @@ namespace OTMonsterConverter.Converter
             /// "A Weak Spot" is "a Weak Spot" ?
             /// "A Shielded Astral Glyph" is "a Shielded Astral Glyph"?
             /// Some of this information on TibiaWiki could be wrong... but it does make sense for Amarie to be capital as it's a formal name
-            new RegexPatternKeys("article", "(?<article>[a-z ]*)", (mon, mc) => mon.Description = string.Format("{0} {1}", mc.FindNamedGroupValue("article"), mon.Name).Trim()),
+            new RegexPatternKeys("article", "(?<article>[a-z ]*)", (mon, mc) =>
+            {
+                if (mc.Count > 0)
+                {
+                    mon.Description = string.Format("{0} {1}", mc.FindNamedGroupValue("article"), mon.Name).Trim();
+                }
+                else
+                {
+                    mon.Description = mon.Name;
+                }
+                return true;
+            }),
             new RegexPatternKeys("hp", @"(?<hp>\d+)", (mon, mc) => mon.Health = uint.Parse(mc.FindNamedGroupValue("hp"))),
             new RegexPatternKeys("exp", @"(?<exp>\d+)", (mon, mc) => mon.Experience = uint.Parse(mc.FindNamedGroupValue("exp"))),
             new RegexPatternKeys("armor", @"(?<armor>\d+)", (mon, mc) => mon.TotalArmor = mon.Shielding = uint.Parse(mc.FindNamedGroupValue("armor"))),
@@ -46,6 +57,7 @@ namespace OTMonsterConverter.Converter
             new RegexPatternKeys("summon", @"(?<summon>\d+)", (mon, mc) => mon.SummonCost = uint.Parse(mc.FindNamedGroupValue("summon"))),
             new RegexPatternKeys("convince", @"(?<convince>\d+)", (mon, mc) => mon.ConvinceCost = uint.Parse(mc.FindNamedGroupValue("convince"))),
             new RegexPatternKeys("illusionable", @"(?<illusionable>yes)", (mon, mc) => mon.Illusionable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("illusionable"))),
+            new RegexPatternKeys("isboss", @"(?<isboss>yes)", (mon, mc) => mon.IsBoss = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("isboss"))),
             new RegexPatternKeys("priamrtype", @"(?<hidehealth>trap)", (mon, mc) => mon.HideHealth = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("hidehealth"))),
             new RegexPatternKeys("pushable", @"(?<pushable>yes)", (mon, mc) => mon.Pushable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("pushable"))),
             // In cipbia ability to push objects means ability to push creatures too
@@ -92,7 +104,6 @@ namespace OTMonsterConverter.Converter
                 string sounds = mc.FindNamedGroupValue("sounds");
                 foreach (string sound in sounds.Split("|"))
                 {
-                    // TODO config default soundlevel of cipbia monsters... I thought it was yell
                     mon.Voices.Add(new Voice(){ Sound = sound, SoundLevel = SoundLevel.Say });
                 }
                 return true; // to satisfy func
