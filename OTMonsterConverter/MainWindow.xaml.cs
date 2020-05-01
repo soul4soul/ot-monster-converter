@@ -38,6 +38,7 @@ namespace OTMonsterConverter
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     monsterListDataTable.Rows.Add(new object[] { System.IO.Path.GetFileName(e.SourceMonsterFile), e.DestinationFile, e.ConvertedSuccessfully });
+                    dataGridResults.ScrollIntoView(dataGridResults.Items[dataGridResults.Items.Count - 1]);
                 });
             }
         }
