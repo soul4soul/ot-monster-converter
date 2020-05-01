@@ -113,8 +113,10 @@ namespace OTMonsterConverter.Converter
             // No healMod in OT monsters?
         };
 
+        // Abilities should be parsed for summons, melee, attacks, and defenses. Each ability is seperated by a comma
+        //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
         // Behavior maybe needs different parsing, we can try to make it smart searching for the term distance...
-        // Abilities maybe needs different pasring, we should be able to get melee, summons, healing, and maybe even a few other attacks
+        //   TibiaWiki has inconsistent format and usually guesses or doesn't include distance stance, default to 4?
         // Strategy likely provides no help on occasion will provide more details about beavhior and anilityies
 
         public bool ReadMonster(string filename, out Monster monster)
