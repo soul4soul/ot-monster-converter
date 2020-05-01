@@ -268,7 +268,7 @@ namespace OTMonsterConverter.Converter
                 {
                     dest.WriteLine($"	isConvinceable = false,");
                 }
-                dest.WriteLine($"	pushable = {monster.Pushable.ToString().ToLower()},");
+                dest.WriteLine($"	ispushable = {monster.Pushable.ToString().ToLower()},");
                 dest.WriteLine($"	isboss = {monster.IsBoss.ToString().ToLower()},");
                 dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
@@ -281,7 +281,7 @@ namespace OTMonsterConverter.Converter
                 dest.WriteLine($"	canwalkonenergy = {canwalk.ToString().ToLower()},");
                 canwalk = !monster.AvoidEnergy;
                 dest.WriteLine($"	canwalkonfire = {canwalk.ToString().ToLower()},");
-                canwalk = !monster.AvoidEnergy;
+                canwalk = !monster.AvoidPoison;
                 dest.WriteLine($"	canwalkonpoison = {canwalk.ToString().ToLower()}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
@@ -521,17 +521,17 @@ namespace OTMonsterConverter.Converter
                 dest.WriteLine("");
 
                 dest.WriteLine("monster.elements = {");
-                dest.WriteLine($"	{{type = COMBAT_PHYSICALDAMAGE, percent = {GenericToTfsElemementPercent(monster.Physical)}}},");
-                dest.WriteLine($"	{{type = COMBAT_ENERGYDAMAGE, percent = {GenericToTfsElemementPercent(monster.Energy)}}},");
-                dest.WriteLine($"	{{type = COMBAT_EARTHDAMAGE, percent = {GenericToTfsElemementPercent(monster.Earth)}}},");
-                dest.WriteLine($"	{{type = COMBAT_FIREDAMAGE, percent = {GenericToTfsElemementPercent(monster.Fire)}}},");
-                dest.WriteLine($"	{{type = COMBAT_LIFEDRAIN, percent = {GenericToTfsElemementPercent(monster.LifeDrain)}}},");
-                dest.WriteLine($"	{{type = COMBAT_MANADRAIN, percent = {GenericToTfsElemementPercent(monster.ManaDrain)}}},");
+                dest.WriteLine($"	{{type = COMBAT_PHYSICALDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Physical)}}},");
+                dest.WriteLine($"	{{type = COMBAT_ENERGYDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Energy)}}},");
+                dest.WriteLine($"	{{type = COMBAT_EARTHDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Earth)}}},");
+                dest.WriteLine($"	{{type = COMBAT_FIREDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Fire)}}},");
+                dest.WriteLine($"	{{type = COMBAT_LIFEDRAIN, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrain)}}},");
+                dest.WriteLine($"	{{type = COMBAT_MANADRAIN, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrain)}}},");
                 //dest.WriteLine($"	{{type = COMBAT_HEALING, percent = {GenericToTfsElemementPercent(monster.XXXX)}}},");
-                dest.WriteLine($"	{{type = COMBAT_DROWNDAMAGE, percent = {GenericToTfsElemementPercent(monster.Drown)}}},");
-                dest.WriteLine($"	{{type = COMBAT_ICEDAMAGE, percent = {GenericToTfsElemementPercent(monster.Ice)}}},");
-                dest.WriteLine($"	{{type = COMBAT_HOLYDAMAGE , percent = {GenericToTfsElemementPercent(monster.Holy)}}},");
-                dest.WriteLine($"	{{type = COMBAT_DEATHDAMAGE , percent = {GenericToTfsElemementPercent(monster.Death)}}}");
+                dest.WriteLine($"	{{type = COMBAT_DROWNDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Drown)}}},");
+                dest.WriteLine($"	{{type = COMBAT_ICEDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Ice)}}},");
+                dest.WriteLine($"	{{type = COMBAT_HOLYDAMAGE , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Holy)}}},");
+                dest.WriteLine($"	{{type = COMBAT_DEATHDAMAGE , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Death)}}}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
@@ -554,9 +554,10 @@ namespace OTMonsterConverter.Converter
             throw new NotImplementedException();
         }
 
-        double GenericToTfsElemementPercent(double percent)
+        double GenericToTfsRevScriptSysElemementPercent(double percent)
         {
-            return (1 - percent) * 100;
+            double value = (1 - percent) * 100;
+            return Math.Round(value);
         }
     }
 }
