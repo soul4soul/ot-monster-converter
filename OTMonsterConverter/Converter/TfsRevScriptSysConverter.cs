@@ -294,18 +294,31 @@ namespace OTMonsterConverter.Converter
                 dest.WriteLine("");
 
                 // Summons
-                dest.WriteLine("monster.summons = {");
-                string summon;
-                for (int i = 0; i < monster.Summons.Count; i++)
+                if (monster.Summons.Count > 0)
                 {
-                    summon = $"	{{name = \"{monster.Summons[i].Name}\",chance = {monster.Summons[i].Chance}, interval = {monster.Summons[i].Rate}}},";
-                    if (i == monster.Summons.Count - 1)
+                    dest.WriteLine("monster.summons = {");
+                    string summon;
+                    for (int i = 0; i < monster.Summons.Count; i++)
                     {
-                        summon = summon.TrimEnd(',');
+                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance}, interval = {monster.Summons[i].Rate}";
+                        if (monster.Summons[i].Max > 0) {
+                            summon += $", max = {monster.Summons[i].Max}";
+                        }
+
+                        if (monster.Summons[i].Force)
+                        {
+                            summon += $", force = {monster.Summons[i].Force.ToString().ToLower()}";
+                        }
+                        summon += "}";
+
+                        if (i == monster.Summons.Count - 1)
+                        {
+                            summon = summon.TrimEnd(',');
+                        }
+                        dest.WriteLine(summon);
                     }
-                    dest.WriteLine(summon);
+                    dest.WriteLine("}");
                 }
-                dest.WriteLine("}");
                 dest.WriteLine("");
 
                 // Voices

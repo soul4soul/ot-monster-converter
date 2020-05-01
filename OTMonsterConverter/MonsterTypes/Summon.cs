@@ -8,6 +8,8 @@ namespace OTMonsterConverter.MonsterTypes
     {
         public string Name { get; set; }
         public uint Rate { get; set; }
-        public double Chance { get; set; }
+        public uint Chance { get; set; }
+        public int Max { get; set; }
+        public bool Force { get; set; }
     }
 }
