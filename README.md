@@ -41,3 +41,12 @@ Options:
                                directory
   -h, --help                 show this message and exit
 ```
+
+
+## Contributing
+Improvements and bug fixes are welcome, via pull requests  
+For questions, suggestions and bug reports, submit an issue.
+
+Another to contribute to this project is by contributing to [TibiaWiki](https://tibia.fandom.com) to improve creature information.
+
+![image](https://vignette.wikia.nocookie.net/tibia/images/d/d9/Tibiawiki_Small.gif/revision/latest?cb=20150129101832&path-prefix=en)
