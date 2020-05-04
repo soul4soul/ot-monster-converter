@@ -129,7 +129,7 @@ namespace OTMonsterConverter.Converter
                             var spell = new Spell() { Name = "melee", Interval = 2000, Chance = 100 };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
-                                // TODO guess defaults based on creature HP
+                                // Could guess defaults based on creature HP
                             }
                             spell.MinDamage = min;
                             spell.MaxDamage = max;
@@ -144,7 +144,7 @@ namespace OTMonsterConverter.Converter
                             var spell = new Spell() { Name = "physical", Interval = 2000, Chance = 100, Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
-                                // TODO guess defaults based on creature HP
+                                // Could guess defaults based on creature HP
                             }
                             spell.MinDamage = min;
                             spell.MaxDamage = max;
@@ -172,7 +172,7 @@ namespace OTMonsterConverter.Converter
                             var spell = new Spell() { Name = "healing", Interval = 2000, Chance = 20 };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
-                                // TODO guess defaults based on creature HP
+                                // Could guess defaults based on creature HP
                             }
                             spell.MinDamage = min;
                             spell.MaxDamage = max;
