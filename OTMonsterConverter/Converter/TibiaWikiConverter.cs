@@ -107,9 +107,6 @@ namespace OTMonsterConverter.Converter
             new RegexPatternKeys("abilities", @"(?<abilities>.*)", (mon, mc) => ParseAbilities(mon, mc))
         };
 
-        // Temp abilities for testing
-        // [[melee]] (0-500), [[fire damage|great fireball]] on target (area of effect: [http://img1.wikia.nocookie.net/__cb20080107125550/tibia/en/images/c/c8/hell%27s_core1.gif]) (150-250), [[great energy beam]] ([[life drain]]: 300-480), [[energy damage|energy strike]] (only from close. (210-300), [[mana drain]] (30-120), [[self-healing]] (80-250), [[haste]], [[fire field]], [[paralysis|distance paralyze]], [[summon]]s up to 1 [[fire elemental]].
-
         /// <summary>
         /// Parsing abilties is implemented like this instead of a using the RegexPatternKeys so we can easily print a list of abilties which fail to be parsed
         /// </summary>
@@ -242,10 +239,9 @@ namespace OTMonsterConverter.Converter
             string monsterurl = $"https://tibia.fandom.com/wiki/{filename}?action=edit";
             string looturl = $"https://tibia.fandom.com/wiki/Loot_Statistics:{filename}?action=edit";
 
-            monster = new Monster();
-            ScrapingBrowser browser = new ScrapingBrowser();
+            monster = new Monster() { Name = "" };
             // Have to explicitly set the encoding, AutoDetectCharsetEncoding set to true doesn't do it
-            browser.Encoding = Encoding.UTF8;
+            ScrapingBrowser browser = new ScrapingBrowser() { Encoding = Encoding.UTF8 };
 
             WebPage monsterpage = browser.NavigateToPage(new Uri(monsterurl));
             var monsterElement = monsterpage.Html.CssSelect("#wpTextbox1").FirstOrDefault();
@@ -267,6 +263,11 @@ namespace OTMonsterConverter.Converter
             }
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
+            {
+                // Better then nothing guess
+                monster.Name = monster.FileName;
+            }
             monster.Name = textInfo.ToTitleCase(monster.Name);
 
             WebPage lootpage = browser.NavigateToPage(new Uri(looturl));
