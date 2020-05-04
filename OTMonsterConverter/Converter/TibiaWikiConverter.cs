@@ -31,7 +31,7 @@ namespace OTMonsterConverter.Converter
 
         RegexPatternKeys[] monparams = new RegexPatternKeys[] {
             new RegexPatternKeys("name", "(?<name>[A-Za-z'ñ.() -]*)", (mon, mc) => mon.FileName = mc.FindNamedGroupValue("name")),
-            new RegexPatternKeys("actualname", "(?<actualname>[a-z'ñ. -]*)", (mon, mc) => mon.Name = mc.FindNamedGroupValue("actualname")),
+            new RegexPatternKeys("actualname", "(?<actualname>[A-Za-z'ñ. -]*)", (mon, mc) => mon.Name = mc.FindNamedGroupValue("actualname")),
             new RegexPatternKeys("article", "(?<article>[A-Za-z ]*)", (mon, mc) =>
             {
                 if (mc.Count > 0)
@@ -126,10 +126,10 @@ namespace OTMonsterConverter.Converter
                 string cleanability = ability.Trim();
                 switch (cleanability)
                 {
-                    case var _ when new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\)").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
                         {
-                            var matches = new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\)").Matches(cleanability);
-                            var spell = new Spell() { Name = "melee" };
+                            var matches = new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
+                            var spell = new Spell() { Name = "melee", Interval = 2000, Chance = 100 };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
                                 // TODO guess defaults based on creature HP
@@ -141,10 +141,10 @@ namespace OTMonsterConverter.Converter
                         }
 
                     // Effect might need to be optional
-                    case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\)").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
                         {
-                            var matches = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\)").Matches(cleanability);
-                            var spell = new Spell() { Name = "physical", Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
+                            var matches = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
+                            var spell = new Spell() { Name = "physical", Interval = 2000, Chance = 100, Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
                                 // TODO guess defaults based on creature HP
@@ -157,22 +157,22 @@ namespace OTMonsterConverter.Converter
 
                     case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", SpeedChange = 300, AreaEffect = Effect.MagicRed };
+                            var spell = new Spell() { Name = "speed", Interval = 2000, Chance = 15, SpeedChange = 300, AreaEffect = Effect.MagicRed };
                             mon.Attacks.Add(spell);
                             break;
                         }
 
                     case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", SpeedChange = 450, AreaEffect = Effect.MagicRed };
+                            var spell = new Spell() { Name = "speed", Interval = 2000, Chance = 15, SpeedChange = 450, AreaEffect = Effect.MagicRed };
                             mon.Attacks.Add(spell);
                             break;
                         }
 
-                    case var _ when new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\)").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
                         {
-                            var matches = new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\)").Matches(cleanability);
-                            var spell = new Spell() { Name = "healing" };
+                            var matches = new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
+                            var spell = new Spell() { Name = "healing", Interval = 2000, Chance = 20 };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
                                 // TODO guess defaults based on creature HP
