@@ -4,6 +4,7 @@ using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -101,7 +102,7 @@ namespace OTMonsterConverter.Converter
                 }
                 return true; // to satisfy func
             }),
-            // TODO check about parsing the numeric distance range
+            // TibiaWiki generally doesn't provide distance so we default to 4. In TFS monster pack 70 of 77 monsters which use distance attack stand at a range of 4.
             new RegexPatternKeys("behavior", @"(?<behavior>((D|d)(I|i)(S|s)(A|a)(N|n)(C|c)(|s)(E|e)))", (mon, mc) => mon.TargetDistance = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("behavior")) ? (uint)4 : (uint)1),
             new RegexPatternKeys("abilities", @"(?<abilities>.*)", (mon, mc) => ParseAbilities(mon, mc))
         };
@@ -182,8 +183,6 @@ namespace OTMonsterConverter.Converter
                             break;
                         }
 
-                    // TODO review TFSXML monster defense spells parsing.. are we actually doing it? Look at a revscriptsys demon check if there is any self healing
-
                     default:
                         System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{cleanability}\"");
                         break;
@@ -222,7 +221,7 @@ namespace OTMonsterConverter.Converter
                 var ranges = range.Split("-");
                 if (ranges.Length >= 2)
                 {
-                    int.TryParse(ranges[1], out min);
+                    int.TryParse(ranges[0], out min);
                     int.TryParse(ranges[1], out max);
                     return true;
                 }
@@ -233,7 +232,7 @@ namespace OTMonsterConverter.Converter
 
         private static string RemoveNonNumericChars(string input)
         {
-            Regex rgx = new Regex("[^a-zA-Z_,? ]");
+            Regex rgx = new Regex("[^0-9-]");
             input = rgx.Replace(input, "");
             return input;
         }
