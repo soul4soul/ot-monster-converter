@@ -100,17 +100,143 @@ namespace OTMonsterConverter.Converter
                     mon.Voices.Add(new Voice(){ Sound = sound, SoundLevel = SoundLevel.Say });
                 }
                 return true; // to satisfy func
-            })
-            // blood from primarytype or creatureclasss?
-            // No mon.ManaDrain in tibiawiki database
-            // No healMod in OT monsters?
+            }),
+            // TODO check about parsing the numeric distance range
+            new RegexPatternKeys("behavior", @"(?<behavior>((D|d)(I|i)(S|s)(A|a)(N|n)(C|c)(|s)(E|e)))", (mon, mc) => mon.TargetDistance = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("behavior")) ? (uint)4 : (uint)1),
+            new RegexPatternKeys("abilities", @"(?<abilities>.*)", (mon, mc) => ParseAbilities(mon, mc))
         };
 
-        // Abilities should be parsed for summons, melee, attacks, and defenses. Each ability is seperated by a comma
-        //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
-        // Behavior maybe needs different parsing, we can try to make it smart searching for the term distance...
-        //   TibiaWiki has inconsistent format and usually guesses or doesn't include distance stance, default to 4?
-        // Strategy likely provides no help on occasion will provide more details about Behavior and Abilities
+        // Temp abilities for testing
+        // [[melee]] (0-500), [[fire damage|great fireball]] on target (area of effect: [http://img1.wikia.nocookie.net/__cb20080107125550/tibia/en/images/c/c8/hell%27s_core1.gif]) (150-250), [[great energy beam]] ([[life drain]]: 300-480), [[energy damage|energy strike]] (only from close. (210-300), [[mana drain]] (30-120), [[self-healing]] (80-250), [[haste]], [[fire field]], [[paralysis|distance paralyze]], [[summon]]s up to 1 [[fire elemental]].
+
+        /// <summary>
+        /// Parsing abilties is implemented like this instead of a using the RegexPatternKeys so we can easily print a list of abilties which fail to be parsed
+        /// </summary>
+        /// <param name="mon"></param>
+        /// <param name="mc"></param>
+        /// <returns></returns>
+        private static bool ParseAbilities(Monster mon, MatchCollection mc)
+        {
+            // Abilities should be parsed for summons, melee, attacks, and defenses. Each ability is seperated by a comma
+            //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
+            string abilities = mc.FindNamedGroupValue("abilities").ToLower();
+            foreach (string ability in abilities.Split(","))
+            {
+                string cleanability = ability.Trim();
+                switch (cleanability)
+                {
+                    case var _ when new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\)").IsMatch(cleanability):
+                        {
+                            var matches = new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\)").Matches(cleanability);
+                            var spell = new Spell() { Name = "melee" };
+                            if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            {
+                                // TODO guess defaults based on creature HP
+                            }
+                            spell.MinDamage = min;
+                            spell.MaxDamage = max;
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
+                    // Effect might need to be optional
+                    case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\)").IsMatch(cleanability):
+                        {
+                            var matches = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\)").Matches(cleanability);
+                            var spell = new Spell() { Name = "physical", Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
+                            if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            {
+                                // TODO guess defaults based on creature HP
+                            }
+                            spell.MinDamage = min;
+                            spell.MaxDamage = max;
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
+                    case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanability):
+                        {
+                            var spell = new Spell() { Name = "speed", SpeedChange = 300, AreaEffect = Effect.MagicRed };
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
+                    case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanability):
+                        {
+                            var spell = new Spell() { Name = "speed", SpeedChange = 450, AreaEffect = Effect.MagicRed };
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
+                    case var _ when new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\)").IsMatch(cleanability):
+                        {
+                            var matches = new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\)").Matches(cleanability);
+                            var spell = new Spell() { Name = "healing" };
+                            if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            {
+                                // TODO guess defaults based on creature HP
+                            }
+                            spell.MinDamage = min;
+                            spell.MaxDamage = max;
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
+                    // TODO review TFSXML monster defense spells parsing.. are we actually doing it? Look at a revscriptsys demon check if there is any self healing
+
+                    default:
+                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{cleanability}\"");
+                        break;
+                }
+            }
+
+            return true;
+        }
+
+        private static Animation? TibiaWikiToAnimation(string effect)
+        {
+            if ((effect == "spear") || (effect == "spears"))
+            {
+                return Animation.Spear;
+            }
+            else if ((effect == "throwing knives") || (effect == "throwing knife"))
+            {
+                return Animation.ThrowingKnife;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Converts the string representation of a number range to its interger
+        ///     number equivalent. A return value indicates whether the conversion succeeded
+        ///     or failed.
+        /// Example numeric ranges which can be parsed are "500", "0-500", and "0-500?"
+        ///     In all examples the numberic value which is parsed would be 500
+        /// </summary>
+        private static bool ParseNumericRange(string range, out int min, out int max)
+        {
+            min = 0;
+            range = RemoveNonNumericChars(range);
+            if (!int.TryParse(range, out max))
+            {
+                var ranges = range.Split("-");
+                if (ranges.Length >= 2)
+                {
+                    int.TryParse(ranges[1], out min);
+                    int.TryParse(ranges[1], out max);
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+
+        private static string RemoveNonNumericChars(string input)
+        {
+            Regex rgx = new Regex("[^a-zA-Z_,? ]");
+            input = rgx.Replace(input, "");
+            return input;
+        }
 
         public bool ReadMonster(string filename, out Monster monster)
         {
