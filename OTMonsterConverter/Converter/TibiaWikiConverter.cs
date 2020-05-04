@@ -323,7 +323,107 @@ namespace OTMonsterConverter.Converter
 
         public bool WriteMonster(string directory, ref Monster monster)
         {
-            throw new NotImplementedException();
+            string[] lines =
+            {
+                "{{Infobox Creature|List={{{1|}}}|GetValue={{{GetValue|}}}",
+                $"| name           = {monster.FileName}",
+                $"| hp             = {monster.Health}",
+                $"| exp            = {monster.Experience}",
+                $"| armor          = {monster.TotalArmor}",
+                string.Format("| summon         = {0}", monster.SummonCost > 0 ? monster.SummonCost.ToString() : "--"),
+                string.Format("| convince         = {0}", monster.ConvinceCost > 0 ? monster.ConvinceCost.ToString() : "--"),
+                string.Format("| convince         = {0}", monster.Illusionable ? "yes" : "no"),
+                string.Format("| isboss         = {0}", monster.IsBoss ? "yes" : "no"),
+                string.Format("| pushable         = {0}", monster.Pushable ? "yes" : "no"),
+                string.Format("| pushobjects         = {0}", monster.PushItems ? "yes" : "no"),
+                $"| walksaround    = {GenericToTibiaWikiWalkAround(ref monster)}",
+                $"| walksthrough   = {GenericToTibiaWikiWalkThrough(ref monster)}",
+                string.Format("| paraimmune         = {0}", monster.IgnoreParalyze ? "yes" : "no"),
+                string.Format("| senseinvis         = {0}", monster.IgnoreInvisible ? "yes" : "no"),
+                $"| physicalDmgMod = {monster.Physical * 100}%",
+                $"| earthDmgMod    = {monster.Earth * 100}%",
+                $"| fireDmgMod     = {monster.Fire * 100}%",
+                $"| deathDmgMod    = {monster.Death * 100}%",
+                $"| energyDmgMod   = {monster.Energy * 100}%",
+                $"| holyDmgMod     = {monster.Holy * 100}%",
+                $"| iceDmgMod      = {monster.Ice * 100}%",
+                $"| hpDrainDmgMod  = {monster.LifeDrain * 100}%",
+                $"| drownDmgMod    = {monster.Drown * 100}%",
+                $"| sounds         = {GenericToTibiaWikiVoice(ref monster)}",
+                $"| runsat         = {monster.RunOnHealth}",
+                $"| speed          = {monster.Speed}"
+            };
+            string fileName = Path.Combine(directory, monster.FileName);
+            File.WriteAllLines(fileName, lines);
+
+            return true;
+        }
+
+        private string GenericToTibiaWikiWalkAround(ref Monster monster)
+        {
+            string walks = "";
+            if (monster.AvoidFire)
+            {
+                walks += "Fire, ";
+            }
+            if (monster.AvoidEnergy)
+            {
+                walks += "Energy, ";
+            }
+            if (monster.AvoidPoison)
+            {
+                walks += "Poison, ";
+            }
+            if (string.IsNullOrWhiteSpace(walks))
+            {
+                return "None";
+            }
+            else
+            {
+                return walks.Substring(0, walks.Length - 2); // Chop off trailing ", "
+            }
+        }
+
+        private string GenericToTibiaWikiWalkThrough(ref Monster monster)
+        {
+            string walks = "";
+            if (!monster.AvoidFire)
+            {
+                walks += "Fire, ";
+            }
+            if (!monster.AvoidEnergy)
+            {
+                walks += "Energy, ";
+            }
+            if (!monster.AvoidPoison)
+            {
+                walks += "Poison, ";
+            }
+            if (string.IsNullOrWhiteSpace(walks))
+            {
+                return "None";
+            }
+            else
+            {
+                return walks.Substring(0, walks.Length - 2); // Chop off trailing ", "
+            }
+        }
+
+        private string GenericToTibiaWikiVoice(ref Monster monster)
+        {
+            string voice = "";
+            foreach (var v in monster.Voices)
+            {
+                if (string.IsNullOrWhiteSpace(voice))
+                {
+                    voice = v.Sound;
+                }
+                else
+                {
+                    voice = $"{voice}|{v.Sound}";
+                }
+            }
+            return $"{{{{Sound List|{voice}}}}}";
         }
     }
 }
