@@ -40,7 +40,7 @@ namespace OTMonsterConverter.Converter
                     lowerName, monster.IgnoreParalyze, monster.IgnoreInvisible, monster.IgnoreDrunk),
                 GenericToPyOTSummons(lowerName, ref monster),
                 string.Format("{0}.voices({1})", lowerName, GenericToPyOTVoice(ref monster)),
-                //string.Format("{0}.loot({1})", lowerName, monster.Items),
+                GenericToPyOTLoot(lowerName, ref monster)
             };
             string fileName = Path.Combine(directory, monster.FileName + ".py");
             File.WriteAllLines(fileName, lines);
@@ -107,6 +107,49 @@ namespace OTMonsterConverter.Converter
             }
             summons += string.Format("{0}.maxSummons({1})", lowerName, monster.MaxSummons);
             return summons;
+        }
+
+        private string GenericToPyOTLoot(string lowerName, ref Monster monster)
+        {
+            string loot = "";
+            if (monster.Items.Count > 0)
+            {
+                foreach (var mi in monster.Items)
+                {
+                    string item;
+                    if (int.TryParse(mi.Item, out int itemid))
+                    {
+                        item = itemid.ToString();
+                    }
+                    else
+                    {
+                        item = $"\"{mi.Item}\"";
+                    }
+
+                    decimal chance = mi.Chance * 100;
+
+                    string newloot;
+                    if (mi.Count > 1)
+                    {
+                        newloot = $"({item}, {mi.Count}, {chance})";
+                    }
+                    else
+                    {
+                        newloot = $"({item}, {chance})";
+                    }
+
+                    if (string.IsNullOrWhiteSpace(loot))
+                    {
+                        loot = newloot;
+                    }
+                    else
+                    {
+                        loot = $"{loot}, {newloot}";
+                    }
+                }
+                loot = string.Format("{0}.loot( {1} )", lowerName, loot);
+            }
+            return loot;
         }
     }
 }
