@@ -400,7 +400,7 @@ namespace OTMonsterConverter.Converter
 
             if (tfsMonster.attacks != null)
             {
-                monster.Attacks = XmlSpellsToGeneric(tfsMonster.attacks.attack);
+                XmlSpellsToGeneric(ref monster, tfsMonster.attacks.attack, SpellCategory.Offensive);
             }
 
             // Defenses
@@ -408,6 +408,7 @@ namespace OTMonsterConverter.Converter
             {
                 monster.TotalArmor = tfsMonster.defenses.armor;
                 monster.Shielding = tfsMonster.defenses.defense;
+                XmlSpellsToGeneric(ref monster, tfsMonster.defenses.defenses, SpellCategory.Defensive);
             }
 
             #region parseElements
@@ -696,14 +697,13 @@ namespace OTMonsterConverter.Converter
             return race;
         }
 
-        private IList<Spell> XmlSpellsToGeneric(Attack[] spells)
+        private void XmlSpellsToGeneric(ref Monster monster, Attack[] spells, SpellCategory category)
         {
-            IList<Spell> monSpells = new List<Spell>();
             if (spells != null)
             {
                 foreach (var attack in spells)
                 {
-                    Spell spell = new Spell();
+                    Spell spell = new Spell() { SpellCategory = category };
                     spell.Name = attack.name;
                     if (attack.interval != 0)
                     {
@@ -851,10 +851,9 @@ namespace OTMonsterConverter.Converter
                         }
                     }
 
-                    monSpells.Add(spell);
+                    monster.Attacks.Add(spell);
                 }
             }
-            return monSpells;
         }
 
         private string generictoTfsBlood(Blood race)

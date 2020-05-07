@@ -7,6 +7,7 @@ namespace OTMonsterConverter.MonsterTypes
     public class Spell
     {
         public string Name { get; set; }
+        public SpellCategory SpellCategory { get; set; }
         public int? MinDamage { get; set; }
         public int? MaxDamage { get; set; }
         public TargetType? TargetStyle { get; set; }
