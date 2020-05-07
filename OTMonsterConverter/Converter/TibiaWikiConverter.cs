@@ -199,6 +199,14 @@ namespace OTMonsterConverter.Converter
             {
                 return Animation.ThrowingKnife;
             }
+            else if ((effect == "bolt") || (effect == "bolts"))
+            {
+                return Animation.Bolt;
+            }
+            else if ((effect == "arrow") || (effect == "arrows"))
+            {
+                return Animation.Arrow;
+            }
             return null;
         }
 
