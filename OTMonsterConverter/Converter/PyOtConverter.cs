@@ -39,7 +39,7 @@ namespace OTMonsterConverter.Converter
                 string.Format("{0}.immunity(paralyze={1}, invisible={2}, drunk={3})",
                     lowerName, monster.IgnoreParalyze, monster.IgnoreInvisible, monster.IgnoreDrunk),
                 GenericToPyOTSummons(lowerName, ref monster),
-                string.Format("{0}.voices({1})", lowerName, GenericToPyOTVoice(ref monster)),
+                GenericToPyOTVoice(lowerName, ref monster),
                 GenericToPyOTLoot(lowerName, ref monster)
             };
             string fileName = Path.Combine(directory, monster.FileName + ".py");
@@ -78,19 +78,23 @@ namespace OTMonsterConverter.Converter
             return bloodName;
         }
 
-        private string GenericToPyOTVoice(ref Monster monster)
+        private string GenericToPyOTVoice(string lowerName, ref Monster monster)
         {
             string voice = "";
-            foreach(var v in monster.Voices)
+            if (monster.Voices.Count > 0)
             {
-                if (string.IsNullOrWhiteSpace(voice))
+                foreach (var v in monster.Voices)
                 {
-                    voice = $"\"{v.Sound}\"";
+                    if (string.IsNullOrWhiteSpace(voice))
+                    {
+                        voice = $"\"{v.Sound}\"";
+                    }
+                    else
+                    {
+                        voice = $"{voice}, \"{v.Sound}\"";
+                    }
                 }
-                else
-                {
-                    voice = $"{voice}, \"{v.Sound}\"";
-                }
+                voice = string.Format("{0}.voices({1})", lowerName, voice);
             }
             return voice;
         }
@@ -104,8 +108,8 @@ namespace OTMonsterConverter.Converter
                 {
                     summons += $"{lowerName}.summon(\"{s.Name}\", {s.Chance * 100})\n";
                 }
+                summons += string.Format("{0}.maxSummons({1})", lowerName, monster.MaxSummons);
             }
-            summons += string.Format("{0}.maxSummons({1})", lowerName, monster.MaxSummons);
             return summons;
         }
 
