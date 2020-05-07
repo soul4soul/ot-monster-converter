@@ -126,7 +126,7 @@ namespace OTMonsterConverter.Converter
                     case var _ when new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
                         {
                             var matches = new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
-                            var spell = new Spell() { Name = "melee", Interval = 2000, Chance = 100 };
+                            var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 100 };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
                                 // Could guess defaults based on creature HP
@@ -141,7 +141,7 @@ namespace OTMonsterConverter.Converter
                     case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
                         {
                             var matches = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
-                            var spell = new Spell() { Name = "physical", Interval = 2000, Chance = 100, Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
+                            var spell = new Spell() { Name = "physical", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 100, Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
                                 // Could guess defaults based on creature HP
@@ -154,14 +154,14 @@ namespace OTMonsterConverter.Converter
 
                     case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", Interval = 2000, Chance = 15, SpeedChange = 300, AreaEffect = Effect.MagicRed };
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 300, AreaEffect = Effect.MagicRed };
                             mon.Attacks.Add(spell);
                             break;
                         }
 
                     case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", Interval = 2000, Chance = 15, SpeedChange = 450, AreaEffect = Effect.MagicRed };
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 450, AreaEffect = Effect.MagicRed };
                             mon.Attacks.Add(spell);
                             break;
                         }
@@ -169,7 +169,7 @@ namespace OTMonsterConverter.Converter
                     case var _ when new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
                         {
                             var matches = new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
-                            var spell = new Spell() { Name = "healing", Interval = 2000, Chance = 20 };
+                            var spell = new Spell() { Name = "healing", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 20 };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
                                 // Could guess defaults based on creature HP
