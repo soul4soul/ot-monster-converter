@@ -38,8 +38,7 @@ namespace OTMonsterConverter.Converter
                 string.Format("{0}.walkAround(energy={1}, fire={2}, poison={3})", lowerName, monster.AvoidEnergy, monster.AvoidFire, monster.AvoidPoison),
                 string.Format("{0}.immunity(paralyze={1}, invisible={2}, drunk={3})",
                     lowerName, monster.IgnoreParalyze, monster.IgnoreInvisible, monster.IgnoreDrunk),
-                string.Format("{0}.maxSummons({1})", lowerName, monster.MaxSummons),
-                //string.Format("{0}.summon({1})", lowerName, monster.Summons),
+                GenericToPyOTSummons(lowerName, ref monster),
                 string.Format("{0}.voices({1})", lowerName, GenericToPyOTVoice(ref monster)),
                 //string.Format("{0}.loot({1})", lowerName, monster.Items),
             };
@@ -94,6 +93,20 @@ namespace OTMonsterConverter.Converter
                 }
             }
             return voice;
+        }
+
+        private string GenericToPyOTSummons(string lowerName, ref Monster monster)
+        {
+            string summons = "";
+            if (monster.Summons.Count > 0)
+            {
+                foreach (var s in monster.Summons)
+                {
+                    summons += $"{lowerName}.summon(\"{s.Name}\", {s.Chance * 100})\n";
+                }
+            }
+            summons += string.Format("{0}.maxSummons({1})", lowerName, monster.MaxSummons);
+            return summons;
         }
     }
 }
