@@ -378,160 +378,67 @@ namespace OTMonsterConverter.Converter
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
-                dest.WriteLine("monster.attacks = {");
-                string attack = string.Empty;
-                for (int i = 0; i < monster.Attacks.Count; i++)
+                // Offensive abilities
+                if (monster.Attacks.Count > 0)
                 {
-                    Spell spell = monster.Attacks[i];
-
-                    if (spell.Name == "melee")
+                    IList<string> attacks = new List<string>();
+                    foreach (var spell in monster.Attacks)
                     {
-                        attack = $"	{{name =\"combat\", interval = {spell.Interval}, chance = {spell.Chance}";
-
-                        if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                        if (spell.SpellCategory == SpellCategory.Offensive)
                         {
-                            attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
-                        }
-                        else if (spell.MaxDamage != null)
-                        {
-                            attack += $", minDamage = {spell.MinDamage}";
-                        }
-                        else if ((spell.AttackValue != null) && (spell.Skill != null))
-                        {
-                            attack += $", skill = {spell.Skill}, attack = {spell.AttackValue}";
-                        }
-                        //else continue which we should never hit?
-
-                        attack += $", effect = {magicEffectNames[Effect.DrawBlood]}";
-
-                        // Conditions only ever appear on melee damage?
-                        if (spell.Condition != null)
-                        {
-                            attack += $", condition = {{type = {ConditioToTFsConstants[(Condition)spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
+                            Spell s = spell;
+                            attacks.Add(GenericToTfsRevScriptSysSpells(ref s));
                         }
                     }
-                    else if (spell.Name == "speed")
-                    {
-                        attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
 
-                        if ((spell.SpeedChange != null) && (spell.Duration != null))
-                        {
-                            attack += $", SpeedChange = {spell.SpeedChange}, Duration = {spell.Duration}";
-                        }
-                    }
-                    else if (spell.Name.Contains("invisible"))
+                    dest.WriteLine("monster.attacks = {");
+                    for (int i = 0; i < attacks.Count; i++)
                     {
-                        attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
-                        if (spell.AreaEffect != null)
+                        if (i == attacks.Count - 1)
                         {
-                            attack += $", effect = {magicEffectNames[(Effect)spell.AreaEffect]}";
-                        }
-                    }
-                    else
-                    {
-                        if (spell.Name.Contains("field") ||
-                            spell.Name.Contains("drunk") ||
-                            spell.Name.Contains("outfit"))
-                        {
-                            attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
-                        }
-                        else if (spell.Name.Contains("condition"))
-                        {
-                            string condition = spell.Name.Replace("condition", "");
-                            attack = $"	{{name =\"{condition}\", interval = {spell.Interval}, chance = {spell.Chance}";
+                            dest.WriteLine($"{attacks[i]}");
                         }
                         else
                         {
-                            attack = $"	{{name =\"combat\", interval = {spell.Interval}, chance = {spell.Chance}";
-                        }
-                        if (spell.Name != "outfit")
-                        {
-                            if ((spell.MinDamage != null) && (spell.MaxDamage != null))
-                            {
-                                attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
-                            }
-                            else if (spell.MaxDamage != null)
-                            {
-                                attack += $", minDamage = {spell.MinDamage}";
-                            }
-                            if (spell.DamageElement != null)
-                            {
-                                attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
-                            }
-                            if (spell.Range != null)
-                            {
-                                attack += $", range = {spell.Range}";
-                            }
-                            if (spell.Radius != null)
-                            {
-                                attack += $", radius = {spell.Radius}";
-                            }
-                            if (spell.Length != null)
-                            {
-                                attack += $", length = {spell.Length}";
-                            }
-                            if (spell.Spread != null)
-                            {
-                                attack += $", spread = {spell.Spread}";
-                            }
-                            if (spell.ShootEffect != null)
-                            {
-                                attack += $", ShootEffect = {shootTypeNames[(Animation)spell.ShootEffect]}";
-                            }
-                            if (spell.AreaEffect != null)
-                            {
-                                attack += $", effect = {magicEffectNames[(Effect)spell.AreaEffect]}";
-                            }
-                            if (spell.Target != null)
-                            {
-                                attack += $", target = {spell.Target.ToString().ToLower()}";
-                            }
-                            if (spell.Duration != null)
-                            {
-                                attack += $", duration = {spell.Duration}";
-                            }
-                            if (spell.Name.Contains("condition"))
-                            {
-                                // Not implemented?
-                                if (spell.Tick != null)
-                                {
-                                    attack += $", tick = {spell.Tick}";
-                                }
-                                // Not implemented?
-                                if (spell.StartDamage != null)
-                                {
-                                    attack += $", start = {spell.StartDamage}";
-                                }
-                            }
-                            if (spell.Name == "outfit")
-                            {
-                                if (!string.IsNullOrEmpty(spell.MonsterName))
-                                {
-                                    attack += $", monster = \"{spell.MonsterName}\"";
-                                }
-                                else if (spell.ItemId != null)
-                                {
-                                    attack += $", item = {spell.ItemId}";
-                                }
-                            }
+                            dest.WriteLine($"{attacks[i]},");
                         }
                     }
-                    attack += "},";
-
-                    if (i == monster.Attacks.Count - 1)
-                    {
-                        attack = attack.TrimEnd(',');
-                    }
-                    dest.WriteLine(attack);
+                    dest.WriteLine("}");
+                    dest.WriteLine("");
                 }
-                dest.WriteLine("}");
-                dest.WriteLine("");
 
+                // Defensive abilities
+                IList<string> defenses = new List<string>();
+                foreach (var spell in monster.Attacks)
+                {
+                    if (spell.SpellCategory == SpellCategory.Defensive)
+                    {
+                        Spell s = spell;
+                        defenses.Add(GenericToTfsRevScriptSysSpells(ref s));
+                    }
+                }
                 dest.WriteLine("monster.defenses = {");
                 dest.WriteLine($"	defense = {monster.Shielding},");
-                dest.WriteLine($"	armor = {monster.TotalArmor}");
-                //"	{name = "combat", type = COMBAT_HEALING, chance = 15, interval = 2*1000, minDamage = 180, maxDamage = 250, effect = ","CONST_ME_MAGIC_BLUE},",
-                //"	{name = "speed", chance = 15, interval = 2*1000, speed = 320, effect = CONST_ME_MAGIC_RED}",
+                if (defenses.Count > 0)
+                {
+                    dest.WriteLine($"	armor = {monster.TotalArmor},");
+                }
+                else
+                {
+                    dest.WriteLine($"	armor = {monster.TotalArmor}");
+                }
+
+                for (int i = 0; i < defenses.Count; i++)
+                {
+                    if (i == defenses.Count - 1)
+                    {
+                        dest.WriteLine($"{defenses[i]}");
+                    }
+                    else
+                    {
+                        dest.WriteLine($"{defenses[i]},");
+                    }
+                }
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
@@ -573,6 +480,147 @@ namespace OTMonsterConverter.Converter
         {
             double value = (1 - percent) * 100;
             return Math.Round(value);
+        }
+
+        public string GenericToTfsRevScriptSysSpells(ref Spell spell)
+        {
+            string attack;
+
+            if (spell.Name == "melee")
+            {
+                attack = $"	{{name =\"combat\", interval = {spell.Interval}, chance = {spell.Chance}";
+
+                if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                {
+                    attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
+                }
+                else if (spell.MaxDamage != null)
+                {
+                    attack += $", minDamage = {spell.MinDamage}";
+                }
+                else if ((spell.AttackValue != null) && (spell.Skill != null))
+                {
+                    attack += $", skill = {spell.Skill}, attack = {spell.AttackValue}";
+                }
+                //else continue which we should never hit?
+
+                attack += $", effect = {magicEffectNames[Effect.DrawBlood]}";
+
+                // Conditions only ever appear on melee damage?
+                if (spell.Condition != null)
+                {
+                    attack += $", condition = {{type = {ConditioToTFsConstants[(Condition)spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
+                }
+            }
+            else if (spell.Name == "speed")
+            {
+                attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
+
+                if ((spell.SpeedChange != null) && (spell.Duration != null))
+                {
+                    attack += $", SpeedChange = {spell.SpeedChange}, Duration = {spell.Duration}";
+                }
+            }
+            else if (spell.Name.Contains("invisible"))
+            {
+                attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
+                if (spell.AreaEffect != null)
+                {
+                    attack += $", effect = {magicEffectNames[(Effect)spell.AreaEffect]}";
+                }
+            }
+            else
+            {
+                if (spell.Name.Contains("field") ||
+                    spell.Name.Contains("drunk") ||
+                    spell.Name.Contains("outfit"))
+                {
+                    attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
+                }
+                else if (spell.Name.Contains("condition"))
+                {
+                    string condition = spell.Name.Replace("condition", "");
+                    attack = $"	{{name =\"{condition}\", interval = {spell.Interval}, chance = {spell.Chance}";
+                }
+                else
+                {
+                    attack = $"	{{name =\"combat\", interval = {spell.Interval}, chance = {spell.Chance}";
+                }
+                if (spell.Name != "outfit")
+                {
+                    if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                    {
+                        attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
+                    }
+                    else if (spell.MaxDamage != null)
+                    {
+                        attack += $", minDamage = {spell.MinDamage}";
+                    }
+                    if (spell.DamageElement != null)
+                    {
+                        attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
+                    }
+                    if (spell.Range != null)
+                    {
+                        attack += $", range = {spell.Range}";
+                    }
+                    if (spell.Radius != null)
+                    {
+                        attack += $", radius = {spell.Radius}";
+                    }
+                    if (spell.Length != null)
+                    {
+                        attack += $", length = {spell.Length}";
+                    }
+                    if (spell.Spread != null)
+                    {
+                        attack += $", spread = {spell.Spread}";
+                    }
+                    if (spell.ShootEffect != null)
+                    {
+                        attack += $", ShootEffect = {shootTypeNames[(Animation)spell.ShootEffect]}";
+                    }
+                    if (spell.AreaEffect != null)
+                    {
+                        attack += $", effect = {magicEffectNames[(Effect)spell.AreaEffect]}";
+                    }
+                    if (spell.Target != null)
+                    {
+                        attack += $", target = {spell.Target.ToString().ToLower()}";
+                    }
+                    if (spell.Duration != null)
+                    {
+                        attack += $", duration = {spell.Duration}";
+                    }
+                    if (spell.Name.Contains("condition"))
+                    {
+                        // Not implemented?
+                        if (spell.Tick != null)
+                        {
+                            attack += $", tick = {spell.Tick}";
+                        }
+                        // Not implemented?
+                        if (spell.StartDamage != null)
+                        {
+                            attack += $", start = {spell.StartDamage}";
+                        }
+                    }
+                    if (spell.Name == "outfit")
+                    {
+                        if (!string.IsNullOrEmpty(spell.MonsterName))
+                        {
+                            attack += $", monster = \"{spell.MonsterName}\"";
+                        }
+                        else if (spell.ItemId != null)
+                        {
+                            attack += $", item = {spell.ItemId}";
+                        }
+                    }
+                }
+            }
+            attack += "}";
+
+            return attack;
         }
     }
 }
