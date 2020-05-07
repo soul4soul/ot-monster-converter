@@ -154,14 +154,14 @@ namespace OTMonsterConverter.Converter
 
                     case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 300, AreaEffect = Effect.MagicRed };
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 300, AreaEffect = Effect.MagicRed, Duration = 7000 };
                             mon.Attacks.Add(spell);
                             break;
                         }
 
                     case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 450, AreaEffect = Effect.MagicRed };
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 450, AreaEffect = Effect.MagicRed, Duration = 4000 };
                             mon.Attacks.Add(spell);
                             break;
                         }
@@ -169,7 +169,7 @@ namespace OTMonsterConverter.Converter
                     case var _ when new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
                         {
                             var matches = new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
-                            var spell = new Spell() { Name = "healing", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 20 };
+                            var spell = new Spell() { Name = "healing", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 20 };
                             if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
                                 // Could guess defaults based on creature HP
@@ -206,6 +206,14 @@ namespace OTMonsterConverter.Converter
             else if ((effect == "arrow") || (effect == "arrows"))
             {
                 return Animation.Arrow;
+            }
+            else if (effect.Contains("boulder"))
+            {
+                return Animation.LargeRock;
+            }
+            else if (effect.Contains("stone"))
+            {
+                return Animation.SmallStone;
             }
             return null;
         }
