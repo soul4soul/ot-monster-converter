@@ -118,32 +118,31 @@ namespace OTMonsterConverter
 
         private string[] GetWikiMonsters()
         {
-            string monsterlisturl = $"https://tibia.fandom.com/wiki/List_of_Creatures";
+            string monsterlisturl = $"https://tibia.fandom.com/wiki/List_of_Creatures_(Ordered)";
             IList<string> names = new List<string>();
 
             ScrapingBrowser browser = new ScrapingBrowser();
             browser.Encoding = Encoding.UTF8;
             WebPage monsterspage = browser.NavigateToPage(new Uri(monsterlisturl));
-            var tables = monsterspage.Html.CssSelect("table");
+            var orderedLists = monsterspage.Html.CssSelect("ol");
 
             // Links are HTML encoded
             // %27 is HTML encode for ' character
             // %27%C3% is HTML encode for ñ character
             var nameregex = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)");
-            foreach (var table in tables)
+            foreach (var ol in orderedLists)
             {
-                foreach (var namecell in table.SelectNodes("//td[1]"))
+                foreach (var child in ol.ChildNodes)
                 {
-                    if (nameregex.IsMatch(namecell.InnerHtml))
+                    if (nameregex.IsMatch(child.InnerHtml))
                     {
-                        var namematches = nameregex.Matches(namecell.InnerHtml);
+                        var namematches = nameregex.Matches(child.InnerHtml);
                         names.Add(namematches.FindNamedGroupValue("name").Replace("%27", "'").Replace("%C3%B1", "ñ"));
                     }
                 }
             }
 
-            // TODO determine if we can avoid dup names in our search instead of having to use distinct
-            return names.Distinct().ToArray();
+            return names.ToArray();
         }
 
         private string FindExactFileDestination(string inputDirectory, string outputDirectory, string file, bool mirroredFolderStructure)
