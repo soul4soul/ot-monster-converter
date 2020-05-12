@@ -43,17 +43,31 @@ namespace OTMonsterConverter
             }
         }
 
-        private bool ValidateControls()
+        private void ValidateControls()
         {
-            bool result = ((textBoxInputPath.Text != "") &&
-                           (textBoxOutputPath.Text != "") &&
-                           (comboInputFormat.SelectedItem != null) &&
-                           (comboOutputFormat.SelectedItem != null));
+            bool result = false;
+
+            MonsterFormat? inputFormat = GetMonsterFormatFromCombo(comboInputFormat);
+            textBoxInputPath.IsEnabled = (inputFormat != MonsterFormat.TibiaWiki);
+            buttonInputPath.IsEnabled = (inputFormat != MonsterFormat.TibiaWiki);
+
+            if ((inputFormat != null) && (inputFormat == MonsterFormat.TibiaWiki))
+            {
+                result = ((textBoxOutputPath.Text != "") &&
+                          (comboInputFormat.SelectedItem != null) &&
+                          (comboOutputFormat.SelectedItem != null));
+            }
+            else
+            {
+                result = ((textBoxInputPath.Text != "") &&
+                          (textBoxOutputPath.Text != "") &&
+                          (comboInputFormat.SelectedItem != null) &&
+                          (comboOutputFormat.SelectedItem != null));
+            }
             if (buttonConvert != null)
             {
                 buttonConvert.IsEnabled = result;
             }
-            return result;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -102,8 +116,8 @@ namespace OTMonsterConverter
 
             string inputDir = textBoxInputPath.Text;
             string outputDir = textBoxOutputPath.Text;
-            MonsterFormat inputFormat = GetMonsterFormatFromCombo(comboInputFormat);
-            MonsterFormat outputFormat = GetMonsterFormatFromCombo(comboOutputFormat);
+            MonsterFormat inputFormat = (MonsterFormat)GetMonsterFormatFromCombo(comboInputFormat);
+            MonsterFormat outputFormat = (MonsterFormat)GetMonsterFormatFromCombo(comboOutputFormat);
             ScanError result = ScanError.Success;
             await Task.Run(() =>
             {
@@ -139,8 +153,11 @@ namespace OTMonsterConverter
             buttonConvert.IsEnabled = true;
         }
 
-        private MonsterFormat GetMonsterFormatFromCombo(ComboBox comboBox)
+        private MonsterFormat? GetMonsterFormatFromCombo(ComboBox comboBox)
         {
+            if (comboBox.SelectedItem == null)
+                return null;
+
             string tag = (string)((Control)(comboBox.SelectedItem)).Tag;
             return (MonsterFormat)int.Parse(tag);
         }
