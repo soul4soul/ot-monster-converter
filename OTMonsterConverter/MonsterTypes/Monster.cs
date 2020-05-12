@@ -29,6 +29,7 @@ namespace OTMonsterConverter.MonsterTypes
             LightLevel = 0;
             LightColor = 0;
             RunOnHealth = 0;
+            IsBoss = false;
             HideHealth = false;
             AvoidFire = true;
             AvoidEnergy = true;
@@ -57,8 +58,6 @@ namespace OTMonsterConverter.MonsterTypes
             ManaDrain = 1;
         }
 
-        // Events
-
         // Properties
         // Generic
         public string Name { get; set; }
@@ -69,7 +68,6 @@ namespace OTMonsterConverter.MonsterTypes
         public uint Speed { get; set; }
         public IList<Voice> Voices { get; set; }
         public Blood Race { get; set; }
-        public uint ManaCost { get; set; }
         public uint RetargetInterval { get; set; }
         public uint RetargetChance { get; set; }
         public uint MaxSummons { get; set; }
@@ -105,7 +103,6 @@ namespace OTMonsterConverter.MonsterTypes
 
         // Attacks
         public IList<Spell> Attacks { get; set; }
-
 
         // Defeneses
         public uint TotalArmor { get; set; }

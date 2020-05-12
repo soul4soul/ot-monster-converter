@@ -1,9 +1,13 @@
 ﻿using OTMonsterConverter.Converter;
 using OTMonsterConverter.MonsterTypes;
+using ScrapySharp.Extensions;
+using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OTMonsterConverter
@@ -22,7 +26,8 @@ namespace OTMonsterConverter
     {
         PyOT,
         TfsXml,
-        TfsRevScriptSys
+        TfsRevScriptSys,
+        TibiaWiki
     }
 
     public sealed class FileProcessorEventArgs : EventArgs
@@ -44,83 +49,115 @@ namespace OTMonsterConverter
         // Events
         public event EventHandler<FileProcessorEventArgs> OnMonsterConverted;
 
-        // Properties
-        private string MonsterDirectory { get; set; }
-
-        private string BaseOutputDirectory { get; set; }
-
         // Functions
         public ScanError ConvertMonsterFiles(string monsterDirectory, MonsterFormat inputFormat, string outputDirectory, MonsterFormat outputFormat, bool mirroredFolderStructure = false)
         {
-            MonsterDirectory = monsterDirectory;
-            BaseOutputDirectory = outputDirectory;
+            if ((inputFormat != MonsterFormat.TibiaWiki) && (!Directory.Exists(monsterDirectory)))
+            {
+                return ScanError.InvalidMonsterDirectory;
+            }
 
-            if (Path.GetFullPath(monsterDirectory) == Path.GetFullPath(outputDirectory))
+            if (!Directory.Exists(outputDirectory))
+            {
+                try
+                {
+                    Directory.CreateDirectory(outputDirectory);
+                }
+                catch (Exception)
+                {
+                    return ScanError.CouldNotCreateDirectory;
+                }
+            }
+
+            if ((inputFormat != MonsterFormat.TibiaWiki) &&
+                (Path.GetFullPath(monsterDirectory) == Path.GetFullPath(outputDirectory)))
             {
                 return ScanError.DirectoriesMatch;
             }
 
-            // Input and output formats can match. Formats matching is an interesting run configuration.
-            // The generated files should match the input files
+            var result = FormatToConverter(inputFormat, out IMonsterConverter inputConverter);
+            if (result != ScanError.Success)
+                return result;
 
-            if (Directory.Exists(monsterDirectory))
+            result = FormatToConverter(outputFormat, out IMonsterConverter outputConverter);
+            if (result != ScanError.Success)
+                return result;
+
+            string[] files;
+            if (inputFormat == MonsterFormat.TibiaWiki)
             {
-                var result = FormatToConverter(inputFormat, out IMonsterConverter inputConvert);
-                if (result != ScanError.Success)
-                    return result;
-
-                result = FormatToConverter(outputFormat, out IMonsterConverter outputConvert);
-                if (result != ScanError.Success)
-                    return result;
-
-                if (!Directory.Exists(outputDirectory))
-                {
-                    try
-                    {
-                        Directory.CreateDirectory(outputDirectory);
-                    }
-                    catch (Exception)
-                    {
-                        return ScanError.CouldNotCreateDirectory;
-                    }
-                }
-
-                string[] files = Directory.GetFiles(monsterDirectory, inputConvert.FileExtRegEx, SearchOption.AllDirectories);
-                if (files.Length == 0)
-                {
-                    return ScanError.NoMonstersFound;
-                }
-
-                bool copyOk;
-                string destination;
-                foreach (string file in files)
-                {
-                    destination = FindDestination(file, mirroredFolderStructure);
-                    copyOk = ProcessFile(file, inputConvert, outputConvert, destination);
-                    RaiseEvent(OnMonsterConverted, new FileProcessorEventArgs(file, destination, copyOk));
-                }
+                files = GetWikiMonsters();
+                // TibiaWiki provides a flat list
+                mirroredFolderStructure = false;
             }
             else
             {
-                return ScanError.InvalidMonsterDirectory;
+                files = GetLocalFiles(monsterDirectory, inputConverter.FileExtRegEx);
+            }
+            if ((files != null) && (files.Length == 0))
+            {
+                return ScanError.NoMonstersFound;
+            }
+
+            bool copyOk;
+            string destination;
+            foreach (string file in files)
+            {
+                destination = FindExactFileDestination(monsterDirectory, outputDirectory, file, mirroredFolderStructure);
+                copyOk = ProcessFile(file, inputConverter, outputConverter, destination);
+                RaiseEvent(OnMonsterConverted, new FileProcessorEventArgs(file, destination, copyOk));
             }
 
             return ScanError.Success;
         }
 
-        private string FindDestination(string file, bool mirroredFolderStructure)
+        private string[] GetLocalFiles(string directory, string pattern)
+        {
+            return Directory.GetFiles(directory, pattern, SearchOption.AllDirectories);
+        }
+
+        private string[] GetWikiMonsters()
+        {
+            string monsterlisturl = $"https://tibia.fandom.com/wiki/List_of_Creatures_(Ordered)";
+            IList<string> names = new List<string>();
+
+            ScrapingBrowser browser = new ScrapingBrowser();
+            browser.Encoding = Encoding.UTF8;
+            WebPage monsterspage = browser.NavigateToPage(new Uri(monsterlisturl));
+            var orderedLists = monsterspage.Html.CssSelect("ol");
+
+            // Links are HTML encoded
+            // %27 is HTML encode for ' character
+            // %27%C3% is HTML encode for ñ character
+            var nameregex = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)");
+            foreach (var ol in orderedLists)
+            {
+                foreach (var child in ol.ChildNodes)
+                {
+                    if (nameregex.IsMatch(child.InnerHtml))
+                    {
+                        var namematches = nameregex.Matches(child.InnerHtml);
+                        names.Add(namematches.FindNamedGroupValue("name").Replace("%27", "'").Replace("%C3%B1", "ñ"));
+                    }
+                }
+            }
+
+            return names.ToArray();
+        }
+
+        private string FindExactFileDestination(string inputDirectory, string outputDirectory, string file, bool mirroredFolderStructure)
         {
             if (mirroredFolderStructure)
             {
                 string nameOnly = Path.GetFileName(file);
                 string subPath = file.Replace(nameOnly, "");
-                subPath = subPath.Replace(MonsterDirectory, "");
+                subPath = subPath.Replace(inputDirectory, "");
                 subPath = subPath.Substring(1, subPath.Length - 1);
-                return Path.Combine(BaseOutputDirectory, subPath);
+                return Path.Combine(outputDirectory, subPath);
             }
             else
             {
-                return BaseOutputDirectory;
+                return outputDirectory;
             }
         }
 
@@ -138,6 +175,10 @@ namespace OTMonsterConverter
             else if (format == MonsterFormat.TfsRevScriptSys)
             {
                 converter = new TfsRevScriptSysConverter();
+            }
+            else if (format == MonsterFormat.TibiaWiki)
+            {
+                converter = new TibiaWikiConverter();
             }
             else
             {
