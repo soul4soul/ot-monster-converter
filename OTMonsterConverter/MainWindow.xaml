@@ -61,6 +61,7 @@
                 <ComboBoxItem Content="TFS XML Format" Tag="1"/>
                 <ComboBoxItem Content="TFS Rev Script System Format" Tag="2"/>
                 <ComboBoxItem Content="PyOt Format" Tag="0"/>
+                <ComboBoxItem Content="TibiaWiki Format" Tag="3"/>
             </ComboBox>
 
             <Label Grid.Row="3" Grid.Column="0" Content="Output Directory"/>
