@@ -14,7 +14,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0">OT Monster Converter by</TextBlock>
+        <TextBlock Grid.Row="0" FontWeight="Bold">OT Monster Converter</TextBlock>
         <TextBlock Grid.Row="1">
             Developed by
             <Hyperlink NavigateUri="https://github.com/soul4soul" RequestNavigate="Hyperlink_RequestNavigate">
@@ -25,9 +25,9 @@
         </TextBlock>
         <TextBlock Grid.Row="2" TextWrapping="Wrap">
             Repository located at
-            <Hyperlink NavigateUri="https://bitbucket.org/vapus/ot-monster-converter/src" RequestNavigate="Hyperlink_RequestNavigate">
+            <Hyperlink NavigateUri="https://github.com/soul4soul/ot-monster-converter" RequestNavigate="Hyperlink_RequestNavigate">
                <Hyperlink.Inlines>
-                    <Run Text="https://bitbucket.org/vapus/ot-monster-converter/src"/>
+                    <Run Text="https://github.com/soul4soul/ot-monster-converter"/>
                </Hyperlink.Inlines>
            </Hyperlink>
         </TextBlock>
