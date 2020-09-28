@@ -1,7 +1,5 @@
 ﻿using OTMonsterConverter.Converter;
 using OTMonsterConverter.MonsterTypes;
-using ScrapySharp.Extensions;
-using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,7 +50,15 @@ namespace OTMonsterConverter
         // Functions
         public ScanError ConvertMonsterFiles(string monsterDirectory, MonsterFormat inputFormat, string outputDirectory, MonsterFormat outputFormat, bool mirroredFolderStructure = false)
         {
-            if ((inputFormat != MonsterFormat.TibiaWiki) && (!Directory.Exists(monsterDirectory)))
+            var result = FormatToConverter(inputFormat, out IMonsterConverter inputConverter);
+            if (result != ScanError.Success)
+                return result;
+
+            result = FormatToConverter(outputFormat, out IMonsterConverter outputConverter);
+            if (result != ScanError.Success)
+                return result;
+
+            if ((inputConverter.FileSource == FileSource.LocalFiles) && (!Directory.Exists(monsterDirectory)))
             {
                 return ScanError.InvalidMonsterDirectory;
             }
@@ -69,30 +75,17 @@ namespace OTMonsterConverter
                 }
             }
 
-            if ((inputFormat != MonsterFormat.TibiaWiki) &&
+            if ((inputConverter.FileSource == FileSource.LocalFiles) &&
                 (Path.GetFullPath(monsterDirectory) == Path.GetFullPath(outputDirectory)))
             {
                 return ScanError.DirectoriesMatch;
             }
 
-            var result = FormatToConverter(inputFormat, out IMonsterConverter inputConverter);
-            if (result != ScanError.Success)
-                return result;
-
-            result = FormatToConverter(outputFormat, out IMonsterConverter outputConverter);
-            if (result != ScanError.Success)
-                return result;
-
-            string[] files;
-            if (inputFormat == MonsterFormat.TibiaWiki)
+            string[] files  = inputConverter.GetFilesForConversion(monsterDirectory);
+            if (inputConverter.FileSource == FileSource.Web)
             {
-                files = GetWikiMonsters();
                 // TibiaWiki provides a flat list
                 mirroredFolderStructure = false;
-            }
-            else
-            {
-                files = GetLocalFiles(monsterDirectory, "*." + inputConverter.FileExt);
             }
             if ((files != null) && (files.Length == 0))
             {
@@ -109,40 +102,6 @@ namespace OTMonsterConverter
             }
 
             return ScanError.Success;
-        }
-
-        private string[] GetLocalFiles(string directory, string pattern)
-        {
-            return Directory.GetFiles(directory, pattern, SearchOption.AllDirectories);
-        }
-
-        private string[] GetWikiMonsters()
-        {
-            string monsterlisturl = $"https://tibia.fandom.com/wiki/List_of_Creatures_(Ordered)";
-            IList<string> names = new List<string>();
-
-            ScrapingBrowser browser = new ScrapingBrowser();
-            browser.Encoding = Encoding.UTF8;
-            WebPage monsterspage = browser.NavigateToPage(new Uri(monsterlisturl));
-            var orderedLists = monsterspage.Html.CssSelect("ol");
-
-            // Links are HTML encoded
-            // %27 is HTML encode for ' character
-            // %27%C3% is HTML encode for ñ character
-            var nameregex = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)");
-            foreach (var ol in orderedLists)
-            {
-                foreach (var child in ol.ChildNodes)
-                {
-                    if (nameregex.IsMatch(child.InnerHtml))
-                    {
-                        var namematches = nameregex.Matches(child.InnerHtml);
-                        names.Add(namematches.FindNamedGroupValue("name").Replace("%27", "'").Replace("%C3%B1", "ñ"));
-                    }
-                }
-            }
-
-            return names.ToArray();
         }
 
         private string FindExactFileDestination(string inputDirectory, string outputDirectory, string file, bool mirroredFolderStructure)
