@@ -7,8 +7,10 @@ using System.Text;
 
 namespace OTMonsterConverter.Converter
 {
-    public class TfsRevScriptSysConverter : IMonsterConverter
+    public class TfsRevScriptSysConverter : MonsterConverter
     {
+        public override string ConverterName { get => "TFS RevScriptSys"; }
+
         const uint MAX_LOOTCHANCE = 100000;
 
         IDictionary<Condition, string> ConditioToTFsConstants = new Dictionary<Condition, string>
@@ -198,11 +200,15 @@ namespace OTMonsterConverter.Converter
             {Animation.SimpleArrow,      "CONST_ANI_SIMPLEARROW"},
         };
 
-        public string FileExtRegEx { get => "*.lua"; }
+        public override string FileExt { get => "lua"; }
 
-        public bool WriteMonster(string directory, ref Monster monster)
+        public override bool IsReadSupported { get => false; }
+
+        public override bool IsWriteSupported { get => true; }
+
+        public override bool WriteMonster(string directory, ref Monster monster)
         {
-            string fileName = Path.Combine(directory, monster.FileName + ".lua");
+            string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
 
             using (var fstream = File.OpenWrite(fileName))
             using (var dest = new StreamWriter(fstream))
@@ -471,7 +477,7 @@ namespace OTMonsterConverter.Converter
             return true;
         }
 
-        public bool ReadMonster(string filename, out Monster monster)
+        public override bool ReadMonster(string filename, out Monster monster)
         {
             throw new NotImplementedException();
         }

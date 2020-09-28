@@ -8,18 +8,24 @@ using System.Text;
 namespace OTMonsterConverter.Converter
 {
     // https://bitbucket.org/vapus/pyot/src/0aa7c38f46814f502f375b84ac905e7f5ebef1a3/game/monster.py?at=default
-    public class PyOtConverter : IMonsterConverter
+    public class PyOtConverter : MonsterConverter
     {
-        public string FileExtRegEx { get => "*.py"; }
+        public override string ConverterName { get => "pyOT"; }
+
+        public override string FileExt { get => "py"; }
+
+        public override bool IsReadSupported { get => false; }
+
+        public override bool IsWriteSupported { get => true; }
 
         // Functions
-        public bool ReadMonster(string filename, out Monster monster)
+        public override bool ReadMonster(string filename, out Monster monster)
         {
             monster = new Monster();
             return false; // Not Implemented
         }
 
-        public bool WriteMonster(string directory, ref Monster monster)
+        public override bool WriteMonster(string directory, ref Monster monster)
         {
             string lowerName = monster.Name.ToLower(); // TODO Remove special chars spaces etc.. want a-z_ for characters... Can we just use a fixed variable name such as "monster"?
 
@@ -42,7 +48,7 @@ namespace OTMonsterConverter.Converter
                 GenericToPyOTVoice(lowerName, ref monster),
                 GenericToPyOTLoot(lowerName, ref monster)
             };
-            string fileName = Path.Combine(directory, monster.FileName + ".py");
+            string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
             File.WriteAllLines(fileName, lines);
 
             return true;

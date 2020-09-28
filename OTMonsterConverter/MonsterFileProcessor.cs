@@ -92,7 +92,7 @@ namespace OTMonsterConverter
             }
             else
             {
-                files = GetLocalFiles(monsterDirectory, inputConverter.FileExtRegEx);
+                files = GetLocalFiles(monsterDirectory, "*." + inputConverter.FileExt);
             }
             if ((files != null) && (files.Length == 0))
             {
