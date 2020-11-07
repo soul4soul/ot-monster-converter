@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using OTMonsterConverter.MonsterTypes;
+using MonsterConverterInterface.MonsterTypes;
 
-namespace OTMonsterConverter.Converter
+namespace MonsterConverterInterface
 {
     public abstract class MonsterConverter : IMonsterConverter
     {

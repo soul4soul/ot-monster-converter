@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OTMonsterConverter.MonsterTypes
+namespace MonsterConverterInterface.MonsterTypes
 {
     public class Monster
     {

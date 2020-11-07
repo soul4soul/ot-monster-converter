@@ -1,12 +1,14 @@
-﻿using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Globalization;
 using System.IO;
-using System.Text;
 
-namespace OTMonsterConverter.Converter
+namespace MonsterConverterTfsRevScriptSys
 {
+    [Export(typeof(IMonsterConverter))]
     public class TfsRevScriptSysConverter : MonsterConverter
     {
         public override string ConverterName { get => "TFS RevScriptSys"; }
@@ -307,7 +309,8 @@ namespace OTMonsterConverter.Converter
                     for (int i = 0; i < monster.Summons.Count; i++)
                     {
                         summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100}, interval = {monster.Summons[i].Rate}";
-                        if (monster.Summons[i].Max > 0) {
+                        if (monster.Summons[i].Max > 0)
+                        {
                             summon += $", max = {monster.Summons[i].Max}";
                         }
 
@@ -320,7 +323,9 @@ namespace OTMonsterConverter.Converter
                         if (i == monster.Summons.Count - 1)
                         {
                             summon = summon.TrimEnd(',');
-                        } else {
+                        }
+                        else
+                        {
                             summon += ",";
                         }
                         dest.WriteLine(summon);

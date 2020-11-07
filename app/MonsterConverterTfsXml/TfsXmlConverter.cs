@@ -1,17 +1,19 @@
-﻿using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace OTMonsterConverter.Converter
+namespace MonsterConverterTfsXml
 {
     //https://github.com/otland/forgottenserver/blob/master/src/monsters.cpp
-
-    class TfsXmlConverter : MonsterConverter
+    [Export(typeof(IMonsterConverter))]
+    public class TfsXmlConverter : MonsterConverter
     {
         public override string ConverterName { get => "TFS XML"; }
 

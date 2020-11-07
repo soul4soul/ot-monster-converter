@@ -1,5 +1,5 @@
-﻿using OTMonsterConverter.Converter;
-using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,14 +18,6 @@ namespace OTMonsterConverter
         NoMonstersFound,
         CouldNotCreateDirectory,
         DirectoriesMatch
-    }
-
-    public enum MonsterFormat
-    {
-        PyOT,
-        TfsXml,
-        TfsRevScriptSys,
-        TibiaWiki
     }
 
     public sealed class FileProcessorEventArgs : EventArgs
@@ -48,16 +40,8 @@ namespace OTMonsterConverter
         public event EventHandler<FileProcessorEventArgs> OnMonsterConverted;
 
         // Functions
-        public ScanError ConvertMonsterFiles(string monsterDirectory, MonsterFormat inputFormat, string outputDirectory, MonsterFormat outputFormat, bool mirroredFolderStructure = false)
+        public ScanError ConvertMonsterFiles(string monsterDirectory, IMonsterConverter inputConverter, string outputDirectory, IMonsterConverter outputConverter, bool mirroredFolderStructure = false)
         {
-            var result = FormatToConverter(inputFormat, out IMonsterConverter inputConverter);
-            if (result != ScanError.Success)
-                return result;
-
-            result = FormatToConverter(outputFormat, out IMonsterConverter outputConverter);
-            if (result != ScanError.Success)
-                return result;
-
             if ((inputConverter.FileSource == FileSource.LocalFiles) && (!Directory.Exists(monsterDirectory)))
             {
                 return ScanError.InvalidMonsterDirectory;
@@ -118,33 +102,6 @@ namespace OTMonsterConverter
             {
                 return outputDirectory;
             }
-        }
-
-        // This is dumb
-        private ScanError FormatToConverter(MonsterFormat format, out IMonsterConverter converter)
-        {
-            if (format == MonsterFormat.TfsXml)
-            {
-                converter = new TfsXmlConverter();
-            }
-            else if (format == MonsterFormat.PyOT)
-            {
-                converter = new PyOtConverter();
-            }
-            else if (format == MonsterFormat.TfsRevScriptSys)
-            {
-                converter = new TfsRevScriptSysConverter();
-            }
-            else if (format == MonsterFormat.TibiaWiki)
-            {
-                converter = new TibiaWikiConverter();
-            }
-            else
-            {
-                converter = null;
-                return ScanError.InvalidMonsterFormat;
-            }
-            return ScanError.Success;
         }
 
         private bool ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)

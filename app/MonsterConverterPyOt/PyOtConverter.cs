@@ -1,13 +1,16 @@
-﻿using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace OTMonsterConverter.Converter
+namespace MonsterConverterPyOt.Converter
 {
     // https://bitbucket.org/vapus/pyot/src/0aa7c38f46814f502f375b84ac905e7f5ebef1a3/game/monster.py?at=default
+    [Export(typeof(IMonsterConverter))]
     public class PyOtConverter : MonsterConverter
     {
         public override string ConverterName { get => "pyOT"; }

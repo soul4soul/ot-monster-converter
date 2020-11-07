@@ -1,9 +1,7 @@
-﻿using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface.MonsterTypes;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace OTMonsterConverter.Converter
+namespace MonsterConverterInterface
 {
     public enum FileSource
     {
@@ -11,6 +9,8 @@ namespace OTMonsterConverter.Converter
         Web
     }
 
+    // name, isreadsupported, and iswritesupported can all be metadataattributes should that be valuable localfile source too
+    // none of those fields deal with function they all are for information only
     public interface IMonsterConverter
     {
         string ConverterName { get; }

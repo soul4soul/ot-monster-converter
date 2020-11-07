@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MonsterConverterInterface;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -29,6 +30,15 @@ namespace OTMonsterConverter
             InitializeComponent();
             fileProcessor = new MonsterFileProcessor();
             fileProcessor.OnMonsterConverted += fileProcessor_OnMonsterConverted;
+
+            PluginHelper plugins = PluginHelper.Instance;
+            foreach (var p in plugins.Converters)
+            {
+                if (p.IsReadSupported)
+                    comboInputFormat.Items.Add(p);
+                if (p.IsWriteSupported)
+                    comboOutputFormat.Items.Add(p);
+            }
         }
 
         private void fileProcessor_OnMonsterConverted(object sender, FileProcessorEventArgs e)
@@ -47,11 +57,20 @@ namespace OTMonsterConverter
         {
             bool result = false;
 
-            MonsterFormat? inputFormat = GetMonsterFormatFromCombo(comboInputFormat);
-            textBoxInputPath.IsEnabled = (inputFormat != MonsterFormat.TibiaWiki);
-            buttonInputPath.IsEnabled = (inputFormat != MonsterFormat.TibiaWiki);
+            // Control file selection controls properly
+            if (comboInputFormat.SelectedItem == null)
+            {
+                textBoxInputPath.IsEnabled = true;
+                buttonInputPath.IsEnabled = true;
+            }
+            else
+            {
+                textBoxInputPath.IsEnabled = (((IMonsterConverter)comboInputFormat.SelectedItem).FileSource == FileSource.LocalFiles);
+                buttonInputPath.IsEnabled = (((IMonsterConverter)comboInputFormat.SelectedItem).FileSource == FileSource.LocalFiles);
+            }
 
-            if ((inputFormat != null) && (inputFormat == MonsterFormat.TibiaWiki))
+            // Determine that all finds are set correctly before the convert button is enabled
+            if ((comboInputFormat.SelectedItem != null) && (((IMonsterConverter)comboInputFormat.SelectedItem).FileSource == FileSource.Web))
             {
                 result = ((textBoxOutputPath.Text != "") &&
                           (comboInputFormat.SelectedItem != null) &&
@@ -116,8 +135,8 @@ namespace OTMonsterConverter
 
             string inputDir = textBoxInputPath.Text;
             string outputDir = textBoxOutputPath.Text;
-            MonsterFormat inputFormat = (MonsterFormat)GetMonsterFormatFromCombo(comboInputFormat);
-            MonsterFormat outputFormat = (MonsterFormat)GetMonsterFormatFromCombo(comboOutputFormat);
+            IMonsterConverter inputFormat = (IMonsterConverter)comboInputFormat.SelectedItem;
+            IMonsterConverter outputFormat = (IMonsterConverter)comboOutputFormat.SelectedItem;
             ScanError result = ScanError.Success;
             await Task.Run(() =>
             {
@@ -151,15 +170,6 @@ namespace OTMonsterConverter
             progressBarScan.Visibility = Visibility.Hidden;
             Cursor = Cursors.Arrow;
             buttonConvert.IsEnabled = true;
-        }
-
-        private MonsterFormat? GetMonsterFormatFromCombo(ComboBox comboBox)
-        {
-            if (comboBox.SelectedItem == null)
-                return null;
-
-            string tag = (string)((Control)(comboBox.SelectedItem)).Tag;
-            return (MonsterFormat)int.Parse(tag);
         }
 
         private void comboInputFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
