@@ -32,20 +32,6 @@ namespace OTMonsterConverter
                     if (instance == null)
                     {
                         instance = new PluginHelper();
-
-                        // all return "C:\\Users\\souls\\git\\ot-monster-converter\\bin\\Debug\\netcoreapp3.1"
-                        //Environment.CurrentDirectory
-                        //AppDomain.CurrentDomain.BaseDirectory
-                        //Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
-
-                        // returns "C:\Users\souls\git\ot-monster-converter\bin\Debug\netcoreapp3.1\OTMonsterConverter.dll"
-                        //System.Reflection.Assembly.GetExecutingAssembly().Location
-
-                        // doesn't work
-                        var a = Assembly.Load("MonsterConverterPyOt, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
-
-                        // works
-                        //var b = Assembly.LoadFrom(@"C:\Users\souls\git\ot-monster-converter\bin\Debug\netcoreapp3.1\MonsterConverterPyOt.dll");
                         instance.FindConverters();
                     }
                     return instance;
@@ -88,23 +74,29 @@ namespace OTMonsterConverter
             string directoryToSearch = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             foreach (string file in Directory.EnumerateFiles(directoryToSearch, "*.dll"))
             {
-                string assemblyFullName = null;
+                string assemblyFullPath = null;
                 try
                 {
                     var assemblyName = AssemblyName.GetAssemblyName(file);
                     if (assemblyName != null)
                     {
-                        assemblyFullName = assemblyName.FullName;
-                        //assemblyFullName = assemblyName.Name;
+                        // This is stupid and defeats the purpose of dynamically loading converters
+                        if ((assemblyName.Name == "MonsterConverterPyOt") ||
+                            (assemblyName.Name == "MonsterConverterTfsRevScriptSys") ||
+                            (assemblyName.Name == "MonsterConverterTfsXml") ||
+                            (assemblyName.Name == "MonsterConverterTibiaWiki"))
+                        {
+                            assemblyFullPath = Path.Combine(directoryToSearch, $"{assemblyName.Name}.dll");
+                        }
                     }
                 }
                 catch (Exception)
                 {
                 }
 
-                if (assemblyFullName != null)
+                if (assemblyFullPath != null)
                 {
-                    yield return assemblyFullName;
+                    yield return assemblyFullPath;
                 }
             }
         }
@@ -116,9 +108,7 @@ namespace OTMonsterConverter
         private async Task<ComposableCatalog> CreateProductCatalogAsync()
         {
             var assemblyNames = GetAssemblyNames();
-            //string directoryToSearch = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-            //var assemblies = assemblyNames.Select(Assembly.Load);
-            var assemblies = assemblyNames.Select(Assembly.Load);
+            var assemblies = assemblyNames.Select(Assembly.LoadFrom);
             var discoveredParts = await this.discoverer.CreatePartsAsync(assemblies);
             var catalog = ComposableCatalog.Create(Resolver.DefaultInstance)
                 .AddParts(discoveredParts);
