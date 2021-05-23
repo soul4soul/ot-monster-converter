@@ -1,7 +1,6 @@
 ﻿using Mono.Options;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 
 namespace OTMonsterConverter
@@ -48,8 +47,6 @@ namespace OTMonsterConverter
                 Console.WriteLine("Try `OTMonsterConverter --help' for more information.");
                 return -1;
             }
-
-            PluginHelper plugins = PluginHelper.Instance;
 
             // Command line arguments detected stay on the CLI
             if (args.Length != 0)

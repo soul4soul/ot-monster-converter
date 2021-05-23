@@ -30,15 +30,6 @@ namespace OTMonsterConverter
             InitializeComponent();
             fileProcessor = new MonsterFileProcessor();
             fileProcessor.OnMonsterConverted += fileProcessor_OnMonsterConverted;
-
-            PluginHelper plugins = PluginHelper.Instance;
-            foreach (var p in plugins.Converters)
-            {
-                if (p.IsReadSupported)
-                    comboInputFormat.Items.Add(p);
-                if (p.IsWriteSupported)
-                    comboOutputFormat.Items.Add(p);
-            }
         }
 
         private void fileProcessor_OnMonsterConverted(object sender, FileProcessorEventArgs e)
@@ -89,8 +80,17 @@ namespace OTMonsterConverter
             }
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            PluginHelper plugins = await PluginHelper.Instance;
+            foreach (var p in plugins.Converters)
+            {
+                if (p.IsReadSupported)
+                    comboInputFormat.Items.Add(p);
+                if (p.IsWriteSupported)
+                    comboOutputFormat.Items.Add(p);
+            }
+
             ValidateControls();
             monsterListDataTable = new DataTable("MonsterList");
             monsterListDataTable.Columns.Add("Monster", typeof(string));

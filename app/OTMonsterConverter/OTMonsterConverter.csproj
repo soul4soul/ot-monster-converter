@@ -23,6 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="16.4.11" />
     <PackageReference Include="Mono.Options" Version="6.6.0.161" />
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>

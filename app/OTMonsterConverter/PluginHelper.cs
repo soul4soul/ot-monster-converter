@@ -9,12 +9,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Nito.AsyncEx;
 
 namespace OTMonsterConverter
 {
     class PluginHelper
     {
-        private static PluginHelper instance = null;
+        private static readonly AsyncLazy<PluginHelper> instance = new AsyncLazy<PluginHelper>(CreateAndLoadData);
         private static readonly object lockobject = new object();
 
         public IList<IMonsterConverter> Converters { get; private set; }
@@ -23,23 +24,20 @@ namespace OTMonsterConverter
         {
         }
 
-        public static PluginHelper Instance
+        public static AsyncLazy<PluginHelper> Instance
         {
-            get
-            {
-                lock (lockobject)
-                {
-                    if (instance == null)
-                    {
-                        instance = new PluginHelper();
-                        instance.FindConverters();
-                    }
-                    return instance;
-                }
-            }
+            get { return instance; }
         }
 
-        private async void FindConverters()
+        // This method could also be an async lambda passed to the AsyncLazy constructor.
+        private static async Task<PluginHelper> CreateAndLoadData()
+        {
+            var ret = new PluginHelper();
+            await ret.FindConvertersAsync();
+            return ret;
+        }
+
+        private async Task FindConvertersAsync()
         {
             // Build up a catalog of MEF parts
             var catalog = await CreateProductCatalogAsync();
