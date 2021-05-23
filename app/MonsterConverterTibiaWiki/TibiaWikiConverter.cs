@@ -39,6 +39,11 @@ namespace MonsterConverterTibiaWiki
             public string Name { get; }
             public string Pattern { get; }
             public Func<Monster, MatchCollection, object> Action { get; }
+
+            public override string ToString()
+            {
+                return $"{Name} {Pattern}";
+            }
         }
 
         RegexPatternKeys[] monparams = new RegexPatternKeys[] {
