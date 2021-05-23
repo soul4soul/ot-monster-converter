@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MonsterConverterInterface;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace OTMonsterConverter
 {
@@ -9,17 +11,19 @@ namespace OTMonsterConverter
         private MonsterFileProcessor fileProcessor;
         private string inputDirectory;
         private string outputDirectory;
-        private MonsterFormat inputFormat;
-        private MonsterFormat outputFormat;
+        private IMonsterConverter input;
+        private IMonsterConverter output;
         private bool mirrorFolderStructure;
 
-        public ConsoleWindow(string inputDirectory, string outputDirectory, MonsterFormat inputFormat, MonsterFormat outputFormat, bool mirrorFolderStructure)
+        public ConsoleWindow(string inputDirectory, string outputDirectory, string inputFormatName, string outputFormatName, bool mirrorFolderStructure)
         {
             this.inputDirectory = inputDirectory;
             this.outputDirectory = outputDirectory;
-            this.inputFormat = inputFormat;
-            this.outputFormat = outputFormat;
             this.mirrorFolderStructure = mirrorFolderStructure;
+
+            PluginHelper plugins = PluginHelper.Instance.Task.Result;
+            input = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == inputFormatName);
+            output = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == outputFormatName);
 
             fileProcessor = new MonsterFileProcessor();
         }
@@ -36,6 +40,16 @@ namespace OTMonsterConverter
                 Console.WriteLine("DevExpress Directory not specified");
                 return false;
             }
+            else if ((input == null) || (!input.IsReadSupported))
+            {
+                Console.WriteLine("Input format was not specified or invalid");
+                return false;
+            }
+            else if ((output == null) || (!output.IsWriteSupported))
+            {
+                Console.WriteLine("Output format was not specified or invalid");
+                return false;
+            }
             else
             {
                 return true;
@@ -45,7 +59,7 @@ namespace OTMonsterConverter
         public bool ScanFiles()
         {
             Console.WriteLine("Scanning...");
-            ScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, inputFormat, outputDirectory, outputFormat, mirrorFolderStructure);
+            ScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, mirrorFolderStructure);
             switch (result)
             {
                 case ScanError.Success:

@@ -1,18 +1,22 @@
-﻿using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace OTMonsterConverter.Converter
+namespace MonsterConverterTfsXml
 {
     //https://github.com/otland/forgottenserver/blob/master/src/monsters.cpp
-
-    class TfsXmlConverter : IMonsterConverter
+    [Export(typeof(IMonsterConverter))]
+    public class TfsXmlConverter : MonsterConverter
     {
+        public override string ConverterName { get => "TFS XML"; }
+
         const uint MAX_LOOTCHANCE = 100000;
         const uint ATTACK_INTERVAL_DEFAULT = 2000;
 
@@ -171,10 +175,14 @@ namespace OTMonsterConverter.Converter
             //{"undefined",   CombatDamage.Undefined}
         };
 
-        public string FileExtRegEx { get => "*.xml"; }
+        public override string FileExt { get => "xml"; }
+
+        public override bool IsReadSupported { get => true; }
+
+        public override bool IsWriteSupported { get => false; }
 
         // Functions
-        public bool ReadMonster(string filename, out Monster monster)
+        public override bool ReadMonster(string filename, out Monster monster)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
@@ -194,9 +202,9 @@ namespace OTMonsterConverter.Converter
             return true;
         }
 
-        public bool WriteMonster(string directory, ref Monster monster)
+        public override bool WriteMonster(string directory, ref Monster monster)
         {
-            string fileName = Path.Combine(directory, monster.Name.ToLower());
+            string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
 
             XDocument xDoc = XDocument.Load(fileName);
             xDoc.Root.Add(new XElement("monster",
