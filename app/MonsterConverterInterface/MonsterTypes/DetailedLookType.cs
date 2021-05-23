@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OTMonsterConverter.MonsterTypes
+namespace MonsterConverterInterface.MonsterTypes
 {
     //todo should we add outfit ID to this class?
     public class DetailedLookType

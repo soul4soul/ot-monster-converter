@@ -1,14 +1,18 @@
-﻿using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Globalization;
 using System.IO;
-using System.Text;
 
-namespace OTMonsterConverter.Converter
+namespace MonsterConverterTfsRevScriptSys
 {
-    public class TfsRevScriptSysConverter : IMonsterConverter
+    [Export(typeof(IMonsterConverter))]
+    public class TfsRevScriptSysConverter : MonsterConverter
     {
+        public override string ConverterName { get => "TFS RevScriptSys"; }
+
         const uint MAX_LOOTCHANCE = 100000;
 
         IDictionary<Condition, string> ConditioToTFsConstants = new Dictionary<Condition, string>
@@ -198,11 +202,15 @@ namespace OTMonsterConverter.Converter
             {Animation.SimpleArrow,      "CONST_ANI_SIMPLEARROW"},
         };
 
-        public string FileExtRegEx { get => "*.lua"; }
+        public override string FileExt { get => "lua"; }
 
-        public bool WriteMonster(string directory, ref Monster monster)
+        public override bool IsReadSupported { get => false; }
+
+        public override bool IsWriteSupported { get => true; }
+
+        public override bool WriteMonster(string directory, ref Monster monster)
         {
-            string fileName = Path.Combine(directory, monster.FileName + ".lua");
+            string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
 
             using (var fstream = File.OpenWrite(fileName))
             using (var dest = new StreamWriter(fstream))
@@ -301,7 +309,8 @@ namespace OTMonsterConverter.Converter
                     for (int i = 0; i < monster.Summons.Count; i++)
                     {
                         summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100}, interval = {monster.Summons[i].Rate}";
-                        if (monster.Summons[i].Max > 0) {
+                        if (monster.Summons[i].Max > 0)
+                        {
                             summon += $", max = {monster.Summons[i].Max}";
                         }
 
@@ -314,7 +323,9 @@ namespace OTMonsterConverter.Converter
                         if (i == monster.Summons.Count - 1)
                         {
                             summon = summon.TrimEnd(',');
-                        } else {
+                        }
+                        else
+                        {
                             summon += ",";
                         }
                         dest.WriteLine(summon);
@@ -471,7 +482,7 @@ namespace OTMonsterConverter.Converter
             return true;
         }
 
-        public bool ReadMonster(string filename, out Monster monster)
+        public override bool ReadMonster(string filename, out Monster monster)
         {
             throw new NotImplementedException();
         }
