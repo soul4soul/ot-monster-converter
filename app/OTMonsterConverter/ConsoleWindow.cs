@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace OTMonsterConverter
 {
@@ -10,19 +11,19 @@ namespace OTMonsterConverter
         private MonsterFileProcessor fileProcessor;
         private string inputDirectory;
         private string outputDirectory;
-        private string inputFormat;
-        private string outputFormat;
         private IMonsterConverter input;
         private IMonsterConverter output;
         private bool mirrorFolderStructure;
 
-        public ConsoleWindow(string inputDirectory, string outputDirectory, string inputFormat, string outputFormat, bool mirrorFolderStructure)
+        public ConsoleWindow(string inputDirectory, string outputDirectory, string inputFormatName, string outputFormatName, bool mirrorFolderStructure)
         {
             this.inputDirectory = inputDirectory;
             this.outputDirectory = outputDirectory;
-            this.inputFormat = inputFormat;
-            this.outputFormat = outputFormat;
             this.mirrorFolderStructure = mirrorFolderStructure;
+
+            PluginHelper plugins = PluginHelper.Instance.Task.Result;
+            input = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == inputFormatName);
+            output = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == outputFormatName);
 
             fileProcessor = new MonsterFileProcessor();
         }
@@ -39,20 +40,16 @@ namespace OTMonsterConverter
                 Console.WriteLine("DevExpress Directory not specified");
                 return false;
             }
-            // Big below
-            else if ((string.IsNullOrEmpty(inputFormat)) || (true))
+            else if ((input == null) || (!input.IsReadSupported))
             {
-                input = null;
                 Console.WriteLine("Input format was not specified or invalid");
                 return false;
             }
-            else if ((string.IsNullOrEmpty(outputFormat)) || (true))
+            else if ((output == null) || (!output.IsWriteSupported))
             {
-                output = null;
-                Console.WriteLine("Input format was not specified or invalid");
+                Console.WriteLine("Output format was not specified or invalid");
                 return false;
             }
-            // add check/convert plugin string name to instance of plugin class, only send plugin class to consolewindow class?
             else
             {
                 return true;
@@ -62,7 +59,6 @@ namespace OTMonsterConverter
         public bool ScanFiles()
         {
             Console.WriteLine("Scanning...");
-            // add convert plugin string name to instance of plugin class, only send plugin class to consolewindow class?
             ScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, mirrorFolderStructure);
             switch (result)
             {
