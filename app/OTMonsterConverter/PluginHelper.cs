@@ -80,14 +80,7 @@ namespace OTMonsterConverter
                     var assemblyName = AssemblyName.GetAssemblyName(file);
                     if (assemblyName != null)
                     {
-                        // This is stupid and defeats the purpose of dynamically loading converters
-                        if ((assemblyName.Name == "MonsterConverterPyOt") ||
-                            (assemblyName.Name == "MonsterConverterTfsRevScriptSys") ||
-                            (assemblyName.Name == "MonsterConverterTfsXml") ||
-                            (assemblyName.Name == "MonsterConverterTibiaWiki"))
-                        {
-                            assemblyFullPath = Path.Combine(directoryToSearch, $"{assemblyName.Name}.dll");
-                        }
+                        assemblyFullPath = Path.Combine(directoryToSearch, $"{assemblyName.Name}.dll");
                     }
                 }
                 catch (Exception)
