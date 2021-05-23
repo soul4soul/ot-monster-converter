@@ -39,12 +39,7 @@
             </Grid.ColumnDefinitions>
 
             <Label Grid.Row="0" Grid.Column="0" Content="Input Format"/>
-            <ComboBox x:Name="comboInputFormat" Grid.Row="0" Grid.Column="1" Margin="5" SelectionChanged="comboInputFormat_SelectionChanged">
-                <ComboBoxItem Content="TFS XML Format" Tag="1"/>
-                <ComboBoxItem Content="TFS Rev Script System Format" Tag="2"/>
-                <ComboBoxItem Content="PyOt Format" Tag="0"/>
-                <ComboBoxItem Content="TibiaWiki Format" Tag="3"/>
-            </ComboBox>
+            <ComboBox x:Name="comboInputFormat" Grid.Row="0" Grid.Column="1" Margin="5" SelectionChanged="comboInputFormat_SelectionChanged" DisplayMemberPath="ConverterName"/>
 
             <Label Grid.Row="1" Grid.Column="0" Content="Input Directory"/>
             <Grid Grid.Row="1" Grid.Column="1" Margin="5">
@@ -57,12 +52,7 @@
             </Grid>
 
             <Label Grid.Row="2" Grid.Column="0" Content="Output Format"/>
-            <ComboBox x:Name="comboOutputFormat" Grid.Row="2" Grid.Column="1" Margin="5" SelectionChanged="comboOutputFormat_SelectionChanged">
-                <ComboBoxItem Content="TFS XML Format" Tag="1"/>
-                <ComboBoxItem Content="TFS Rev Script System Format" Tag="2"/>
-                <ComboBoxItem Content="PyOt Format" Tag="0"/>
-                <ComboBoxItem Content="TibiaWiki Format" Tag="3"/>
-            </ComboBox>
+            <ComboBox x:Name="comboOutputFormat" Grid.Row="2" Grid.Column="1" Margin="5" SelectionChanged="comboOutputFormat_SelectionChanged" DisplayMemberPath="ConverterName"/>
 
             <Label Grid.Row="3" Grid.Column="0" Content="Output Directory"/>
             <Grid Grid.Row="3" Grid.Column="1" Margin="5">

@@ -1,19 +1,31 @@
-﻿using OTMonsterConverter.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using ScrapySharp.Extensions;
 using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace OTMonsterConverter.Converter
+
+namespace MonsterConverterTibiaWiki
 {
-    public class TibiaWikiConverter : IMonsterConverter
+    [Export(typeof(IMonsterConverter))]
+    public class TibiaWikiConverter : MonsterConverter
     {
-        public string FileExtRegEx => throw new NotImplementedException();
+        public override string ConverterName { get => "TibiaWiki"; }
+
+        public override FileSource FileSource { get => FileSource.Web; }
+
+        public override string FileExt { get => "html"; }
+
+        public override bool IsReadSupported { get => true; }
+
+        public override bool IsWriteSupported { get => true; }
 
         public class RegexPatternKeys
         {
@@ -250,7 +262,38 @@ namespace OTMonsterConverter.Converter
             return input;
         }
 
-        public bool ReadMonster(string filename, out Monster monster)
+        public override string[] GetFilesForConversion(string directory)
+        {
+            // directory parameter is ignored for this format...
+
+            string monsterlisturl = $"https://tibia.fandom.com/wiki/List_of_Creatures_(Ordered)";
+            IList<string> names = new List<string>();
+
+            ScrapingBrowser browser = new ScrapingBrowser();
+            browser.Encoding = Encoding.UTF8;
+            WebPage monsterspage = browser.NavigateToPage(new Uri(monsterlisturl));
+            var orderedLists = monsterspage.Html.CssSelect("ol");
+
+            // Links are HTML encoded
+            // %27 is HTML encode for ' character
+            // %27%C3% is HTML encode for ñ character
+            var nameregex = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)");
+            foreach (var ol in orderedLists)
+            {
+                foreach (var child in ol.ChildNodes)
+                {
+                    if (nameregex.IsMatch(child.InnerHtml))
+                    {
+                        var namematches = nameregex.Matches(child.InnerHtml);
+                        names.Add(namematches.FindNamedGroupValue("name").Replace("%27", "'").Replace("%C3%B1", "ñ"));
+                    }
+                }
+            }
+
+            return names.ToArray();
+        }
+
+        public override bool ReadMonster(string filename, out Monster monster)
         {
             string monsterurl = $"https://tibia.fandom.com/wiki/{filename}?action=edit";
             string looturl = $"https://tibia.fandom.com/wiki/Loot_Statistics:{filename}?action=edit";
@@ -337,7 +380,7 @@ namespace OTMonsterConverter.Converter
             return true;
         }
 
-        public bool WriteMonster(string directory, ref Monster monster)
+        public override bool WriteMonster(string directory, ref Monster monster)
         {
             string[] lines =
             {
