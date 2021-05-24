@@ -10,7 +10,6 @@ namespace MonsterConverterInterface.MonsterTypes
         public SpellCategory SpellCategory { get; set; }
         public int? MinDamage { get; set; }
         public int? MaxDamage { get; set; }
-        public TargetType? TargetStyle { get; set; }
         public CombatDamage? DamageElement { get; set; }
         public Effect? AreaEffect { get; set; }
         public Animation? ShootEffect { get; set; }
@@ -30,7 +29,7 @@ namespace MonsterConverterInterface.MonsterTypes
         // Spell Condition stuff
         public int? Tick { get; set; }
         public int? StartDamage { get; set; }
-        public Condition? Condition { get; set; }
+        public ConditionType? Condition { get; set; }
         // Outfit stuff
         public string MonsterName { get; set; }
         public int? ItemId { get; set; }

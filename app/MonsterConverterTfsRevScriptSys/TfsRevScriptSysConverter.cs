@@ -15,30 +15,30 @@ namespace MonsterConverterTfsRevScriptSys
 
         const uint MAX_LOOTCHANCE = 100000;
 
-        IDictionary<Condition, string> ConditioToTFsConstants = new Dictionary<Condition, string>
+        IDictionary<ConditionType, string> ConditioToTFsConstants = new Dictionary<ConditionType, string>
         {
-            {Condition.Poison,      "CONDITION_POISON"},
-            {Condition.Fire,        "CONDITION_FIRE"},
-            {Condition.Energy,      "CONDITION_ENERGY"},
-            {Condition.Bleeding,    "CONDITION_BLEEDING"},
-            {Condition.Paralyze,    "CONDITION_POISON"},
-            {Condition.Drown,       "CONDITION_DROWN"},
-            {Condition.Freezing,    "CONDITION_FREEZING"},
-            {Condition.Dazzled,     "CONDITION_DAZZLED"},
-            {Condition.Cursed,      "CONDITION_CURSED"}
+            {ConditionType.Poison,      "CONDITION_POISON"},
+            {ConditionType.Fire,        "CONDITION_FIRE"},
+            {ConditionType.Energy,      "CONDITION_ENERGY"},
+            {ConditionType.Bleeding,    "CONDITION_BLEEDING"},
+            {ConditionType.Paralyze,    "CONDITION_POISON"},
+            {ConditionType.Drown,       "CONDITION_DROWN"},
+            {ConditionType.Freezing,    "CONDITION_FREEZING"},
+            {ConditionType.Dazzled,     "CONDITION_DAZZLED"},
+            {ConditionType.Cursed,      "CONDITION_CURSED"}
         };
 
-        IDictionary<Condition, string> ConditionToString = new Dictionary<Condition, string>
+        IDictionary<ConditionType, string> ConditionToString = new Dictionary<ConditionType, string>
         {
-            {Condition.Poison,      "poison"},
-            {Condition.Fire,        "fire"},
-            {Condition.Energy,      "energy"},
-            {Condition.Bleeding,    "bleeding"},
-            {Condition.Paralyze,    "poison"},
-            {Condition.Drown,       "drown"},
-            {Condition.Freezing,    "freezing"},
-            {Condition.Dazzled,     "dazzled"},
-            {Condition.Cursed,      "cursed"}
+            {ConditionType.Poison,      "poison"},
+            {ConditionType.Fire,        "fire"},
+            {ConditionType.Energy,      "energy"},
+            {ConditionType.Bleeding,    "bleeding"},
+            {ConditionType.Paralyze,    "poison"},
+            {ConditionType.Drown,       "drown"},
+            {ConditionType.Freezing,    "freezing"},
+            {ConditionType.Dazzled,     "dazzled"},
+            {ConditionType.Cursed,      "cursed"}
         };
 
         IDictionary<CombatDamage, string> CombatDamageNames = new Dictionary<CombatDamage, string>
@@ -520,7 +520,7 @@ namespace MonsterConverterTfsRevScriptSys
                 // Conditions only ever appear on melee damage?
                 if (spell.Condition != null)
                 {
-                    attack += $", condition = {{type = {ConditioToTFsConstants[(Condition)spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
+                    attack += $", condition = {{type = {ConditioToTFsConstants[(ConditionType)spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
                 }
             }
             else if (spell.Name == "speed")
