@@ -11,17 +11,18 @@ namespace MonsterConverterInterface.MonsterTypes
         public int? MinDamage { get; set; }
         public int? MaxDamage { get; set; }
         public CombatDamage? DamageElement { get; set; }
-        public Effect? AreaEffect { get; set; }
-        public Animation? ShootEffect { get; set; }
-        public uint? Chance { get; set; }
-        public uint? Interval { get; set; }
+        public Effect AreaEffect { get; set; }
+        public Animation ShootEffect { get; set; }
+        public double Chance { get; set; }
+        public uint Interval { get; set; }
         public uint? Range { get; set; }
         public uint? Radius { get; set; }
         public uint? Length { get; set; }
         public uint? Spread { get; set; }
-        public bool? Target { get; set; }
+        public bool? OnTarget { get; set; }
         // Speed
-        public int? SpeedChange { get; set; }
+        public int? MinSpeedChange { get; set; }
+        public int? MaxSpeedChange { get; set; }
         public int? Duration { get; set; }
         // Melee Stuff
         public int? AttackValue { get; set; }
@@ -29,7 +30,7 @@ namespace MonsterConverterInterface.MonsterTypes
         // Spell Condition stuff
         public int? Tick { get; set; }
         public int? StartDamage { get; set; }
-        public ConditionType? Condition { get; set; }
+        public ConditionType Condition { get; set; }
         // Outfit stuff
         public string MonsterName { get; set; }
         public int? ItemId { get; set; }

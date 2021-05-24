@@ -753,7 +753,7 @@ namespace MonsterConverterTfsXml
                         spell.Interval = ATTACK_INTERVAL_DEFAULT;
                     }
 
-                    spell.Chance = attack.chance / 100;
+                    spell.Chance = attack.chance / 100.0;
 
                     if (attack.attribute != null)
                     {
@@ -848,7 +848,10 @@ namespace MonsterConverterTfsXml
                             spell.Condition = ConditionType.Freezing;
                             spell.StartDamage = attack.freeze;
                         }
-                        spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
+                        if (spell.Condition != ConditionType.None)
+                        {
+                            spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
+                        }
                     }
                     else if (attack.name == "speed")
                     {
@@ -872,8 +875,8 @@ namespace MonsterConverterTfsXml
                     {
                         if (attack.name.Contains("condition"))
                         {
-                            attack.name = "condition";
                             spell.Condition = conditionDamageNames[attack.name];
+                            spell.Name = "condition";
                             spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
                             spell.StartDamage = attack.start;
                         }
@@ -889,6 +892,7 @@ namespace MonsterConverterTfsXml
                         if (combatDamageNames.ContainsKey(spell.Name))
                         {
                             spell.DamageElement = combatDamageNames[spell.Name];
+                            spell.Name = "combat";
                         }
 
                         if (!string.IsNullOrEmpty(attack.monster))
