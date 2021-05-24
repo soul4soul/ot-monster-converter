@@ -213,8 +213,8 @@ namespace MonsterConverterTfsXml
         {
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
-            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
+            serializer.UnknownNode += new XmlNodeEventHandler(Serializer_UnknownNode);
+            serializer.UnknownAttribute += new XmlAttributeEventHandler(Serializer_UnknownAttribute);
 
             // A FileStream is needed to read the XML document.
             FileStream fs = new FileStream(filename, FileMode.Open);
@@ -253,7 +253,7 @@ namespace MonsterConverterTfsXml
                 Health = (uint)tfsMonster.health.max,
                 Experience = (uint)tfsMonster.experience,
                 Speed = (uint)tfsMonster.speed,
-                Race = tfsToGenericBlood(tfsMonster.race),
+                Race = TfsToGenericBlood(tfsMonster.race),
             };
 
             if (!string.IsNullOrEmpty(tfsMonster.nameDescription))
@@ -457,47 +457,47 @@ namespace MonsterConverterTfsXml
                     {
                         if (x.attr[0].Name == "physicalPercent")
                         {
-                            monster.Physical = tfstoGenericElementalPercent(value);
+                            monster.Physical = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "icePercent")
                         {
-                            monster.Ice = tfstoGenericElementalPercent(value);
+                            monster.Ice = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "poisonPercent")
                         {
-                            monster.Earth = tfstoGenericElementalPercent(value);
+                            monster.Earth = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "earthPercent")
                         {
-                            monster.Earth = tfstoGenericElementalPercent(value);
+                            monster.Earth = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "firePercent")
                         {
-                            monster.Fire = tfstoGenericElementalPercent(value);
+                            monster.Fire = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "energyPercent")
                         {
-                            monster.Energy = tfstoGenericElementalPercent(value);
+                            monster.Energy = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "holyPercent")
                         {
-                            monster.Holy = tfstoGenericElementalPercent(value);
+                            monster.Holy = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "deathPercent")
                         {
-                            monster.Death = tfstoGenericElementalPercent(value);
+                            monster.Death = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "drownPercent")
                         {
-                            monster.Drown = tfstoGenericElementalPercent(value);
+                            monster.Drown = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "lifedrainPercent")
                         {
-                            monster.LifeDrain = tfstoGenericElementalPercent(value);
+                            monster.LifeDrain = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "manadrainPercent")
                         {
-                            monster.ManaDrain = tfstoGenericElementalPercent(value);
+                            monster.ManaDrain = TfstoGenericElementalPercent(value);
                         }
                     }
                 }
@@ -672,7 +672,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private Blood tfsToGenericBlood(string blood)
+        private Blood TfsToGenericBlood(string blood)
         {
             Blood race = Blood.blood; //default
 
@@ -906,7 +906,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private string generictoTfsBlood(Blood race)
+        private string GenerictoTfsBlood(Blood race)
         {
             string bloodName = "blood";
 
@@ -936,17 +936,17 @@ namespace MonsterConverterTfsXml
             return bloodName;
         }
 
-        private double tfstoGenericElementalPercent(int percent)
+        private double TfstoGenericElementalPercent(int percent)
         {
             return (1 - ((double)percent / 100));
         }
 
-        private void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
+        private void Serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Unknown Node:" + e.Name + "\t" + e.Text);
         }
 
-        private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
+        private void Serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
             System.Xml.XmlAttribute attr = e.Attr;
             System.Diagnostics.Debug.WriteLine("Unknown attribute " + attr.Name + "='" + attr.Value + "'");
