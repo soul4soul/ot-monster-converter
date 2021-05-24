@@ -18,7 +18,7 @@ namespace MonsterConverterTfsXml
         const uint MAX_LOOTCHANCE = 100000;
         const uint ATTACK_INTERVAL_DEFAULT = 2000;
 
-        IDictionary<string, Effect> magicEffectNames = new Dictionary<string, Effect>
+        private readonly IDictionary<string, Effect> magicEffectNames = new Dictionary<string, Effect>
         {
             {"redspark",            Effect.DrawBlood},
             {"bluebubble",          Effect.LoseEnergy},
@@ -103,7 +103,7 @@ namespace MonsterConverterTfsXml
             {"purplesmoke",         Effect.PurpleSmoke}
         };
 
-        IDictionary<string, Animation> shootTypeNames = new Dictionary<string, Animation>
+        private readonly IDictionary<string, Animation> shootTypeNames = new Dictionary<string, Animation>
         {
             {"spear",               Animation.Spear},
             {"bolt",                Animation.Bolt},
@@ -157,7 +157,7 @@ namespace MonsterConverterTfsXml
             {"simplearrow",         Animation.SimpleArrow}
         };
 
-        IDictionary<string, CombatDamage> CombatDamageNames = new Dictionary<string, CombatDamage>
+        private readonly IDictionary<string, CombatDamage> combatDamageNames = new Dictionary<string, CombatDamage>
         {
             {"physical",    CombatDamage.Physical},
             {"energy",      CombatDamage.Energy},
@@ -171,6 +171,35 @@ namespace MonsterConverterTfsXml
             {"holy",        CombatDamage.Holy},
             {"death",       CombatDamage.Death}
             //{"undefined",   CombatDamage.Undefined}
+        };
+
+        private readonly IDictionary<string, ConditionType> conditionDamageNames = new Dictionary<string, ConditionType>
+        {
+            {"physicalcondition",    ConditionType.Bleeding},
+            {"bleedcondition",       ConditionType.Bleeding},
+            {"energycondition",      ConditionType.Energy},
+            {"poisoncondition",      ConditionType.Poison},
+            {"earthcondition",       ConditionType.Poison},
+            {"firecondition",        ConditionType.Fire},
+            {"drowncondition",       ConditionType.Drown},
+            {"icecondition",         ConditionType.Freezing},
+            {"freezecondition",      ConditionType.Freezing},
+            {"holycondition",        ConditionType.Dazzled},
+            {"dazzledcondition",     ConditionType.Dazzled},
+            {"cursecondition",       ConditionType.Cursed},
+            {"deathcondition",       ConditionType.Cursed}
+        };
+
+        private readonly IDictionary<ConditionType, int> conditionDefaultTick = new Dictionary<ConditionType, int>
+        {
+            {ConditionType.Bleeding,    4000},
+            {ConditionType.Energy,      10000},
+            {ConditionType.Fire,        9000},
+            {ConditionType.Poison,      4000},
+            {ConditionType.Drown,       5000},
+            {ConditionType.Freezing,    8000},
+            {ConditionType.Dazzled,     10000},
+            {ConditionType.Cursed,      4000},
         };
 
         public override string FileExt { get => "xml"; }
@@ -724,7 +753,42 @@ namespace MonsterConverterTfsXml
                         spell.Interval = ATTACK_INTERVAL_DEFAULT;
                     }
 
-                    spell.Chance = (uint)attack.chance;
+                    spell.Chance = attack.chance / 100;
+
+                    if (attack.attribute != null)
+                    {
+                        foreach (var attr in attack.attribute)
+                        {
+                            if (attr.key.ToLower() == "shootEffect".ToLower())
+                            {
+                                spell.ShootEffect = shootTypeNames[attr.value.ToLower()];
+                            }
+                            else if (attr.key.ToLower() == "areaEffect".ToLower())
+                            {
+                                spell.AreaEffect = magicEffectNames[attr.value.ToLower()];
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Unkown attack attribute {attr.key}");
+                            }
+                        }
+                    }
+
+                    if (attack.range > 0)
+                    {
+                        spell.Range = (uint?)attack.range;
+                    }
+
+                    if (attack.length > 0)
+                    {
+                        spell.Length = (uint?)attack.length;
+                        spell.Spread = (uint?)attack.spread;
+                        if ((spell.Length > 3) && (spell.Spread == 0))
+                        {
+                            spell.Spread = 3;
+                        }
+                    }
+                    spell.OnTarget = (attack.target == 1);
 
                     if (attack.name == "melee")
                     {
@@ -743,54 +807,61 @@ namespace MonsterConverterTfsXml
                         {
                             spell.Condition = ConditionType.Fire;
                             spell.StartDamage = attack.poison;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 9000;
                         }
                         else if (attack.poison != 0)
                         {
                             spell.Condition = ConditionType.Poison;
                             spell.StartDamage = attack.poison;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
                         }
                         else if (attack.energy != 0)
                         {
                             spell.Condition = ConditionType.Energy;
                             spell.StartDamage = attack.energy;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 10000;
                         }
                         else if (attack.drown != 0)
                         {
                             spell.Condition = ConditionType.Drown;
                             spell.StartDamage = attack.drown;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 5000;
                         }
                         else if (attack.dazzle != 0)
                         {
                             spell.Condition = ConditionType.Dazzled;
                             spell.StartDamage = attack.dazzle;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 10000;
                         }
                         else if (attack.curse != 0)
                         {
                             spell.Condition = ConditionType.Cursed;
                             spell.StartDamage = attack.curse;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
                         }
                         else if (attack.bleed != 0)
                         {
                             spell.Condition = ConditionType.Bleeding;
                             spell.StartDamage = attack.bleed;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
                         }
                         else if (attack.physical != 0)
                         {
                             spell.Condition = ConditionType.Bleeding;
                             spell.StartDamage = attack.physical;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
                         }
+                        else if (attack.freeze != 0)
+                        {
+                            spell.Condition = ConditionType.Freezing;
+                            spell.StartDamage = attack.freeze;
+                        }
+                        spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
                     }
                     else if (attack.name == "speed")
                     {
-                        spell.SpeedChange = attack.speedchange;
+                        if (attack.speedchange != 0)
+                        {
+                            spell.MinSpeedChange = attack.speedchange;
+                            spell.MaxSpeedChange = attack.speedchange;
+                        }
+                        else
+                        {
+                            spell.MinSpeedChange = attack.minspeedchange;
+                            spell.MaxSpeedChange = attack.maxspeedchange;
+                        }
                         spell.Duration = attack.duration;
                         if (attack.duration == 0)
                         {
@@ -799,6 +870,14 @@ namespace MonsterConverterTfsXml
                     }
                     else
                     {
+                        if (attack.name.Contains("condition"))
+                        {
+                            attack.name = "condition";
+                            spell.Condition = conditionDamageNames[attack.name];
+                            spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
+                            spell.StartDamage = attack.start;
+                        }
+
                         // Always default both if max is included to be explicit
                         // Some spells don't have damage so don't include either of them
                         if (attack.max != 0)
@@ -807,44 +886,9 @@ namespace MonsterConverterTfsXml
                             spell.MaxDamage = attack.max;
                         }
 
-                        if (attack.attribute != null)
+                        if (combatDamageNames.ContainsKey(spell.Name))
                         {
-                            foreach (var attr in attack.attribute)
-                            {
-                                if (attr.key.ToLower() == "shootEffect".ToLower())
-                                {
-                                    spell.ShootEffect = shootTypeNames[attr.value.ToLower()];
-                                }
-                                else if (attr.key.ToLower() == "areaEffect".ToLower())
-                                {
-                                    spell.AreaEffect = magicEffectNames[attr.value.ToLower()];
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Unkown attack attribute {attr.key}");
-                                }
-                            }
-                        }
-
-                        if (attack.range > 0)
-                        {
-                            spell.Range = (uint?)attack.range;
-                        }
-
-                        if (attack.length > 0)
-                        {
-                            spell.Length = (uint?)attack.length;
-                            spell.Spread = (uint?)attack.spread;
-                            if ((spell.Length > 3) && (spell.Spread == 0))
-                            {
-                                spell.Spread = 3;
-                            }
-                        }
-                        spell.Target = (attack.target == 1);
-
-                        if (CombatDamageNames.ContainsKey(spell.Name))
-                        {
-                            spell.DamageElement = CombatDamageNames[spell.Name];
+                            spell.DamageElement = combatDamageNames[spell.Name];
                         }
 
                         if (!string.IsNullOrEmpty(attack.monster))
