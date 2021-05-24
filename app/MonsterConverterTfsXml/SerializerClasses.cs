@@ -147,8 +147,8 @@ namespace MonsterConverterTfsXml
     public class Attack
     {
         // only script or name not both
-        //[XmlAttribute]
-        //public string script;
+        [XmlAttribute]
+        public string script;
         [XmlAttribute]
         public string name;
 
@@ -173,12 +173,20 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int radius = 0;
         [XmlAttribute]
-        public int target = 0; // Defaults to 0 if missing
+        public int direction; // 0 or 1 script only
+        [XmlAttribute]
+        public int target = 0; // Defaults to 0 if missing, used by script too
 
         [XmlAttribute]
         public int speedchange = 0;
         [XmlAttribute]
-        public int duration = 0;
+        public int minspeedchange = 0;
+        [XmlAttribute]
+        public int maxspeedchange = 0;
+        [XmlAttribute]
+        public int duration = 10000;
+        [XmlAttribute]
+        public int drunkenness = 0;
 
         [XmlElementAttribute(ElementName = "attribute")]
         public TfsXmlSpellAttributes[] attribute { get; set; }
@@ -327,7 +335,7 @@ namespace MonsterConverterTfsXml
         //[XmlAttribute]
         //public int actionId;
         //[XmlAttribute]
-        //public string test; //used for? //Id guess to override the fault item name string?
+        //public string test; //used for? //Id guess to override the default item name string?
     }
 
     public class Elements
