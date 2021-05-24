@@ -15,7 +15,7 @@ namespace MonsterConverterTfsRevScriptSys
 
         const uint MAX_LOOTCHANCE = 100000;
 
-        IDictionary<ConditionType, string> ConditioToTFsConstants = new Dictionary<ConditionType, string>
+        IDictionary<ConditionType, string> ConditionToTfsConstant = new Dictionary<ConditionType, string>
         {
             {ConditionType.Poison,      "CONDITION_POISON"},
             {ConditionType.Fire,        "CONDITION_FIRE"},
@@ -517,7 +517,7 @@ namespace MonsterConverterTfsRevScriptSys
 
                 if (spell.Condition != ConditionType.None)
                 {
-                    attack += $", condition = {{type = {ConditioToTFsConstants[spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
+                    attack += $", condition = {{type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
                 }
             }
             else
@@ -528,7 +528,7 @@ namespace MonsterConverterTfsRevScriptSys
                 }
                 else if (spell.Name == "condition")
                 {
-                    attack += $", type = {ConditioToTFsConstants[spell.Condition]}, startDamage = {spell.StartDamage}, tick = {spell.Tick}";
+                    attack += $", type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, tick = {spell.Tick}";
                 }
                 else if (spell.Name == "outfit")
                 {
