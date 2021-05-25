@@ -524,7 +524,7 @@ namespace MonsterConverterTfsRevScriptSys
             {
                 if (spell.Name == "speed")
                 {
-                    attack += $", MinSpeedChange = {spell.MinSpeedChange}, MaxSpeedChange = {spell.MaxSpeedChange}";
+                    attack += $", speed = {{min = {spell.MinSpeedChange}, max = {spell.MaxSpeedChange}}}";
                 }
                 else if (spell.Name == "condition")
                 {
