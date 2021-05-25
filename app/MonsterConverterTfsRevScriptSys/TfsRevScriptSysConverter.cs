@@ -545,6 +545,10 @@ namespace MonsterConverterTfsRevScriptSys
                 {
                     attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
                 }
+                else if (spell.Name == "drunk")
+                {
+                    attack += $", drunkenness = {spell.Drunkenness * 100}";
+                }
 
                 if ((spell.MinDamage != null) && (spell.MaxDamage != null))
                 {
