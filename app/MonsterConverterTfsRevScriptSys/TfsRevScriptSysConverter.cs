@@ -495,7 +495,7 @@ namespace MonsterConverterTfsRevScriptSys
 
         public string GenericToTfsRevScriptSysSpells(ref Spell spell)
         {
-            string attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100}";
+            string attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
 
             if (spell.Name == "melee")
             {
