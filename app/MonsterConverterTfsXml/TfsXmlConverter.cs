@@ -788,7 +788,12 @@ namespace MonsterConverterTfsXml
                             spell.Spread = 3;
                         }
                     }
-                    spell.OnTarget = (attack.target == 1);
+
+                    if (attack.radius > 0)
+                    {
+                        spell.Radius = (uint?)attack.radius;
+                        spell.OnTarget = (attack.target == 1);
+                    }
 
                     if (attack.name == "melee")
                     {
