@@ -782,11 +782,7 @@ namespace MonsterConverterTfsXml
                     if (attack.length > 0)
                     {
                         spell.Length = (uint?)attack.length;
-                        spell.Spread = (uint?)attack.spread;
-                        if ((spell.Length > 3) && (spell.Spread == 0))
-                        {
-                            spell.Spread = 3;
-                        }
+                        spell.Spread = (attack.spread == -1) ? 3 : (uint?)attack.spread;
                     }
 
                     if (attack.radius > 0)

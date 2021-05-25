@@ -170,7 +170,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int length = 0; //if length exists spread defaults to 3
         [XmlAttribute]
-        public int spread = 0; //if length exists spread defaults to 3
+        public int spread = -1; //if length exists spread defaults to 3
         [XmlAttribute]
         public int radius = 0;
         [XmlAttribute]
