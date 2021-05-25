@@ -866,6 +866,10 @@ namespace MonsterConverterTfsXml
                             spell.MaxSpeedChange = attack.maxspeedchange;
                         }
                     }
+                    else if (attack.name == "drunk")
+                    {
+                        spell.Drunkenness = attack.drunkenness / 100.0;
+                    }
                     else
                     {
                         if (attack.name.Contains("condition"))

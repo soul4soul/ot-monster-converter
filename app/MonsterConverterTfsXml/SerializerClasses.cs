@@ -187,7 +187,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int duration = 10000;
         [XmlAttribute]
-        public int drunkenness = 0;
+        public int drunkenness = 25;
 
         [XmlElementAttribute(ElementName = "attribute")]
         public TfsXmlSpellAttributes[] attribute { get; set; }

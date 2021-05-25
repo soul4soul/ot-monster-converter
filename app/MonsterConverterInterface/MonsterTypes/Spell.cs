@@ -34,5 +34,7 @@ namespace MonsterConverterInterface.MonsterTypes
         // Outfit stuff
         public string MonsterName { get; set; }
         public int? ItemId { get; set; }
+        // Drunk
+        public int? Drunkenness { get; set; }
     }
 }
