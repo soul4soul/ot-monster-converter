@@ -166,14 +166,14 @@ namespace MonsterConverterTibiaWiki
 
                     case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 300, AreaEffect = Effect.MagicRed, Duration = 7000 };
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, MinSpeedChange = 300, MaxSpeedChange = 300, AreaEffect = Effect.MagicRed, Duration = 7000 };
                             mon.Attacks.Add(spell);
                             break;
                         }
 
                     case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanability):
                         {
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, SpeedChange = 450, AreaEffect = Effect.MagicRed, Duration = 4000 };
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 15, MinSpeedChange = 450, MaxSpeedChange = 450, AreaEffect = Effect.MagicRed, Duration = 4000 };
                             mon.Attacks.Add(spell);
                             break;
                         }
@@ -201,7 +201,7 @@ namespace MonsterConverterTibiaWiki
             return true;
         }
 
-        private static Animation? TibiaWikiToAnimation(string effect)
+        private static Animation TibiaWikiToAnimation(string effect)
         {
             if ((effect == "spear") || (effect == "spears"))
             {
@@ -227,7 +227,10 @@ namespace MonsterConverterTibiaWiki
             {
                 return Animation.SmallStone;
             }
-            return null;
+            else
+            {
+                return Animation.None;
+            }
         }
 
         /// <summary>

@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -20,7 +18,7 @@ namespace MonsterConverterTfsXml
         const uint MAX_LOOTCHANCE = 100000;
         const uint ATTACK_INTERVAL_DEFAULT = 2000;
 
-        IDictionary<string, Effect> magicEffectNames = new Dictionary<string, Effect>
+        private readonly IDictionary<string, Effect> magicEffectNames = new Dictionary<string, Effect>
         {
             {"redspark",            Effect.DrawBlood},
             {"bluebubble",          Effect.LoseEnergy},
@@ -105,7 +103,7 @@ namespace MonsterConverterTfsXml
             {"purplesmoke",         Effect.PurpleSmoke}
         };
 
-        IDictionary<string, Animation> shootTypeNames = new Dictionary<string, Animation>
+        private readonly IDictionary<string, Animation> shootTypeNames = new Dictionary<string, Animation>
         {
             {"spear",               Animation.Spear},
             {"bolt",                Animation.Bolt},
@@ -159,7 +157,7 @@ namespace MonsterConverterTfsXml
             {"simplearrow",         Animation.SimpleArrow}
         };
 
-        IDictionary<string, CombatDamage> CombatDamageNames = new Dictionary<string, CombatDamage>
+        private readonly IDictionary<string, CombatDamage> combatDamageNames = new Dictionary<string, CombatDamage>
         {
             {"physical",    CombatDamage.Physical},
             {"energy",      CombatDamage.Energy},
@@ -175,6 +173,35 @@ namespace MonsterConverterTfsXml
             //{"undefined",   CombatDamage.Undefined}
         };
 
+        private readonly IDictionary<string, ConditionType> conditionDamageNames = new Dictionary<string, ConditionType>
+        {
+            {"physicalcondition",    ConditionType.Bleeding},
+            {"bleedcondition",       ConditionType.Bleeding},
+            {"energycondition",      ConditionType.Energy},
+            {"poisoncondition",      ConditionType.Poison},
+            {"earthcondition",       ConditionType.Poison},
+            {"firecondition",        ConditionType.Fire},
+            {"drowncondition",       ConditionType.Drown},
+            {"icecondition",         ConditionType.Freezing},
+            {"freezecondition",      ConditionType.Freezing},
+            {"holycondition",        ConditionType.Dazzled},
+            {"dazzledcondition",     ConditionType.Dazzled},
+            {"cursecondition",       ConditionType.Cursed},
+            {"deathcondition",       ConditionType.Cursed}
+        };
+
+        private readonly IDictionary<ConditionType, int> conditionDefaultTick = new Dictionary<ConditionType, int>
+        {
+            {ConditionType.Bleeding,    4000},
+            {ConditionType.Energy,      10000},
+            {ConditionType.Fire,        9000},
+            {ConditionType.Poison,      4000},
+            {ConditionType.Drown,       5000},
+            {ConditionType.Freezing,    8000},
+            {ConditionType.Dazzled,     10000},
+            {ConditionType.Cursed,      4000},
+        };
+
         public override string FileExt { get => "xml"; }
 
         public override bool IsReadSupported { get => true; }
@@ -186,8 +213,8 @@ namespace MonsterConverterTfsXml
         {
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
-            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
+            serializer.UnknownNode += new XmlNodeEventHandler(Serializer_UnknownNode);
+            serializer.UnknownAttribute += new XmlAttributeEventHandler(Serializer_UnknownAttribute);
 
             // A FileStream is needed to read the XML document.
             FileStream fs = new FileStream(filename, FileMode.Open);
@@ -226,7 +253,7 @@ namespace MonsterConverterTfsXml
                 Health = (uint)tfsMonster.health.max,
                 Experience = (uint)tfsMonster.experience,
                 Speed = (uint)tfsMonster.speed,
-                Race = tfsToGenericBlood(tfsMonster.race),
+                Race = TfsToGenericBlood(tfsMonster.race),
             };
 
             if (!string.IsNullOrEmpty(tfsMonster.nameDescription))
@@ -430,47 +457,47 @@ namespace MonsterConverterTfsXml
                     {
                         if (x.attr[0].Name == "physicalPercent")
                         {
-                            monster.Physical = tfstoGenericElementalPercent(value);
+                            monster.Physical = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "icePercent")
                         {
-                            monster.Ice = tfstoGenericElementalPercent(value);
+                            monster.Ice = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "poisonPercent")
                         {
-                            monster.Earth = tfstoGenericElementalPercent(value);
+                            monster.Earth = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "earthPercent")
                         {
-                            monster.Earth = tfstoGenericElementalPercent(value);
+                            monster.Earth = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "firePercent")
                         {
-                            monster.Fire = tfstoGenericElementalPercent(value);
+                            monster.Fire = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "energyPercent")
                         {
-                            monster.Energy = tfstoGenericElementalPercent(value);
+                            monster.Energy = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "holyPercent")
                         {
-                            monster.Holy = tfstoGenericElementalPercent(value);
+                            monster.Holy = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "deathPercent")
                         {
-                            monster.Death = tfstoGenericElementalPercent(value);
+                            monster.Death = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "drownPercent")
                         {
-                            monster.Drown = tfstoGenericElementalPercent(value);
+                            monster.Drown = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "lifedrainPercent")
                         {
-                            monster.LifeDrain = tfstoGenericElementalPercent(value);
+                            monster.LifeDrain = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "manadrainPercent")
                         {
-                            monster.ManaDrain = tfstoGenericElementalPercent(value);
+                            monster.ManaDrain = TfstoGenericElementalPercent(value);
                         }
                     }
                 }
@@ -645,7 +672,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private Blood tfsToGenericBlood(string blood)
+        private Blood TfsToGenericBlood(string blood)
         {
             Blood race = Blood.blood; //default
 
@@ -726,7 +753,43 @@ namespace MonsterConverterTfsXml
                         spell.Interval = ATTACK_INTERVAL_DEFAULT;
                     }
 
-                    spell.Chance = (uint)attack.chance;
+                    spell.Chance = attack.chance / 100.0;
+
+                    if (attack.attribute != null)
+                    {
+                        foreach (var attr in attack.attribute)
+                        {
+                            if (attr.key.ToLower() == "shootEffect".ToLower())
+                            {
+                                spell.ShootEffect = shootTypeNames[attr.value.ToLower()];
+                            }
+                            else if (attr.key.ToLower() == "areaEffect".ToLower())
+                            {
+                                spell.AreaEffect = magicEffectNames[attr.value.ToLower()];
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Unkown attack attribute {attr.key}");
+                            }
+                        }
+                    }
+
+                    if (attack.range > 0)
+                    {
+                        spell.Range = (uint?)attack.range;
+                    }
+
+                    if (attack.length > 0)
+                    {
+                        spell.Length = (uint?)attack.length;
+                        spell.Spread = (attack.spread == -1) ? 3 : (uint?)attack.spread;
+                    }
+
+                    if (attack.radius > 0)
+                    {
+                        spell.Radius = (uint?)attack.radius;
+                        spell.OnTarget = (attack.target == 1);
+                    }
 
                     if (attack.name == "melee")
                     {
@@ -743,64 +806,81 @@ namespace MonsterConverterTfsXml
 
                         if (attack.fire != 0)
                         {
-                            spell.Condition = Condition.Fire;
+                            spell.Condition = ConditionType.Fire;
                             spell.StartDamage = attack.poison;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 9000;
                         }
                         else if (attack.poison != 0)
                         {
-                            spell.Condition = Condition.Poison;
+                            spell.Condition = ConditionType.Poison;
                             spell.StartDamage = attack.poison;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
                         }
                         else if (attack.energy != 0)
                         {
-                            spell.Condition = Condition.Energy;
+                            spell.Condition = ConditionType.Energy;
                             spell.StartDamage = attack.energy;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 10000;
                         }
                         else if (attack.drown != 0)
                         {
-                            spell.Condition = Condition.Drown;
+                            spell.Condition = ConditionType.Drown;
                             spell.StartDamage = attack.drown;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 5000;
                         }
                         else if (attack.dazzle != 0)
                         {
-                            spell.Condition = Condition.Dazzled;
+                            spell.Condition = ConditionType.Dazzled;
                             spell.StartDamage = attack.dazzle;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 10000;
                         }
                         else if (attack.curse != 0)
                         {
-                            spell.Condition = Condition.Cursed;
+                            spell.Condition = ConditionType.Cursed;
                             spell.StartDamage = attack.curse;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
                         }
                         else if (attack.bleed != 0)
                         {
-                            spell.Condition = Condition.Bleeding;
+                            spell.Condition = ConditionType.Bleeding;
                             spell.StartDamage = attack.bleed;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
                         }
                         else if (attack.physical != 0)
                         {
-                            spell.Condition = Condition.Bleeding;
+                            spell.Condition = ConditionType.Bleeding;
                             spell.StartDamage = attack.physical;
-                            spell.Tick = (attack.tick != 0) ? attack.tick : 4000;
+                        }
+                        else if (attack.freeze != 0)
+                        {
+                            spell.Condition = ConditionType.Freezing;
+                            spell.StartDamage = attack.freeze;
+                        }
+                        if (spell.Condition != ConditionType.None)
+                        {
+                            spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
                         }
                     }
                     else if (attack.name == "speed")
                     {
-                        spell.SpeedChange = attack.speedchange;
-                        spell.Duration = attack.duration;
-                        if (attack.duration == 0)
+                        if (attack.speedchange != 0)
                         {
-                            spell.Duration = 10000; // Default when no duration set
+                            spell.MinSpeedChange = attack.speedchange;
+                            spell.MaxSpeedChange = attack.speedchange;
                         }
+                        else
+                        {
+                            spell.MinSpeedChange = attack.minspeedchange;
+                            spell.MaxSpeedChange = attack.maxspeedchange;
+                        }
+                    }
+                    else if (attack.name == "drunk")
+                    {
+                        spell.Drunkenness = attack.drunkenness / 100.0;
                     }
                     else
                     {
+                        if (attack.name.Contains("condition"))
+                        {
+                            spell.Condition = conditionDamageNames[attack.name];
+                            spell.Name = "condition";
+                            spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
+                            spell.StartDamage = attack.start;
+                        }
+
                         // Always default both if max is included to be explicit
                         // Some spells don't have damage so don't include either of them
                         if (attack.max != 0)
@@ -809,44 +889,10 @@ namespace MonsterConverterTfsXml
                             spell.MaxDamage = attack.max;
                         }
 
-                        if (attack.attribute != null)
+                        if (combatDamageNames.ContainsKey(spell.Name))
                         {
-                            foreach (var attr in attack.attribute)
-                            {
-                                if (attr.key.ToLower() == "shootEffect".ToLower())
-                                {
-                                    spell.ShootEffect = shootTypeNames[attr.value.ToLower()];
-                                }
-                                else if (attr.key.ToLower() == "areaEffect".ToLower())
-                                {
-                                    spell.AreaEffect = magicEffectNames[attr.value.ToLower()];
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Unkown attack attribute {attr.key}");
-                                }
-                            }
-                        }
-
-                        if (attack.range > 0)
-                        {
-                            spell.Range = (uint?)attack.range;
-                        }
-
-                        if (attack.length > 0)
-                        {
-                            spell.Length = (uint?)attack.length;
-                            spell.Spread = (uint?)attack.spread;
-                            if ((spell.Length > 3) && (spell.Spread == 0))
-                            {
-                                spell.Spread = 3;
-                            }
-                        }
-                        spell.Target = (attack.target == 1);
-
-                        if (CombatDamageNames.ContainsKey(spell.Name))
-                        {
-                            spell.DamageElement = CombatDamageNames[spell.Name];
+                            spell.DamageElement = combatDamageNames[spell.Name];
+                            spell.Name = "combat";
                         }
 
                         if (!string.IsNullOrEmpty(attack.monster))
@@ -859,12 +905,17 @@ namespace MonsterConverterTfsXml
                         }
                     }
 
+                    if ((attack.name == "speed") || (attack.name == "outfit") || (attack.name == "invisible") || (attack.name == "drunk"))
+                    {
+                        spell.Duration = attack.duration;
+                    }
+
                     monster.Attacks.Add(spell);
                 }
             }
         }
 
-        private string generictoTfsBlood(Blood race)
+        private string GenerictoTfsBlood(Blood race)
         {
             string bloodName = "blood";
 
@@ -894,377 +945,20 @@ namespace MonsterConverterTfsXml
             return bloodName;
         }
 
-        private double tfstoGenericElementalPercent(int percent)
+        private double TfstoGenericElementalPercent(int percent)
         {
             return (1 - ((double)percent / 100));
         }
 
-        private void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
+        private void Serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Unknown Node:" + e.Name + "\t" + e.Text);
         }
 
-        private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
+        private void Serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
             System.Xml.XmlAttribute attr = e.Attr;
             System.Diagnostics.Debug.WriteLine("Unknown attribute " + attr.Name + "='" + attr.Value + "'");
         }
     }
-
-    #region XML serializer classes
-    public enum namedImmunityXml
-    {
-        physical,
-        energy,
-        fire,
-        poison,
-        earth = namedImmunityXml.poison,
-        drown,
-        ice,
-        holy,
-        death,
-        lifedrain,
-        manadrain,
-        paralyze,
-        outfit,
-        drunk,
-        invisible,
-        invisibility = namedImmunityXml.invisible,
-        bleed,
-        NA
-    }
-
-    enum skullsXml
-    {
-        none = 0,
-        yellow,
-        green,
-        white,
-        red,
-        black,
-        orange
-    }
-
-    [Serializable, XmlRoot("monster")]
-    public class TFSXmlMonster
-    {
-        [XmlAttribute]
-        public string name;
-        [XmlAttribute]
-        public string nameDescription;
-        [XmlAttribute]
-        public string namedescription;
-        [XmlAttribute]
-        public string race = "blood";
-        [XmlAttribute]
-        public int experience = 0;
-        [XmlAttribute]
-        public int speed = 200;
-        [XmlAttribute]
-        public int manacost = 0;
-        [XmlAttribute]
-        public string skull = "none"; //uses strings, "none", "yellow", "green", "white", "red", "black", "orange"
-        //[XmlAttribute]
-        //public int script; //todo: how to handle
-
-        public TFSXmlHealth health;
-        public Flags flags;
-        public Look look;
-        public TargetChange targetchange;
-        public Attacks attacks;
-        public Defenses defenses;
-        public Immunities immunities;
-        public Voices voices;
-        public TfsXmlLoot loot;
-        public Elements elements;
-        public TFSXmlSummons summons;
-    }
-
-    [XmlRoot(ElementName = "health")]
-    public class TFSXmlHealth
-    {
-        [XmlAttribute]
-        public int now = 100;
-        [XmlAttribute]
-        public int max = 100;
-    }
-
-    [XmlRoot(ElementName = "flags")]
-    public class Flags
-    {
-        [XmlElementAttribute]
-        public MultiAttr[] flag;
-    }
-
-    public class MultiAttr
-    {
-        [XmlAnyAttribute]
-        public XmlAttribute[] attr;
-    }
-
-    public class TargetChange
-    {
-        [XmlAttribute]
-        public int interval = 0; //interval and speed are the same, default is 0
-        [XmlAttribute]
-        public int speed = 0; //interval and speed are the same, default is 0
-        [XmlAttribute]
-        public int chance = 0; //default is 0
-    }
-
-    public class Look
-    {
-        [XmlAttribute]
-        public int type = 0;
-        [XmlAttribute]
-        public int head = 0; //only can exist if type exists
-        [XmlAttribute]
-        public int body = 0; //only can exist if type exists
-        [XmlAttribute]
-        public int legs = 0; //only can exist if type exists
-        [XmlAttribute]
-        public int feet = 0; //only can exist if type exists
-        [XmlAttribute]
-        public int addons = 0; //only can exist if type exists
-        [XmlAttribute]
-        public int typeex = 0;
-        [XmlAttribute]
-        public int mount = 0;
-        [XmlAttribute]
-        public int corpse = 0;
-    }
-
-    public class TfsXmlSpellAttributes
-    {
-        [XmlAttribute]
-        public string key { get; set; }
-
-        [XmlAttribute]
-        public string value { get; set; }
-    }
-
-    public class Attacks
-    {
-        [XmlElementAttribute]
-        public Attack[] attack;
-    }
-
-    public class Attack
-    {
-        // only script or name not both
-        //[XmlAttribute]
-        //public string script;
-        [XmlAttribute]
-        public string name;
-
-        // Only one should exist, they represent the same information
-        [XmlAttribute]
-        public int interval = 0; //defaults to 2000 if missing, default is handled in parsing
-        [XmlAttribute]
-        public int speed = 0; //defaults to 2000 if missing, default is handled in parsing
-
-        [XmlAttribute]
-        public int chance = 100; //defaults to 100 if missing
-        [XmlAttribute]
-        public int range = 0; //defaults to 0 if missing
-        [XmlAttribute]
-        public int min = 0; //defaults to 0 if missing
-        [XmlAttribute]
-        public int max = 0; //defaults to 0 if missing
-        [XmlAttribute]
-        public int length = 0; //if length exists spread defaults to 3
-        [XmlAttribute]
-        public int spread = 0; //if length exists spread defaults to 3
-        [XmlAttribute]
-        public int radius = 0;
-        [XmlAttribute]
-        public int target = 0; // Defaults to 0 if missing
-
-        [XmlAttribute]
-        public int speedchange = 0;
-        [XmlAttribute]
-        public int duration = 0;
-
-        [XmlElementAttribute(ElementName = "attribute")]
-        public TfsXmlSpellAttributes[] attribute { get; set; }
-
-        // the following only exist when attack name is melee
-        // when melee exists minMax and Max are set to 0
-        [XmlAttribute]
-        public int skill;
-        [XmlAttribute]
-        public int attack;
-        [XmlAttribute]
-        public int fire;
-        [XmlAttribute]
-        public int poison;
-        [XmlAttribute]
-        public int energy;
-        [XmlAttribute]
-        public int drown;
-        [XmlAttribute]
-        public int freeze;
-        [XmlAttribute]
-        public int dazzle;
-        [XmlAttribute]
-        public int curse;
-        [XmlAttribute]
-        public int bleed; //bleed and physical are the same
-        [XmlAttribute]
-        public int physical; //bleed and physical are the same
-
-        [XmlAttribute]
-        public int tick; //only used if a condition is set each type has its own default tick which can be overriden with this attr
-        [XmlAttribute]
-        public int start; //Start condition damage
-
-        [XmlAttribute]
-        public string monster;
-        [XmlAttribute]
-        public int item;
-    }
-
-    public class Defenses
-    {
-        [XmlAttribute]
-        public uint defense;
-        [XmlAttribute]
-        public uint armor;
-
-        [XmlElementAttribute(ElementName = "defense")]
-        public Attack[] defenses;
-    }
-
-    public class Immunities
-    {
-        [XmlElementAttribute]
-        public Immunity[] immunity;
-    }
-
-    public class Immunity
-    {
-        [XmlAttribute]
-        public namedImmunityXml name = namedImmunityXml.NA;
-        [XmlAttribute]
-        public int physical = 0; //Immune to physical and bleeding condition
-        [XmlAttribute]
-        public int energy = 0;
-        [XmlAttribute]
-        public int fire = 0;
-        [XmlAttribute]
-        public int poison = 0; //poison and earth are the same
-        [XmlAttribute]
-        public int earth = 0; //poison and earth are the same
-        [XmlAttribute]
-        public int drown = 0;
-        [XmlAttribute]
-        public int ice = 0;
-        [XmlAttribute]
-        public int holy = 0;
-        [XmlAttribute]
-        public int death = 0;
-        [XmlAttribute]
-        public int lifedrain = 0;
-        [XmlAttribute]
-        public int manadrain = 0;
-        [XmlAttribute]
-        public int paralyze = 0;
-        [XmlAttribute]
-        public int outfit = 0; // TODO should be true by default?
-        [XmlAttribute]
-        public int bleed = 0; // immue to only bleed condition
-        [XmlAttribute]
-        public int drunk = 0;
-        [XmlAttribute]
-        public int invisible = 0; //invisible and invisibility are the same
-        [XmlAttribute]
-        public int invisibility = 0; //invisible and invisibility are the same
-    }
-
-    public class Voices
-    {
-        [XmlAttribute]
-        public int interval; //interval and speed are the same
-        [XmlAttribute]
-        public int speed; //interval and speed are the same
-        [XmlAttribute]
-        public int chance;
-        [XmlElementAttribute]
-        public VoiceXml[] voice;
-    }
-
-    public class VoiceXml
-    {
-        [XmlAttribute]
-        public string sentence;
-        /// <summary>
-        /// Can be 1 or true
-        /// if it doesnt exist the value is false
-        /// </summary>
-        [XmlAttribute]
-        public string yell;
-    }
-
-    [Serializable, XmlRoot("Loot")]
-    public class TfsXmlLoot
-    {
-        [XmlElementAttribute]
-        public Item[] item;
-    }
-
-    public class Item
-    {
-        // Only name or ID will be used not both
-        [XmlAttribute]
-        public string name;
-        [XmlAttribute]
-        public int id;
-        [XmlAttribute]
-        public int countmax = 1; //default value is 1
-        [XmlAttribute]
-        public int chance; //chance and chance1 are the same
-        [XmlAttribute]
-        public int chance1; //chance and chance1 are the same
-
-        //optional
-        //[XmlAttribute]
-        //public int subtype; //used for charges?
-        //[XmlAttribute]
-        //public int actionId;
-        //[XmlAttribute]
-        //public string test; //used for? //Id guess to override the fault item name string?
-    }
-
-    public class Elements
-    {
-        [XmlElementAttribute]
-        public MultiAttr[] element;
-    }
-
-    [XmlRoot(ElementName = "summons")]
-    public class TFSXmlSummons
-    {
-        [XmlAttribute]
-        public int maxSummons;
-        [XmlElementAttribute]
-        public TFSXmlSummon[] summon;
-    }
-
-    [XmlRoot(ElementName = "summon")]
-    public class TFSXmlSummon
-    {
-        [XmlAttribute]
-        public string name;
-        [XmlAttribute]
-        public int interval = 1000; //interval and speed are the same //defaults to 1000 if missing
-        [XmlAttribute]
-        public int speed = 1000; //interval and speed are the same //defaults to 1000 if missing
-        [XmlAttribute]
-        public double chance = 100; //defaults to 100 if missing
-        [XmlAttribute]
-        public int max;
-        [XmlAttribute]
-        public bool force;
-    }
-    #endregion
 }
