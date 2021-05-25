@@ -865,11 +865,6 @@ namespace MonsterConverterTfsXml
                             spell.MinSpeedChange = attack.minspeedchange;
                             spell.MaxSpeedChange = attack.maxspeedchange;
                         }
-                        spell.Duration = attack.duration;
-                        if (attack.duration == 0)
-                        {
-                            spell.Duration = 10000; // Default when no duration set
-                        }
                     }
                     else
                     {
@@ -903,6 +898,11 @@ namespace MonsterConverterTfsXml
                         {
                             spell.ItemId = attack.item;
                         }
+                    }
+
+                    if ((attack.name == "speed") || (attack.name == "outfit") || (attack.name == "invisible") || (attack.name == "drunk"))
+                    {
+                        spell.Duration = attack.duration;
                     }
 
                     monster.Attacks.Add(spell);

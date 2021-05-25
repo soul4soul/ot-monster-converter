@@ -554,6 +554,10 @@ namespace MonsterConverterTfsRevScriptSys
                 {
                     attack += $", minDamage = {spell.MinDamage}";
                 }
+                if (spell.Duration != null)
+                {
+                    attack += $", duration = {spell.Duration}";
+                }
                 if (spell.Range != null)
                 {
                     attack += $", range = {spell.Range}";
@@ -577,10 +581,6 @@ namespace MonsterConverterTfsRevScriptSys
                 if (spell.AreaEffect != Effect.None)
                 {
                     attack += $", effect = {magicEffectNames[spell.AreaEffect]}";
-                }
-                if (spell.Duration != null)
-                {
-                    attack += $", duration = {spell.Duration}";
                 }
             }
             attack += "}";
