@@ -15,45 +15,45 @@ namespace MonsterConverterTfsRevScriptSys
 
         const uint MAX_LOOTCHANCE = 100000;
 
-        IDictionary<Condition, string> ConditioToTFsConstants = new Dictionary<Condition, string>
+        IDictionary<ConditionType, string> ConditionToTfsConstant = new Dictionary<ConditionType, string>
         {
-            {Condition.Poison,      "CONDITION_POISON"},
-            {Condition.Fire,        "CONDITION_FIRE"},
-            {Condition.Energy,      "CONDITION_ENERGY"},
-            {Condition.Bleeding,    "CONDITION_BLEEDING"},
-            {Condition.Paralyze,    "CONDITION_POISON"},
-            {Condition.Drown,       "CONDITION_DROWN"},
-            {Condition.Freezing,    "CONDITION_FREEZING"},
-            {Condition.Dazzled,     "CONDITION_DAZZLED"},
-            {Condition.Cursed,      "CONDITION_CURSED"}
+            {ConditionType.Poison,      "CONDITION_POISON"},
+            {ConditionType.Fire,        "CONDITION_FIRE"},
+            {ConditionType.Energy,      "CONDITION_ENERGY"},
+            {ConditionType.Bleeding,    "CONDITION_BLEEDING"},
+            {ConditionType.Paralyze,    "CONDITION_POISON"},
+            {ConditionType.Drown,       "CONDITION_DROWN"},
+            {ConditionType.Freezing,    "CONDITION_FREEZING"},
+            {ConditionType.Dazzled,     "CONDITION_DAZZLED"},
+            {ConditionType.Cursed,      "CONDITION_CURSED"}
         };
 
-        IDictionary<Condition, string> ConditionToString = new Dictionary<Condition, string>
+        IDictionary<ConditionType, string> ConditionToString = new Dictionary<ConditionType, string>
         {
-            {Condition.Poison,      "poison"},
-            {Condition.Fire,        "fire"},
-            {Condition.Energy,      "energy"},
-            {Condition.Bleeding,    "bleeding"},
-            {Condition.Paralyze,    "poison"},
-            {Condition.Drown,       "drown"},
-            {Condition.Freezing,    "freezing"},
-            {Condition.Dazzled,     "dazzled"},
-            {Condition.Cursed,      "cursed"}
+            {ConditionType.Poison,      "poison"},
+            {ConditionType.Fire,        "fire"},
+            {ConditionType.Energy,      "energy"},
+            {ConditionType.Bleeding,    "bleeding"},
+            {ConditionType.Paralyze,    "poison"},
+            {ConditionType.Drown,       "drown"},
+            {ConditionType.Freezing,    "freezing"},
+            {ConditionType.Dazzled,     "dazzled"},
+            {ConditionType.Cursed,      "cursed"}
         };
 
         IDictionary<CombatDamage, string> CombatDamageNames = new Dictionary<CombatDamage, string>
         {
-            {CombatDamage.Physical,     "COMBAT_PHYSICAL"},
-            {CombatDamage.Energy,       "COMBAT_ENERGY"},
-            {CombatDamage.Earth,        "COMBAT_EARTH"},
-            {CombatDamage.Fire,         "COMBAT_FIRE"},
+            {CombatDamage.Physical,     "COMBAT_PHYSICALDAMAGE"},
+            {CombatDamage.Energy,       "COMBAT_ENERGYDAMAGE"},
+            {CombatDamage.Earth,        "COMBAT_EARTHDAMAGE"},
+            {CombatDamage.Fire,         "COMBAT_FIREDAMAGE"},
             {CombatDamage.LifeDrain,    "COMBAT_LIFEDRAIN"},
             {CombatDamage.ManaDrain,    "COMBAT_MANADRAIN"},
             {CombatDamage.Healing,      "COMBAT_HEALING"},
-            {CombatDamage.Drown,        "COMBAT_DROWN"},
-            {CombatDamage.Ice,          "COMBAT_ICE"},
-            {CombatDamage.Holy,         "COMBAT_HOLY"},
-            {CombatDamage.Death,        "COMBAT_DEATH"}
+            {CombatDamage.Drown,        "COMBAT_DROWNDAMAGE"},
+            {CombatDamage.Ice,          "COMBAT_ICEDAMAGE"},
+            {CombatDamage.Holy,         "COMBAT_HOLYDAMAGE"},
+            {CombatDamage.Death,        "COMBAT_DEATHDAMAGE"}
             //{"undefined",   CombatDamage.Undefined}
         };
 
@@ -454,17 +454,17 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("");
 
                 dest.WriteLine("monster.elements = {");
-                dest.WriteLine($"	{{type = COMBAT_PHYSICALDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Physical)}}},");
-                dest.WriteLine($"	{{type = COMBAT_ENERGYDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Energy)}}},");
-                dest.WriteLine($"	{{type = COMBAT_EARTHDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Earth)}}},");
-                dest.WriteLine($"	{{type = COMBAT_FIREDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Fire)}}},");
-                dest.WriteLine($"	{{type = COMBAT_LIFEDRAIN, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrain)}}},");
-                dest.WriteLine($"	{{type = COMBAT_MANADRAIN, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrain)}}},");
-                //dest.WriteLine($"	{{type = COMBAT_HEALING, percent = {GenericToTfsElemementPercent(monster.XXXX)}}},");
-                dest.WriteLine($"	{{type = COMBAT_DROWNDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Drown)}}},");
-                dest.WriteLine($"	{{type = COMBAT_ICEDAMAGE, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Ice)}}},");
-                dest.WriteLine($"	{{type = COMBAT_HOLYDAMAGE , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Holy)}}},");
-                dest.WriteLine($"	{{type = COMBAT_DEATHDAMAGE , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Death)}}}");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Physical]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Physical)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Energy]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Energy)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Earth]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Earth)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Fire]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Fire)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.LifeDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrain)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.ManaDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrain)}}},");
+                //dest.WriteLine($"	{{type = { CombatDamageNames[CombatDamage.Healing]}, percent = {GenericToTfsElemementPercent(monster.XXXX)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Drown]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Drown)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Ice]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Ice)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Holy]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Holy)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Death]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Death)}}}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
@@ -495,12 +495,10 @@ namespace MonsterConverterTfsRevScriptSys
 
         public string GenericToTfsRevScriptSysSpells(ref Spell spell)
         {
-            string attack;
+            string attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
 
             if (spell.Name == "melee")
             {
-                attack = $"	{{name =\"combat\", interval = {spell.Interval}, chance = {spell.Chance}";
-
                 if ((spell.MinDamage != null) && (spell.MaxDamage != null))
                 {
                     attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
@@ -517,116 +515,76 @@ namespace MonsterConverterTfsRevScriptSys
 
                 attack += $", effect = {magicEffectNames[Effect.DrawBlood]}";
 
-                // Conditions only ever appear on melee damage?
-                if (spell.Condition != null)
+                if (spell.Condition != ConditionType.None)
                 {
-                    attack += $", condition = {{type = {ConditioToTFsConstants[(Condition)spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
-                }
-            }
-            else if (spell.Name == "speed")
-            {
-                attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
-
-                if ((spell.SpeedChange != null) && (spell.Duration != null))
-                {
-                    attack += $", SpeedChange = {spell.SpeedChange}, Duration = {spell.Duration}";
-                }
-            }
-            else if (spell.Name.Contains("invisible"))
-            {
-                attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
-                if (spell.AreaEffect != null)
-                {
-                    attack += $", effect = {magicEffectNames[(Effect)spell.AreaEffect]}";
+                    attack += $", condition = {{type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
                 }
             }
             else
             {
-                if (spell.Name.Contains("field") ||
-                    spell.Name.Contains("drunk") ||
-                    spell.Name.Contains("outfit"))
+                if (spell.Name == "speed")
                 {
-                    attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance}";
+                    attack += $", speed = {{min = {spell.MinSpeedChange}, max = {spell.MaxSpeedChange}}}";
                 }
-                else if (spell.Name.Contains("condition"))
+                else if (spell.Name == "condition")
                 {
-                    string condition = spell.Name.Replace("condition", "");
-                    attack = $"	{{name =\"{condition}\", interval = {spell.Interval}, chance = {spell.Chance}";
+                    attack += $", type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, tick = {spell.Tick}";
                 }
-                else
+                else if (spell.Name == "outfit")
                 {
-                    attack = $"	{{name =\"combat\", interval = {spell.Interval}, chance = {spell.Chance}";
+                    if (!string.IsNullOrEmpty(spell.MonsterName))
+                    {
+                        attack += $", monster = \"{spell.MonsterName}\"";
+                    }
+                    else if (spell.ItemId != null)
+                    {
+                        attack += $", item = {spell.ItemId}";
+                    }
                 }
-                if (spell.Name != "outfit")
+                else if ((spell.Name == "combat") && (spell.DamageElement != null))
                 {
-                    if ((spell.MinDamage != null) && (spell.MaxDamage != null))
-                    {
-                        attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
-                    }
-                    else if (spell.MaxDamage != null)
-                    {
-                        attack += $", minDamage = {spell.MinDamage}";
-                    }
-                    if (spell.DamageElement != null)
-                    {
-                        attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
-                    }
-                    if (spell.Range != null)
-                    {
-                        attack += $", range = {spell.Range}";
-                    }
-                    if (spell.Radius != null)
-                    {
-                        attack += $", radius = {spell.Radius}";
-                    }
-                    if (spell.Length != null)
-                    {
-                        attack += $", length = {spell.Length}";
-                    }
-                    if (spell.Spread != null)
-                    {
-                        attack += $", spread = {spell.Spread}";
-                    }
-                    if (spell.ShootEffect != null)
-                    {
-                        attack += $", ShootEffect = {shootTypeNames[(Animation)spell.ShootEffect]}";
-                    }
-                    if (spell.AreaEffect != null)
-                    {
-                        attack += $", effect = {magicEffectNames[(Effect)spell.AreaEffect]}";
-                    }
-                    if (spell.Target != null)
-                    {
-                        attack += $", target = {spell.Target.ToString().ToLower()}";
-                    }
-                    if (spell.Duration != null)
-                    {
-                        attack += $", duration = {spell.Duration}";
-                    }
-                    if (spell.Name.Contains("condition"))
-                    {
-                        // Not implemented?
-                        if (spell.Tick != null)
-                        {
-                            attack += $", tick = {spell.Tick}";
-                        }
-                        // Not implemented?
-                        if (spell.StartDamage != null)
-                        {
-                            attack += $", start = {spell.StartDamage}";
-                        }
-                    }
-                    if (spell.Name == "outfit")
-                    {
-                        if (!string.IsNullOrEmpty(spell.MonsterName))
-                        {
-                            attack += $", monster = \"{spell.MonsterName}\"";
-                        }
-                        else if (spell.ItemId != null)
-                        {
-                            attack += $", item = {spell.ItemId}";
-                        }
-                    }
+                    attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
+                }
+                else if (spell.Name == "drunk")
+                {
+                    attack += $", drunkenness = {spell.Drunkenness * 100}";
+                }
+
+                if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                {
+                    attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
+                }
+                else if (spell.MaxDamage != null)
+                {
+                    attack += $", minDamage = {spell.MinDamage}";
+                }
+                if (spell.Duration != null)
+                {
+                    attack += $", duration = {spell.Duration}";
+                }
+                if (spell.Range != null)
+                {
+                    attack += $", range = {spell.Range}";
+                }
+                if (spell.Radius != null)
+                {
+                    attack += $", radius = {spell.Radius}, target = {spell.OnTarget.ToString().ToLower()}";
+                }
+                if (spell.Length != null)
+                {
+                    attack += $", length = {spell.Length}";
+                }
+                if (spell.Spread != null)
+                {
+                    attack += $", spread = {spell.Spread}";
+                }
+                if (spell.ShootEffect != Animation.None)
+                {
+                    attack += $", ShootEffect = {shootTypeNames[spell.ShootEffect]}";
+                }
+                if (spell.AreaEffect != Effect.None)
+                {
+                    attack += $", effect = {magicEffectNames[spell.AreaEffect]}";
                 }
             }
             attack += "}";

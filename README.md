@@ -8,18 +8,14 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 - WPF
 - Visual Studio 2019
 
-## Status
+## Supported Formats
 
-Parsing and writing of nested loot is not yet supported by any formats. This is a low priority item as cipbia removed nested loot and its no longer commonly found in OT servers.
-
-### Supported Formats
-
-| Format                                               | Input % Complete | Output % Complete | Notes                                                                                                                                                            |
-| ---------------------------------------------------- | ---------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TFS XML                                              | [95%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-XML-Input-Status)              | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-XML-Output-Status)                | - Most common OT Monster format which has been around for over a decade  |
-| [PyOT](https://bitbucket.org/vapus/pyot/)            | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/PyOT-Input-Status)               | [90%](https://github.com/soul4soul/ot-monster-converter/wiki/PyOT-Output-Status)               | - This format can be consider dead as PyOT development has ceased. Unless development is picked back up support for this format is unlikely to be completed.                                                                                                                                                      |
-| TFS revscriptsys                                     | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Input-Status)               | [95%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Output-Status)               | - Very new OT monster format that was theorized many years ago. In the future there is a good chance it will replace TFS XML completely. This is likely the output type that most users of this program will use.                |
-| [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | [80%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Input-Status)               | [60%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Output-Status)                | - Helpful for keeping monsters up to date with cipbia<br/> - See The [Infobox Creature Template](https://tibia.fandom.com/wiki/Template:Infobox_Creature) for information about TibiaWiki Format <br/> - Monsters created from TibiaWiki will require corpse id, looktype, and spells to be created manually |
+| Format | Input % Complete | Output % Complete | Notes |
+| - | - | - | - |
+| TFS XML                                              | [95%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-XML-Input-Status)           | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-XML-Output-Status)             | - Most common OT Monster format which has been around for over a decade  |
+| [PyOT](https://bitbucket.org/vapus/pyot/)            | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/PyOT-Input-Status)               | [90%](https://github.com/soul4soul/ot-monster-converter/wiki/PyOT-Output-Status)               | - This format can be consider dead as PyOT development has ceased. Unless development is picked back up support for this format is unlikely to be completed. |
+| TFS revscriptsys                                     | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Input-Status)   | [95%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Output-Status)   | - Very new OT monster format that was theorized many years ago. In the future there is a good chance it will replace TFS XML completely. This is likely the output type that most users of this program will use. <br/> - Opentibiabr RevScriptSys format is not completely compatible with TFS RevScriptSys format |
+| [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | [80%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Input-Status)         | [60%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Output-Status)          | - Helpful for keeping monsters up to date with cipbia<br/> - See The [Infobox Creature Template](https://tibia.fandom.com/wiki/Template:Infobox_Creature) for information about TibiaWiki Format <br/> - Monsters created from TibiaWiki will require corpse id, looktype, and spells to be created manually |
 
 ## Graphical Interface
 
