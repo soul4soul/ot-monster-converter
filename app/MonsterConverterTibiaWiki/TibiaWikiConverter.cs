@@ -210,8 +210,8 @@ namespace MonsterConverterTibiaWiki
                             {
                                 // Could guess defaults based on creature HP
                             }
-                            spell.MinDamage = -min;
-                            spell.MaxDamage = -max;
+                            spell.MinDamage = min;
+                            spell.MaxDamage = max;
                             mon.Attacks.Add(spell);
                             break;
                         }
