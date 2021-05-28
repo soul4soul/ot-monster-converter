@@ -151,7 +151,7 @@ namespace MonsterConverterTibiaWiki
             // Abilities should be parsed for summons, melee, attacks, and defenses. Each ability is seperated by a comma
             //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
             string abilities = mc.FindNamedGroupValue("abilities").ToLower();
-            if (abilities.Contains("none"))
+            if (abilities.Contains("none") || abilities == "?")
                 return;
 
             foreach (string ability in abilities.Split(","))
