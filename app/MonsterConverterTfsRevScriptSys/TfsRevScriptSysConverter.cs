@@ -252,7 +252,7 @@ namespace MonsterConverterTfsRevScriptSys
 
                 dest.WriteLine("monster.changeTarget = {");
                 dest.WriteLine($"	interval = {monster.RetargetInterval},");
-                dest.WriteLine($"	chance = {monster.RetargetChance}"); // Todo 20 = 20%, don't use 0.2 for 20%
+                dest.WriteLine($"	chance = {monster.RetargetChance * 100:0}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
@@ -305,7 +305,7 @@ namespace MonsterConverterTfsRevScriptSys
                     string summon;
                     for (int i = 0; i < monster.Summons.Count; i++)
                     {
-                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100}, interval = {monster.Summons[i].Rate}";
+                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100:0}, interval = {monster.Summons[i].Rate}";
                         if (monster.Summons[i].Max > 0)
                         {
                             summon += $", max = {monster.Summons[i].Max}";
@@ -579,7 +579,7 @@ namespace MonsterConverterTfsRevScriptSys
                 }
                 else if (spell.Name == "drunk")
                 {
-                    attack += $", drunkenness = {spell.Drunkenness * 100}";
+                    attack += $", drunkenness = {spell.Drunkenness * 100:0}";
                 }
 
                 if ((spell.MinDamage != null) && (spell.MaxDamage != null))
