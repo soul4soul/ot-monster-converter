@@ -8,13 +8,13 @@ using System.Xml.Serialization;
 
 namespace MonsterConverterTfsXml
 {
-    public enum namedImmunityXml
+    public enum TfsXmlNamedImmunity
     {
         physical,
         energy,
         fire,
         poison,
-        earth = namedImmunityXml.poison,
+        earth = TfsXmlNamedImmunity.poison,
         drown,
         ice,
         holy,
@@ -25,23 +25,12 @@ namespace MonsterConverterTfsXml
         outfit,
         drunk,
         invisible,
-        invisibility = namedImmunityXml.invisible,
+        invisibility = TfsXmlNamedImmunity.invisible,
         bleed,
         NA
     }
 
-    enum skullsXml
-    {
-        none = 0,
-        yellow,
-        green,
-        white,
-        red,
-        black,
-        orange
-    }
-
-    [Serializable, XmlRoot("monster")]
+    [XmlRoot("monster")]
     public class TFSXmlMonster
     {
         [XmlAttribute]
@@ -63,7 +52,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public string script; //todo: how to handle
 
-        public TFSXmlHealth health;
+        public TfsXmlHealth health;
         public Flags flags;
         public Look look;
         public TargetChange targetchange;
@@ -73,13 +62,13 @@ namespace MonsterConverterTfsXml
         public Voices voices;
         public TfsXmlLoot loot;
         public Elements elements;
-        public TFSXmlSummons summons;
+        public TfsXmlSummons summons;
         [XmlElement(ElementName = "script")]
         public TfsXmlScripts scripts;
     }
 
     [XmlRoot(ElementName = "health")]
-    public class TFSXmlHealth
+    public class TfsXmlHealth
     {
         [XmlAttribute]
         public int now = 100;
@@ -90,7 +79,7 @@ namespace MonsterConverterTfsXml
     [XmlRoot(ElementName = "flags")]
     public class Flags
     {
-        [XmlElementAttribute]
+        [XmlElement]
         public MultiAttr[] flag;
     }
 
@@ -143,7 +132,7 @@ namespace MonsterConverterTfsXml
 
     public class Attacks
     {
-        [XmlElementAttribute]
+        [XmlElement]
         public Attack[] attack;
     }
 
@@ -191,7 +180,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int drunkenness = 25;
 
-        [XmlElementAttribute(ElementName = "attribute")]
+        [XmlElement(ElementName = "attribute")]
         public TfsXmlSpellAttributes[] attribute { get; set; }
 
         // the following only exist when attack name is melee
@@ -237,20 +226,20 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public uint armor;
 
-        [XmlElementAttribute(ElementName = "defense")]
+        [XmlElement(ElementName = "defense")]
         public Attack[] defenses;
     }
 
     public class Immunities
     {
-        [XmlElementAttribute]
+        [XmlElement]
         public Immunity[] immunity;
     }
 
     public class Immunity
     {
         [XmlAttribute]
-        public namedImmunityXml name = namedImmunityXml.NA;
+        public TfsXmlNamedImmunity name = TfsXmlNamedImmunity.NA;
         [XmlAttribute]
         public int physical = 0; //Immune to physical and bleeding condition
         [XmlAttribute]
@@ -295,7 +284,7 @@ namespace MonsterConverterTfsXml
         public int speed; //interval and speed are the same
         [XmlAttribute]
         public int chance;
-        [XmlElementAttribute]
+        [XmlElement]
         public VoiceXml[] voice;
     }
 
@@ -311,10 +300,10 @@ namespace MonsterConverterTfsXml
         public string yell;
     }
 
-    [Serializable, XmlRoot("Loot")]
+    [XmlRoot("Loot")]
     public class TfsXmlLoot
     {
-        [XmlElementAttribute]
+        [XmlElement]
         public Item[] item;
     }
 
@@ -342,16 +331,16 @@ namespace MonsterConverterTfsXml
 
     public class Elements
     {
-        [XmlElementAttribute]
+        [XmlElement]
         public MultiAttr[] element;
     }
 
     [XmlRoot(ElementName = "summons")]
-    public class TFSXmlSummons
+    public class TfsXmlSummons
     {
         [XmlAttribute]
         public int maxSummons;
-        [XmlElementAttribute]
+        [XmlElement]
         public TFSXmlSummon[] summon;
     }
 
