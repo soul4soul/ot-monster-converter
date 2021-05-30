@@ -3,7 +3,7 @@ using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Globalization;
+using System.Linq;
 using System.IO;
 
 namespace MonsterConverterTfsRevScriptSys
@@ -489,18 +489,19 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
-                if (monster.Scripts.Count > 0)
+                var writableEvents = monster.Scripts.Where(s => s.Type == ScriptType.OnDeath).ToList();
+                if (writableEvents.Count > 0)
                 {
                     dest.WriteLine("monster.events = {");
-                    for (int i = 0; i < monster.Scripts.Count; i++)
+                    for (int i = 0; i < writableEvents.Count; i++)
                     {
-                        if (i == monster.Scripts.Count - 1)
+                        if (i == writableEvents.Count - 1)
                         {
-                            dest.WriteLine($"	\"{monster.Scripts[i].Name}\"");
+                            dest.WriteLine($"	\"{writableEvents[i].Name}\"");
                         }
                         else
                         {
-                            dest.WriteLine($"	\"{monster.Scripts[i].Name}\",");
+                            dest.WriteLine($"	\"{writableEvents[i].Name}\",");
                         }
                     }
                     dest.WriteLine("}");
