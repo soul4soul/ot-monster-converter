@@ -489,6 +489,24 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
+                if (monster.Scripts.Count > 0)
+                {
+                    dest.WriteLine("monster.events = {");
+                    for (int i = 0; i < monster.Scripts.Count; i++)
+                    {
+                        if (i == monster.Scripts.Count - 1)
+                        {
+                            dest.WriteLine($"	\"{monster.Scripts[i].Name}\"");
+                        }
+                        else
+                        {
+                            dest.WriteLine($"	\"{monster.Scripts[i].Name}\",");
+                        }
+                    }
+                    dest.WriteLine("}");
+                    dest.WriteLine("");
+                }
+
                 dest.WriteLine("mType:register(monster)");
             }
 

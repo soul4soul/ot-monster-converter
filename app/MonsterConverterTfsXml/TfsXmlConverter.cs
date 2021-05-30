@@ -673,6 +673,15 @@ namespace MonsterConverterTfsXml
                     monster.Items.Add(commonItem);
                 }
             }
+
+            // Scripts
+            if (tfsMonster.scripts != null)
+            {
+                foreach (var te in tfsMonster.scripts.Event)
+                {
+                    monster.Scripts.Add(new Script() { Name = te.Name });
+                }
+            }
         }
 
         private Blood TfsToGenericBlood(string blood)
