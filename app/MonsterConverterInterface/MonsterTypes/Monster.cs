@@ -15,6 +15,7 @@ namespace MonsterConverterInterface.MonsterTypes
             Items = new List<Loot>();
             LookTypeDetails = new DetailedLookType();
             Attacks = new List<Spell>();
+            Scripts = new List<Script>();
 
             SummonCost = 0;
             Attackable = true;
@@ -127,5 +128,8 @@ namespace MonsterConverterInterface.MonsterTypes
 
         // Loot
         public IList<Loot> Items { get; set; }
+
+        // Attached Scripts
+        public IList<Script> Scripts { get; set; }
     }
 }
