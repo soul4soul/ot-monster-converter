@@ -679,11 +679,19 @@ namespace MonsterConverterTfsXml
             }
 
             // Scripts
+            // For TFS this is a script which has one or more of the following onThink, onAppear, onDisappear, onMove, onSay
+            // We can't tell which of them are actually registered in the script but we can save and report it for manual inspection
+            if (!string.IsNullOrWhiteSpace(tfsMonster.script))
+            {
+                monster.Scripts.Add(new Script() { Name = tfsMonster.script, Type = ScriptType.Unknown });
+            }
+
+            // For TFS this is OnDeath Event only?
             if (tfsMonster.scripts != null)
             {
                 foreach (var te in tfsMonster.scripts.Event)
                 {
-                    monster.Scripts.Add(new Script() { Name = te.Name });
+                    monster.Scripts.Add(new Script() { Name = te.Name, Type = ScriptType.OnDeath });
                 }
             }
         }
