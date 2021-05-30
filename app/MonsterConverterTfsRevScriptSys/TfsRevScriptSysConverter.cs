@@ -285,12 +285,9 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"	targetdistance = {monster.TargetDistance},");
                 dest.WriteLine($"	runHealth = {monster.RunOnHealth},");
                 dest.WriteLine($"	isHealthHidden = {monster.HideHealth.ToString().ToLower()},");
-                bool canwalk = !monster.AvoidEnergy;
-                dest.WriteLine($"	canwalkonenergy = {canwalk.ToString().ToLower()},");
-                canwalk = !monster.AvoidEnergy;
-                dest.WriteLine($"	canwalkonfire = {canwalk.ToString().ToLower()},");
-                canwalk = !monster.AvoidPoison;
-                dest.WriteLine($"	canwalkonpoison = {canwalk.ToString().ToLower()}");
+                dest.WriteLine($"	canwalkonenergy = {(!monster.AvoidEnergy).ToString().ToLower()},");
+                dest.WriteLine($"	canwalkonfire = {(!monster.AvoidFire).ToString().ToLower()},");
+                dest.WriteLine($"	canwalkonpoison = {(!monster.AvoidPoison).ToString().ToLower()}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
