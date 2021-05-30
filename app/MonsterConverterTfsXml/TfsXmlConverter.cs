@@ -271,7 +271,7 @@ namespace MonsterConverterTfsXml
 
             if (tfsMonster.targetchange != null)
             {
-                monster.RetargetChance = (uint)tfsMonster.targetchange.chance;
+                monster.RetargetChance = tfsMonster.targetchange.chance / 100.0; ;
 
                 if ((tfsMonster.targetchange.interval != 0) &&
                     (tfsMonster.targetchange.speed == 0))

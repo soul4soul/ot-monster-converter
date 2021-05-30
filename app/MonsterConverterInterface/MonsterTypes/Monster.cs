@@ -70,7 +70,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public IList<Voice> Voices { get; set; }
         public Blood Race { get; set; }
         public uint RetargetInterval { get; set; }
-        public uint RetargetChance { get; set; }
+        public double RetargetChance { get; set; }
         public uint MaxSummons { get; set; }
         public IList<Summon> Summons { get; set; }
 
