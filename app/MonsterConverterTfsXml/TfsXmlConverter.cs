@@ -208,9 +208,13 @@ namespace MonsterConverterTfsXml
 
         public override bool IsWriteSupported { get => false; }
 
+        // Using this won't work we ever parallize processing
+        private static string CurrentFileName { get; set; }
+
         // Functions
         public override bool ReadMonster(string filename, out Monster monster)
         {
+            CurrentFileName = filename;
             XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
             serializer.UnknownNode += new XmlNodeEventHandler(Serializer_UnknownNode);
@@ -964,13 +968,13 @@ namespace MonsterConverterTfsXml
 
         private void Serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Unknown Node:" + e.Name + "\t" + e.Text);
+            System.Diagnostics.Debug.WriteLine($"{CurrentFileName} Unknown Node:{e.Name} = {e.Text}");
         }
 
         private void Serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
             System.Xml.XmlAttribute attr = e.Attr;
-            System.Diagnostics.Debug.WriteLine("Unknown attribute " + attr.Name + "='" + attr.Value + "'");
+            System.Diagnostics.Debug.WriteLine($"{CurrentFileName} Unknown attribute:{attr.Name} = {attr.Value}");
         }
     }
 }
