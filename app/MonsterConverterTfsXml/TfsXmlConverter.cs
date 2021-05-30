@@ -450,7 +450,7 @@ namespace MonsterConverterTfsXml
                 XmlSpellsToGeneric(ref monster, tfsMonster.defenses.defenses, SpellCategory.Defensive);
             }
 
-            #region parseElements
+            // parseElements
             if ((tfsMonster.elements != null) &&
                 (tfsMonster.elements.element != null))
             {
@@ -506,61 +506,60 @@ namespace MonsterConverterTfsXml
                     }
                 }
             }
-            #endregion
 
-            #region paraseImmunities
+            // paraseImmunities
             if ((tfsMonster.immunities != null) &&
                 (tfsMonster.immunities.immunity != null))
             {
                 foreach (Immunity immunity in tfsMonster.immunities.immunity)
                 {
-                    if (immunity.name != namedImmunityXml.NA)
+                    if (immunity.name != TfsXmlNamedImmunity.NA)
                     {
                         switch (immunity.name)
                         {
-                            case namedImmunityXml.physical:
+                            case TfsXmlNamedImmunity.physical:
                                 monster.Physical = 0;
                                 break;
-                            case namedImmunityXml.energy:
+                            case TfsXmlNamedImmunity.energy:
                                 monster.Energy = 0;
                                 break;
-                            case namedImmunityXml.fire:
+                            case TfsXmlNamedImmunity.fire:
                                 monster.Fire = 0;
                                 break;
-                            case namedImmunityXml.poison: //namedImmunityXml.earth
+                            case TfsXmlNamedImmunity.poison: //namedImmunityXml.earth
                                 monster.Earth = 0;
                                 break;
-                            case namedImmunityXml.drown:
+                            case TfsXmlNamedImmunity.drown:
                                 monster.Drown = 0;
                                 break;
-                            case namedImmunityXml.ice:
+                            case TfsXmlNamedImmunity.ice:
                                 monster.Ice = 0;
                                 break;
-                            case namedImmunityXml.holy:
+                            case TfsXmlNamedImmunity.holy:
                                 monster.Holy = 0;
                                 break;
-                            case namedImmunityXml.death:
+                            case TfsXmlNamedImmunity.death:
                                 monster.Death = 0;
                                 break;
-                            case namedImmunityXml.lifedrain:
+                            case TfsXmlNamedImmunity.lifedrain:
                                 monster.LifeDrain = 0;
                                 break;
-                            case namedImmunityXml.manadrain:
+                            case TfsXmlNamedImmunity.manadrain:
                                 monster.ManaDrain = 0;
                                 break;
-                            case namedImmunityXml.paralyze:
+                            case TfsXmlNamedImmunity.paralyze:
                                 monster.IgnoreParalyze = true;
                                 break;
-                            case namedImmunityXml.outfit:
+                            case TfsXmlNamedImmunity.outfit:
                                 monster.IgnoreOutfit = true;
                                 break;
-                            case namedImmunityXml.drunk:
+                            case TfsXmlNamedImmunity.drunk:
                                 monster.IgnoreDrunk = true;
                                 break;
-                            case namedImmunityXml.invisible: //namedImmunityXml.invisibility
+                            case TfsXmlNamedImmunity.invisible: //namedImmunityXml.invisibility
                                 monster.IgnoreInvisible = true;
                                 break;
-                            case namedImmunityXml.bleed:
+                            case TfsXmlNamedImmunity.bleed:
                                 monster.IgnoreBleed = true;
                                 break;
                         }
@@ -635,7 +634,6 @@ namespace MonsterConverterTfsXml
                     }
                 }
             }
-            #endregion
 
             // Loot
             if ((tfsMonster.loot != null) &&
