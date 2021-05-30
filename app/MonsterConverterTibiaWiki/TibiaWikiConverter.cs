@@ -154,70 +154,85 @@ namespace MonsterConverterTibiaWiki
             if (abilities.Contains("none") || abilities == "?")
                 return;
 
+            // Splitting by , doesn't work sometimes but with everything related to abilities for tibiawiki there is no standard
+            // Better logic could be to split by , that are outside of parentheses
             foreach (string ability in abilities.Split(","))
             {
-                string cleanability = ability.Trim();
-                switch (cleanability)
+                string cleanedAbility = ability.Trim().TrimEnd('.');
+                switch (cleanedAbility)
                 {
-                    case var _ when new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").IsMatch(cleanedAbility):
                         {
-                            var matches = new Regex(@"\[\[melee\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
+                            var matches = new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").Matches(cleanedAbility);
                             var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                            if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            if (ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
-                                // Could guess defaults based on creature HP
+                                spell.MinDamage = -min;
+                                spell.MaxDamage = -max;
                             }
-                            spell.MinDamage = -min;
-                            spell.MaxDamage = -max;
+                            else
+                            {
+                                // Could guess defaults based on creature HP, EXP, and bestiary difficulty
+                            }
                             mon.Attacks.Add(spell);
                             break;
                         }
 
                     // Effect might need to be optional
-                    case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").IsMatch(cleanedAbility):
                         {
-                            var matches = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
+                            var matches = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").Matches(cleanedAbility);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Offensive, DamageElement = CombatDamage.Physical, Interval = 2000, Chance = 1, Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
-                            if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            if (ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
-                                // Could guess defaults based on creature HP
+                                spell.MinDamage = -min;
+                                spell.MaxDamage = -max;
                             }
-                            spell.MinDamage = -min;
-                            spell.MaxDamage = -max;
+                            else
+                            {
+                                // Could guess defaults based on creature HP, EXP, and bestiary difficulty
+                            }
                             mon.Attacks.Add(spell);
                             break;
                         }
 
-                    case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanedAbility):
                         {
                             var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = 300, MaxSpeedChange = 300, AreaEffect = Effect.MagicRed, Duration = 7000 };
                             mon.Attacks.Add(spell);
                             break;
                         }
 
-                    case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanedAbility):
                         {
                             var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = 450, MaxSpeedChange = 450, AreaEffect = Effect.MagicRed, Duration = 4000 };
                             mon.Attacks.Add(spell);
                             break;
                         }
 
-                    case var _ when new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").IsMatch(cleanability):
+                    case var _ when new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").IsMatch(cleanedAbility):
                         {
-                            var matches = new Regex(@"\[\[(self-? ?healing)\]\]\s*\((?<damage>[0-9-]+)\+?\??\)").Matches(cleanability);
+                            var matches = new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").Matches(cleanedAbility);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                            if (!ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            if (ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
                             {
-                                // Could guess defaults based on creature HP
+                                spell.MinDamage = min;
+                                spell.MaxDamage = max;
                             }
-                            spell.MinDamage = min;
-                            spell.MaxDamage = max;
+                            else
+                            {
+                                // Guess defaults based on creature HP
+                                spell.MinDamage = (int?)(mon.Health * 0.1);
+                                spell.MaxDamage = (int?)(mon.Health * 0.25);
+                            }
                             mon.Attacks.Add(spell);
                             break;
                         }
 
+                    // Next most likely condition to parse is summons, see notes https://git.io/JGZco
+
                     default:
-                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{cleanability}\"");
+                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{cleanedAbility}\"");
                         break;
                 }
             }
