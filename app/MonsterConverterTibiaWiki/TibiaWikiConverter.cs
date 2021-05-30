@@ -304,23 +304,16 @@ namespace MonsterConverterTibiaWiki
 
             ScrapingBrowser browser = new ScrapingBrowser();
             browser.Encoding = Encoding.UTF8;
-            WebPage monsterspage = browser.NavigateToPage(new Uri(monsterlisturl));
-            var orderedLists = monsterspage.Html.CssSelect("ol");
+            WebPage monstersPage = browser.NavigateToPage(new Uri(monsterlisturl));
+            var monsterTable = monstersPage.Html.CssSelect(".mw-parser-output").FirstOrDefault();
 
             // Links are HTML encoded
             // %27 is HTML encode for ' character
             // %27%C3% is HTML encode for ñ character
-            var nameregex = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)");
-            foreach (var ol in orderedLists)
+            var namematches = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)").Matches(monsterTable.InnerHtml);
+            foreach (Match match in namematches)
             {
-                foreach (var child in ol.ChildNodes)
-                {
-                    if (nameregex.IsMatch(child.InnerHtml))
-                    {
-                        var namematches = nameregex.Matches(child.InnerHtml);
-                        names.Add(namematches.FindNamedGroupValue("name").Replace("%27", "'").Replace("%C3%B1", "ñ"));
-                    }
-                }
+                names.Add(match.Groups["name"].Value.Replace("%27", "'").Replace("%C3%B1", "ñ"));
             }
 
             return names.ToArray();
