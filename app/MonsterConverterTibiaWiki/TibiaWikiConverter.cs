@@ -66,6 +66,7 @@ namespace MonsterConverterTibiaWiki
             new RegexPatternKeys("senseinvis", @"(?<senseinvis>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IgnoreInvisible = m.Groups["senseinvis"].Success),
             new RegexPatternKeys("paraimmune", @"(?<paraimmune>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IgnoreParalyze = m.Groups["paraimmune"].Success),
             new RegexPatternKeys("walksaround", @"(?<walksaround>\w+(, \w+)*)", ParseWalksAround),
+            new RegexPatternKeys("walksthrough", @"(?<walksthrough>\w+(, \w+)*)", ParseWalksThrough),
             new RegexPatternKeys("physicalDmgMod", @"(?<physicaldmgmod>\d+)%", (mon, m) => { if (m.Groups["physicaldmgmod"].Success) mon.Physical = double.Parse(m.Groups["physicaldmgmod"].Value) / 100.0; }),
             new RegexPatternKeys("earthDmgMod", @"(?<earthdmgmod>\d+)%", (mon, m) => { if (m.Groups["earthdmgmod"].Success) mon.Earth = double.Parse(m.Groups["earthdmgmod"].Value) / 100.0; }),
             new RegexPatternKeys("fireDmgMod", @"(?<firedmgmod>\d*)%", (mon, m) => { if (m.Groups["firedmgmod"].Success) mon.Fire = double.Parse(m.Groups["firedmgmod"].Value) / 100.0; }),
@@ -100,15 +101,9 @@ namespace MonsterConverterTibiaWiki
 
         private static void ParseWalksAround(Monster mon, Match m)
         {
-            if (!m.Groups["walksaround"].Success)
-                return;
-
-            mon.AvoidFire = false;
-            mon.AvoidEnergy = false;
-            mon.AvoidPoison = false;
-            foreach (string field in m.Groups["walksaround"].Value.Split(","))
+            foreach (string field in m.Groups["walksaround"].Value.ToLower().Split(","))
             {
-                string fieldtrim = field.Trim().ToLower();
+                string fieldtrim = field.Trim();
                 if (fieldtrim == "fire")
                 {
                     mon.AvoidFire = true;
@@ -120,6 +115,26 @@ namespace MonsterConverterTibiaWiki
                 else if (fieldtrim == "poison")
                 {
                     mon.AvoidPoison = true;
+                }
+            }
+        }
+
+        private static void ParseWalksThrough(Monster mon, Match m)
+        {
+            foreach (string field in m.Groups["walksthrough"].Value.ToLower().Split(","))
+            {
+                string fieldtrim = field.Trim();
+                if (fieldtrim == "fire")
+                {
+                    mon.AvoidFire = false;
+                }
+                else if (fieldtrim == "energy")
+                {
+                    mon.AvoidEnergy = false;
+                }
+                else if (fieldtrim == "poison")
+                {
+                    mon.AvoidPoison = false;
                 }
             }
         }
