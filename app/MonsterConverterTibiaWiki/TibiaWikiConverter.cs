@@ -238,7 +238,7 @@ namespace MonsterConverterTibiaWiki
                             break;
                         }
 
-                    // Next most likely condition to parse is summons, see notes https://git.io/JGZco
+                    // Next most likely ability to parse is summons, see notes https://git.io/JGZco
 
                     default:
                         System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{cleanedAbility}\"");
