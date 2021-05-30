@@ -665,7 +665,10 @@ namespace MonsterConverterTfsXml
                     {
                         Item = itemType,
                         Chance = chance,
-                        Count = item.countmax
+                        Count = item.countmax,
+                        SubType = item.subtype,
+                        ActionId = item.actionId,
+                        Text = item.text
                     };
                     monster.Items.Add(commonItem);
                 }

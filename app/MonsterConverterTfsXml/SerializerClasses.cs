@@ -330,13 +330,12 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int chance1; //chance and chance1 are the same
 
-        //optional
-        //[XmlAttribute]
-        //public int subtype; //used for charges?
-        //[XmlAttribute]
-        //public int actionId;
-        //[XmlAttribute]
-        //public string test; //used for? //Id guess to override the default item name string?
+        [XmlAttribute]
+        public int subtype; //used for charges too
+        [XmlAttribute]
+        public int actionId;
+        [XmlAttribute]
+        public string text; //used for setting text to items like letters?
     }
 
     public class Elements
