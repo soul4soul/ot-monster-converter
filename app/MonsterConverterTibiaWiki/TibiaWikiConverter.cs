@@ -29,7 +29,7 @@ namespace MonsterConverterTibiaWiki
 
         private class RegexPatternKeys
         {
-            public RegexPatternKeys(string name, string pattern, Action<Monster, MatchCollection> action)
+            public RegexPatternKeys(string name, string pattern, Action<Monster, Match> action)
             {
                 Name = name;
                 Pattern = @$"\|\s+{name}\s+=\s+{pattern}\s*";
@@ -38,7 +38,7 @@ namespace MonsterConverterTibiaWiki
 
             public string Name { get; }
             public string Pattern { get; }
-            public Action<Monster, MatchCollection> Action { get; }
+            public Action<Monster, Match> Action { get; }
 
             public override string ToString()
             {
@@ -47,37 +47,37 @@ namespace MonsterConverterTibiaWiki
         }
 
         private RegexPatternKeys[] monparams = new RegexPatternKeys[] {
-            new RegexPatternKeys("name", "(?<name>[A-Za-z'ñ.() -]*)", (mon, mc) => mon.FileName = mc.FindNamedGroupValue("name")),
-            new RegexPatternKeys("actualname", "(?<actualname>[A-Za-z'ñ. -]*)", (mon, mc) => mon.Name = mc.FindNamedGroupValue("actualname")),
+            new RegexPatternKeys("name", "(?<name>[A-Za-z'ñ.() -]*)", (mon, m) => mon.FileName = m.Groups["name"].Value),
+            new RegexPatternKeys("actualname", "(?<actualname>[A-Za-z'ñ. -]*)", (mon, m) => mon.Name = m.Groups["actualname"].Value),
             new RegexPatternKeys("article", "(?<article>[A-Za-z ]*)", ParseArticle),
-            new RegexPatternKeys("hp", @"(?<hp>\d+)", (mon, mc) => { if (mc.Count > 0) mon.Health = uint.Parse(mc.FindNamedGroupValue("hp")); }),
-            new RegexPatternKeys("exp", @"(?<exp>\d+)", (mon, mc) => { if (mc.Count > 0) mon.Experience = uint.Parse(mc.FindNamedGroupValue("exp")); }),
-            new RegexPatternKeys("armor", @"(?<armor>\d+)", (mon, mc) => { if (mc.Count > 0) mon.TotalArmor = mon.Shielding = uint.Parse(mc.FindNamedGroupValue("armor")); }),
-            new RegexPatternKeys("speed", @"(?<speed>\d+)", (mon, mc) => { if (mc.Count > 0) mon.Speed = uint.Parse(mc.FindNamedGroupValue("speed")) * 2; }),
-            new RegexPatternKeys("runsat", @"(?<runsat>\d+)", (mon, mc) => { if (mc.Count > 0) mon.RunOnHealth = uint.Parse(mc.FindNamedGroupValue("runsat")); }),
-            new RegexPatternKeys("summon", @"(?<summon>\d+)", (mon, mc) => { if (mc.Count > 0) mon.SummonCost = uint.Parse(mc.FindNamedGroupValue("summon")); }),
-            new RegexPatternKeys("convince", @"(?<convince>\d+)", (mon, mc) => { if (mc.Count > 0) mon.ConvinceCost = uint.Parse(mc.FindNamedGroupValue("convince")); }),
-            new RegexPatternKeys("illusionable", @"(?<illusionable>((Y|y)(E|e)(S|s)))", (mon, mc) => { if (mc.Count > 0) mon.Illusionable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("illusionable")); }),
-            new RegexPatternKeys("isboss", @"(?<isboss>((Y|y)(E|e)(S|s)))", (mon, mc) => { if (mc.Count > 0) mon.IsBoss = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("isboss")); }),
-            new RegexPatternKeys("priamrtype", @"(?<hidehealth>trap)", (mon, mc) => { if (mc.Count > 0) mon.HideHealth = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("hidehealth")); }),
-            new RegexPatternKeys("pushable", @"(?<pushable>((Y|y)(E|e)(S|s)))", (mon, mc) => { if (mc.Count > 0) mon.Pushable = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("pushable")); }),
+            new RegexPatternKeys("hp", @"(?<hp>\d+)", (mon, m) => { if (m.Groups["hp"].Success) mon.Health = uint.Parse(m.Groups["hp"].Value); }),
+            new RegexPatternKeys("exp", @"(?<exp>\d+)", (mon, m) => { if (m.Groups["exp"].Success) mon.Experience = uint.Parse(m.Groups["exp"].Value); }),
+            new RegexPatternKeys("armor", @"(?<armor>\d+)", (mon, m) => { if (m.Groups["armor"].Success) mon.TotalArmor = mon.Shielding = uint.Parse(m.Groups["armor"].Value); }),
+            new RegexPatternKeys("speed", @"(?<speed>\d+)", (mon, m) => { if (m.Groups["speed"].Success) mon.Speed = uint.Parse(m.Groups["speed"].Value) * 2; }),
+            new RegexPatternKeys("runsat", @"(?<runsat>\d+)", (mon, m) => { if (m.Groups["runsat"].Success) mon.RunOnHealth = uint.Parse(m.Groups["runsat"].Value); }),
+            new RegexPatternKeys("summon", @"(?<summon>\d+)", (mon, m) => { if (m.Groups["summon"].Success) mon.SummonCost = uint.Parse(m.Groups["summon"].Value); }),
+            new RegexPatternKeys("convince", @"(?<convince>\d+)", (mon, m) => { if (m.Groups["convince"].Success) mon.ConvinceCost = uint.Parse(m.Groups["convince"].Value); }),
+            new RegexPatternKeys("illusionable", @"(?<illusionable>((Y|y)(E|e)(S|s)))", (mon, m) => mon.Illusionable = m.Groups["illusionable"].Success),
+            new RegexPatternKeys("isboss", @"(?<isboss>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IsBoss = m.Groups["isboss"].Success),
+            new RegexPatternKeys("priamrtype", @"(?<hidehealth>trap)", (mon, m) => mon.HideHealth = m.Groups["hidehealth"].Success),
+            new RegexPatternKeys("pushable", @"(?<pushable>((Y|y)(E|e)(S|s)))", (mon, m) => mon.Pushable = m.Groups["pushable"].Success),
             // In cipbia ability to push objects means ability to push creatures too
-            new RegexPatternKeys("pushobjects", @"(?<pushobjects>((Y|y)(E|e)(S|s)))", (mon, mc) => { if (mc.Count > 0) mon.PushItems = mon.PushCreatures = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("pushobjects")); }),
-            new RegexPatternKeys("senseinvis", @"(?<senseinvis>((Y|y)(E|e)(S|s)))", (mon, mc) => { if (mc.Count > 0) mon.IgnoreInvisible = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("senseinvis")); }),
-            new RegexPatternKeys("paraimmune", @"(?<paraimmune>((Y|y)(E|e)(S|s)))", (mon, mc) => { if (mc.Count > 0) mon.IgnoreParalyze = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("paraimmune")); }),
+            new RegexPatternKeys("pushobjects", @"(?<pushobjects>((Y|y)(E|e)(S|s)))", (mon, m) => mon.PushItems = mon.PushCreatures = m.Groups["pushobjects"].Success),
+            new RegexPatternKeys("senseinvis", @"(?<senseinvis>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IgnoreInvisible = m.Groups["senseinvis"].Success),
+            new RegexPatternKeys("paraimmune", @"(?<paraimmune>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IgnoreParalyze = m.Groups["paraimmune"].Success),
             new RegexPatternKeys("walksaround", @"(?<walksaround>\w+(, \w+)*)", ParseWalksAround),
-            new RegexPatternKeys("physicalDmgMod", @"(?<physicaldmgmod>\d+)%", (mon, mc) => { if (mc.Count > 0) mon.Physical = double.Parse(mc.FindNamedGroupValue("physicaldmgmod")) / 100.0; }),
-            new RegexPatternKeys("earthDmgMod", @"(?<earthdmgmod>\d+)%", (mon, mc) => { if (mc.Count > 0) mon.Earth = double.Parse(mc.FindNamedGroupValue("earthdmgmod")) / 100.0; }),
-            new RegexPatternKeys("fireDmgMod", @"(?<firedmgmod>\d*)%", (mon, mc) => { if (mc.Count > 0) mon.Fire = double.Parse(mc.FindNamedGroupValue("firedmgmod")) / 100.0; }),
-            new RegexPatternKeys("deathDmgMod", @"(?<deathdmgmod>\d*)%", (mon, mc) => { if (mc.Count > 0) mon.Death = double.Parse(mc.FindNamedGroupValue("deathdmgmod")) / 100.0; }),
-            new RegexPatternKeys("energyDmgMod", @"(?<energydmgmod>\d+)%", (mon, mc) => { if (mc.Count > 0) mon.Energy = double.Parse(mc.FindNamedGroupValue("energydmgmod")) / 100.0; }),
-            new RegexPatternKeys("holyDmgMod", @"(?<holydmgmod>\d+)%", (mon, mc) => { if (mc.Count > 0) mon.Holy = double.Parse(mc.FindNamedGroupValue("holydmgmod")) / 100.0; }),
-            new RegexPatternKeys("iceDmgMod", @"(?<icedmgmod>\d+)%", (mon, mc) => { if (mc.Count > 0) mon.Ice = double.Parse(mc.FindNamedGroupValue("icedmgmod")) / 100.0; }),
-            new RegexPatternKeys("hpdrainDmgMod", @"(?<hpdraindmgmod>\d+)%", (mon, mc) => { if (mc.Count > 0) mon.LifeDrain = double.Parse(mc.FindNamedGroupValue("hpdraindmgmod")) / 100.0; }),
-            new RegexPatternKeys("drownDmgMod", @"(?<drowndmgmod>\d+)%", (mon, mc) => { if (mc.Count > 0) mon.Drown = double.Parse(mc.FindNamedGroupValue("drowndmgmod")) / 100.0; }),
+            new RegexPatternKeys("physicalDmgMod", @"(?<physicaldmgmod>\d+)%", (mon, m) => { if (m.Groups["physicaldmgmod"].Success) mon.Physical = double.Parse(m.Groups["physicaldmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("earthDmgMod", @"(?<earthdmgmod>\d+)%", (mon, m) => { if (m.Groups["earthdmgmod"].Success) mon.Earth = double.Parse(m.Groups["earthdmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("fireDmgMod", @"(?<firedmgmod>\d*)%", (mon, m) => { if (m.Groups["firedmgmod"].Success) mon.Fire = double.Parse(m.Groups["firedmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("deathDmgMod", @"(?<deathdmgmod>\d*)%", (mon, m) => { if (m.Groups["deathdmgmod"].Success) mon.Death = double.Parse(m.Groups["deathdmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("energyDmgMod", @"(?<energydmgmod>\d+)%", (mon, m) => { if (m.Groups["energydmgmod"].Success) mon.Energy = double.Parse(m.Groups["energydmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("holyDmgMod", @"(?<holydmgmod>\d+)%", (mon, m) => { if (m.Groups["holydmgmod"].Success) mon.Holy = double.Parse(m.Groups["holydmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("iceDmgMod", @"(?<icedmgmod>\d+)%", (mon, m) => { if (m.Groups["icedmgmod"].Success) mon.Ice = double.Parse(m.Groups["icedmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("hpdrainDmgMod", @"(?<hpdraindmgmod>\d+)%", (mon, m) => { if (m.Groups["hpdraindmgmod"].Success) mon.LifeDrain = double.Parse(m.Groups["hpdraindmgmod"].Value) / 100.0; }),
+            new RegexPatternKeys("drownDmgMod", @"(?<drowndmgmod>\d+)%", (mon, m) => { if (m.Groups["drowndmgmod"].Success) mon.Drown = double.Parse(m.Groups["drowndmgmod"].Value) / 100.0; }),
             new RegexPatternKeys("sounds", @"{{Sound List\|(?<sounds>[a-zA-Z !?.']+(\|[a-zA-Z !?.']+)*)", ParseSoundList),
             // TibiaWiki generally doesn't provide distance so we default to 4. In TFS monster pack 70 of 77 monsters which use distance attack stand at a range of 4.
-            new RegexPatternKeys("behavior", @"(?<behavior>((D|d)(I|i)(S|s)(A|a)(N|n)(C|c)(|s)(E|e)))", (mon, mc) => { if (mc.Count > 0) mon.TargetDistance = !string.IsNullOrWhiteSpace(mc.FindNamedGroupValue("behavior")) ? (uint)4 : (uint)1; }),
+            new RegexPatternKeys("behavior", @"(?<behavior>((D|d)(I|i)(S|s)(A|a)(N|n)(C|c)(|s)(E|e)))", (mon, m) => { mon.TargetDistance = m.Groups["behavior"].Success ? (uint)4 : (uint)1; }),
             new RegexPatternKeys("abilities", @"(?<abilities>.*)", ParseAbilities)
         };
 
@@ -85,12 +85,12 @@ namespace MonsterConverterTibiaWiki
         /// Boss monsters and single appear monsters don't use article
         /// </summary>
         /// <param name="mon"></param>
-        /// <param name="mc"></param>
-        private static void ParseArticle(Monster mon, MatchCollection mc)
+        /// <param name="m"></param>
+        private static void ParseArticle(Monster mon, Match m)
         {
-            if (mc.Count > 0)
+            if (m.Groups["article"].Success)
             {
-                mon.Description = string.Format("{0} {1}", mc.FindNamedGroupValue("article"), mon.Name).Trim();
+                mon.Description = string.Format("{0} {1}", m.Groups["article"].Value, mon.Name).Trim();
             }
             else
             {
@@ -98,17 +98,15 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseWalksAround(Monster mon, MatchCollection mc)
+        private static void ParseWalksAround(Monster mon, Match m)
         {
-            if (mc.Count == 0)
+            if (!m.Groups["walksaround"].Success)
                 return;
-
-            string walksaround = mc.FindNamedGroupValue("walksaround");
 
             mon.AvoidFire = false;
             mon.AvoidEnergy = false;
             mon.AvoidPoison = false;
-            foreach (string field in walksaround.Split(","))
+            foreach (string field in m.Groups["walksaround"].Value.Split(","))
             {
                 string fieldtrim = field.Trim().ToLower();
                 if (fieldtrim == "fire")
@@ -126,15 +124,14 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseSoundList(Monster mon, MatchCollection mc)
+        private static void ParseSoundList(Monster mon, Match m)
         {
-            if (mc.Count == 0)
-                return;
-
-            string sounds = mc.FindNamedGroupValue("sounds");
-            foreach (string sound in sounds.Split("|"))
+            foreach (string sound in m.Groups["sounds"].Value.Split("|"))
             {
-                mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
+                if (!string.IsNullOrWhiteSpace(sound))
+                {
+                    mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
+                }
             }
         }
 
@@ -142,20 +139,17 @@ namespace MonsterConverterTibiaWiki
         /// Parsing abilties is implemented like this instead of a using the RegexPatternKeys so we can easily print a list of abilties which fail to be parsed
         /// </summary>
         /// <param name="mon"></param>
-        /// <param name="mc"></param>
-        private static void ParseAbilities(Monster mon, MatchCollection mc)
+        /// <param name="m"></param>
+        private static void ParseAbilities(Monster mon, Match m)
         {
-            if (mc.Count == 0)
-                return;
-
             // Abilities should be parsed for summons, melee, attacks, and defenses. Each ability is seperated by a comma
             //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
-            string abilities = mc.FindNamedGroupValue("abilities").ToLower();
-            if (abilities.Contains("none") || abilities == "?")
+            string abilities = m.Groups["abilities"].Value.ToLower();
+            if (string.IsNullOrWhiteSpace(abilities) || abilities.Contains("none") || abilities == "?")
                 return;
 
-            // Splitting by , doesn't work sometimes but with everything related to abilities for tibiawiki there is no standard
-            // Better logic could be to split by , that are outside of parentheses
+            // Splitting by comma doesn't work sometimes but with everything related to abilities for tibiawiki there is no standard
+            // Better logic could be to split by comma that are outside of parentheses
             foreach (string ability in abilities.Split(","))
             {
                 string cleanedAbility = ability.Trim().TrimEnd('.');
@@ -163,9 +157,9 @@ namespace MonsterConverterTibiaWiki
                 {
                     case var _ when new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").IsMatch(cleanedAbility):
                         {
-                            var matches = new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").Matches(cleanedAbility);
+                            var match = new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").Match(cleanedAbility);
                             var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                            if (ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            if (ParseNumericRange(match.Groups["damage"].Value, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
@@ -181,9 +175,9 @@ namespace MonsterConverterTibiaWiki
                     // Effect might need to be optional
                     case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").IsMatch(cleanedAbility):
                         {
-                            var matches = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").Matches(cleanedAbility);
-                            var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Offensive, DamageElement = CombatDamage.Physical, Interval = 2000, Chance = 1, Range = 7, ShootEffect = TibiaWikiToAnimation(matches.FindNamedGroupValue("effect")) };
-                            if (ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            var match = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").Match(cleanedAbility);
+                            var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Offensive, DamageElement = CombatDamage.Physical, Interval = 2000, Chance = 1, Range = 7, ShootEffect = TibiaWikiToAnimation(match.Groups["effect"].Value) };
+                            if (ParseNumericRange(match.Groups["damage"].Value, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
@@ -212,9 +206,9 @@ namespace MonsterConverterTibiaWiki
 
                     case var _ when new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").IsMatch(cleanedAbility):
                         {
-                            var matches = new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").Matches(cleanedAbility);
+                            var match = new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").Match(cleanedAbility);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                            if (ParseNumericRange(matches.FindNamedGroupValue("damage"), out int min, out int max))
+                            if (ParseNumericRange(match.Groups["damage"].Value, out int min, out int max))
                             {
                                 spell.MinDamage = min;
                                 spell.MaxDamage = max;
@@ -335,10 +329,10 @@ namespace MonsterConverterTibiaWiki
                 string element = monsterElement.InnerHtml;
                 foreach (var x in monparams)
                 {
-                    var matches = new Regex(x.Pattern).Matches(element);
+                    var match = new Regex(x.Pattern).Match(element);
                     try
                     {
-                        x.Action.Invoke(monster, matches);
+                        x.Action.Invoke(monster, match);
                     }
                     catch (Exception ex)
                     {
@@ -366,8 +360,8 @@ namespace MonsterConverterTibiaWiki
                     var lootsection = lootsectionsRegEx.Match(elements);
                     string loots = lootsection.Captures[0].Value;
 
-                    var killsmatches = new Regex(@"\|kills=(?<kills>\d+)").Matches(loots);
-                    double.TryParse(killsmatches.FindNamedGroupValue("kills"), out double kills);
+                    var killsmatch = new Regex(@"\|kills=(?<kills>\d+)").Match(loots);
+                    double.TryParse(killsmatch.Groups["kills"].Value, out double kills);
                     // sometimes TibiaWiki doesn't show the amount field
                     var lootregex = new Regex(@"\|\s*(?<itemname>[a-z'.() ]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
                     var matches = lootregex.Matches(loots);
