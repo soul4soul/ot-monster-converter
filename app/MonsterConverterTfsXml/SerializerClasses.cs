@@ -60,8 +60,8 @@ namespace MonsterConverterTfsXml
         public int manacost = 0;
         [XmlAttribute]
         public string skull = "none"; //uses strings, "none", "yellow", "green", "white", "red", "black", "orange"
-        //[XmlAttribute]
-        //public int script; //todo: how to handle
+        [XmlAttribute]
+        public string script; //todo: how to handle
 
         public TFSXmlHealth health;
         public Flags flags;
@@ -384,10 +384,5 @@ namespace MonsterConverterTfsXml
     {
         [XmlElement(ElementName = "event")]
         public TfsXmlEvent[] Event { get; set; }
-
-        //[XmlAnyElement]
-        //public XmlElement[] AllElements;
-        //[XmlAnyAttribute]
-        //public XmlAttribute[] attr;
     }
 }
