@@ -57,6 +57,7 @@ namespace MonsterConverterInterface.MonsterTypes
             Drown = 1;
             LifeDrain = 1;
             ManaDrain = 1;
+            Healing = 1;
         }
 
         // Properties
@@ -128,6 +129,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public double Drown { get; set; }
         public double LifeDrain { get; set; }
         public double ManaDrain { get; set; }
+        public double Healing { get; set; }  // This is an element type, some mobs like Leiden take damage from healing
 
         // Immunities
         public bool IgnoreParalyze { get; set; }
