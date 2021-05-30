@@ -50,7 +50,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public string skull = "none"; //uses strings, "none", "yellow", "green", "white", "red", "black", "orange"
         [XmlAttribute]
-        public string script; //todo: how to handle
+        public string script;
 
         public TfsXmlHealth health;
         public Flags flags;
