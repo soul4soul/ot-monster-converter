@@ -74,6 +74,8 @@ namespace MonsterConverterTfsXml
         public TfsXmlLoot loot;
         public Elements elements;
         public TFSXmlSummons summons;
+        [XmlElement(ElementName = "script")]
+        public TfsXmlScripts scripts;
     }
 
     [XmlRoot(ElementName = "health")]
@@ -368,5 +370,24 @@ namespace MonsterConverterTfsXml
         public int max;
         [XmlAttribute]
         public bool force;
+    }
+
+    [XmlRoot(ElementName = "event")]
+    public class TfsXmlEvent
+    {
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
+    }
+
+    [XmlRoot(ElementName = "script")]
+    public class TfsXmlScripts
+    {
+        [XmlElement(ElementName = "event")]
+        public TfsXmlEvent[] Event { get; set; }
+
+        //[XmlAnyElement]
+        //public XmlElement[] AllElements;
+        //[XmlAnyAttribute]
+        //public XmlAttribute[] attr;
     }
 }
