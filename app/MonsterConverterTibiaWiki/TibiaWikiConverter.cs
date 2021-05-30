@@ -256,35 +256,29 @@ namespace MonsterConverterTibiaWiki
         }
 
         /// <summary>
-        /// Converts the string representation of a number range to its interger
-        ///     number equivalent. A return value indicates whether the conversion succeeded
-        ///     or failed.
+        /// Converts a string representing a numeric range to two intergers
         /// Example numeric ranges which can be parsed are "500", "0-500", and "0-500?"
-        ///     In all examples the numberic value which is parsed would be 500
         /// </summary>
+        /// <param name="range">String to parse</param>
+        /// <param name="min">lower bound value in range, defaults to 0</param>
+        /// <param name="max">high bonund value in the range, will be set when the range only has a single number</param>
+        /// <returns>returns false when no numeric values can be parsed</returns>
         private static bool ParseNumericRange(string range, out int min, out int max)
         {
-            min = 0;
-            range = RemoveNonNumericChars(range);
-            if (!int.TryParse(range, out max))
-            {
-                var ranges = range.Split("-");
-                if (ranges.Length >= 2)
-                {
-                    int.TryParse(ranges[0], out min);
-                    int.TryParse(ranges[1], out max);
-                    return true;
-                }
-                return false;
-            }
-            return true;
-        }
+            Regex rgx = new Regex(@"(?<first>\d+)(([ -]?)(?<second>\d+))?");
+            var match = rgx.Match(range);
 
-        private static string RemoveNonNumericChars(string input)
-        {
-            Regex rgx = new Regex("[^0-9-]");
-            input = rgx.Replace(input, "");
-            return input;
+            min = 0;
+            if (int.TryParse(match.Groups["second"].Value, out max))
+            {
+                int.TryParse(match.Groups["first"].Value, out min);
+                return true;
+            }
+            else if (int.TryParse(match.Groups["first"].Value, out max))
+            {
+                return true;
+            }
+            return false;
         }
 
         public override string[] GetFilesForConversion(string directory)
