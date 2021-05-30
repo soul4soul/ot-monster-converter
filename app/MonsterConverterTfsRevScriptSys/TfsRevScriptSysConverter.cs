@@ -369,14 +369,30 @@ namespace MonsterConverterTfsRevScriptSys
                     }
 
                     decimal chance = monster.Items[i].Chance * MAX_LOOTCHANCE;
+                    loot = $"	{{id = {item}, chance = {chance:0}";
+
                     if (monster.Items[i].Count > 1)
                     {
-                        loot = $"	{{id = {item}, chance = {chance:0}, maxCount = {monster.Items[i].Count}}},";
+                        loot += $", maxCount = {monster.Items[i].Count}";
                     }
-                    else
+
+                    if (monster.Items[i].SubType > 0)
                     {
-                        loot = $"	{{id = {item}, chance = {chance:0}}},";
+                        loot += $", subType = {monster.Items[i].SubType}";
                     }
+
+                    if (monster.Items[i].ActionId > 0)
+                    {
+                        loot += $", actionId = {monster.Items[i].ActionId}";
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(monster.Items[i].Text))
+                    {
+                        loot += $", text = {monster.Items[i].Text}";
+                    }
+
+                    loot += "},";
+
                     if (i == monster.Items.Count - 1)
                     {
                         loot = loot.TrimEnd(',');
