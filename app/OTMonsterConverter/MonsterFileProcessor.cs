@@ -22,17 +22,21 @@ namespace OTMonsterConverter
 
     public sealed class FileProcessorEventArgs : EventArgs
     {
-        public FileProcessorEventArgs(ConvertResult source, ConvertResult destination)
+        public FileProcessorEventArgs(ConvertResult source, ConvertResult destination, double completed, double total)
         {
             Source = source;
             Destination = destination;
+            Completed = completed;
+            Total = total;
         }
 
         public ConvertResult Source { get; }
         public ConvertResult Destination { get; }
+        public double Completed { get; }
+        public double Total { get; }
     }
 
-    public class MonsterFileProcessor : EventArgs
+    public class MonsterFileProcessor
     {
         // Events
         public event EventHandler<FileProcessorEventArgs> OnMonsterConverted;
@@ -75,11 +79,12 @@ namespace OTMonsterConverter
             }
 
             string destination;
-            foreach (string file in files)
+            for (int i = 0; i < files.Length; i++)
             {
+                string file = files[i];
                 destination = FindExactFileDestination(monsterDirectory, outputDirectory, file, mirroredFolderStructure);
                 var result  = ProcessFile(file, inputConverter, outputConverter, destination);
-                RaiseEvent(OnMonsterConverted, result);
+                RaiseEvent(OnMonsterConverted, new FileProcessorEventArgs(result.Item1, result.Item2, i, files.Length));
             }
 
             return ScanError.Success;
@@ -101,7 +106,7 @@ namespace OTMonsterConverter
             }
         }
 
-        private FileProcessorEventArgs ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
+        private Tuple<ConvertResult, ConvertResult> ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
         {
             ConvertResult readResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
             ConvertResult writeResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
@@ -123,7 +128,7 @@ namespace OTMonsterConverter
             {
                 System.Diagnostics.Debug.WriteLine($"Error pasring {file}. Exception {ex.Message}");
             }
-            return new FileProcessorEventArgs(readResult, writeResult);
+            return new (readResult, writeResult);
         }
 
         protected bool RaiseEvent<T>(EventHandler<T> eventHandler, T args) where T : EventArgs
