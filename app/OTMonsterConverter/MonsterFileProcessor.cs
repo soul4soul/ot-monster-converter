@@ -103,14 +103,14 @@ namespace OTMonsterConverter
 
         private FileProcessorEventArgs ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
         {
-            ConvertResult readResult = new ConvertResult("unknown", ConvertCode.Error, "Unknown error occured");
-            ConvertResult writeResult = new ConvertResult("unknown", ConvertCode.Error, "Unknown error occured");
+            ConvertResult readResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
+            ConvertResult writeResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
 
             // The ReadMonster and Write methods processors should really do their best to catch and return meaningful errors
             try
             {
                 readResult = input.ReadMonster(file, out Monster monster);
-                if (readResult.Code != ConvertCode.Error)
+                if (readResult.Code != ConvertError.Error)
                 {
                     if (!Directory.Exists(outputDir))
                     {

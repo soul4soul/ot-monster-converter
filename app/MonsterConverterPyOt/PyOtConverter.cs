@@ -53,7 +53,7 @@ namespace MonsterConverterPyOt.Converter
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
             File.WriteAllLines(fileName, lines);
 
-            return new ConvertResult(fileName, ConvertCode.Warning, "Format incomplete. abilities and other information has not been converted");
+            return new ConvertResult(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
         private string GenericToPyOTBlood(Blood race)

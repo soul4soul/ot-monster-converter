@@ -210,7 +210,7 @@ namespace MonsterConverterTfsRevScriptSys
 
         public override ConvertResult WriteMonster(string directory, ref Monster monster)
         {
-            ConvertCode code = ConvertCode.Success;
+            ConvertError code = ConvertError.Success;
             string message = "";
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
 
@@ -493,7 +493,7 @@ namespace MonsterConverterTfsRevScriptSys
 
                 if (monster.Scripts.Count(s => s.Type != ScriptType.OnDeath) > 0)
                 {
-                    code = ConvertCode.Warning;
+                    code = ConvertError.Warning;
                     message += "Unable to convert scripts.";
                 }
                 var writableEvents = monster.Scripts.Where(s => s.Type == ScriptType.OnDeath).ToList();

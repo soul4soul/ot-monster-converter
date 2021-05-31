@@ -4,12 +4,12 @@ using System.Text;
 
 namespace MonsterConverterInterface
 {
-    public enum ConvertCode
+    public enum ConvertError
     {
         Error,
         Success,
         Warning
     }
 
-    public record ConvertResult(string File, ConvertCode Code, string Message = null);
+    public record ConvertResult(string File, ConvertError Code, string Message = null);
 }

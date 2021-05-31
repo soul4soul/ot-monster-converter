@@ -411,7 +411,7 @@ namespace MonsterConverterTibiaWiki
                 }
             }
 
-            return new ConvertResult(filename, ConvertCode.Warning, "Blood type, look type data, and abilities are not parsed.");
+            return new ConvertResult(filename, ConvertError.Warning, "Blood type, look type data, and abilities are not parsed.");
         }
 
         public override ConvertResult WriteMonster(string directory, ref Monster monster)
@@ -449,7 +449,7 @@ namespace MonsterConverterTibiaWiki
             string fileName = Path.Combine(directory, monster.FileName);
             File.WriteAllLines(fileName, lines);
 
-            return new ConvertResult(fileName, ConvertCode.Warning, "Loot information is not written.");
+            return new ConvertResult(fileName, ConvertError.Warning, "Loot information is not written.");
         }
 
         private string GenericToTibiaWikiWalkAround(ref Monster monster)

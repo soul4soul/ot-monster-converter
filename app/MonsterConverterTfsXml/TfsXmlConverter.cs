@@ -231,13 +231,13 @@ namespace MonsterConverterTfsXml
                 // convert from xml monster classes to generic class
                 xmlToGeneric(tfsMonster, out monster);
                 monster.FileName = Path.GetFileNameWithoutExtension(filename);
-                return new ConvertResult(filename, ConvertCode.Success);
+                return new ConvertResult(filename, ConvertError.Success);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error pasring {filename}. Exception {ex.Message}");
                 monster = null;
-                return new ConvertResult(filename, ConvertCode.Error, ex.Message);
+                return new ConvertResult(filename, ConvertError.Error, ex.Message);
             }
         }
 
@@ -254,7 +254,7 @@ namespace MonsterConverterTfsXml
                         ));
             xDoc.Save(fileName);
 
-            return new ConvertResult(fileName, ConvertCode.Warning, "Format incomplete. abilities and other information has not been converted");
+            return new ConvertResult(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
         private void xmlToGeneric(TFSXmlMonster tfsMonster, out Monster monster)

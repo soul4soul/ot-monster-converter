@@ -8,9 +8,9 @@
         mc:Ignorable="d"
         Title="OT Monster Converter" Height="450" Width="800" Loaded="Window_Loaded">
     <Window.Resources>
-        <ObjectDataProvider x:Key="ConvertCode" MethodName="GetValues" ObjectType="{x:Type converter:ConvertCode}">
+        <ObjectDataProvider x:Key="ConvertCode" MethodName="GetValues" ObjectType="{x:Type converter:ConvertError}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type Type="converter:ConvertCode"/>
+                <x:Type Type="converter:ConvertError"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
