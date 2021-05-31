@@ -1,6 +1,7 @@
 ﻿using Mono.Options;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace OTMonsterConverter
@@ -11,7 +12,7 @@ namespace OTMonsterConverter
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             bool showHelp = false;
 
@@ -21,19 +22,36 @@ namespace OTMonsterConverter
             string outputFormat = "";
             bool mirrorFolderStructure = true;
 
+            PluginHelper plugins = await PluginHelper.Instance;
+            string converterNames = "";
+            foreach (var c in plugins.Converters)
+            {
+                converterNames += $"{c.ConverterName}, ";
+            }
+            if (string.IsNullOrWhiteSpace(converterNames))
+            {
+                converterNames = "No Formats Found";
+            }
+            else
+            {
+                converterNames = converterNames.Substring(0, converterNames.Length - 2);
+            }
+
             var p = new OptionSet()
             {
                 "Usage: OTMonsterConverter [OPTIONS]+",
                 "",
                 "Options:",
                 { "i|inputDirectory=", "The directory of monster files to parse.", v => inputDirectory = v },
-                { "o|outputDirectory=", "The directory of monster files to parse.", v => outputDirectory = v },
-                { "inputFormat=", "The starting monster file format.", v => inputFormat = v },
-                { "outputFormat=", "The format to converter the monster files to.", v => outputFormat = v },
+                { "o|outputDirectory=", "The output directory of the new monster files.", v => outputDirectory = v },
+                { "inputFormat=", "The starting input monster file format.", v => inputFormat = v },
+                { "outputFormat=", "The desired monster file format.", v => outputFormat = v },
                 { "m|MirrorFolders", "True to mirror the folder structure of the input directory", v => mirrorFolderStructure = v != null },
                 { "h|help",  "show this message and exit", v => showHelp = v != null },
+                "",
+                "Formats:",
+                $"{converterNames}",
             };
-            // need new option to list all valid input and output converters that were discovered
 
             List<string> extra;
             try
