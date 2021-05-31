@@ -13,6 +13,7 @@
                 <x:Type Type="converter:ConvertError"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <local:ConvertErrorImageToImageFileConverter x:Key="ConvertErrorImageToImageFileConverter"/>
     </Window.Resources>
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo x:Name="taskBarProgressScan"/>
@@ -76,22 +77,32 @@
 
             <DataGrid x:Name="dataGridResults" Grid.Row="5" Grid.ColumnSpan="2" Margin="5" IsReadOnly="True"  AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Source"  Binding="{Binding Source.File}"/>
+                    <DataGridTextColumn Header="Source" Binding="{Binding Source.File}"/>
                     <DataGridTextColumn Header="Destination" Binding="{Binding Destination.File}"/>
-                    <DataGridComboBoxColumn Header="Source Status" SelectedItemBinding="{Binding Source.Code}" ItemsSource="{Binding Source={StaticResource ConvertCode}}">
-                        <DataGridComboBoxColumn.CellStyle>
+                    <DataGridTemplateColumn Header="Source Status">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding Source.Code, Converter={StaticResource ConvertErrorImageToImageFileConverter}}" Width="16" Height="16"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
                                 <Setter Property="ToolTip" Value="{Binding Source.Message}" />
                             </Style>
-                        </DataGridComboBoxColumn.CellStyle>
-                    </DataGridComboBoxColumn>
-                    <DataGridComboBoxColumn Header="Destination Status" SelectedItemBinding="{Binding Destination.Code}" ItemsSource="{Binding Source={StaticResource ConvertCode}}">
-                        <DataGridComboBoxColumn.CellStyle>
+                        </DataGridTemplateColumn.CellStyle>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Destination Status">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding Destination.Code, Converter={StaticResource ConvertErrorImageToImageFileConverter}}" Width="16" Height="16"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
                                 <Setter Property="ToolTip" Value="{Binding Destination.Message}" />
                             </Style>
-                        </DataGridComboBoxColumn.CellStyle>
-                    </DataGridComboBoxColumn>
+                        </DataGridTemplateColumn.CellStyle>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

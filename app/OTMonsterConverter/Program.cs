@@ -12,7 +12,7 @@ namespace OTMonsterConverter
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static async Task<int> Main(string[] args)
+        static int Main(string[] args)
         {
             bool showHelp = false;
 
@@ -22,7 +22,8 @@ namespace OTMonsterConverter
             string outputFormat = "";
             bool mirrorFolderStructure = true;
 
-            PluginHelper plugins = await PluginHelper.Instance;
+            // Breaks the purpose of this being lazyasync...
+            PluginHelper plugins = PluginHelper.Instance.Task.Result;
             string converterNames = "";
             foreach (var c in plugins.Converters)
             {

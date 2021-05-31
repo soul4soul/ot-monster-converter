@@ -21,6 +21,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\error.png" />
+    <None Remove="Images\success.png" />
+    <None Remove="Images\warning.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="16.9.20" />
     <PackageReference Include="Mono.Options" Version="6.6.0.161" />
     <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
@@ -31,7 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\error.png" />
     <Resource Include="Images\info.png" />
+    <Resource Include="Images\success.png" />
+    <Resource Include="Images\warning.png" />
   </ItemGroup>
 
 </Project>
