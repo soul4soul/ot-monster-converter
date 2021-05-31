@@ -208,8 +208,10 @@ namespace MonsterConverterTfsRevScriptSys
 
         public override bool IsWriteSupported { get => true; }
 
-        public override bool WriteMonster(string directory, ref Monster monster)
+        public override ConvertResult WriteMonster(string directory, ref Monster monster)
         {
+            ConvertCode code = ConvertCode.Success;
+            string message = "";
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
 
             using (var fstream = File.OpenWrite(fileName))
@@ -489,6 +491,11 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
+                if (monster.Scripts.Count(s => s.Type != ScriptType.OnDeath) > 0)
+                {
+                    code = ConvertCode.Warning;
+                    message += "Unable to convert scripts.";
+                }
                 var writableEvents = monster.Scripts.Where(s => s.Type == ScriptType.OnDeath).ToList();
                 if (writableEvents.Count > 0)
                 {
@@ -511,10 +518,10 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("mType:register(monster)");
             }
 
-            return true;
+            return new ConvertResult(fileName, code, message);
         }
 
-        public override bool ReadMonster(string filename, out Monster monster)
+        public override ConvertResult ReadMonster(string filename, out Monster monster)
         {
             throw new NotImplementedException();
         }

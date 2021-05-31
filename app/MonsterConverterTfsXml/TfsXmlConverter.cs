@@ -212,28 +212,36 @@ namespace MonsterConverterTfsXml
         private static string CurrentFileName { get; set; }
 
         // Functions
-        public override bool ReadMonster(string filename, out Monster monster)
+        public override ConvertResult ReadMonster(string filename, out Monster monster)
         {
-            CurrentFileName = filename;
-            XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
+            try
+            {
+                CurrentFileName = filename;
+                XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
-            serializer.UnknownNode += new XmlNodeEventHandler(Serializer_UnknownNode);
-            serializer.UnknownAttribute += new XmlAttributeEventHandler(Serializer_UnknownAttribute);
+                serializer.UnknownNode += new XmlNodeEventHandler(Serializer_UnknownNode);
+                serializer.UnknownAttribute += new XmlAttributeEventHandler(Serializer_UnknownAttribute);
 
-            // A FileStream is needed to read the XML document.
-            FileStream fs = new FileStream(filename, FileMode.Open);
+                // A FileStream is needed to read the XML document.
+                FileStream fs = new FileStream(filename, FileMode.Open);
 
-            // Use the Deserialize method to restore the object's state with data from the XML document.
-            TFSXmlMonster tfsMonster = (TFSXmlMonster)serializer.Deserialize(fs);
+                // Use the Deserialize method to restore the object's state with data from the XML document.
+                TFSXmlMonster tfsMonster = (TFSXmlMonster)serializer.Deserialize(fs);
 
-            // convert from xml monster classes to generic class
-            xmlToGeneric(tfsMonster, out monster);
-            monster.FileName = Path.GetFileNameWithoutExtension(filename);
-
-            return true;
+                // convert from xml monster classes to generic class
+                xmlToGeneric(tfsMonster, out monster);
+                monster.FileName = Path.GetFileNameWithoutExtension(filename);
+                return new ConvertResult(filename, ConvertCode.Success);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error pasring {filename}. Exception {ex.Message}");
+                monster = null;
+                return new ConvertResult(filename, ConvertCode.Error, ex.Message);
+            }
         }
 
-        public override bool WriteMonster(string directory, ref Monster monster)
+        public override ConvertResult WriteMonster(string directory, ref Monster monster)
         {
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
 
@@ -246,7 +254,7 @@ namespace MonsterConverterTfsXml
                         ));
             xDoc.Save(fileName);
 
-            return true;
+            return new ConvertResult(fileName, ConvertCode.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
         private void xmlToGeneric(TFSXmlMonster tfsMonster, out Monster monster)

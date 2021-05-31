@@ -4,8 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OTMonsterConverter"
+        xmlns:converter="clr-namespace:MonsterConverterInterface;assembly=MonsterConverterInterface"
         mc:Ignorable="d"
         Title="OT Monster Converter" Height="450" Width="800" Loaded="Window_Loaded">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="ConvertCode" MethodName="GetValues" ObjectType="{x:Type converter:ConvertCode}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="converter:ConvertCode"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo x:Name="taskBarProgressScan"/>
     </Window.TaskbarItemInfo>
@@ -66,7 +74,26 @@
 
             <Button x:Name="buttonConvert" Grid.Row="4" Grid.ColumnSpan="2" Content="Convert" Margin="5" Click="buttonConvert_Click"/>
 
-            <DataGrid x:Name="dataGridResults" Grid.Row="5" Grid.ColumnSpan="2" Margin="5" IsReadOnly="True"/>
+            <DataGrid x:Name="dataGridResults" Grid.Row="5" Grid.ColumnSpan="2" Margin="5" IsReadOnly="True"  AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Source"  Binding="{Binding Source.File}"/>
+                    <DataGridTextColumn Header="Destination" Binding="{Binding Destination.File}"/>
+                    <DataGridComboBoxColumn Header="Source Status" SelectedItemBinding="{Binding Source.Code}" ItemsSource="{Binding Source={StaticResource ConvertCode}}">
+                        <DataGridComboBoxColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="ToolTip" Value="{Binding Source.Message}" />
+                            </Style>
+                        </DataGridComboBoxColumn.CellStyle>
+                    </DataGridComboBoxColumn>
+                    <DataGridComboBoxColumn Header="Destination Status" SelectedItemBinding="{Binding Destination.Code}" ItemsSource="{Binding Source={StaticResource ConvertCode}}">
+                        <DataGridComboBoxColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="ToolTip" Value="{Binding Destination.Message}" />
+                            </Style>
+                        </DataGridComboBoxColumn.CellStyle>
+                    </DataGridComboBoxColumn>
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
     </DockPanel>
 </Window>
