@@ -21,7 +21,7 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 
 Running the executable without arguments will cause the GUI to launch
 
-![Alt text](https://user-images.githubusercontent.com/5142635/80318493-86a70580-87d8-11ea-85dc-cfc4e3fe2754.png)
+![Sample GUI Image](https://user-images.githubusercontent.com/5142635/120939976-c2551400-c6e8-11eb-8e53-10ad7f68ea5e.png)
 
 ## Command Line Interface
 
