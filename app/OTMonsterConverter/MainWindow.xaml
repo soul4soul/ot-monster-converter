@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:OTMonsterConverter"
         xmlns:converter="clr-namespace:MonsterConverterInterface;assembly=MonsterConverterInterface"
         mc:Ignorable="d"
@@ -100,6 +101,11 @@
                         <DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
                                 <Setter Property="ToolTip" Value="{Binding Destination.Message}" />
+                                <Style.Triggers>
+                                    <Trigger Property="ToolTip" Value="{x:Static system:String.Empty}">
+                                        <Setter Property="ToolTipService.IsEnabled" Value="False" />
+                                    </Trigger>
+                                </Style.Triggers>
                             </Style>
                         </DataGridTemplateColumn.CellStyle>
                     </DataGridTemplateColumn>
