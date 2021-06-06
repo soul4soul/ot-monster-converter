@@ -22,13 +22,12 @@ namespace MonsterConverterPyOt.Converter
         public override bool IsWriteSupported { get => true; }
 
         // Functions
-        public override bool ReadMonster(string filename, out Monster monster)
+        public override ConvertResult ReadMonster(string filename, out Monster monster)
         {
-            monster = new Monster();
-            return false; // Not Implemented
+            throw new NotImplementedException();
         }
 
-        public override bool WriteMonster(string directory, ref Monster monster)
+        public override ConvertResult WriteMonster(string directory, ref Monster monster)
         {
             string lowerName = monster.Name.ToLower(); // TODO Remove special chars spaces etc.. want a-z_ for characters... Can we just use a fixed variable name such as "monster"?
 
@@ -54,7 +53,7 @@ namespace MonsterConverterPyOt.Converter
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
             File.WriteAllLines(fileName, lines);
 
-            return true;
+            return new ConvertResult(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
         private string GenericToPyOTBlood(Blood race)

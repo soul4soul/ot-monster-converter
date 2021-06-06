@@ -328,7 +328,7 @@ namespace MonsterConverterTibiaWiki
             return names.ToArray();
         }
 
-        public override bool ReadMonster(string filename, out Monster monster)
+        public override ConvertResult ReadMonster(string filename, out Monster monster)
         {
             string monsterurl = $"https://tibia.fandom.com/wiki/{filename}?action=edit";
             string looturl = $"https://tibia.fandom.com/wiki/Loot_Statistics:{filename}?action=edit";
@@ -411,10 +411,10 @@ namespace MonsterConverterTibiaWiki
                 }
             }
 
-            return true;
+            return new ConvertResult(filename, ConvertError.Warning, "Blood type, look type data, and abilities are not parsed.");
         }
 
-        public override bool WriteMonster(string directory, ref Monster monster)
+        public override ConvertResult WriteMonster(string directory, ref Monster monster)
         {
             string[] lines =
             {
@@ -449,7 +449,7 @@ namespace MonsterConverterTibiaWiki
             string fileName = Path.Combine(directory, monster.FileName);
             File.WriteAllLines(fileName, lines);
 
-            return true;
+            return new ConvertResult(fileName, ConvertError.Warning, "Loot information is not written.");
         }
 
         private string GenericToTibiaWikiWalkAround(ref Monster monster)

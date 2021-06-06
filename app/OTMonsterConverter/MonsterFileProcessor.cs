@@ -22,19 +22,21 @@ namespace OTMonsterConverter
 
     public sealed class FileProcessorEventArgs : EventArgs
     {
-        public FileProcessorEventArgs(string sourceMonsterFile, string destinationFile, bool convertedSuccessfully = true)
+        public FileProcessorEventArgs(ConvertResult source, ConvertResult destination, double completed, double total)
         {
-            SourceMonsterFile = sourceMonsterFile;
-            DestinationFile = destinationFile;
-            ConvertedSuccessfully = convertedSuccessfully;
+            Source = source;
+            Destination = destination;
+            Completed = completed;
+            Total = total;
         }
 
-        public string SourceMonsterFile { get; }
-        public string DestinationFile { get; }
-        public bool ConvertedSuccessfully { get; }
+        public ConvertResult Source { get; }
+        public ConvertResult Destination { get; }
+        public double Completed { get; }
+        public double Total { get; }
     }
 
-    public class MonsterFileProcessor : EventArgs
+    public class MonsterFileProcessor
     {
         // Events
         public event EventHandler<FileProcessorEventArgs> OnMonsterConverted;
@@ -76,13 +78,13 @@ namespace OTMonsterConverter
                 return ScanError.NoMonstersFound;
             }
 
-            bool copyOk;
             string destination;
-            foreach (string file in files)
+            for (int i = 0; i < files.Length; i++)
             {
+                string file = files[i];
                 destination = FindExactFileDestination(monsterDirectory, outputDirectory, file, mirroredFolderStructure);
-                copyOk = ProcessFile(file, inputConverter, outputConverter, destination);
-                RaiseEvent(OnMonsterConverted, new FileProcessorEventArgs(file, destination, copyOk));
+                var result  = ProcessFile(file, inputConverter, outputConverter, destination);
+                RaiseEvent(OnMonsterConverted, new FileProcessorEventArgs(result.Item1, result.Item2, i, files.Length));
             }
 
             return ScanError.Success;
@@ -104,27 +106,29 @@ namespace OTMonsterConverter
             }
         }
 
-        private bool ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
+        private Tuple<ConvertResult, ConvertResult> ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
         {
-            bool result = false;
+            ConvertResult readResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
+            ConvertResult writeResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
+
+            // The ReadMonster and Write methods processors should really do their best to catch and return meaningful errors
             try
             {
-                if (input.ReadMonster(file, out Monster monster))
+                readResult = input.ReadMonster(file, out Monster monster);
+                if (readResult.Code != ConvertError.Error)
                 {
                     if (!Directory.Exists(outputDir))
                     {
                         Directory.CreateDirectory(outputDir);
                     }
-                    output.WriteMonster(outputDir, ref monster);
-                    result = true;
+                    writeResult = output.WriteMonster(outputDir, ref monster);
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error pasring {file}. Exception {ex.Message}");
-                result = false;
             }
-            return result;
+            return new (readResult, writeResult);
         }
 
         protected bool RaiseEvent<T>(EventHandler<T> eventHandler, T args) where T : EventArgs
