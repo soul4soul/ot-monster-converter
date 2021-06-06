@@ -25,8 +25,8 @@ namespace MonsterConverterInterface
 
         string[] GetFilesForConversion(string directory);
 
-        bool ReadMonster(string filename, out Monster monster);
+        ConvertResult ReadMonster(string filename, out Monster monster);
 
-        bool WriteMonster(string directory, ref Monster monster);
+        ConvertResult WriteMonster(string directory, ref Monster monster);
     }
 }
