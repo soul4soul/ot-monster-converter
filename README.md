@@ -17,13 +17,15 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 | TFS revscriptsys                                     | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Input-Status)   | [95%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Output-Status)   | - Very new OT monster format that was theorized many years ago. In the future there is a good chance it will replace TFS XML completely. This is likely the output type that most users of this program will use. <br/> - Opentibiabr RevScriptSys format is not completely compatible with TFS RevScriptSys format |
 | [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | [80%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Input-Status)         | [60%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Output-Status)          | - Helpful for keeping monsters up to date with cipbia<br/> - See The [Infobox Creature Template](https://tibia.fandom.com/wiki/Template:Infobox_Creature) for information about TibiaWiki Format <br/> - Monsters created from TibiaWiki will require corpse id, looktype, and spells to be created manually |
 
-## Graphical Interface
+## Graphical User Interface
+
+Running the executable without arguments will cause the GUI to launch
 
 ![Alt text](https://user-images.githubusercontent.com/5142635/80318493-86a70580-87d8-11ea-85dc-cfc4e3fe2754.png)
 
-## Command Line
+## Command Line Interface
 
-It should be possible to run this application on linux by ripping on the UI and recompiling.
+Access and use the CLI by running `OTMonsterConverter.exe` with arguments
 
 ```ps
 PS C:\...\bin\Release\netcoreapp3.1> .\OTMonsterConverter.exe -help
