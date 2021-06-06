@@ -38,7 +38,7 @@ namespace OTMonsterConverter
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    monsterListDataTable.Rows.Add(new object[] { System.IO.Path.GetFileName(e.SourceMonsterFile), e.DestinationFile, e.ConvertedSuccessfully });
+                    monsterListDataTable.Rows.Add(new object[] { e.Source, e.Destination });
                     dataGridResults.ScrollIntoView(dataGridResults.Items[dataGridResults.Items.Count - 1]);
                 });
             }
@@ -93,9 +93,8 @@ namespace OTMonsterConverter
 
             ValidateControls();
             monsterListDataTable = new DataTable("MonsterList");
-            monsterListDataTable.Columns.Add("Monster", typeof(string));
-            monsterListDataTable.Columns.Add("Destination", typeof(string));
-            monsterListDataTable.Columns.Add("Status", typeof(bool));
+            monsterListDataTable.Columns.Add("Source", typeof(ConvertResult));
+            monsterListDataTable.Columns.Add("Destination", typeof(ConvertResult));
             dataGridResults.ItemsSource = monsterListDataTable.AsDataView();
         }
 

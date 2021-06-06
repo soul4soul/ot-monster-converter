@@ -15,6 +15,10 @@ namespace OTMonsterConverter
         private IMonsterConverter output;
         private bool mirrorFolderStructure;
 
+        private int ConvertSuccessCount = 0;
+        private int ConvertWarningCount = 0;
+        private int ConvertErrorCount = 0;
+
         public ConsoleWindow(string inputDirectory, string outputDirectory, string inputFormatName, string outputFormatName, bool mirrorFolderStructure)
         {
             this.inputDirectory = inputDirectory;
@@ -26,6 +30,42 @@ namespace OTMonsterConverter
             output = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == outputFormatName);
 
             fileProcessor = new MonsterFileProcessor();
+            fileProcessor.OnMonsterConverted += FileProcessor_OnMonsterConverted;
+        }
+
+        private void FileProcessor_OnMonsterConverted(object sender, FileProcessorEventArgs e)
+        {
+            if ((e.Source.Code == ConvertError.Error) || (e.Source.Code == ConvertError.Error))
+            {
+                ConvertErrorCount++;
+                PrintInfo(ConvertError.Error, e.Source, e.Destination);
+            }
+            else if ((e.Source.Code == ConvertError.Warning) || (e.Source.Code == ConvertError.Warning))
+            {
+                ConvertWarningCount++;
+                PrintInfo(ConvertError.Warning, e.Source, e.Destination);
+            }
+            else
+            {
+                ConvertSuccessCount++;
+            }
+        }
+
+        private void PrintInfo(ConvertError overallError, ConvertResult source, ConvertResult destination)
+        {
+            string prefix = "ERROR";
+            if (overallError == ConvertError.Warning)
+                prefix = "WARNING";
+            Console.WriteLine($"{prefix}: \"{source.File}\" to\"{destination.File}\"");
+
+            if (!string.IsNullOrWhiteSpace(source.Message))
+            {
+                Console.WriteLine($"Source Msg: {source.Message}");
+            }
+            if (!string.IsNullOrWhiteSpace(destination.Message))
+            {
+                Console.WriteLine($"Destination Msg: {destination.Message}");
+            }
         }
 
         public bool ValidateValues()
@@ -63,7 +103,10 @@ namespace OTMonsterConverter
             switch (result)
             {
                 case ScanError.Success:
-                    Console.WriteLine("Completed successfully.");
+                    Console.WriteLine("Completed.");
+                    Console.WriteLine($"{ConvertSuccessCount} Monsters converted succesfully.");
+                    Console.WriteLine($"{ConvertWarningCount} Monsters converted with warnings.");
+                    Console.WriteLine($"{ConvertErrorCount} Monsters converted with errors.");
                     break;
                 case ScanError.NoMonstersFound:
                     Console.WriteLine("Couldn't find any monster files.");
@@ -84,7 +127,7 @@ namespace OTMonsterConverter
                     break;
             }
 
-            return (result == ScanError.Success) ? true : false;
+            return (result == ScanError.Success);
         }
     }
 }
