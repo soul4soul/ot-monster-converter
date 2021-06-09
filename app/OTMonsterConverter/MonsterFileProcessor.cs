@@ -128,7 +128,7 @@ namespace OTMonsterConverter
             {
                 System.Diagnostics.Debug.WriteLine($"Error pasring {file}. Exception {ex.Message}");
             }
-            return new (readResult, writeResult);
+            return new(readResult, writeResult);
         }
 
         protected bool RaiseEvent<T>(EventHandler<T> eventHandler, T args) where T : EventArgs
