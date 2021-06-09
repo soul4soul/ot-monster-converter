@@ -165,9 +165,9 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int radius = 0;
         [XmlAttribute]
-        public int direction; // 0 or 1 script only
+        public int direction = -1; // 0/1, default is 0, set to 1 if length is set, only parsed if scripts attribute is set
         [XmlAttribute]
-        public int target = 0; // Defaults to 0 if missing, used by script too
+        public int target = -1; // 0/1, default is 0, parsed if script or radius attribute is set
 
         [XmlAttribute]
         public int speedchange = 0;
@@ -265,7 +265,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int paralyze = 0;
         [XmlAttribute]
-        public int outfit = 0; // TODO should be true by default?
+        public int outfit = 0;
         [XmlAttribute]
         public int bleed = 0; // immue to only bleed condition
         [XmlAttribute]

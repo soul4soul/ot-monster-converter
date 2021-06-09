@@ -769,7 +769,19 @@ namespace MonsterConverterTfsXml
                 foreach (var attack in spells)
                 {
                     Spell spell = new Spell() { SpellCategory = category };
-                    spell.Name = attack.name;
+
+                    if (!string.IsNullOrWhiteSpace(attack.script))
+                    {
+                        spell.Name = attack.script;
+                        spell.DefinitionStyle = SpellDefinition.TfsLuaScript;
+                    }
+                    else
+                    {
+                        // Pure XML spell name or spell name registered within spell system
+                        spell.Name = attack.name;
+                        spell.DefinitionStyle = SpellDefinition.Raw;
+                    }
+
                     if (attack.interval != 0)
                     {
                         spell.Interval = (uint)attack.interval;
@@ -819,6 +831,16 @@ namespace MonsterConverterTfsXml
                     {
                         spell.Radius = (uint?)attack.radius;
                         spell.OnTarget = (attack.target == 1);
+                    }
+
+                    if (attack.target != -1)
+                    {
+                        spell.OnTarget = (attack.target == 1);
+                    }
+
+                    if (attack.direction != -1)
+                    {
+                        spell.IsDirectional = (attack.direction == 1);
                     }
 
                     if (attack.name == "melee")
