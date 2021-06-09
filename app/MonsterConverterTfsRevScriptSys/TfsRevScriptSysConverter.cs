@@ -413,7 +413,17 @@ namespace MonsterConverterTfsRevScriptSys
                         if (spell.SpellCategory == SpellCategory.Offensive)
                         {
                             Spell s = spell;
-                            attacks.Add(GenericToTfsRevScriptSysSpells(ref s));
+                            var result = GenericToTfsRevScriptSysSpells(ref s);
+                            if (result.Item1 != ConvertError.Success)
+                            {
+                                if (code != ConvertError.Error)
+                                {
+                                    code = ConvertError.Warning;
+                                    message += result.Item2;
+                                }
+                                continue;
+                            }
+                            attacks.Add(result.Item2);
                         }
                     }
 
@@ -440,7 +450,17 @@ namespace MonsterConverterTfsRevScriptSys
                     if (spell.SpellCategory == SpellCategory.Defensive)
                     {
                         Spell s = spell;
-                        defenses.Add(GenericToTfsRevScriptSysSpells(ref s));
+                        var result = GenericToTfsRevScriptSysSpells(ref s);
+                        if (result.Item1 != ConvertError.Success)
+                        {
+                            if (code != ConvertError.Error)
+                            {
+                                code = ConvertError.Warning;
+                                message += result.Item2;
+                            }
+                            continue;
+                        }
+                        defenses.Add(result.Item2);
                     }
                 }
                 dest.WriteLine("monster.defenses = {");
@@ -532,103 +552,141 @@ namespace MonsterConverterTfsRevScriptSys
             return Math.Round(value);
         }
 
-        public string GenericToTfsRevScriptSysSpells(ref Spell spell)
+        /// <summary>
+        /// Converts an ability from a generic format to TFS rev script system spell format
+        /// </summary>
+        /// <param name="spell"></param>
+        /// <returns>ConvertError, attack in string format OR error message</returns>
+        public Tuple<ConvertError, string> GenericToTfsRevScriptSysSpells(ref Spell spell)
         {
-            string attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
-
-            if (spell.Name == "melee")
+            ConvertError error = ConvertError.Success;
+            string attack = "";
+            if (spell.DefinitionStyle == SpellDefinition.TfsLuaScript)
             {
+                attack = $"	{{script =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
+
                 if ((spell.MinDamage != null) && (spell.MaxDamage != null))
                 {
                     attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
                 }
                 else if (spell.MaxDamage != null)
                 {
-                    attack += $", minDamage = {spell.MinDamage}";
+                    attack += $", maxDamage = {spell.MaxDamage}";
                 }
-                else if ((spell.AttackValue != null) && (spell.Skill != null))
+                if (spell.OnTarget != null)
                 {
-                    attack += $", skill = {spell.Skill}, attack = {spell.AttackValue}";
+                    attack += $", target = { spell.OnTarget.ToString().ToLower()}";
                 }
-                //else continue which we should never hit?
-
-                attack += $", effect = {magicEffectNames[Effect.DrawBlood]}";
-
-                if (spell.Condition != ConditionType.None)
+                if (spell.IsDirectional != null)
                 {
-                    attack += $", condition = {{type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
+                    attack += $", direction = { spell.IsDirectional.ToString().ToLower()}";
                 }
+                attack += "}";
+            }
+            else if (spell.DefinitionStyle == SpellDefinition.Raw)
+            {
+                attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
+
+
+                if (spell.Name == "melee")
+                {
+                    if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                    {
+                        attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
+                    }
+                    else if (spell.MaxDamage != null)
+                    {
+                        attack += $", maxDamage = {spell.MaxDamage}";
+                    }
+                    else if ((spell.AttackValue != null) && (spell.Skill != null))
+                    {
+                        attack += $", skill = {spell.Skill}, attack = {spell.AttackValue}";
+                    }
+                    //else continue which we should never hit?
+
+                    attack += $", effect = {magicEffectNames[Effect.DrawBlood]}";
+
+                    if (spell.Condition != ConditionType.None)
+                    {
+                        attack += $", condition = {{type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
+                    }
+                }
+                else
+                {
+                    if (spell.Name == "speed")
+                    {
+                        attack += $", speed = {{min = {spell.MinSpeedChange}, max = {spell.MaxSpeedChange}}}";
+                    }
+                    else if (spell.Name == "condition")
+                    {
+                        attack += $", type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, tick = {spell.Tick}";
+                    }
+                    else if (spell.Name == "outfit")
+                    {
+                        if (!string.IsNullOrEmpty(spell.MonsterName))
+                        {
+                            attack += $", monster = \"{spell.MonsterName}\"";
+                        }
+                        else if (spell.ItemId != null)
+                        {
+                            attack += $", item = {spell.ItemId}";
+                        }
+                    }
+                    else if ((spell.Name == "combat") && (spell.DamageElement != null))
+                    {
+                        attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
+                    }
+                    else if (spell.Name == "drunk")
+                    {
+                        attack += $", drunkenness = {spell.Drunkenness * 100:0}";
+                    }
+
+                    if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                    {
+                        attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
+                    }
+                    else if (spell.MaxDamage != null)
+                    {
+                        attack += $", minDamage = {spell.MinDamage}";
+                    }
+                    if (spell.Duration != null)
+                    {
+                        attack += $", duration = {spell.Duration}";
+                    }
+                    if (spell.Range != null)
+                    {
+                        attack += $", range = {spell.Range}";
+                    }
+                    if (spell.Radius != null)
+                    {
+                        attack += $", radius = {spell.Radius}, target = {spell.OnTarget.ToString().ToLower()}";
+                    }
+                    if (spell.Length != null)
+                    {
+                        attack += $", length = {spell.Length}";
+                    }
+                    if (spell.Spread != null)
+                    {
+                        attack += $", spread = {spell.Spread}";
+                    }
+                    if (spell.ShootEffect != Animation.None)
+                    {
+                        attack += $", ShootEffect = {shootTypeNames[spell.ShootEffect]}";
+                    }
+                    if (spell.AreaEffect != Effect.None)
+                    {
+                        attack += $", effect = {magicEffectNames[spell.AreaEffect]}";
+                    }
+                }
+                attack += "}";
             }
             else
             {
-                if (spell.Name == "speed")
-                {
-                    attack += $", speed = {{min = {spell.MinSpeedChange}, max = {spell.MaxSpeedChange}}}";
-                }
-                else if (spell.Name == "condition")
-                {
-                    attack += $", type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, tick = {spell.Tick}";
-                }
-                else if (spell.Name == "outfit")
-                {
-                    if (!string.IsNullOrEmpty(spell.MonsterName))
-                    {
-                        attack += $", monster = \"{spell.MonsterName}\"";
-                    }
-                    else if (spell.ItemId != null)
-                    {
-                        attack += $", item = {spell.ItemId}";
-                    }
-                }
-                else if ((spell.Name == "combat") && (spell.DamageElement != null))
-                {
-                    attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
-                }
-                else if (spell.Name == "drunk")
-                {
-                    attack += $", drunkenness = {spell.Drunkenness * 100:0}";
-                }
-
-                if ((spell.MinDamage != null) && (spell.MaxDamage != null))
-                {
-                    attack += $", minDamage = {spell.MinDamage}, maxDamage = {spell.MaxDamage}";
-                }
-                else if (spell.MaxDamage != null)
-                {
-                    attack += $", minDamage = {spell.MinDamage}";
-                }
-                if (spell.Duration != null)
-                {
-                    attack += $", duration = {spell.Duration}";
-                }
-                if (spell.Range != null)
-                {
-                    attack += $", range = {spell.Range}";
-                }
-                if (spell.Radius != null)
-                {
-                    attack += $", radius = {spell.Radius}, target = {spell.OnTarget.ToString().ToLower()}";
-                }
-                if (spell.Length != null)
-                {
-                    attack += $", length = {spell.Length}";
-                }
-                if (spell.Spread != null)
-                {
-                    attack += $", spread = {spell.Spread}";
-                }
-                if (spell.ShootEffect != Animation.None)
-                {
-                    attack += $", ShootEffect = {shootTypeNames[spell.ShootEffect]}";
-                }
-                if (spell.AreaEffect != Effect.None)
-                {
-                    attack += $", effect = {magicEffectNames[spell.AreaEffect]}";
-                }
+                error = ConvertError.Warning;
+                attack = $"Can't convert abilitiy name {spell.Name} with DefinitionStyles {spell.DefinitionStyle}";
             }
-            attack += "}";
 
-            return attack;
+            return new(error, attack);
         }
     }
 }

@@ -19,6 +19,8 @@ namespace MonsterConverterInterface.MonsterTypes
         public uint? Length { get; set; }
         public uint? Spread { get; set; }
         public bool? OnTarget { get; set; }
+        public bool? IsDirectional { get; set; }
+        public SpellDefinition DefinitionStyle { get; set; }
         // Magic damage
         public CombatDamage? DamageElement { get; set; }
         // Speed
