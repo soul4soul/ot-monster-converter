@@ -245,6 +245,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("");
                 dest.WriteLine($"monster.health = {monster.Health}");
                 dest.WriteLine($"monster.maxHealth = {monster.Health}");
+                dest.WriteLine($"monster.runHealth = {monster.RunOnHealth}");
                 dest.WriteLine($"monster.race = \"{monster.Race}\""); // TODO check if mapping is neeeded
                 dest.WriteLine($"monster.corpse = {monster.CorpseId}");
                 dest.WriteLine($"monster.speed = {monster.Speed}");
@@ -260,36 +261,21 @@ namespace MonsterConverterTfsRevScriptSys
 
                 // Flags
                 dest.WriteLine("monster.flags = {");
-                if (monster.SummonCost > 0)
-                {
-                    dest.WriteLine("	isSummonable = true,");
-                }
-                else
-                {
-                    dest.WriteLine("	isSummonable = false,");
-                }
-                dest.WriteLine($"	isAttackable = true,");
-                dest.WriteLine($"	isHostile = {monster.Hostile.ToString().ToLower()},");
-                if (monster.ConvinceCost > 0)
-                {
-                    dest.WriteLine($"	isConvinceable = true,");
-                }
-                else
-                {
-                    dest.WriteLine($"	isConvinceable = false,");
-                }
-                dest.WriteLine($"	isPushable = {monster.Pushable.ToString().ToLower()},");
-                dest.WriteLine($"	isBoss = {monster.IsBoss.ToString().ToLower()},");
+                dest.WriteLine($"	summonable = {(monster.SummonCost > 0).ToString().ToLower()},");
+                dest.WriteLine($"	attackable = {monster.Attackable.ToString().ToLower()},");
+                dest.WriteLine($"	hostile = {monster.Hostile.ToString().ToLower()},");
+                dest.WriteLine($"	convinceable = {(monster.ConvinceCost > 0).ToString().ToLower()},");
+                dest.WriteLine($"	pushable = {monster.Pushable.ToString().ToLower()},");
+                dest.WriteLine($"	boss = {monster.IsBoss.ToString().ToLower()},");
                 dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
                 dest.WriteLine($"	staticAttackChance = {monster.StaticAttack},");
                 dest.WriteLine($"	targetdistance = {monster.TargetDistance},");
-                dest.WriteLine($"	runHealth = {monster.RunOnHealth},");
-                dest.WriteLine($"	isHealthHidden = {monster.HideHealth.ToString().ToLower()},");
-                dest.WriteLine($"	canwalkonenergy = {(!monster.AvoidEnergy).ToString().ToLower()},");
-                dest.WriteLine($"	canwalkonfire = {(!monster.AvoidFire).ToString().ToLower()},");
-                dest.WriteLine($"	canwalkonpoison = {(!monster.AvoidPoison).ToString().ToLower()}");
+                dest.WriteLine($"	healthHidden = {monster.HideHealth.ToString().ToLower()},");
+                dest.WriteLine($"	canWalkOnEnergy = {(!monster.AvoidEnergy).ToString().ToLower()},");
+                dest.WriteLine($"	canWalkOnFire = {(!monster.AvoidFire).ToString().ToLower()},");
+                dest.WriteLine($"	canWalkOnPoison = {(!monster.AvoidPoison).ToString().ToLower()}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
