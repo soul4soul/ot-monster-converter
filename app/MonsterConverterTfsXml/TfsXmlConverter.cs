@@ -162,6 +162,7 @@ namespace MonsterConverterTfsXml
             {"physical",    CombatDamage.Physical},
             {"energy",      CombatDamage.Energy},
             {"earth",       CombatDamage.Earth},
+            {"poison",      CombatDamage.Earth},
             {"fire",        CombatDamage.Fire},
             {"lifedrain",   CombatDamage.LifeDrain},
             {"manadrain",   CombatDamage.ManaDrain},
