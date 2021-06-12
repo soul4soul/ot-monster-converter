@@ -219,11 +219,11 @@ namespace MonsterConverterTfsRevScriptSys
             {
                 fstream.SetLength(0);
 
-                dest.WriteLine($"local mType = Game.createMonsterType(\"{monster.Name}\")");
+                dest.WriteLine($"local mType = Game.createMonsterType(\"{monster.FileName}\")");
                 dest.WriteLine("local monster = {}");
                 dest.WriteLine("");
-                //"monster.eventFile = true -- will try to load the file example.lua in data/scripts/monsters/events",
-                //"monster.eventFile = "test" -- will try to load the file test.lua in data/scripts/monsters/events",
+
+                dest.WriteLine($"monster.name = \"{monster.Name}\"");
                 dest.WriteLine($"monster.description = \"{monster.Description}\"");
                 dest.WriteLine($"monster.experience = {monster.Experience}");
                 dest.WriteLine("monster.outfit = {");
@@ -271,7 +271,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
                 dest.WriteLine($"	staticAttackChance = {monster.StaticAttack},");
-                dest.WriteLine($"	targetdistance = {monster.TargetDistance},");
+                dest.WriteLine($"	targetDistance = {monster.TargetDistance},");
                 dest.WriteLine($"	healthHidden = {monster.HideHealth.ToString().ToLower()},");
                 dest.WriteLine($"	canWalkOnEnergy = {(!monster.AvoidEnergy).ToString().ToLower()},");
                 dest.WriteLine($"	canWalkOnFire = {(!monster.AvoidFire).ToString().ToLower()},");
@@ -285,39 +285,6 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"	color = {monster.LightColor}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
-
-                // Summons
-                if (monster.Summons.Count > 0)
-                {
-                    dest.WriteLine("monster.summons = {");
-                    string summon;
-                    for (int i = 0; i < monster.Summons.Count; i++)
-                    {
-                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100:0}, interval = {monster.Summons[i].Rate}";
-                        if (monster.Summons[i].Max > 0)
-                        {
-                            summon += $", max = {monster.Summons[i].Max}";
-                        }
-
-                        if (monster.Summons[i].Force)
-                        {
-                            summon += $", force = {monster.Summons[i].Force.ToString().ToLower()}";
-                        }
-                        summon += "}";
-
-                        if (i == monster.Summons.Count - 1)
-                        {
-                            summon = summon.TrimEnd(',');
-                        }
-                        else
-                        {
-                            summon += ",";
-                        }
-                        dest.WriteLine(summon);
-                    }
-                    dest.WriteLine("}");
-                    dest.WriteLine("");
-                }
 
                 // Voices
                 dest.WriteLine("monster.voices = {");
@@ -341,52 +308,26 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
-                // Loot
-                dest.WriteLine("monster.loot = {");
-                string loot;
-                for (int i = 0; i < monster.Items.Count; i++)
-                {
-                    string item;
-                    if (int.TryParse(monster.Items[i].Item, out int itemid))
-                    {
-                        item = itemid.ToString();
-                    }
-                    else
-                    {
-                        item = $"\"{monster.Items[i].Item}\"";
-                    }
+                dest.WriteLine("monster.immunities = {");
+                dest.WriteLine($"	{{type = \"paralyze\", condition = {monster.IgnoreParalyze.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"outfit\", condition = {monster.IgnoreOutfit.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"invisible\", condition = {monster.IgnoreInvisible.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"bleed\", condition = {monster.IgnoreBleed.ToString().ToLower()}}}");
+                dest.WriteLine("}");
+                dest.WriteLine("");
 
-                    decimal chance = monster.Items[i].Chance * MAX_LOOTCHANCE;
-                    loot = $"	{{id = {item}, chance = {chance:0}";
-
-                    if (monster.Items[i].Count > 1)
-                    {
-                        loot += $", maxCount = {monster.Items[i].Count}";
-                    }
-
-                    if (monster.Items[i].SubType > 0)
-                    {
-                        loot += $", subType = {monster.Items[i].SubType}";
-                    }
-
-                    if (monster.Items[i].ActionId > 0)
-                    {
-                        loot += $", actionId = {monster.Items[i].ActionId}";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(monster.Items[i].Text))
-                    {
-                        loot += $", text = {monster.Items[i].Text}";
-                    }
-
-                    loot += "},";
-
-                    if (i == monster.Items.Count - 1)
-                    {
-                        loot = loot.TrimEnd(',');
-                    }
-                    dest.WriteLine(loot);
-                }
+                dest.WriteLine("monster.elements = {");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Physical]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Physical)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Energy]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Energy)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Earth]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Earth)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Fire]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Fire)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.LifeDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrain)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.ManaDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrain)}}},");
+                //dest.WriteLine($"	{{type = { CombatDamageNames[CombatDamage.Healing]}, percent = {GenericToTfsElemementPercent(monster.XXXX)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Drown]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Drown)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Ice]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Ice)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Holy]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Holy)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Death]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Death)}}}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
@@ -474,28 +415,38 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
-                dest.WriteLine("monster.elements = {");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Physical]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Physical)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Energy]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Energy)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Earth]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Earth)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Fire]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Fire)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.LifeDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrain)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.ManaDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrain)}}},");
-                //dest.WriteLine($"	{{type = { CombatDamageNames[CombatDamage.Healing]}, percent = {GenericToTfsElemementPercent(monster.XXXX)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Drown]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Drown)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Ice]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Ice)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Holy]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Holy)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Death]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Death)}}}");
-                dest.WriteLine("}");
-                dest.WriteLine("");
+                // Summons
+                if (monster.Summons.Count > 0)
+                {
+                    dest.WriteLine("monster.summons = {");
+                    string summon;
+                    for (int i = 0; i < monster.Summons.Count; i++)
+                    {
+                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100:0}, interval = {monster.Summons[i].Rate}";
+                        if (monster.Summons[i].Max > 0)
+                        {
+                            summon += $", max = {monster.Summons[i].Max}";
+                        }
 
-                dest.WriteLine("monster.immunities = {");
-                dest.WriteLine($"	{{type = \"paralyze\", condition = {monster.IgnoreParalyze.ToString().ToLower()}}},");
-                dest.WriteLine($"	{{type = \"outfit\", condition = {monster.IgnoreOutfit.ToString().ToLower()}}},");
-                dest.WriteLine($"	{{type = \"invisible\", condition = {monster.IgnoreInvisible.ToString().ToLower()}}},");
-                dest.WriteLine($"	{{type = \"bleed\", condition = {monster.IgnoreBleed.ToString().ToLower()}}}");
-                dest.WriteLine("}");
-                dest.WriteLine("");
+                        if (monster.Summons[i].Force)
+                        {
+                            summon += $", force = {monster.Summons[i].Force.ToString().ToLower()}";
+                        }
+                        summon += "}";
+
+                        if (i == monster.Summons.Count - 1)
+                        {
+                            summon = summon.TrimEnd(',');
+                        }
+                        else
+                        {
+                            summon += ",";
+                        }
+                        dest.WriteLine(summon);
+                    }
+                    dest.WriteLine("}");
+                    dest.WriteLine("");
+                }
 
                 if (monster.Scripts.Count(s => s.Type != ScriptType.OnDeath) > 0)
                 {
@@ -520,6 +471,55 @@ namespace MonsterConverterTfsRevScriptSys
                     dest.WriteLine("}");
                     dest.WriteLine("");
                 }
+
+                // Loot
+                dest.WriteLine("monster.loot = {");
+                string loot;
+                for (int i = 0; i < monster.Items.Count; i++)
+                {
+                    string item;
+                    if (int.TryParse(monster.Items[i].Item, out int itemid))
+                    {
+                        item = itemid.ToString();
+                    }
+                    else
+                    {
+                        item = $"\"{monster.Items[i].Item}\"";
+                    }
+
+                    decimal chance = monster.Items[i].Chance * MAX_LOOTCHANCE;
+                    loot = $"	{{id = {item}, chance = {chance:0}";
+
+                    if (monster.Items[i].Count > 1)
+                    {
+                        loot += $", maxCount = {monster.Items[i].Count}";
+                    }
+
+                    if (monster.Items[i].SubType > 0)
+                    {
+                        loot += $", subType = {monster.Items[i].SubType}";
+                    }
+
+                    if (monster.Items[i].ActionId > 0)
+                    {
+                        loot += $", actionId = {monster.Items[i].ActionId}";
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(monster.Items[i].Text))
+                    {
+                        loot += $", text = {monster.Items[i].Text}";
+                    }
+
+                    loot += "},";
+
+                    if (i == monster.Items.Count - 1)
+                    {
+                        loot = loot.TrimEnd(',');
+                    }
+                    dest.WriteLine(loot);
+                }
+                dest.WriteLine("}");
+                dest.WriteLine("");
 
                 dest.WriteLine("mType:register(monster)");
             }
