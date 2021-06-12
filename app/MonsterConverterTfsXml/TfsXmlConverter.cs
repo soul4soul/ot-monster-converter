@@ -232,6 +232,9 @@ namespace MonsterConverterTfsXml
                 // convert from xml monster classes to generic class
                 xmlToGeneric(tfsMonster, out monster);
                 monster.FileName = Path.GetFileNameWithoutExtension(filename);
+                // Guess the registered name, they are actually defined in "monsters.xml" but we don't parse that file...
+                monster.RegisteredName = monster.FileName.Replace('_', ' ');
+
                 return new ConvertResult(filename, ConvertError.Success);
             }
             catch (Exception ex)

@@ -47,7 +47,7 @@ namespace MonsterConverterTibiaWiki
         }
 
         private RegexPatternKeys[] monparams = new RegexPatternKeys[] {
-            new RegexPatternKeys("name", "(?<name>[A-Za-z'ñ.() -]*)", (mon, m) => mon.FileName = m.Groups["name"].Value),
+            new RegexPatternKeys("name", "(?<name>[A-Za-z'ñ.() -]*)", (mon, m) => mon.RegisteredName = mon.FileName = m.Groups["name"].Value),
             new RegexPatternKeys("actualname", "(?<actualname>[A-Za-z'ñ. -]*)", (mon, m) => mon.Name = m.Groups["actualname"].Value),
             new RegexPatternKeys("article", "(?<article>[A-Za-z ]*)", ParseArticle),
             new RegexPatternKeys("hp", @"(?<hp>\d+)", (mon, m) => { if (m.Groups["hp"].Success) mon.Health = uint.Parse(m.Groups["hp"].Value); }),
@@ -330,6 +330,8 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResult ReadMonster(string filename, out Monster monster)
         {
+            string resultMessage = "Blood type, look type data, and abilities are not parsed.";
+
             string monsterurl = $"https://tibia.fandom.com/wiki/{filename}?action=edit";
             string looturl = $"https://tibia.fandom.com/wiki/Loot_Statistics:{filename}?action=edit";
 
@@ -360,6 +362,7 @@ namespace MonsterConverterTibiaWiki
             if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
             {
                 // Better then nothing guess
+                resultMessage += "Guessed creature name";
                 monster.Name = monster.FileName;
             }
             monster.Name = textInfo.ToTitleCase(monster.Name);
@@ -411,7 +414,7 @@ namespace MonsterConverterTibiaWiki
                 }
             }
 
-            return new ConvertResult(filename, ConvertError.Warning, "Blood type, look type data, and abilities are not parsed.");
+            return new ConvertResult(filename, ConvertError.Warning, resultMessage);
         }
 
         public override ConvertResult WriteMonster(string directory, ref Monster monster)
@@ -419,8 +422,9 @@ namespace MonsterConverterTibiaWiki
             string[] lines =
             {
                 "{{Infobox Creature|List={{{1|}}}|GetValue={{{GetValue|}}}",
-                $"| name           = {monster.FileName}",
+                $"| name           = {monster.RegisteredName}",
                 $"| hp             = {monster.Health}",
+                $"| actualname     = {monster.Name}",
                 $"| exp            = {monster.Experience}",
                 $"| armor          = {monster.TotalArmor}",
                 string.Format("| summon         = {0}", monster.SummonCost > 0 ? monster.SummonCost.ToString() : "--"),
