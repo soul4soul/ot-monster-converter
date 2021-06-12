@@ -61,8 +61,18 @@ namespace MonsterConverterInterface.MonsterTypes
 
         // Properties
         // Generic
+        /// <summary>
+        /// Name of the monster as seen in game
+        /// </summary>
         public string Name { get; set; }
         public string FileName { get; set; }
+        /// <summary>
+        /// The common name of the monster, which is used for some formats to register the monster with the game engine
+        /// An example would be "Red Butterfly" as it's commonly called and used to register in a game engine
+        /// but in game "Red Butterfly" will use the name "Butterfly" which should be set in name field
+        /// Another example would be a demon goblin ingame seen as a demon
+        /// </summary>
+        public string RegisteredName { get; set; }
         public string Description { get; set; }
         public uint Health { get; set; }
         public uint Experience { get; set; }
@@ -77,7 +87,7 @@ namespace MonsterConverterInterface.MonsterTypes
         // Look
         public uint CorpseId { get; set; }
         public uint OutfitIdLookType { get; set; }
-        public uint ItemIdLookType { get; set; } // none 0 means creature looks like an item
+        public uint ItemIdLookType { get; set; } // non 0 means creature looks like an item
         public DetailedLookType LookTypeDetails { get; set; }
 
         // Behavior
