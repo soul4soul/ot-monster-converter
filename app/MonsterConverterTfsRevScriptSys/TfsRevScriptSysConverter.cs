@@ -219,7 +219,7 @@ namespace MonsterConverterTfsRevScriptSys
             {
                 fstream.SetLength(0);
 
-                dest.WriteLine($"local mType = Game.createMonsterType(\"{monster.FileName}\")");
+                dest.WriteLine($"local mType = Game.createMonsterType(\"{monster.RegisteredName}\")");
                 dest.WriteLine("local monster = {}");
                 dest.WriteLine("");
 
