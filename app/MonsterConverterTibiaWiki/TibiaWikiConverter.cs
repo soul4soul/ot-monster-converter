@@ -263,9 +263,9 @@ namespace MonsterConverterTibiaWiki
                 string ability = abilityMatch.Groups["ability"].Value;
                 switch (ability)
                 {
-                    case var _ when new Regex(@"{{haste\|(?<name>[^|}]+)").IsMatch(ability):
+                    case var _ when new Regex(@"{{haste\|?(?<name>[^|}]+)?").IsMatch(ability):
                         {
-                            var match = new Regex(@"{{haste\|(?<name>[^|}]+)").Match(ability);
+                            var match = new Regex(@"{{haste\|?(?<name>[^|}]+)?").Match(ability);
                             int MinSpeedChange = 300;
                             int MaxSpeedChange = 300;
                             int Duration = 7000;
