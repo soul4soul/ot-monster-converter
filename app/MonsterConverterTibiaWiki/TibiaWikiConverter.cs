@@ -205,6 +205,23 @@ namespace MonsterConverterTibiaWiki
                             break;
                         }
 
+                    case var _ when new Regex(@"{{haste\|(?<name>[^|}]+)").IsMatch(cleanedAbility):
+                        {
+                            var match = new Regex(@"{{haste\|(?<name>[^|}]+)").Match(cleanedAbility);
+                            int MinSpeedChange = 300;
+                            int MaxSpeedChange = 300;
+                            int Duration = 7000;
+                            if (match.Groups["name"].Value.Contains("strong"))
+                            {
+                                MinSpeedChange = 450;
+                                MaxSpeedChange = 450;
+                                Duration = 4000;
+                            }
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
                     case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanedAbility):
                         {
                             var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = 300, MaxSpeedChange = 300, AreaEffect = Effect.MagicRed, Duration = 7000 };
