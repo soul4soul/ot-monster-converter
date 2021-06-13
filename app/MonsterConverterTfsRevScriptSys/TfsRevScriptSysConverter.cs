@@ -422,7 +422,7 @@ namespace MonsterConverterTfsRevScriptSys
                     string summon;
                     for (int i = 0; i < monster.Summons.Count; i++)
                     {
-                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100:0}, interval = {monster.Summons[i].Rate}";
+                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100:0}, interval = {monster.Summons[i].Interval}";
                         if (monster.Summons[i].Max > 0)
                         {
                             summon += $", max = {monster.Summons[i].Max}";

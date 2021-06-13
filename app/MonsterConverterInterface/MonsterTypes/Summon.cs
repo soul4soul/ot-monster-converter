@@ -7,9 +7,9 @@ namespace MonsterConverterInterface.MonsterTypes
     public class Summon
     {
         public string Name { get; set; }
-        public uint Rate { get; set; }
-        public double Chance { get; set; }
-        public int Max { get; set; }
-        public bool Force { get; set; }
+        public uint Interval { get; set; } = 2000;
+        public double Chance { get; set; } = 0.15;
+        public int Max { get; set; } = 1;
+        public bool Force { get; set; } = false;
     }
 }
