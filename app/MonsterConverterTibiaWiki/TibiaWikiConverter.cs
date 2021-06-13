@@ -205,23 +205,6 @@ namespace MonsterConverterTibiaWiki
                             break;
                         }
 
-                    case var _ when new Regex(@"{{haste\|(?<name>[^|}]+)").IsMatch(cleanedAbility):
-                        {
-                            var match = new Regex(@"{{haste\|(?<name>[^|}]+)").Match(cleanedAbility);
-                            int MinSpeedChange = 300;
-                            int MaxSpeedChange = 300;
-                            int Duration = 7000;
-                            if (match.Groups["name"].Value.Contains("strong"))
-                            {
-                                MinSpeedChange = 450;
-                                MaxSpeedChange = 450;
-                                Duration = 4000;
-                            }
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
-                            mon.Attacks.Add(spell);
-                            break;
-                        }
-
                     case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanedAbility):
                         {
                             var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = 300, MaxSpeedChange = 300, AreaEffect = Effect.MagicRed, Duration = 7000 };
@@ -241,6 +224,49 @@ namespace MonsterConverterTibiaWiki
                             var match = new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").Match(cleanedAbility);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
                             if (ParseNumericRange(match.Groups["damage"].Value, out int min, out int max))
+                            {
+                                spell.MinDamage = min;
+                                spell.MaxDamage = max;
+                            }
+                            else
+                            {
+                                // Guess defaults based on creature HP
+                                spell.MinDamage = (int?)(mon.Health * 0.1);
+                                spell.MaxDamage = (int?)(mon.Health * 0.25);
+                            }
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
+                    case var _ when new Regex(@"{{haste\|(?<name>[^|}]+)").IsMatch(cleanedAbility):
+                        {
+                            var match = new Regex(@"{{haste\|(?<name>[^|}]+)").Match(cleanedAbility);
+                            int MinSpeedChange = 300;
+                            int MaxSpeedChange = 300;
+                            int Duration = 7000;
+                            if (match.Groups["name"].Value.Contains("strong"))
+                            {
+                                MinSpeedChange = 450;
+                                MaxSpeedChange = 450;
+                                Duration = 4000;
+                            }
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
+                            mon.Attacks.Add(spell);
+                            break;
+                        }
+
+
+                    /*
+                     * {{Healing|Area Healing|50-500}}
+                     * {{Healing|Area Healing|range=100-200}}
+                     * {{Healing|name=aa|range=200}}
+                     * {{Healing|range=200}}
+                     */
+                    case var _ when new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").IsMatch(cleanedAbility):
+                        {
+                            var match = new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").Match(cleanedAbility);
+                            var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
+                            if (ParseNumericRange(match.Groups["range"].Value, out int min, out int max))
                             {
                                 spell.MinDamage = min;
                                 spell.MaxDamage = max;
