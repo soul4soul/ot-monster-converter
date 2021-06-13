@@ -280,16 +280,9 @@ namespace MonsterConverterTibiaWiki
                             break;
                         }
 
-
-                    /*
-                     * {{Healing|Area Healing|50-500}}
-                     * {{Healing|Area Healing|range=100-200}}
-                     * {{Healing|name=aa|range=200}}
-                     * {{Healing|range=200}}
-                     */
-                    case var _ when new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").IsMatch(ability):
+                    case var _ when new Regex(@"{{healing\|?((((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)|(?<name>[^|}]+))?").IsMatch(ability):
                         {
-                            var match = new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").Match(ability);
+                            var match = new Regex(@"{{healing\|?((((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)|(?<name>[^|}]+))?").Match(ability);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
                             if (ParseNumericRange(match.Groups["range"].Value, out int min, out int max))
                             {
