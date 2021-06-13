@@ -152,19 +152,29 @@ namespace MonsterConverterTibiaWiki
 
         /// <summary>
         /// Parsing abilties is implemented like this instead of a using the RegexPatternKeys so we can easily print a list of abilties which fail to be parsed
+        /// Abilities from tibiawiki include melee, attacks, and defenses
         /// </summary>
         /// <param name="mon"></param>
         /// <param name="m"></param>
         private static void ParseAbilities(Monster mon, Match m)
         {
-            // Abilities should be parsed for summons, melee, attacks, and defenses. Each ability is seperated by a comma
-            //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
             string abilities = m.Groups["abilities"].Value.ToLower();
+
+            if (abilities.Contains("ability list"))
+                ParseAbilityList(mon, abilities);
+            else
+                ParseLegacyAbilities(mon, abilities);
+        }
+
+        private static void ParseLegacyAbilities(Monster mon, string abilities)
+        {
             if (string.IsNullOrWhiteSpace(abilities) || abilities.Contains("none") || abilities.Contains("unknown") || abilities == "?")
                 return;
 
-            // Splitting by comma doesn't work sometimes but with everything related to abilities for tibiawiki there is no standard
-            // Better logic could be to split by comma that are outside of parentheses
+            // Generally we find each ability is seperated by a comma
+            //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
+            // - Splitting by comma doesn't work sometimes but with everything related to abilities for tibiawiki there is no standard
+            //   Better logic could be to split by comma that are outside of parentheses
             foreach (string ability in abilities.Split(","))
             {
                 string cleanedAbility = ability.Trim().TrimEnd('.');
@@ -238,9 +248,24 @@ namespace MonsterConverterTibiaWiki
                             break;
                         }
 
-                    case var _ when new Regex(@"{{haste\|(?<name>[^|}]+)").IsMatch(cleanedAbility):
+                    default:
+                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} legacy ability not parsed \"{cleanedAbility}\"");
+                        break;
+                }
+            }
+        }
+
+        private static void ParseAbilityList(Monster mon, string abilities)
+        {
+            var regex = new Regex(@"{{ability List|(?<ability>{{.*?}})");
+            foreach (Match abilityMatch in regex.Matches(abilities))
+            {
+                string ability = abilityMatch.Groups["ability"].Value;
+                switch (ability)
+                {
+                    case var _ when new Regex(@"{{haste\|(?<name>[^|}]+)").IsMatch(ability):
                         {
-                            var match = new Regex(@"{{haste\|(?<name>[^|}]+)").Match(cleanedAbility);
+                            var match = new Regex(@"{{haste\|(?<name>[^|}]+)").Match(ability);
                             int MinSpeedChange = 300;
                             int MaxSpeedChange = 300;
                             int Duration = 7000;
@@ -262,9 +287,9 @@ namespace MonsterConverterTibiaWiki
                      * {{Healing|name=aa|range=200}}
                      * {{Healing|range=200}}
                      */
-                    case var _ when new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").IsMatch(cleanedAbility):
+                    case var _ when new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").IsMatch(ability):
                         {
-                            var match = new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").Match(cleanedAbility);
+                            var match = new Regex(@"{{healing\|(((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)").Match(ability);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
                             if (ParseNumericRange(match.Groups["range"].Value, out int min, out int max))
                             {
@@ -281,10 +306,24 @@ namespace MonsterConverterTibiaWiki
                             break;
                         }
 
-                    // Next most likely ability to parse is summons, see notes https://git.io/JGZco
+                    case var _ when new Regex(@"{{summon\|(?<name>[^|}]+)((\|(?<range>[^|}]+))(?<rest>[^}]+))?").IsMatch(ability):
+                        {
+                            var match = new Regex(@"{{summon\|(?<name>[^|}]+)((\|(?<range>[^|}]+))(?<rest>[^}]+))?").Match(ability);
+                            int maxSummons = 1;
+                            ParseNumericRange(match.Groups["range"].Value, out int min, out maxSummons);
+                            mon.MaxSummons += (uint)maxSummons;
+                            string firstSummonName = match.Groups["name"].Value.Replace("creature=", "");
+                            mon.Summons.Add(new Summon() { Name = firstSummonName });
+
+                            foreach (var name in match.Groups["rest"].Value.Split('|'))
+                            {
+                                mon.Summons.Add(new Summon() { Name = name });
+                            }
+                            break;
+                        }
 
                     default:
-                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{cleanedAbility}\"");
+                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
                         break;
                 }
             }
