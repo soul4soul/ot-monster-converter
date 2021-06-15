@@ -171,11 +171,11 @@ namespace MonsterConverterTibiaWiki
             if (string.IsNullOrWhiteSpace(abilities) || abilities.Contains("none") || abilities.Contains("unknown") || abilities == "?")
                 return;
 
-            // Generally we find each ability is seperated by a comma
-            //   We should be able to get summons (count could be tough), melee (max hit could be tough), healing, haste, and maybe more
-            // - Splitting by comma doesn't work sometimes but with everything related to abilities for tibiawiki there is no standard
-            //   Better logic could be to split by comma that are outside of parentheses
-            foreach (string ability in abilities.Split(","))
+            // Generally we find each ability is seperated by a comma expect those inside ()'s
+            var splitAbilities = ParseUtils.FancySplitString(abilities, FancySplitStyle.CommaOutsideParathese);
+
+            // Due our best to parse the none standard ability information
+            foreach (string ability in splitAbilities)
             {
                 string cleanedAbility = ability.Trim().TrimEnd('.');
                 switch (cleanedAbility)
@@ -255,69 +255,94 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
+        /// <summary>
+        /// To parse abilities from the ability list template we the string needs to be split by top level |
+        /// </summary>
+        /// <param name="mon"></param>
+        /// <param name="abilities"></param>
         private static void ParseAbilityList(Monster mon, string abilities)
         {
-            var regex = new Regex(@"{{ability List|(?<ability>{{.*?}})");
-            foreach (Match abilityMatch in regex.Matches(abilities))
+            // Figure out how to split ability but not break from scene
+            // For all abilties split by figure out how to split up the pieces while maintaining scene as it's own piece
+            // Based on the firt parts name (melee, ability, haste, etc...) use the correct logic to figure out the name of all the pieces that were broken appart
+            // then it's cake
+
+            // Due our best to split abilities up abilities, this code will fail to parse out abilities like [[Paralyze|Paralyzing Stun Bomb]] (on itself)
+            // But should work for all abilities that use the ability template and any abiltiy whichi doesn't contain a | symbol
+            abilities = abilities.Replace("{{ability list|", "");
+            abilities = abilities[0..^2]; // Drop last }}
+            var templateAbilities = ParseUtils.FancySplitString(abilities, FancySplitStyle.BarOutsideBrackets);
+
+            foreach (string ability in templateAbilities)
             {
-                string ability = abilityMatch.Groups["ability"].Value;
-                switch (ability)
+                if (Regex.IsMatch(ability, "{{(melee|ability|summon|healing|debuff)"))
                 {
-                    case var _ when new Regex(@"{{haste\|?(?<name>[^|}]+)?").IsMatch(ability):
-                        {
-                            var match = new Regex(@"{{haste\|?(?<name>[^|}]+)?").Match(ability);
-                            int MinSpeedChange = 300;
-                            int MaxSpeedChange = 300;
-                            int Duration = 7000;
-                            if (match.Groups["name"].Value.Contains("strong"))
+                    // using FancySplitString output figure out the value of each parameter
+                    // TODO should make a helper class that can be used to figure ouut meaning of each parameter basic on possible names and optional required naming rules
+                    // if scene parameter is found
+                    // use FancySplitString and identify parameters of scene
+                    switch (ability)
+                    {
+                        case var _ when new Regex(@"{{haste\|?(?<name>[^|}]+)?").IsMatch(ability):
                             {
-                                MinSpeedChange = 450;
-                                MaxSpeedChange = 450;
-                                Duration = 4000;
+                                var match = new Regex(@"{{haste\|?(?<name>[^|}]+)?").Match(ability);
+                                int MinSpeedChange = 300;
+                                int MaxSpeedChange = 300;
+                                int Duration = 7000;
+                                if (match.Groups["name"].Value.Contains("strong"))
+                                {
+                                    MinSpeedChange = 450;
+                                    MaxSpeedChange = 450;
+                                    Duration = 4000;
+                                }
+                                var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
+                                mon.Attacks.Add(spell);
+                                break;
                             }
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
-                            mon.Attacks.Add(spell);
+
+                        case var _ when new Regex(@"{{healing\|?((((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)|(?<name>[^|}]+))?").IsMatch(ability):
+                            {
+                                var match = new Regex(@"{{healing\|?((((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)|(?<name>[^|}]+))?").Match(ability);
+                                var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
+                                if (ParseNumericRange(match.Groups["range"].Value, out int min, out int max))
+                                {
+                                    spell.MinDamage = min;
+                                    spell.MaxDamage = max;
+                                }
+                                else
+                                {
+                                    // Guess defaults based on creature HP
+                                    spell.MinDamage = (int?)(mon.Health * 0.1);
+                                    spell.MaxDamage = (int?)(mon.Health * 0.25);
+                                }
+                                mon.Attacks.Add(spell);
+                                break;
+                            }
+
+                        case var _ when new Regex(@"{{summon\|(?<name>[^|}]+)((\|(?<range>[^|}]+))(?<rest>[^}]+))?").IsMatch(ability):
+                            {
+                                var match = new Regex(@"{{summon\|(?<name>[^|}]+)((\|(?<range>[^|}]+))(?<rest>[^}]+))?").Match(ability);
+                                int maxSummons = 1;
+                                ParseNumericRange(match.Groups["range"].Value, out int min, out maxSummons);
+                                mon.MaxSummons += (uint)maxSummons;
+                                string firstSummonName = match.Groups["name"].Value.Replace("creature=", "");
+                                mon.Summons.Add(new Summon() { Name = firstSummonName });
+
+                                foreach (var name in match.Groups["rest"].Value.Split('|'))
+                                {
+                                    mon.Summons.Add(new Summon() { Name = name });
+                                }
+                                break;
+                            }
+
+                        default:
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
                             break;
-                        }
-
-                    case var _ when new Regex(@"{{healing\|?((((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)|(?<name>[^|}]+))?").IsMatch(ability):
-                        {
-                            var match = new Regex(@"{{healing\|?((((?<name>[^|}]+)\|(?<range>[^|}]+)))|(?<range>range=[^|}]+)|(?<name>[^|}]+))?").Match(ability);
-                            var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                            if (ParseNumericRange(match.Groups["range"].Value, out int min, out int max))
-                            {
-                                spell.MinDamage = min;
-                                spell.MaxDamage = max;
-                            }
-                            else
-                            {
-                                // Guess defaults based on creature HP
-                                spell.MinDamage = (int?)(mon.Health * 0.1);
-                                spell.MaxDamage = (int?)(mon.Health * 0.25);
-                            }
-                            mon.Attacks.Add(spell);
-                            break;
-                        }
-
-                    case var _ when new Regex(@"{{summon\|(?<name>[^|}]+)((\|(?<range>[^|}]+))(?<rest>[^}]+))?").IsMatch(ability):
-                        {
-                            var match = new Regex(@"{{summon\|(?<name>[^|}]+)((\|(?<range>[^|}]+))(?<rest>[^}]+))?").Match(ability);
-                            int maxSummons = 1;
-                            ParseNumericRange(match.Groups["range"].Value, out int min, out maxSummons);
-                            mon.MaxSummons += (uint)maxSummons;
-                            string firstSummonName = match.Groups["name"].Value.Replace("creature=", "");
-                            mon.Summons.Add(new Summon() { Name = firstSummonName });
-
-                            foreach (var name in match.Groups["rest"].Value.Split('|'))
-                            {
-                                mon.Summons.Add(new Summon() { Name = name });
-                            }
-                            break;
-                        }
-
-                    default:
-                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
-                        break;
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"{mon.FileName} non template ability not parsed \"{ability}\"");
                 }
             }
         }
