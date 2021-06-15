@@ -1,16 +1,16 @@
 ﻿using MonsterConverterInterface;
 using MonsterConverterInterface.MonsterTypes;
-using ScrapySharp.Extensions;
-using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
-
+using System.Threading.Tasks;
 
 namespace MonsterConverterTibiaWiki
 {
@@ -408,18 +408,14 @@ namespace MonsterConverterTibiaWiki
         public override string[] GetFilesForConversion(string directory)
         {
             // directory parameter is ignored for this format...
-            string monsterlisturl = $"https://tibia.fandom.com/wiki/List_of_Creatures_(Ordered)";
+            string monsterlisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=List_of_Creatures_(Ordered)&prop=text";
             IList<string> names = new List<string>();
-
-            ScrapingBrowser browser = new ScrapingBrowser();
-            browser.Encoding = Encoding.UTF8;
-            WebPage monstersPage = browser.NavigateToPage(new Uri(monsterlisturl));
-            var monsterTable = monstersPage.Html.CssSelect(".mw-parser-output").FirstOrDefault();
+            var monsterTable = RequestData(monsterlisturl).Result.Text.Empty;
 
             // Links are HTML encoded
             // %27 is HTML encode for ' character
             // %27%C3% is HTML encode for ñ character
-            var namematches = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)").Matches(monsterTable.InnerHtml);
+            var namematches = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)").Matches(monsterTable);
             foreach (Match match in namematches)
             {
                 names.Add(match.Groups["name"].Value.Replace("%27", "'").Replace("%C3%B1", "ñ"));
@@ -428,25 +424,42 @@ namespace MonsterConverterTibiaWiki
             return names.ToArray();
         }
 
+        private static readonly HttpClient client = new HttpClient();
+
+        private async Task<Parse> RequestData(string endpoint)
+        {
+            client.DefaultRequestHeaders.Accept.Clear();
+            //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+            //client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+
+            try
+            {
+                var streamTask = client.GetStreamAsync(endpoint);
+                var repositories = await JsonSerializer.DeserializeAsync<Root>(await streamTask);
+                return repositories.Parse;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public override ConvertResult ReadMonster(string filename, out Monster monster)
         {
             string resultMessage = "Blood type, look type data, and abilities are not parsed.";
 
-            string monsterurl = $"https://tibia.fandom.com/wiki/{filename}?action=edit";
-            string looturl = $"https://tibia.fandom.com/wiki/Loot_Statistics:{filename}?action=edit";
+            string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
+            string looturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=Loot_Statistics:{filename}&prop=wikitext";
 
             monster = new Monster() { Name = "" };
-            // Have to explicitly set the encoding, AutoDetectCharsetEncoding set to true doesn't do it
-            ScrapingBrowser browser = new ScrapingBrowser() { Encoding = Encoding.UTF8 };
 
-            WebPage monsterpage = browser.NavigateToPage(new Uri(monsterurl));
-            var monsterElement = monsterpage.Html.CssSelect("#wpTextbox1").FirstOrDefault();
-            if (monsterElement != null)
+            var monsterPage = RequestData(monsterurl).Result;
+            if (monsterPage != null)
             {
-                string element = monsterElement.InnerHtml;
+                var wikiText = monsterPage.Wikitext.Empty;
                 foreach (var x in monparams)
                 {
-                    var match = new Regex(x.Pattern).Match(element);
+                    var match = new Regex(x.Pattern).Match(wikiText);
                     try
                     {
                         x.Action.Invoke(monster, match);
@@ -467,11 +480,10 @@ namespace MonsterConverterTibiaWiki
             }
             monster.Name = textInfo.ToTitleCase(monster.Name);
 
-            WebPage lootpage = browser.NavigateToPage(new Uri(looturl));
-            var statsElement = lootpage.Html.CssSelect("#wpTextbox1").FirstOrDefault();
-            if (statsElement != null)
+            var lootPage = RequestData(looturl).Result;
+            if (lootPage != null)
             {
-                string elements = statsElement.InnerHtml.ToLower();
+                string elements = lootPage.Wikitext.Empty.ToLower();
                 var lootsectionsRegEx = new Regex("{{loot2(?<loots>.*)}}", RegexOptions.Singleline);
                 if (lootsectionsRegEx.IsMatch(elements))
                 {
