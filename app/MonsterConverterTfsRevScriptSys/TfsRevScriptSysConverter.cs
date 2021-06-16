@@ -590,8 +590,6 @@ namespace MonsterConverterTfsRevScriptSys
                     }
                     //else continue which we should never hit?
 
-                    attack += $", effect = {magicEffectNames[Effect.DrawBlood]}";
-
                     if (spell.Condition != ConditionType.None)
                     {
                         attack += $", condition = {{type = {ConditionToTfsConstant[spell.Condition]}, startDamage = {spell.StartDamage}, interval = {spell.Tick}}}";
