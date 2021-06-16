@@ -275,7 +275,8 @@ namespace MonsterConverterTibiaWiki
 
             foreach (string ability in templateAbilities)
             {
-                if (Regex.IsMatch(ability, "{{(melee|ability|summon|healing|debuff)"))
+                var templatedData = TemplateParser.Parse(ability);
+                if (templatedData != null)
                 {
                     // using FancySplitString output figure out the value of each parameter
                     // TODO should make a helper class that can be used to figure ouut meaning of each parameter basic on possible names and optional required naming rules
