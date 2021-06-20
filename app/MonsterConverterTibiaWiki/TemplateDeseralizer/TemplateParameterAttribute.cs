@@ -13,16 +13,24 @@ namespace MonsterConverterTibiaWiki
         Yes
     }
 
+    [Flags]
+    enum ParameterIndicator
+    {
+        Named,
+        Position
+    }
+
     [System.AttributeUsage(System.AttributeTargets.Property)]
     class TemplateParameterAttribute : System.Attribute
     {
         public string Name { get; set; }
         public int Index { get; set; }
         public ParameterRequired Required { get; set; }
+        public ParameterIndicator Indicator { get; set; }
 
-        public TemplateParameterAttribute(string name)
+        public TemplateParameterAttribute(int index)
         {
-            Name = name;
+            Index = index;
         }
 
     }
