@@ -17,6 +17,189 @@ namespace MonsterConverterTibiaWiki
     [Export(typeof(IMonsterConverter))]
     public class TibiaWikiConverter : MonsterConverter
     {
+        // https://tibia.fandom.com/wiki/Missiles
+        private static IDictionary<string, Animation> WikiMissilesToAnimations = new Dictionary<string, Animation>
+        {
+            { "death missile (large)", Animation.SuddenDeath },
+            { "death missile", Animation.Death },
+            { "earth missile effect", Animation.Earth },
+            { "energy ball missile", Animation.EnergyBall },
+            { "energy missile", Animation.Energy },
+            { "ethereal spear missile", Animation.EtherealSpear },
+            { "fire missile", Animation.Fire },
+            { "holy missile (appearance)", Animation.Holy },
+            { "holy missile (small)", Animation.SmallHoly },
+            { "ice missile", Animation.Ice },
+            { "ice shard missile", Animation.SmallIce },
+            { "poison missile", Animation.Poison },
+            { "rocks missile", Animation.SmallEarth },
+            { "small rock missile", Animation.Explosion },
+            { "throwing axe missile", Animation.WhirlwindAxe },
+            { "throwing club missile", Animation.WhirlwindClub },
+            { "throwing sword missile", Animation.WhirlwindSword },
+            { "arrow missile", Animation.Arrow },
+            { "bolt missile", Animation.Bolt },
+            { "burst arrow missile", Animation.BurstArrow },
+            { "crystalline arrow effect", Animation.CrystallineArrow },
+            { "diamond arrow missile", Animation.None }, // 11.4
+            { "drill bolt effect", Animation.DrillBolt },
+            { "earth arrow missile", Animation.EarthArrow },
+            { "envenomed arrow missile", Animation.EnvenomedArrow },
+            { "flaming arrow missile", Animation.FlammingArrow },
+            { "flash arrow missile", Animation.FlashArrow },
+            { "infernal bolt missile", Animation.InfernalBolt },
+            { "onyx arrow missile", Animation.OnyxArrow },
+            { "piercing bolt missile", Animation.PiercingBolt },
+            { "poison arrow missile", Animation.PoisonArrow },
+            { "power bolt missile", Animation.PowerBolt },
+            { "prismatic bolt missile", Animation.PrismaticBolt },
+            { "shiver arrow missile", Animation.ShiverArrow },
+            { "simple arrow missile", Animation.SimpleArrow },
+            { "sniper arrow missile", Animation.SniperArrow },
+            { "spectral bolt missile", Animation.None }, // 11.4
+            { "tarsal arrow missile", Animation.TarsalArrow },
+            { "vortex bolt missile", Animation.VortexBolt },
+            { "assassin star missile", Animation.RedStar },
+            { "enchanted spear missile", Animation.EnchantedSpear },
+            { "glooth spear missile", Animation.GloothSpear },
+            { "hunting spear missile", Animation.HuntingSpear },
+            { "leaf star missile", Animation.None }, // 11.4
+            { "royal spear missile", Animation.RoyalSpear },
+            { "royal star missile", Animation.None }, // 11.4
+            { "small stone missile", Animation.SmallStone },
+            { "snowball missile", Animation.Snowball },
+            { "spear missile", Animation.Spear },
+            { "throwing cake missile", Animation.Cake },
+            { "throwing knife missile", Animation.ThrowingKnife },
+            { "throwing star missile", Animation.ThrowingStar },
+            { "viper star missile", Animation.GreenStar },
+            { "stone missile", Animation.LargeRock }
+        };
+
+        // https://tibia.fandom.com/wiki/Effects
+        private static IDictionary<string, Effect> WikiToEffects = new Dictionary<string, Effect>
+        {
+            { "black smoke effect", Effect.BlackSmoke },
+            { "block effect", Effect.None }, // 12.31
+            { "flitter effect", Effect.None }, // should be in by 9.40
+            { "floating block effect", Effect.None }, // 12.31
+            { "green smoke effect", Effect.GreenSmoke },
+            { "purple smoke effect", Effect.PurpleSmoke },
+            { "red smoke effect", Effect.RedSmoke },
+            { "steam effect", Effect.Smoke },
+            { "sun priest effect", Effect.None }, // 12.4
+            { "the cube effect", Effect.None }, // 12.2
+            { "werelion effect", Effect.None }, // 2.4
+            { "yellow smoke effect", Effect.YellowSmoke },
+            { "assassin effect", Effect.Assassin },
+            { "big scratching effect", Effect.None }, // 12.4
+            { "bite effect", Effect.None }, // 12.4
+            { "blue ghost effect", Effect.None }, // 11.5
+            { "demon mirror effect", Effect.MirrorHorizontal }, // Could be vertical too
+            { "exploding kraknaknork effect", Effect.OrcShamanFire },//
+            { "fae effect 1", Effect.None }, // 11.4
+            { "fae effect 2", Effect.None }, // 11.4
+            { "ferumbras effect", Effect.Ferumbras },
+            { "ghost smoke effect", Effect.None }, // 12.3
+            { "ghostly bite effect", Effect.None }, // 12.4
+            { "ghostly scratch effect", Effect.None }, // 12.4
+            { "green ghost effect", Effect.YalahariGhost },
+            { "kraknaknork effect", Effect.OrcShaman },
+            { "scratching effect", Effect.StepsHorizontal },
+            { "sea serpent effect", Effect.WaterCreature },
+            { "slash effect", Effect.None }, //12.4
+            { "thaian effect 1", Effect.None }, //12.3
+            { "thaian effect 2", Effect.None }, //12.3
+            { "vanishing fae effect", Effect.None }, //11.4
+            { "black blood effect", Effect.None }, // 12.20
+            { "blood effect", Effect.DrawBlood },
+            { "blue chain effect", Effect.None }, // 12.00?
+            { "blue electricity effect", Effect.EnergyHit },
+            { "carnivorous plant effect", Effect.Carniphila },
+            { "challenge effect", Effect.None }, // 12.55
+            { "cloud effect", Effect.SmallClouds },
+            { "critical hit effect", Effect.CriticalDamage },
+            { "death effect", Effect.MortArea },
+            { "divine dazzle effect", Effect.None }, // 12.60
+            { "dust effect", Effect.GroundShaker },
+            { "electrical spark effect", Effect.None }, // ?
+            { "energy effect", Effect.EnergyArea },
+            { "explosion effect", Effect.ExplosionArea },
+            { "fire effect", Effect.HitByFire },
+            { "fireball effect", Effect.FireArea },
+            { "flame effect", Effect.FireAttack },
+            { "green chain effect", Effect.None }, // 12.00?
+            { "grey chain effect", Effect.None }, // 12.00?
+            { "holy cross effect", Effect.HolyArea },
+            { "holy effect", Effect.HolyDamage },
+            { "ice crystal effect", Effect.GiantIce },
+            { "ice explosion effect", Effect.IceAttack },
+            { "ice tornado effect", Effect.IceTornado },
+            { "icicle effect", Effect.IceArea },
+            { "large plant effect", Effect.BigPlants },
+            { "orange chain effect", Effect.None }, // 12.00?
+            { "plant effect", Effect.SmallPlants },
+            { "poison effect 1", Effect.GreenRings },
+            { "poison effect 2", Effect.HitByPoison },
+            { "poison effect 3", Effect.PoisonArea },
+            { "purple chain effect", Effect.None }, // 12.00?
+            { "purple electricity effect", Effect.PurpleEnergy },
+            { "ripple effect", Effect.LoseEnergy },
+            { "rooting effect", Effect.None }, // 12.40
+            { "slicing plant effect", Effect.PlantAttack },
+            { "stars effect", Effect.Stun },
+            { "stone shower effect", Effect.Stones },
+            { "thunderstorm effect", Effect.BigClouds },
+            { "yellow chain effect", Effect.None }, // 12.00?
+            { "yellow electricity effect", Effect.YellowEnergy },
+            { "yellow poison effect", Effect.YellowRings },
+            { "map effect", Effect.None }, // 11.80
+            { "point of interest effect", Effect.None }, // 11.80
+            { "point of interest found effect", Effect.None }, // 11.80
+            { "tile highlight effect", Effect.TutorialSquare },
+            { "tutorial arrow effect", Effect.TutorialArrow },
+            { "bat swarm effect", Effect.Bats },
+            { "blast effect", Effect.ExplosionHit },
+            { "blue confetti effect", Effect.FireworkBlue },
+            { "blue notes effect", Effect.SoundBlue },
+            { "blue sparkles effect", Effect.MagicBlue },
+            { "bubbles effect", Effect.Bubbles },
+            { "confetti effect", Effect.GiftWraps },
+            { "cream cake effect", Effect.Cake },//
+            { "die effect", Effect.Craps },
+            { "green confetti effect", Effect.None }, // 12.02
+            { "green notes effect", Effect.SoundGreen },
+            { "green sparkles effect", Effect.MagicGreen },
+            { "grey teleport effect", Effect.None }, // 12.70
+            { "hearts effect", Effect.Hearts },
+            { "jumping fish effect", Effect.PlungingFish },
+            { "light blue teleport effect", Effect.None }, // 12.70
+            { "light effect", Effect.Thunder },
+            { "moonlight effect", Effect.EarlyThunder },
+            { "orange confetti effect", Effect.None }, // 12.02
+            { "orange teleport effect", Effect.None }, // 12.70
+            { "poof effect", Effect.Poff },//
+            { "prismatic sparkles effect", Effect.None }, // 12.15
+            { "purple confetti effect", Effect.None }, // 12.02
+            { "purple notes effect", Effect.SoundPurple },
+            { "purple teleport effect", Effect.None }, // 12.70
+            { "red confetti effect", Effect.FireworkRed },
+            { "red notes effect", Effect.SoundRed },//
+            { "red sparkles effect", Effect.MagicRed },
+            { "red teleport effect", Effect.None }, // 12.70
+            { "snoring effect", Effect.Sleep },
+            { "sparks effect", Effect.BlockHit },
+            { "spooky face effect", Effect.SkullHorizontal }, // Could be vertical too
+            { "teleport effect", Effect.Teleport },
+            { "trembling effect", Effect.HitArea },
+            { "turquoise confetti effect", Effect.None }, // 12.02
+            { "water splash effect", Effect.WaterSplash },
+            { "white notes effect", Effect.SoundWhite },//
+            { "yellow confetti effect", Effect.FireworkYellow },
+            { "yellow notes effect", Effect.SoundYellow },
+            { "yellow sparkles effect", Effect.None } // 12.60?
+        };
+
         public override string ConverterName { get => "TibiaWiki"; }
 
         public override FileSource FileSource { get => FileSource.Web; }
@@ -262,10 +445,8 @@ namespace MonsterConverterTibiaWiki
         /// <param name="abilities"></param>
         private static void ParseAbilityList(Monster mon, string abilities)
         {
-            /*
             abilities = @"{{Ability List|{{Melee|0-500}}|{{Ability|Great Fireball|150-250|fire|scene={{Scene|spell=5sqmballtarget|effect=Fireball Effect|caster=Demon|look_direction=|effect_on_target=Fireball Effect|missile=Fire Missile|missile_direction=south-east|missile_distance=5/5|edge_size=32}}
 }}|{{Ability|[[Great Energy Beam]]|300-480|lifedrain|scene={{Scene|spell=8sqmbeam|effect=Blue Electricity Effect|caster=Demon|look_direction=east}}}}|{{Ability|Close-range Energy Strike|210-300|energy}}|{{Ability|Mana Drain|30-120|manadrain}}|{{Healing|range=80-250}}|{{Ability|Shoots [[Fire Field]]s||fire}}|{{Ability|Distance Paralyze||paralyze}}|{{Summon|Fire Elemental|1}}}}".ToLower().Replace("\r", "").Replace("\n", "");
-            */
 
             var abilityList = TemplateParser.Deseralize<AbilityListTemplate>(abilities);
 
@@ -290,7 +471,7 @@ namespace MonsterConverterTibiaWiki
                 {
                     var healing = TemplateParser.Deseralize<HealingTemplate>(ability);
                     var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                    if (ParseNumericRange(healing.Range, out int min, out int max))
+                    if (ParseNumericRange(healing.Damage, out int min, out int max))
                     {
                         spell.MinDamage = min;
                         spell.MaxDamage = max;
@@ -335,7 +516,27 @@ namespace MonsterConverterTibiaWiki
                 else if (Regex.IsMatch(ability, @"{{ability\|.*}}"))
                 {
                     var abilityObj = TemplateParser.Deseralize<AbilityTemplate>(ability);
-                    System.Diagnostics.Debug.WriteLine($"TODO");
+                    if (!string.IsNullOrWhiteSpace(abilityObj.Scene))
+                    {
+                        SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(abilityObj.Scene);
+                        Spell spell = WikiSceneToSpell(scene);
+                        if (ParseNumericRange(abilityObj.Damage, out int min, out int max))
+                        {
+                            spell.MinDamage = -min;
+                            spell.MaxDamage = -max;
+                        }
+                        else
+                        {
+                            // Could guess defaults based on creature HP, EXP, and bestiary difficulty
+                        }
+                        spell.Name = "combat";
+                        spell.SpellCategory = SpellCategory.Offensive;
+                        mon.Attacks.Add(spell);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
+                    }
                 }
                 else
                 {
@@ -344,29 +545,163 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static Animation TibiaWikiToAnimation(string effect)
+        // TODO create a mapping from scenebuilder data to our spell shape https://tibia.fandom.com/wiki/Module:SceneBuilder/data
+        private static Spell WikiSceneToSpell(SceneTemplate scene)
         {
-            if ((effect == "spear") || (effect == "spears"))
+            Spell spell = new Spell() { AreaEffect = Effect.None, ShootEffect = Animation.None, Interval = 2000, Chance = 0.15 };
+            if (WikiMissilesToAnimations.ContainsKey(scene.Missile))
+            {
+                spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
+                spell.OnTarget = true;
+            }
+            if (WikiToEffects.ContainsKey(scene.Effect))
+                spell.AreaEffect = WikiToEffects[scene.Effect];
+            switch (scene.Spell)
+            {
+                case "front_sweep":
+                    spell.IsDirectional = true;
+                    spell.Length = 1;
+                    spell.Spread = 3;
+                    break;
+                case "1sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 1;
+                    break;
+                case "2sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 2;
+                    break;
+                case "3sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 3;
+                    break;
+                case "5sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 5;
+                    break;
+                case "great_explosion":
+                    spell.Radius = 4;
+                    break;
+                case "3x3spell":
+                    spell.Radius = 3;
+                    break;
+                case "xspell":
+                    break;
+                case "plusspell":
+                    break;
+                case "plusspelltarget":
+                    break;
+                case "3sqmwave":
+                    spell.IsDirectional = true;
+                    spell.Length = 3;
+                    break;
+                case "5sqmwavenarrow":
+                    spell.IsDirectional = true;
+                    spell.Length = 5;
+                    spell.Spread = 3;
+                    break;
+                case "5sqmwavewide":
+                    spell.IsDirectional = true;
+                    spell.Length = 5;
+                    spell.Spread = 5;
+                    break;
+                case "1sqmballtarget":
+                    spell.OnTarget = true;
+                    break;
+                case "2sqmballtarget":
+                    spell.OnTarget = true;
+                    break;
+                case "3sqmballtarget":
+                    spell.OnTarget = true;
+                    break;
+                case "4sqmballtarget":
+                    spell.OnTarget = true;
+                    break;
+                case "5sqmballtarget":
+                    spell.OnTarget = true;
+                    break;
+                case "8sqmwave":
+                    spell.Length = 8;
+                    break;
+                case "10sqmwave":
+                    spell.Length = 10;
+                    break;
+                case "2sqmring":
+                    break;
+                case "3sqmring":
+                    break;
+                case "4sqmring":
+                    break;
+                case "4sqmballself":
+                    spell.OnTarget = false;
+                    break;
+                case "5sqmballself":
+                    spell.OnTarget = false;
+                    break;
+                case "6sqmballself":
+                    spell.OnTarget = false;
+                    break;
+                case "4sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 4;
+                    spell.Spread = 1;
+                    break;
+                case "5sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 5;
+                    spell.Spread = 1;
+                    break;
+                case "6sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 6;
+                    spell.Spread = 1;
+                    break;
+                case "7sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 7;
+                    spell.Spread = 1;
+                    break;
+                case "8sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 8;
+                    spell.Spread = 1;
+                    break;
+                case "energy_wall_north_diag_area":
+                    break;
+                case "energy_wall_south_diag_area":
+                    break;
+                case "energy_wall_north_south_area":
+                    break;
+                case "chivalrous_challenge":
+                    break;
+            }
+
+            return spell;
+        }
+
+        private static Animation TibiaWikiToAnimation(string missile)
+        {
+            if ((missile == "spear") || (missile == "spears"))
             {
                 return Animation.Spear;
             }
-            else if ((effect == "throwing knives") || (effect == "throwing knife"))
+            else if ((missile == "throwing knives") || (missile == "throwing knife"))
             {
                 return Animation.ThrowingKnife;
             }
-            else if ((effect == "bolt") || (effect == "bolts"))
+            else if ((missile == "bolt") || (missile == "bolts"))
             {
                 return Animation.Bolt;
             }
-            else if ((effect == "arrow") || (effect == "arrows"))
+            else if ((missile == "arrow") || (missile == "arrows"))
             {
                 return Animation.Arrow;
             }
-            else if (effect.Contains("boulder"))
+            else if (missile.Contains("boulder"))
             {
                 return Animation.LargeRock;
             }
-            else if (effect.Contains("stone"))
+            else if (missile.Contains("stone"))
             {
                 return Animation.SmallStone;
             }

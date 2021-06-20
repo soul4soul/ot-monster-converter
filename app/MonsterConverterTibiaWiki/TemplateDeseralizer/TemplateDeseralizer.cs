@@ -23,6 +23,8 @@ namespace MonsterConverterTibiaWiki
                 {
                     templateName = (attrs[0] as TemplateNameAttribute).Name;
                 }
+                // TODO when there is a param like |look_direction=| this will incorrectly set the field as that value instead of skipping the field or setting the value as an empty string
+                // Seems to work on regexr but not in c#
                 Regex partRegex = new Regex(@"(\s*(?<name>\w+)\s*=)?\s*(?<value>.+)\s*", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.Singleline);
 
                 if (!typePropInfoDic.ContainsKey(myType))
@@ -47,23 +49,33 @@ namespace MonsterConverterTibiaWiki
                 for (int i = 1; i < parts.Length; i++)
                 {
                     var m = partRegex.Match(parts[i]);
-
                     if ((arrayProp == null) && (arrayval == null))
                     {
                         if (m.Groups["name"].Success)
                         {
-                            prop = indexedPropertyNames[m.Groups["name"].Value];
+                            string parameterName = m.Groups["name"].Value;
+                            if (!indexedPropertyNames.ContainsKey(parameterName))
+                            {
+                                System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
+                                continue;
+                            }
+                            prop = indexedPropertyNames[parameterName];
                         }
                         else
                         {
-                            prop = indexedPropertyNames[(i - 1).ToString()];
+                            string adjustedIndex = (i - 1).ToString();
+                            if (!indexedPropertyNames.ContainsKey(adjustedIndex))
+                            {
+                                System.Diagnostics.Debug.WriteLine($"template {templateName} index {adjustedIndex} not parsed");
+                                continue;
+                            }
+                            prop = indexedPropertyNames[adjustedIndex];
                         }
                         if (prop.PropertyType.IsArray)
                         {
                             arrayProp = prop;
                             arrayval = Array.CreateInstance(prop.PropertyType.GetElementType(), parts.Length - i);
                             arrayval.SetValue(m.Groups["value"].Value, arrayIndex);
-                            //prop.SetValue(output, m.Groups["value"].Value, new object[] { (int)arrayIndex });
                             arrayIndex++;
                         }
                         else
@@ -90,7 +102,7 @@ namespace MonsterConverterTibiaWiki
 
         private static IDictionary<string, PropertyInfo> GetIndexedPropertyNames(Type myType)
         {
-            // <Index, PropInfo> && <Name, PropInfo>
+            // <Index as string, PropInfo> && <Name, PropInfo>
             IDictionary<string, PropertyInfo> propInfoDic = new Dictionary<string, PropertyInfo>();
 
             foreach (PropertyInfo pi in myType.GetProperties())
@@ -104,8 +116,10 @@ namespace MonsterConverterTibiaWiki
                 if (!string.IsNullOrWhiteSpace(templateParmAttr.Name))
                     loopUpName = templateParmAttr.Name.ToLower();
 
-                propInfoDic.Add(templateParmAttr.Index.ToString(), pi);
-                propInfoDic.Add(loopUpName, pi);
+                if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Position))
+                    propInfoDic.Add(templateParmAttr.Index.ToString(), pi);
+                if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Name))
+                    propInfoDic.Add(loopUpName, pi);
             }
 
             return propInfoDic;

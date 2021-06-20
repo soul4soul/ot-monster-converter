@@ -16,7 +16,7 @@ namespace MonsterConverterTibiaWiki
     [Flags]
     enum ParameterIndicator
     {
-        Named,
+        Name,
         Position
     }
 
