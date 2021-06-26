@@ -341,7 +341,7 @@ namespace MonsterConverterTibiaWiki
         /// <param name="m"></param>
         private static void ParseAbilities(Monster mon, Match m)
         {
-            string abilities = m.Groups["abilities"].Value.ToLower().Replace("\r", "").Replace("\n", "");
+            string abilities = m.Groups["abilities"].Value.ToLower().Replace("\r", "").Replace("\n", "").Trim();
 
             if (abilities.Contains("ability list"))
                 ParseAbilityList(mon, abilities);
@@ -445,82 +445,17 @@ namespace MonsterConverterTibiaWiki
         /// <param name="abilities"></param>
         private static void ParseAbilityList(Monster mon, string abilities)
         {
-            abilities = @"{{Ability List|{{Melee|0-500}}|{{Ability|Great Fireball|150-250|fire|scene={{Scene|spell=5sqmballtarget|effect=Fireball Effect|caster=Demon|look_direction=|effect_on_target=Fireball Effect|missile=Fire Missile|missile_direction=south-east|missile_distance=5/5|edge_size=32}}
-}}|{{Ability|[[Great Energy Beam]]|300-480|lifedrain|scene={{Scene|spell=8sqmbeam|effect=Blue Electricity Effect|caster=Demon|look_direction=east}}}}|{{Ability|Close-range Energy Strike|210-300|energy}}|{{Ability|Mana Drain|30-120|manadrain}}|{{Healing|range=80-250}}|{{Ability|Shoots [[Fire Field]]s||fire}}|{{Ability|Distance Paralyze||paralyze}}|{{Summon|Fire Elemental|1}}}}".ToLower().Replace("\r", "").Replace("\n", "");
-
             var abilityList = TemplateParser.Deseralize<AbilityListTemplate>(abilities);
 
-            foreach (string ability in abilityList.Ability)
+            if (abilityList.Ability != null)
             {
-                if (Regex.IsMatch(ability, @"{{melee\|.*}}"))
+                foreach (string ability in abilityList.Ability)
                 {
-                    var melee = TemplateParser.Deseralize<MeleeTemplate>(ability);
-                    var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                    if (ParseNumericRange(melee.Damage, out int min, out int max))
+                    if (Regex.IsMatch(ability, @"{{melee\|.*}}"))
                     {
-                        spell.MinDamage = -min;
-                        spell.MaxDamage = -max;
-                    }
-                    else
-                    {
-                        // Could guess defaults based on creature HP, EXP, and bestiary difficulty
-                    }
-                    mon.Attacks.Add(spell);
-                }
-                else if (Regex.IsMatch(ability, @"{{healing\|.*}}"))
-                {
-                    var healing = TemplateParser.Deseralize<HealingTemplate>(ability);
-                    var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                    if (ParseNumericRange(healing.Damage, out int min, out int max))
-                    {
-                        spell.MinDamage = min;
-                        spell.MaxDamage = max;
-                    }
-                    else
-                    {
-                        // Guess defaults based on creature HP
-                        spell.MinDamage = (int?)(mon.Health * 0.1);
-                        spell.MaxDamage = (int?)(mon.Health * 0.25);
-                    }
-                    mon.Attacks.Add(spell);
-                }
-                else if (Regex.IsMatch(ability, @"{{summon\|.*}}"))
-                {
-                    var summon = TemplateParser.Deseralize<SummonTemplate>(ability);
-                    int maxSummons = 1;
-                    ParseNumericRange(summon.Amount, out int min, out maxSummons);
-                    mon.MaxSummons += (uint)maxSummons;
-                    string firstSummonName = summon.Creature;
-                    mon.Summons.Add(new Summon() { Name = firstSummonName });
-
-                    foreach (var name in summon.Creatures)
-                    {
-                        mon.Summons.Add(new Summon() { Name = name });
-                    }
-                }
-                else if (Regex.IsMatch(ability, @"{{haste\|.*}}"))
-                {
-                    var haste = TemplateParser.Deseralize<HasteTemplate>(ability);
-                    int MinSpeedChange = 300;
-                    int MaxSpeedChange = 300;
-                    int Duration = 7000;
-                    if (haste.Name .Contains("strong"))
-                    {
-                        MinSpeedChange = 450;
-                        MaxSpeedChange = 450;
-                        Duration = 4000;
-                    }
-                    var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
-                    mon.Attacks.Add(spell);
-                }
-                else if (Regex.IsMatch(ability, @"{{ability\|.*}}"))
-                {
-                    var abilityObj = TemplateParser.Deseralize<AbilityTemplate>(ability);
-                    if (!string.IsNullOrWhiteSpace(abilityObj.Scene))
-                    {
-                        SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(abilityObj.Scene);
-                        Spell spell = WikiSceneToSpell(scene);
-                        if (ParseNumericRange(abilityObj.Damage, out int min, out int max))
+                        var melee = TemplateParser.Deseralize<MeleeTemplate>(ability);
+                        var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
+                        if (ParseNumericRange(melee.Damage, out int min, out int max))
                         {
                             spell.MinDamage = -min;
                             spell.MaxDamage = -max;
@@ -529,18 +464,86 @@ namespace MonsterConverterTibiaWiki
                         {
                             // Could guess defaults based on creature HP, EXP, and bestiary difficulty
                         }
-                        spell.Name = "combat";
-                        spell.SpellCategory = SpellCategory.Offensive;
                         mon.Attacks.Add(spell);
+                    }
+                    else if (Regex.IsMatch(ability, @"{{healing\|.*}}"))
+                    {
+                        var healing = TemplateParser.Deseralize<HealingTemplate>(ability);
+                        var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
+                        if (ParseNumericRange(healing.Damage, out int min, out int max))
+                        {
+                            spell.MinDamage = min;
+                            spell.MaxDamage = max;
+                        }
+                        else
+                        {
+                            // Guess defaults based on creature HP
+                            spell.MinDamage = (int?)(mon.Health * 0.1);
+                            spell.MaxDamage = (int?)(mon.Health * 0.25);
+                        }
+                        mon.Attacks.Add(spell);
+                    }
+                    else if (Regex.IsMatch(ability, @"{{summon\|.*}}"))
+                    {
+                        var summon = TemplateParser.Deseralize<SummonTemplate>(ability);
+                        int maxSummons = 1;
+                        ParseNumericRange(summon.Amount, out int min, out maxSummons);
+                        mon.MaxSummons += (uint)maxSummons;
+                        string firstSummonName = summon.Creature;
+                        mon.Summons.Add(new Summon() { Name = firstSummonName });
+
+                        if (summon.Creatures != null)
+                        {
+                            foreach (var name in summon.Creatures)
+                            {
+                                mon.Summons.Add(new Summon() { Name = name });
+                            }
+                        }
+                    }
+                    else if (Regex.IsMatch(ability, @"{{haste\|.*}}"))
+                    {
+                        var haste = TemplateParser.Deseralize<HasteTemplate>(ability);
+                        int MinSpeedChange = 300;
+                        int MaxSpeedChange = 300;
+                        int Duration = 7000;
+                        if (haste.Name.Contains("strong"))
+                        {
+                            MinSpeedChange = 450;
+                            MaxSpeedChange = 450;
+                            Duration = 4000;
+                        }
+                        var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
+                        mon.Attacks.Add(spell);
+                    }
+                    else if (Regex.IsMatch(ability, @"{{ability\|.*}}"))
+                    {
+                        var abilityObj = TemplateParser.Deseralize<AbilityTemplate>(ability);
+                        if (!string.IsNullOrWhiteSpace(abilityObj.Scene))
+                        {
+                            SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(abilityObj.Scene);
+                            Spell spell = WikiSceneToSpell(scene);
+                            if (ParseNumericRange(abilityObj.Damage, out int min, out int max))
+                            {
+                                spell.MinDamage = -min;
+                                spell.MaxDamage = -max;
+                            }
+                            else
+                            {
+                                // Could guess defaults based on creature HP, EXP, and bestiary difficulty
+                            }
+                            spell.Name = "combat";
+                            spell.SpellCategory = SpellCategory.Offensive;
+                            mon.Attacks.Add(spell);
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
+                        }
                     }
                     else
                     {
                         System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
                     }
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
                 }
             }
         }
@@ -549,12 +552,12 @@ namespace MonsterConverterTibiaWiki
         private static Spell WikiSceneToSpell(SceneTemplate scene)
         {
             Spell spell = new Spell() { AreaEffect = Effect.None, ShootEffect = Animation.None, Interval = 2000, Chance = 0.15 };
-            if (WikiMissilesToAnimations.ContainsKey(scene.Missile))
+            if ((scene.Missile != null ) && (WikiMissilesToAnimations.ContainsKey(scene.Missile)))
             {
                 spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
                 spell.OnTarget = true;
             }
-            if (WikiToEffects.ContainsKey(scene.Effect))
+            if ((scene.Effect != null) && (WikiToEffects.ContainsKey(scene.Effect)))
                 spell.AreaEffect = WikiToEffects[scene.Effect];
             switch (scene.Spell)
             {
@@ -606,24 +609,33 @@ namespace MonsterConverterTibiaWiki
                     spell.Spread = 5;
                     break;
                 case "1sqmballtarget":
+                    spell.Radius = 1;
                     spell.OnTarget = true;
                     break;
                 case "2sqmballtarget":
+                    spell.Radius = 2;
                     spell.OnTarget = true;
                     break;
                 case "3sqmballtarget":
+                    spell.Radius = 3;
                     spell.OnTarget = true;
                     break;
                 case "4sqmballtarget":
+                    spell.Radius = 4;
                     spell.OnTarget = true;
                     break;
                 case "5sqmballtarget":
+                    spell.Radius = 5;
                     spell.OnTarget = true;
                     break;
                 case "8sqmwave":
+                    spell.IsDirectional = true;
+                    spell.Spread = 5;
                     spell.Length = 8;
                     break;
                 case "10sqmwave":
+                    spell.IsDirectional = true;
+                    spell.Spread = 5;
                     spell.Length = 10;
                     break;
                 case "2sqmring":
@@ -636,9 +648,11 @@ namespace MonsterConverterTibiaWiki
                     spell.OnTarget = false;
                     break;
                 case "5sqmballself":
+                    spell.Radius = 5;
                     spell.OnTarget = false;
                     break;
                 case "6sqmballself":
+                    spell.Radius = 6;
                     spell.OnTarget = false;
                     break;
                 case "4sqmbeam":
@@ -721,10 +735,14 @@ namespace MonsterConverterTibiaWiki
         /// <returns>returns false when no numeric values can be parsed</returns>
         private static bool ParseNumericRange(string range, out int min, out int max)
         {
+            min = 0;
+            max = 0;
+
+            if (range == null)
+                return false;
+
             Regex rgx = new Regex(@"(?<first>\d+)(([ -]?)(?<second>\d+))?");
             var match = rgx.Match(range);
-
-            min = 0;
             if (int.TryParse(match.Groups["second"].Value, out max))
             {
                 int.TryParse(match.Groups["first"].Value, out min);

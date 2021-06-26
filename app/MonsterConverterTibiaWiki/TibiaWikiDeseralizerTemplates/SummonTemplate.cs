@@ -7,9 +7,9 @@
         public string Creature { get; set; }
 
         [TemplateParameter(1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string Amount { get; set; }
+        public string Amount { get; set; } = "1";
 
-        [TemplateParameter(1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
+        [TemplateParameter(2, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
         public string[] Creatures { get; set; }
     }
 }
