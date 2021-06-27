@@ -274,7 +274,9 @@ namespace MonsterConverterTibiaWiki
             {
                 foreach (string sound in soundTemplated.Sounds)
                 {
-                    mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
+                    // Sometimes unknow sound templates include a single empty sound {{SoundList|}}
+                    if (!string.IsNullOrWhiteSpace(sound))
+                        mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
                 }
             }
         }
@@ -491,7 +493,7 @@ namespace MonsterConverterTibiaWiki
                         }
                         else
                         {
-                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse sense for ability \"{ability}\"");
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\", likely scene is missing");
                         }
                     }
                     else
@@ -800,6 +802,30 @@ namespace MonsterConverterTibiaWiki
             return uint.TryParse(match.Groups["value"].Value, out value);
         }
 
+
+        private static bool RobustTryParse(string input, out bool value)
+        {
+            value = false;
+            if (input == null)
+            {
+                return false;
+            }
+            input = input.Trim().ToLower();
+
+            if ((input == "yes") || (input == "y") || (input == "true") || (input == "t") || (input == "1"))
+            {
+                value = true;
+                return true;
+            }
+            else if ((input == "no") || (input == "n") || (input == "false") || (input == "f") || (input == "0"))
+            {
+                value = false;
+                return true;
+            }
+
+            return false;
+        }
+
         public override string[] GetFilesForConversion(string directory)
         {
             // directory parameter is ignored for this format...
@@ -836,63 +862,54 @@ namespace MonsterConverterTibiaWiki
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
 
-            monster = new Monster() { Name = "" };
+            uint uintVal;
+            bool boolVal;
+            var monsterPage = RequestData(monsterurl).Result;
+            InfoboxCreatureTemplate creature = TemplateParser.Deseralize<InfoboxCreatureTemplate>(monsterPage.Wikitext.Empty);
+            monster = new Monster();
+            if (!string.IsNullOrWhiteSpace(creature.Name)) { monster.RegisteredName = monster.FileName = creature.Name; }
+            if (!string.IsNullOrWhiteSpace(creature.ActualName)) { monster.Name = creature.ActualName; }
+            if (!string.IsNullOrWhiteSpace(creature.Article)) { ParseArticle(monster, creature.Article); }
+            if (RobustTryParse(creature.Hp, out uintVal)) { monster.Health = uintVal; }
+            if (RobustTryParse(creature.Exp, out uintVal)) { monster.Experience = uintVal; }
+            if (RobustTryParse(creature.Armor, out uintVal)) { monster.TotalArmor = monster.Shielding = uintVal; }
+            if (RobustTryParse(creature.Speed, out uintVal)) { monster.Speed = uintVal * 2; }
+            if (RobustTryParse(creature.RunsAt, out uintVal)) { monster.RunOnHealth = uintVal; }
+            if (RobustTryParse(creature.Summon, out uintVal)) { monster.SummonCost = uintVal; }
+            if (RobustTryParse(creature.Convince, out uintVal)) { monster.ConvinceCost = uintVal; }
+            if (RobustTryParse(creature.Illusionable, out boolVal)) { monster.Illusionable = boolVal; }
+            if (RobustTryParse(creature.IsBoss, out boolVal)) { monster.IsBoss = boolVal; }
+            if (!string.IsNullOrWhiteSpace(creature.PrimaryType)) { monster.HideHealth = creature.PrimaryType.ToLower().Contains("trap"); }
+            if (RobustTryParse(creature.Pushable, out boolVal)) { monster.Pushable = boolVal; }
+            // In cipbia ability to push objects means ability to push creatures too
+            if (RobustTryParse(creature.PushObjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
+            if (RobustTryParse(creature.SenseInvis, out boolVal)) { monster.IgnoreInvisible = boolVal; }
+            if (RobustTryParse(creature.ParaImmune, out boolVal)) { monster.IgnoreParalyze = boolVal; }
+            if (!string.IsNullOrWhiteSpace(creature.WalksAround)) { ParseWalksAround(monster, creature.WalksAround); }
+            if (!string.IsNullOrWhiteSpace(creature.WalksThrough)) { ParseWalksThrough(monster, creature.WalksThrough); }
+            if (RobustTryParse(creature.PhysicalDmgMod, out uintVal)) { monster.Physical = uintVal / 100.0; }
+            if (RobustTryParse(creature.EarthDmgMod, out uintVal)) { monster.Earth = uintVal / 100.0; }
+            if (RobustTryParse(creature.FireDmgMod, out uintVal)) { monster.Fire = uintVal / 100.0; }
+            if (RobustTryParse(creature.DeathDmgMod, out uintVal)) { monster.Death = uintVal / 100.0; }
+            if (RobustTryParse(creature.EnergyDmgMod, out uintVal)) { monster.Energy = uintVal / 100.0; }
+            if (RobustTryParse(creature.HolyDmgMod, out uintVal)) { monster.Holy = uintVal / 100.0; }
+            if (RobustTryParse(creature.IceDmgMod, out uintVal)) { monster.Ice = uintVal / 100.0; }
+            //if (RobustTryParse(creature.HealMod, out uintVal)) { monster. = uintVal / 100.0; }
+            if (RobustTryParse(creature.LifeDrainDmgMod, out uintVal)) { monster.LifeDrain = uintVal / 100.0; }
+            if (RobustTryParse(creature.DrownDmgMod, out uintVal)) { monster.Drown = uintVal / 100.0; }
+            if (!string.IsNullOrWhiteSpace(creature.Sounds)) { ParseSoundList(monster, creature.Sounds); }
+            if (!string.IsNullOrWhiteSpace(creature.Behavior)) { ParseBehavior(monster, creature.Behavior); }
+            if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities); }
+            if (!string.IsNullOrWhiteSpace(creature.Loot)) { ParseLoot(monster, creature.Loot, filename); }
 
-            InfoboxCreatureTemplate creature = null;
-            try
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
             {
-                uint uintVal;
-                bool boolVal;
-                var monsterPage = RequestData(monsterurl).Result;
-                creature = TemplateParser.Deseralize<InfoboxCreatureTemplate>(monsterPage.Wikitext.Empty);
-                if (creature.Name != null) { monster.RegisteredName = monster.FileName = creature.Name; }
-                if (creature.ActualName != null) { monster.Name = creature.ActualName; }
-                if (creature.Article != null) { ParseArticle(monster, creature.Article); }
-                if (RobustTryParse(creature.Hp, out uintVal)) { monster.Health = uintVal; }
-                if (RobustTryParse(creature.Exp, out uintVal)) { monster.Experience = uintVal; }
-                if (RobustTryParse(creature.Armor, out uintVal)) { monster.TotalArmor = monster.Shielding = uintVal; }
-                if (RobustTryParse(creature.Speed, out uintVal)) { monster.Speed = uintVal * 2; }
-                if (RobustTryParse(creature.RunsAt, out uintVal)) { monster.RunOnHealth = uintVal; }
-                if (RobustTryParse(creature.Summon, out uintVal)) { monster.SummonCost = uintVal; }
-                if (RobustTryParse(creature.Convince, out uintVal)) { monster.ConvinceCost = uintVal; }
-                if (bool.TryParse(creature.Illusionable, out boolVal)) { monster.Illusionable = boolVal; }
-                if (bool.TryParse(creature.IsBoss, out boolVal)) { monster.IsBoss = boolVal; }
-                if (creature.PrimaryType != null) { monster.HideHealth = creature.PrimaryType.ToLower().Contains("trap"); }
-                if (bool.TryParse(creature.Pushable, out boolVal)) { monster.Pushable = boolVal; }
-                // In cipbia ability to push objects means ability to push creatures too
-                if (bool.TryParse(creature.PushObjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
-                if (bool.TryParse(creature.SenseInvis, out boolVal)) { monster.IgnoreInvisible = boolVal; }
-                if (bool.TryParse(creature.ParaImmune, out boolVal)) { monster.IgnoreParalyze = boolVal; }
-                if (creature.WalksAround != null) { ParseWalksAround(monster, creature.WalksAround); }
-                if (creature.WalksThrough != null) { ParseWalksThrough(monster, creature.WalksThrough); }
-                if (RobustTryParse(creature.PhysicalDmgMod, out uintVal)) { monster.Physical = uintVal / 100.0; }
-                if (RobustTryParse(creature.EarthDmgMod, out uintVal)) { monster.Earth = uintVal / 100.0; }
-                if (RobustTryParse(creature.FireDmgMod, out uintVal)) { monster.Fire = uintVal / 100.0; }
-                if (RobustTryParse(creature.DeathDmgMod, out uintVal)) { monster.Death = uintVal / 100.0; }
-                if (RobustTryParse(creature.EnergyDmgMod, out uintVal)) { monster.Energy = uintVal / 100.0; }
-                if (RobustTryParse(creature.HolyDmgMod, out uintVal)) { monster.Holy = uintVal / 100.0; }
-                if (RobustTryParse(creature.IceDmgMod, out uintVal)) { monster.Ice = uintVal / 100.0; }
-                //if (RobustTryParse(creature.HealMod, out uintVal)) { monster. = uintVal / 100.0; }
-                if (RobustTryParse(creature.LifeDrainDmgMod, out uintVal)) { monster.LifeDrain = uintVal / 100.0; }
-                if (RobustTryParse(creature.DrownDmgMod, out uintVal)) { monster.Drown = uintVal / 100.0; }
-                if (creature.Sounds != null) { ParseSoundList(monster, creature.Sounds); }
-                if (creature.Behavior != null) { ParseBehavior(monster, creature.Behavior); }
-                if (creature.Abilities != null) { ParseAbilities(monster, creature.Abilities); }
-                if (creature.Loot != null) { ParseLoot(monster, creature.Loot, filename); }
-
-                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-                if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
-                {
-                    // Better then nothing guess
-                    resultMessage += "Guessed creature name";
-                    monster.Name = monster.FileName;
-                }
-                monster.Name = textInfo.ToTitleCase(monster.Name);
+                // Better then nothing guess
+                resultMessage += "Guessed creature name";
+                monster.Name = monster.FileName;
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"{filename} failed with \"{ex.Message}\"");
-            }
+            monster.Name = textInfo.ToTitleCase(monster.Name);
 
             return new ConvertResult(filename, ConvertError.Warning, resultMessage);
         }

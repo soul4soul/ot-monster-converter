@@ -73,7 +73,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         if (m.Groups["name"].Success)
                         {
-                            string parameterName = m.Groups["name"].Value;
+                            string parameterName = m.Groups["name"].Value.ToLower();
                             if (!indexedPropertyNames.ContainsKey(parameterName))
                             {
                                 System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
