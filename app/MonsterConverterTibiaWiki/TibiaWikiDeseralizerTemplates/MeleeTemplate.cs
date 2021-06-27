@@ -1,15 +1,19 @@
 ﻿namespace MonsterConverterTibiaWiki
 {
-    [TemplateName("Melee", Url = "https://tibia.fandom.com/wiki/Template:Melee")]
+    [TemplateName("Melee", Url = "https://tibia.fandom.com/wiki/Template:Melee", BeforeCaptureProperty = "BeforeText", AfterCaptureProperty = "AfterText")]
     class MeleeTemplate
     {
-        [TemplateParameter(0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name | ParameterIndicator.Position)]
+        [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name | ParameterIndicator.Position)]
         public string Damage { get; set; }
-        [TemplateParameter(1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name | ParameterIndicator.Position)]
+        [TemplateParameter(Index = 1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name | ParameterIndicator.Position)]
         public string Element { get; set; }
-        [TemplateParameter(2, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 2, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string Name { get; set; }
-        [TemplateParameter(3, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 3, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string Scene { get; set; }
+        [TemplateParameter(Indicator = ParameterIndicator.Name)]
+        public string BeforeText { get; set; }
+        [TemplateParameter(Indicator = ParameterIndicator.Name)]
+        public string AfterText { get; set; }
     }
 }

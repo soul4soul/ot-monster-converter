@@ -210,81 +210,26 @@ namespace MonsterConverterTibiaWiki
 
         public override bool IsWriteSupported { get => true; }
 
-        private class RegexPatternKeys
-        {
-            public RegexPatternKeys(string name, string pattern, Action<Monster, Match> action)
-            {
-                Name = name;
-                Pattern = @$"\|\s+{name}\s+=\s+{pattern}\s*";
-                Action = action;
-            }
-
-            public string Name { get; }
-            public string Pattern { get; }
-            public Action<Monster, Match> Action { get; }
-
-            public override string ToString()
-            {
-                return $"{Name} {Pattern}";
-            }
-        }
-
-        private RegexPatternKeys[] monparams = new RegexPatternKeys[] {
-            new RegexPatternKeys("name", "(?<name>[A-Za-z'ñ.() -]*)", (mon, m) => mon.RegisteredName = mon.FileName = m.Groups["name"].Value),
-            new RegexPatternKeys("actualname", "(?<actualname>[A-Za-z'ñ. -]*)", (mon, m) => mon.Name = m.Groups["actualname"].Value),
-            new RegexPatternKeys("article", "(?<article>[A-Za-z ]*)", ParseArticle),
-            new RegexPatternKeys("hp", @"(?<hp>\d+)", (mon, m) => { if (m.Groups["hp"].Success) mon.Health = uint.Parse(m.Groups["hp"].Value); }),
-            new RegexPatternKeys("exp", @"(?<exp>\d+)", (mon, m) => { if (m.Groups["exp"].Success) mon.Experience = uint.Parse(m.Groups["exp"].Value); }),
-            new RegexPatternKeys("armor", @"(?<armor>\d+)", (mon, m) => { if (m.Groups["armor"].Success) mon.TotalArmor = mon.Shielding = uint.Parse(m.Groups["armor"].Value); }),
-            new RegexPatternKeys("speed", @"(?<speed>\d+)", (mon, m) => { if (m.Groups["speed"].Success) mon.Speed = uint.Parse(m.Groups["speed"].Value) * 2; }),
-            new RegexPatternKeys("runsat", @"(?<runsat>\d+)", (mon, m) => { if (m.Groups["runsat"].Success) mon.RunOnHealth = uint.Parse(m.Groups["runsat"].Value); }),
-            new RegexPatternKeys("summon", @"(?<summon>\d+)", (mon, m) => { if (m.Groups["summon"].Success) mon.SummonCost = uint.Parse(m.Groups["summon"].Value); }),
-            new RegexPatternKeys("convince", @"(?<convince>\d+)", (mon, m) => { if (m.Groups["convince"].Success) mon.ConvinceCost = uint.Parse(m.Groups["convince"].Value); }),
-            new RegexPatternKeys("illusionable", @"(?<illusionable>((Y|y)(E|e)(S|s)))", (mon, m) => mon.Illusionable = m.Groups["illusionable"].Success),
-            new RegexPatternKeys("isboss", @"(?<isboss>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IsBoss = m.Groups["isboss"].Success),
-            new RegexPatternKeys("priamrtype", @"(?<hidehealth>trap)", (mon, m) => mon.HideHealth = m.Groups["hidehealth"].Success),
-            new RegexPatternKeys("pushable", @"(?<pushable>((Y|y)(E|e)(S|s)))", (mon, m) => mon.Pushable = m.Groups["pushable"].Success),
-            // In cipbia ability to push objects means ability to push creatures too
-            new RegexPatternKeys("pushobjects", @"(?<pushobjects>((Y|y)(E|e)(S|s)))", (mon, m) => mon.PushItems = mon.PushCreatures = m.Groups["pushobjects"].Success),
-            new RegexPatternKeys("senseinvis", @"(?<senseinvis>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IgnoreInvisible = m.Groups["senseinvis"].Success),
-            new RegexPatternKeys("paraimmune", @"(?<paraimmune>((Y|y)(E|e)(S|s)))", (mon, m) => mon.IgnoreParalyze = m.Groups["paraimmune"].Success),
-            new RegexPatternKeys("walksaround", @"(?<walksaround>\w+(, \w+)*)", ParseWalksAround),
-            new RegexPatternKeys("walksthrough", @"(?<walksthrough>\w+(, \w+)*)", ParseWalksThrough),
-            new RegexPatternKeys("physicalDmgMod", @"(?<physicaldmgmod>\d+)%", (mon, m) => { if (m.Groups["physicaldmgmod"].Success) mon.Physical = double.Parse(m.Groups["physicaldmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("earthDmgMod", @"(?<earthdmgmod>\d+)%", (mon, m) => { if (m.Groups["earthdmgmod"].Success) mon.Earth = double.Parse(m.Groups["earthdmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("fireDmgMod", @"(?<firedmgmod>\d*)%", (mon, m) => { if (m.Groups["firedmgmod"].Success) mon.Fire = double.Parse(m.Groups["firedmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("deathDmgMod", @"(?<deathdmgmod>\d*)%", (mon, m) => { if (m.Groups["deathdmgmod"].Success) mon.Death = double.Parse(m.Groups["deathdmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("energyDmgMod", @"(?<energydmgmod>\d+)%", (mon, m) => { if (m.Groups["energydmgmod"].Success) mon.Energy = double.Parse(m.Groups["energydmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("holyDmgMod", @"(?<holydmgmod>\d+)%", (mon, m) => { if (m.Groups["holydmgmod"].Success) mon.Holy = double.Parse(m.Groups["holydmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("iceDmgMod", @"(?<icedmgmod>\d+)%", (mon, m) => { if (m.Groups["icedmgmod"].Success) mon.Ice = double.Parse(m.Groups["icedmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("hpdrainDmgMod", @"(?<hpdraindmgmod>\d+)%", (mon, m) => { if (m.Groups["hpdraindmgmod"].Success) mon.LifeDrain = double.Parse(m.Groups["hpdraindmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("drownDmgMod", @"(?<drowndmgmod>\d+)%", (mon, m) => { if (m.Groups["drowndmgmod"].Success) mon.Drown = double.Parse(m.Groups["drowndmgmod"].Value) / 100.0; }),
-            new RegexPatternKeys("sounds", @"{{Sound List\|(?<sounds>[a-zA-Z !?.'*]+(\|[a-zA-Z !?.'*]+)*)", ParseSoundList),
-            // TibiaWiki generally doesn't provide distance so we default to 4. In TFS monster pack 70 of 77 monsters which use distance attack stand at a range of 4.
-            new RegexPatternKeys("behavior", @"(?<behavior>((D|d)(I|i)(S|s)(A|a)(N|n)(C|c)(|s)(E|e)))", (mon, m) => { mon.TargetDistance = m.Groups["behavior"].Success ? (uint)4 : (uint)1; }),
-            new RegexPatternKeys("abilities", @"(?<abilities>.*)", ParseAbilities)
-        };
-
         /// <summary>
         /// Boss monsters and single appear monsters don't use article
         /// </summary>
         /// <param name="mon"></param>
         /// <param name="m"></param>
-        private static void ParseArticle(Monster mon, Match m)
+        private static void ParseArticle(Monster mon, string article)
         {
-            if (m.Groups["article"].Success)
-            {
-                mon.Description = string.Format("{0} {1}", m.Groups["article"].Value, mon.Name).Trim();
-            }
-            else
+            if (string.IsNullOrWhiteSpace(article))
             {
                 mon.Description = mon.Name;
             }
+            else
+            {
+                mon.Description = string.Format("{0} {1}", article.ToLower(), mon.Name).Trim();
+            }
         }
 
-        private static void ParseWalksAround(Monster mon, Match m)
+        private static void ParseWalksAround(Monster mon, string s)
         {
-            foreach (string field in m.Groups["walksaround"].Value.ToLower().Split(","))
+            foreach (string field in s.ToLower().Split(","))
             {
                 string fieldtrim = field.Trim();
                 if (fieldtrim == "fire")
@@ -302,9 +247,9 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseWalksThrough(Monster mon, Match m)
+        private static void ParseWalksThrough(Monster mon, string s)
         {
-            foreach (string field in m.Groups["walksthrough"].Value.ToLower().Split(","))
+            foreach (string field in s.ToLower().Split(","))
             {
                 string fieldtrim = field.Trim();
                 if (fieldtrim == "fire")
@@ -322,15 +267,26 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseSoundList(Monster mon, Match m)
+        private static void ParseSoundList(Monster mon, string sounds)
         {
-            foreach (string sound in m.Groups["sounds"].Value.Split("|"))
+            var soundTemplated = TemplateParser.Deseralize<SoundListTemplate>(sounds);
+            if (soundTemplated.Sounds != null)
             {
-                if (!string.IsNullOrWhiteSpace(sound))
+                foreach (string sound in soundTemplated.Sounds)
                 {
                     mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
                 }
             }
+        }
+
+        private static void ParseBehavior(Monster monster, string behavior)
+        {
+            // TibiaWiki generally doesn't provide distance so we default to 4. In TFS monster pack 70 of 77 monsters which use distance attack stand at a range of 4.
+            behavior = behavior.ToLower();
+            if (behavior.Contains("distance") || behavior.Contains("range"))
+                monster.TargetDistance = 4;
+            else
+                monster.TargetDistance = 1;
         }
 
         /// <summary>
@@ -339,9 +295,9 @@ namespace MonsterConverterTibiaWiki
         /// </summary>
         /// <param name="mon"></param>
         /// <param name="m"></param>
-        private static void ParseAbilities(Monster mon, Match m)
+        private static void ParseAbilities(Monster mon, string abilities)
         {
-            string abilities = m.Groups["abilities"].Value.ToLower().Replace("\r", "").Replace("\n", "").Trim();
+            abilities = abilities.ToLower().Replace("\r", "").Replace("\n", "").Trim();
 
             if (abilities.Contains("ability list"))
                 ParseAbilityList(mon, abilities);
@@ -367,7 +323,7 @@ namespace MonsterConverterTibiaWiki
                         {
                             var match = new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").Match(cleanedAbility);
                             var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                            if (ParseNumericRange(match.Groups["damage"].Value, out int min, out int max))
+                            if (TryParseRange(match.Groups["damage"].Value, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
@@ -385,7 +341,7 @@ namespace MonsterConverterTibiaWiki
                         {
                             var match = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").Match(cleanedAbility);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Offensive, DamageElement = CombatDamage.Physical, Interval = 2000, Chance = 1, Range = 7, ShootEffect = TibiaWikiToAnimation(match.Groups["effect"].Value) };
-                            if (ParseNumericRange(match.Groups["damage"].Value, out int min, out int max))
+                            if (TryParseRange(match.Groups["damage"].Value, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
@@ -416,7 +372,7 @@ namespace MonsterConverterTibiaWiki
                         {
                             var match = new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").Match(cleanedAbility);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                            if (ParseNumericRange(match.Groups["damage"].Value, out int min, out int max))
+                            if (TryParseRange(match.Groups["damage"].Value, out int min, out int max))
                             {
                                 spell.MinDamage = min;
                                 spell.MaxDamage = max;
@@ -455,7 +411,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         var melee = TemplateParser.Deseralize<MeleeTemplate>(ability);
                         var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                        if (ParseNumericRange(melee.Damage, out int min, out int max))
+                        if (TryParseRange(melee.Damage, out int min, out int max))
                         {
                             spell.MinDamage = -min;
                             spell.MaxDamage = -max;
@@ -470,7 +426,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         var healing = TemplateParser.Deseralize<HealingTemplate>(ability);
                         var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                        if (ParseNumericRange(healing.Damage, out int min, out int max))
+                        if (TryParseRange(healing.Damage, out int min, out int max))
                         {
                             spell.MinDamage = min;
                             spell.MaxDamage = max;
@@ -487,7 +443,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         var summon = TemplateParser.Deseralize<SummonTemplate>(ability);
                         int maxSummons = 1;
-                        ParseNumericRange(summon.Amount, out int min, out maxSummons);
+                        TryParseRange(summon.Amount, out int min, out maxSummons);
                         mon.MaxSummons += (uint)maxSummons;
                         string firstSummonName = summon.Creature;
                         mon.Summons.Add(new Summon() { Name = firstSummonName });
@@ -518,11 +474,9 @@ namespace MonsterConverterTibiaWiki
                     else if (Regex.IsMatch(ability, @"{{ability\|.*}}"))
                     {
                         var abilityObj = TemplateParser.Deseralize<AbilityTemplate>(ability);
-                        if (!string.IsNullOrWhiteSpace(abilityObj.Scene))
+                        if (TryParseScene(abilityObj.Scene, out Spell spell))
                         {
-                            SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(abilityObj.Scene);
-                            Spell spell = WikiSceneToSpell(scene);
-                            if (ParseNumericRange(abilityObj.Damage, out int min, out int max))
+                            if (TryParseRange(abilityObj.Damage, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
@@ -537,7 +491,7 @@ namespace MonsterConverterTibiaWiki
                         }
                         else
                         {
-                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse sense for ability \"{ability}\"");
                         }
                     }
                     else
@@ -548,149 +502,164 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        // TODO create a mapping from scenebuilder data to our spell shape https://tibia.fandom.com/wiki/Module:SceneBuilder/data
-        private static Spell WikiSceneToSpell(SceneTemplate scene)
+        /// <summary>
+        /// Converts from a TibiaWiki Scene to a generic spell
+        /// Information about the spell shape is located at https://tibia.fandom.com/wiki/Module:SceneBuilder/data
+        /// </summary>
+        /// <param name="input">scene in string form</param>
+        /// <param name="spell">generic spell</param>
+        /// <returns>True for success</returns>
+        private static bool TryParseScene(string input, out Spell spell)
         {
-            Spell spell = new Spell() { AreaEffect = Effect.None, ShootEffect = Animation.None, Interval = 2000, Chance = 0.15 };
-            if ((scene.Missile != null ) && (WikiMissilesToAnimations.ContainsKey(scene.Missile)))
-            {
-                spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
-                spell.OnTarget = true;
-            }
-            if ((scene.Effect != null) && (WikiToEffects.ContainsKey(scene.Effect)))
-                spell.AreaEffect = WikiToEffects[scene.Effect];
-            switch (scene.Spell)
-            {
-                case "front_sweep":
-                    spell.IsDirectional = true;
-                    spell.Length = 1;
-                    spell.Spread = 3;
-                    break;
-                case "1sqmstrike":
-                    spell.OnTarget = true;
-                    spell.Range = 1;
-                    break;
-                case "2sqmstrike":
-                    spell.OnTarget = true;
-                    spell.Range = 2;
-                    break;
-                case "3sqmstrike":
-                    spell.OnTarget = true;
-                    spell.Range = 3;
-                    break;
-                case "5sqmstrike":
-                    spell.OnTarget = true;
-                    spell.Range = 5;
-                    break;
-                case "great_explosion":
-                    spell.Radius = 4;
-                    break;
-                case "3x3spell":
-                    spell.Radius = 3;
-                    break;
-                case "xspell":
-                    break;
-                case "plusspell":
-                    break;
-                case "plusspelltarget":
-                    break;
-                case "3sqmwave":
-                    spell.IsDirectional = true;
-                    spell.Length = 3;
-                    break;
-                case "5sqmwavenarrow":
-                    spell.IsDirectional = true;
-                    spell.Length = 5;
-                    spell.Spread = 3;
-                    break;
-                case "5sqmwavewide":
-                    spell.IsDirectional = true;
-                    spell.Length = 5;
-                    spell.Spread = 5;
-                    break;
-                case "1sqmballtarget":
-                    spell.Radius = 1;
-                    spell.OnTarget = true;
-                    break;
-                case "2sqmballtarget":
-                    spell.Radius = 2;
-                    spell.OnTarget = true;
-                    break;
-                case "3sqmballtarget":
-                    spell.Radius = 3;
-                    spell.OnTarget = true;
-                    break;
-                case "4sqmballtarget":
-                    spell.Radius = 4;
-                    spell.OnTarget = true;
-                    break;
-                case "5sqmballtarget":
-                    spell.Radius = 5;
-                    spell.OnTarget = true;
-                    break;
-                case "8sqmwave":
-                    spell.IsDirectional = true;
-                    spell.Spread = 5;
-                    spell.Length = 8;
-                    break;
-                case "10sqmwave":
-                    spell.IsDirectional = true;
-                    spell.Spread = 5;
-                    spell.Length = 10;
-                    break;
-                case "2sqmring":
-                    break;
-                case "3sqmring":
-                    break;
-                case "4sqmring":
-                    break;
-                case "4sqmballself":
-                    spell.OnTarget = false;
-                    break;
-                case "5sqmballself":
-                    spell.Radius = 5;
-                    spell.OnTarget = false;
-                    break;
-                case "6sqmballself":
-                    spell.Radius = 6;
-                    spell.OnTarget = false;
-                    break;
-                case "4sqmbeam":
-                    spell.IsDirectional = true;
-                    spell.Length = 4;
-                    spell.Spread = 1;
-                    break;
-                case "5sqmbeam":
-                    spell.IsDirectional = true;
-                    spell.Length = 5;
-                    spell.Spread = 1;
-                    break;
-                case "6sqmbeam":
-                    spell.IsDirectional = true;
-                    spell.Length = 6;
-                    spell.Spread = 1;
-                    break;
-                case "7sqmbeam":
-                    spell.IsDirectional = true;
-                    spell.Length = 7;
-                    spell.Spread = 1;
-                    break;
-                case "8sqmbeam":
-                    spell.IsDirectional = true;
-                    spell.Length = 8;
-                    spell.Spread = 1;
-                    break;
-                case "energy_wall_north_diag_area":
-                    break;
-                case "energy_wall_south_diag_area":
-                    break;
-                case "energy_wall_north_south_area":
-                    break;
-                case "chivalrous_challenge":
-                    break;
-            }
+            spell = new Spell() { AreaEffect = Effect.None, ShootEffect = Animation.None, Interval = 2000, Chance = 0.15 };
 
-            return spell;
+            try
+            {
+                SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(input);
+                if ((scene.Missile != null) && (WikiMissilesToAnimations.ContainsKey(scene.Missile)))
+                {
+                    spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
+                    spell.OnTarget = true;
+                }
+                if ((scene.Effect != null) && (WikiToEffects.ContainsKey(scene.Effect)))
+                    spell.AreaEffect = WikiToEffects[scene.Effect];
+                switch (scene.Spell)
+                {
+                    case "front_sweep":
+                        spell.IsDirectional = true;
+                        spell.Length = 1;
+                        spell.Spread = 3;
+                        break;
+                    case "1sqmstrike":
+                        spell.OnTarget = true;
+                        spell.Range = 1;
+                        break;
+                    case "2sqmstrike":
+                        spell.OnTarget = true;
+                        spell.Range = 2;
+                        break;
+                    case "3sqmstrike":
+                        spell.OnTarget = true;
+                        spell.Range = 3;
+                        break;
+                    case "5sqmstrike":
+                        spell.OnTarget = true;
+                        spell.Range = 5;
+                        break;
+                    case "great_explosion":
+                        spell.Radius = 4;
+                        break;
+                    case "3x3spell":
+                        spell.Radius = 3;
+                        break;
+                    case "xspell":
+                        break;
+                    case "plusspell":
+                        break;
+                    case "plusspelltarget":
+                        break;
+                    case "3sqmwave":
+                        spell.IsDirectional = true;
+                        spell.Length = 3;
+                        break;
+                    case "5sqmwavenarrow":
+                        spell.IsDirectional = true;
+                        spell.Length = 5;
+                        spell.Spread = 3;
+                        break;
+                    case "5sqmwavewide":
+                        spell.IsDirectional = true;
+                        spell.Length = 5;
+                        spell.Spread = 5;
+                        break;
+                    case "1sqmballtarget":
+                        spell.Radius = 1;
+                        spell.OnTarget = true;
+                        break;
+                    case "2sqmballtarget":
+                        spell.Radius = 2;
+                        spell.OnTarget = true;
+                        break;
+                    case "3sqmballtarget":
+                        spell.Radius = 3;
+                        spell.OnTarget = true;
+                        break;
+                    case "4sqmballtarget":
+                        spell.Radius = 4;
+                        spell.OnTarget = true;
+                        break;
+                    case "5sqmballtarget":
+                        spell.Radius = 5;
+                        spell.OnTarget = true;
+                        break;
+                    case "8sqmwave":
+                        spell.IsDirectional = true;
+                        spell.Spread = 5;
+                        spell.Length = 8;
+                        break;
+                    case "10sqmwave":
+                        spell.IsDirectional = true;
+                        spell.Spread = 5;
+                        spell.Length = 10;
+                        break;
+                    case "2sqmring":
+                        break;
+                    case "3sqmring":
+                        break;
+                    case "4sqmring":
+                        break;
+                    case "4sqmballself":
+                        spell.OnTarget = false;
+                        break;
+                    case "5sqmballself":
+                        spell.Radius = 5;
+                        spell.OnTarget = false;
+                        break;
+                    case "6sqmballself":
+                        spell.Radius = 6;
+                        spell.OnTarget = false;
+                        break;
+                    case "4sqmbeam":
+                        spell.IsDirectional = true;
+                        spell.Length = 4;
+                        spell.Spread = 1;
+                        break;
+                    case "5sqmbeam":
+                        spell.IsDirectional = true;
+                        spell.Length = 5;
+                        spell.Spread = 1;
+                        break;
+                    case "6sqmbeam":
+                        spell.IsDirectional = true;
+                        spell.Length = 6;
+                        spell.Spread = 1;
+                        break;
+                    case "7sqmbeam":
+                        spell.IsDirectional = true;
+                        spell.Length = 7;
+                        spell.Spread = 1;
+                        break;
+                    case "8sqmbeam":
+                        spell.IsDirectional = true;
+                        spell.Length = 8;
+                        spell.Spread = 1;
+                        break;
+                    case "energy_wall_north_diag_area":
+                        break;
+                    case "energy_wall_south_diag_area":
+                        break;
+                    case "energy_wall_north_south_area":
+                        break;
+                    case "chivalrous_challenge":
+                        break;
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static Animation TibiaWikiToAnimation(string missile)
@@ -725,6 +694,70 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
+        private void ParseLoot(Monster monster, string lootTable, string filename)
+        {
+            var lootTableTemplate = TemplateParser.Deseralize<LootTableTemplate>(lootTable);
+            if ((lootTableTemplate.Loot != null) && (lootTableTemplate.Loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.Loot[0])))
+            {
+                // Request for full loot stats now that we are sure monster has loot
+                string looturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=Loot_Statistics:{filename}&prop=wikitext";
+                var lootPage = RequestData(looturl).Result;
+                if (lootPage != null)
+                {
+                    string elements = lootPage.Wikitext.Empty.ToLower();
+                    var lootsectionsRegEx = new Regex("{{loot2(?<loots>.*)}}", RegexOptions.Singleline);
+                    if (lootsectionsRegEx.IsMatch(elements))
+                    {
+                        var lootsection = lootsectionsRegEx.Match(elements);
+                        string loots = lootsection.Captures[0].Value;
+
+                        var killsmatch = new Regex(@"\|kills=(?<kills>\d+)").Match(loots);
+                        double.TryParse(killsmatch.Groups["kills"].Value, out double kills);
+                        // sometimes TibiaWiki doesn't show the amount field
+                        var lootregex = new Regex(@"\|\s*(?<itemname>[a-z'.() ]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
+                        var matches = lootregex.Matches(loots);
+                        foreach (Match loot in matches)
+                        {
+                            string item = loot.Groups["itemname"].Value;
+                            double.TryParse(loot.Groups["times"].Value, out double times);
+                            string amount = loot.Groups["amount"].Value;
+
+                            if (item != "empty")
+                            {
+                                double percent = times / kills;
+
+                                if (!double.TryParse(amount, out double count))
+                                {
+                                    var amounts = amount.Split("-");
+                                    if (amounts.Length >= 2)
+                                    {
+                                        double.TryParse(amounts[1], out count);
+                                    }
+                                }
+                                count = (count > 0) ? count : 1;
+
+                                monster.Items.Add(new Loot()
+                                {
+                                    Item = item,
+                                    Chance = (decimal)percent,
+                                    Count = (decimal)count
+                                });
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Creature has loot but no loot statistics. Use information from loot table to generate the loot
+                    foreach (string loot in lootTableTemplate.Loot)
+                    {
+                        // Could be loot item template or just a list of items....
+                        // https://tibia.fandom.com/wiki/Template:Loot_Item parse breaks down on this template with one two or three params using different formats
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Converts a string representing a numeric range to two intergers
         /// Example numeric ranges which can be parsed are "500", "0-500", and "0-500?"
@@ -733,7 +766,7 @@ namespace MonsterConverterTibiaWiki
         /// <param name="min">lower bound value in range, defaults to 0</param>
         /// <param name="max">high bonund value in the range, will be set when the range only has a single number</param>
         /// <returns>returns false when no numeric values can be parsed</returns>
-        private static bool ParseNumericRange(string range, out int min, out int max)
+        private static bool TryParseRange(string range, out int min, out int max)
         {
             min = 0;
             max = 0;
@@ -753,6 +786,18 @@ namespace MonsterConverterTibiaWiki
                 return true;
             }
             return false;
+        }
+
+        private static bool RobustTryParse(string input, out uint value)
+        {
+            value = 0;
+            if (input == null)
+                return false;
+
+            Regex rgx = new Regex(@"(?<value>\d+)");
+            var match = rgx.Match(input);
+
+            return uint.TryParse(match.Groups["value"].Value, out value);
         }
 
         public override string[] GetFilesForConversion(string directory)
@@ -779,19 +824,10 @@ namespace MonsterConverterTibiaWiki
         private async Task<Parse> RequestData(string endpoint)
         {
             client.DefaultRequestHeaders.Accept.Clear();
-            //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
-            //client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
 
-            try
-            {
-                var streamTask = client.GetStreamAsync(endpoint);
-                var repositories = await JsonSerializer.DeserializeAsync<Root>(await streamTask);
-                return repositories.Parse;
-            }
-            catch
-            {
-                return null;
-            }
+            var streamTask = client.GetStreamAsync(endpoint);
+            var repositories = await JsonSerializer.DeserializeAsync<Root>(await streamTask);
+            return repositories.Parse;
         }
 
         public override ConvertResult ReadMonster(string filename, out Monster monster)
@@ -799,81 +835,63 @@ namespace MonsterConverterTibiaWiki
             string resultMessage = "Blood type, look type data, and abilities are not parsed.";
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
-            string looturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=Loot_Statistics:{filename}&prop=wikitext";
 
             monster = new Monster() { Name = "" };
 
-            var monsterPage = RequestData(monsterurl).Result;
-            if (monsterPage != null)
+            InfoboxCreatureTemplate creature = null;
+            try
             {
-                var wikiText = monsterPage.Wikitext.Empty;
-                foreach (var x in monparams)
+                uint uintVal;
+                bool boolVal;
+                var monsterPage = RequestData(monsterurl).Result;
+                creature = TemplateParser.Deseralize<InfoboxCreatureTemplate>(monsterPage.Wikitext.Empty);
+                if (creature.Name != null) { monster.RegisteredName = monster.FileName = creature.Name; }
+                if (creature.ActualName != null) { monster.Name = creature.ActualName; }
+                if (creature.Article != null) { ParseArticle(monster, creature.Article); }
+                if (RobustTryParse(creature.Hp, out uintVal)) { monster.Health = uintVal; }
+                if (RobustTryParse(creature.Exp, out uintVal)) { monster.Experience = uintVal; }
+                if (RobustTryParse(creature.Armor, out uintVal)) { monster.TotalArmor = monster.Shielding = uintVal; }
+                if (RobustTryParse(creature.Speed, out uintVal)) { monster.Speed = uintVal * 2; }
+                if (RobustTryParse(creature.RunsAt, out uintVal)) { monster.RunOnHealth = uintVal; }
+                if (RobustTryParse(creature.Summon, out uintVal)) { monster.SummonCost = uintVal; }
+                if (RobustTryParse(creature.Convince, out uintVal)) { monster.ConvinceCost = uintVal; }
+                if (bool.TryParse(creature.Illusionable, out boolVal)) { monster.Illusionable = boolVal; }
+                if (bool.TryParse(creature.IsBoss, out boolVal)) { monster.IsBoss = boolVal; }
+                if (creature.PrimaryType != null) { monster.HideHealth = creature.PrimaryType.ToLower().Contains("trap"); }
+                if (bool.TryParse(creature.Pushable, out boolVal)) { monster.Pushable = boolVal; }
+                // In cipbia ability to push objects means ability to push creatures too
+                if (bool.TryParse(creature.PushObjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
+                if (bool.TryParse(creature.SenseInvis, out boolVal)) { monster.IgnoreInvisible = boolVal; }
+                if (bool.TryParse(creature.ParaImmune, out boolVal)) { monster.IgnoreParalyze = boolVal; }
+                if (creature.WalksAround != null) { ParseWalksAround(monster, creature.WalksAround); }
+                if (creature.WalksThrough != null) { ParseWalksThrough(monster, creature.WalksThrough); }
+                if (RobustTryParse(creature.PhysicalDmgMod, out uintVal)) { monster.Physical = uintVal / 100.0; }
+                if (RobustTryParse(creature.EarthDmgMod, out uintVal)) { monster.Earth = uintVal / 100.0; }
+                if (RobustTryParse(creature.FireDmgMod, out uintVal)) { monster.Fire = uintVal / 100.0; }
+                if (RobustTryParse(creature.DeathDmgMod, out uintVal)) { monster.Death = uintVal / 100.0; }
+                if (RobustTryParse(creature.EnergyDmgMod, out uintVal)) { monster.Energy = uintVal / 100.0; }
+                if (RobustTryParse(creature.HolyDmgMod, out uintVal)) { monster.Holy = uintVal / 100.0; }
+                if (RobustTryParse(creature.IceDmgMod, out uintVal)) { monster.Ice = uintVal / 100.0; }
+                //if (RobustTryParse(creature.HealMod, out uintVal)) { monster. = uintVal / 100.0; }
+                if (RobustTryParse(creature.LifeDrainDmgMod, out uintVal)) { monster.LifeDrain = uintVal / 100.0; }
+                if (RobustTryParse(creature.DrownDmgMod, out uintVal)) { monster.Drown = uintVal / 100.0; }
+                if (creature.Sounds != null) { ParseSoundList(monster, creature.Sounds); }
+                if (creature.Behavior != null) { ParseBehavior(monster, creature.Behavior); }
+                if (creature.Abilities != null) { ParseAbilities(monster, creature.Abilities); }
+                if (creature.Loot != null) { ParseLoot(monster, creature.Loot, filename); }
+
+                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
                 {
-                    var match = new Regex(x.Pattern).Match(wikiText);
-                    try
-                    {
-                        x.Action.Invoke(monster, match);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"{filename} Pattern \"{x.Pattern}\" failed with \"{ex.Message}\"");
-                    }
+                    // Better then nothing guess
+                    resultMessage += "Guessed creature name";
+                    monster.Name = monster.FileName;
                 }
+                monster.Name = textInfo.ToTitleCase(monster.Name);
             }
-
-            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-            if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
+            catch (Exception ex)
             {
-                // Better then nothing guess
-                resultMessage += "Guessed creature name";
-                monster.Name = monster.FileName;
-            }
-            monster.Name = textInfo.ToTitleCase(monster.Name);
-
-            var lootPage = RequestData(looturl).Result;
-            if (lootPage != null)
-            {
-                string elements = lootPage.Wikitext.Empty.ToLower();
-                var lootsectionsRegEx = new Regex("{{loot2(?<loots>.*)}}", RegexOptions.Singleline);
-                if (lootsectionsRegEx.IsMatch(elements))
-                {
-                    var lootsection = lootsectionsRegEx.Match(elements);
-                    string loots = lootsection.Captures[0].Value;
-
-                    var killsmatch = new Regex(@"\|kills=(?<kills>\d+)").Match(loots);
-                    double.TryParse(killsmatch.Groups["kills"].Value, out double kills);
-                    // sometimes TibiaWiki doesn't show the amount field
-                    var lootregex = new Regex(@"\|\s*(?<itemname>[a-z'.() ]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
-                    var matches = lootregex.Matches(loots);
-                    foreach (Match loot in matches)
-                    {
-                        string item = loot.Groups["itemname"].Value;
-                        double.TryParse(loot.Groups["times"].Value, out double times);
-                        string amount = loot.Groups["amount"].Value;
-
-                        if (item != "empty")
-                        {
-                            double percent = times / kills;
-
-                            if (!double.TryParse(amount, out double count))
-                            {
-                                var amounts = amount.Split("-");
-                                if (amounts.Length >= 2)
-                                {
-                                    double.TryParse(amounts[1], out count);
-                                }
-                            }
-                            count = (count > 0) ? count : 1;
-
-                            monster.Items.Add(new Loot()
-                            {
-                                Item = item,
-                                Chance = (decimal)percent,
-                                Count = (decimal)count
-                            });
-                        }
-                    }
-                }
+                System.Diagnostics.Debug.WriteLine($"{filename} failed with \"{ex.Message}\"");
             }
 
             return new ConvertResult(filename, ConvertError.Warning, resultMessage);

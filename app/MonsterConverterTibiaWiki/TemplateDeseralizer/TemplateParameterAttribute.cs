@@ -20,18 +20,12 @@ namespace MonsterConverterTibiaWiki
         Position
     }
 
-    [System.AttributeUsage(System.AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property)]
     class TemplateParameterAttribute : System.Attribute
     {
         public string Name { get; set; }
         public int Index { get; set; }
         public ParameterRequired Required { get; set; }
         public ParameterIndicator Indicator { get; set; }
-
-        public TemplateParameterAttribute(int index)
-        {
-            Index = index;
-        }
-
     }
 }

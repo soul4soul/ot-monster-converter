@@ -7,40 +7,8 @@ using System.Threading.Tasks;
 
 namespace MonsterConverterTibiaWiki
 {
-    enum FancySplitStyle
-    {
-        CommaOutsideParathese,
-        BarOutsideBrackets
-    }
-
     static class StringExtensions
     {
-        // https://stackoverflow.com/a/61140830
-        public static IEnumerable<string> Split(this string s, FancySplitStyle splitStyle)
-        {
-            if (splitStyle == FancySplitStyle.CommaOutsideParathese)
-            {
-                var sPrepared = Regex.Replace(s, @"\((?>[^()]+|(?<o>)\(|(?<-o>)\))*(?(o)(?!))\)|(,)", m => m.Groups[1].Success ? "___temp___" : m.Value);
-                return sPrepared.Split("___temp___");
-            }
-            else /*if (splitStyle == FancySplitStyle.BarOutsideBrackets)*/
-            {
-                string pattern = @"
-                (?>
-                    (?<S>{)
-                    |
-                    (?<-S>})
-                    |
-                    [^|{}]
-                    |
-                    (?(S)\||(?!))
-                )+
-                (?(S)(?!))
-                ";
-                return Regex.Matches(s, pattern, RegexOptions.IgnorePatternWhitespace).Select(m => m.Value);
-            }
-        }
-
         /// <summary>
         /// Split a string by a seperator only when that seperator is outside of containing edges
         /// </summary>
