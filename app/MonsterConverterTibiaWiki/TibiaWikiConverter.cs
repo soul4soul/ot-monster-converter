@@ -17,6 +17,9 @@ namespace MonsterConverterTibiaWiki
     [Export(typeof(IMonsterConverter))]
     public class TibiaWikiConverter : MonsterConverter
     {
+        private const decimal DEFAULT_LOOT_CHANCE = 0.2M;
+        private const int DEFAULT_LOOT_COUNT = 1;
+
         // https://tibia.fandom.com/wiki/Missiles
         private static IDictionary<string, Animation> WikiMissilesToAnimations = new Dictionary<string, Animation>
         {
@@ -77,6 +80,8 @@ namespace MonsterConverterTibiaWiki
         };
 
         // https://tibia.fandom.com/wiki/Effects
+        // For each effect tibiawiki includes effect id in the individual effect templates
+        // We could generate this via code if we want to, the advance is that it's always up to date and accurate
         private static IDictionary<string, Effect> WikiToEffects = new Dictionary<string, Effect>
         {
             { "black smoke effect", Effect.BlackSmoke },
@@ -122,7 +127,7 @@ namespace MonsterConverterTibiaWiki
             { "death effect", Effect.MortArea },
             { "divine dazzle effect", Effect.None }, // 12.60
             { "dust effect", Effect.GroundShaker },
-            { "electrical spark effect", Effect.None }, // ?
+            { "electrical spark effect", Effect.None }, // 12.70
             { "energy effect", Effect.EnergyArea },
             { "explosion effect", Effect.ExplosionArea },
             { "fire effect", Effect.HitByFire },
@@ -515,153 +520,149 @@ namespace MonsterConverterTibiaWiki
         {
             spell = new Spell() { AreaEffect = Effect.None, ShootEffect = Animation.None, Interval = 2000, Chance = 0.15 };
 
-            try
-            {
-                SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(input);
-                if ((scene.Missile != null) && (WikiMissilesToAnimations.ContainsKey(scene.Missile)))
-                {
-                    spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
-                    spell.OnTarget = true;
-                }
-                if ((scene.Effect != null) && (WikiToEffects.ContainsKey(scene.Effect)))
-                    spell.AreaEffect = WikiToEffects[scene.Effect];
-                switch (scene.Spell)
-                {
-                    case "front_sweep":
-                        spell.IsDirectional = true;
-                        spell.Length = 1;
-                        spell.Spread = 3;
-                        break;
-                    case "1sqmstrike":
-                        spell.OnTarget = true;
-                        spell.Range = 1;
-                        break;
-                    case "2sqmstrike":
-                        spell.OnTarget = true;
-                        spell.Range = 2;
-                        break;
-                    case "3sqmstrike":
-                        spell.OnTarget = true;
-                        spell.Range = 3;
-                        break;
-                    case "5sqmstrike":
-                        spell.OnTarget = true;
-                        spell.Range = 5;
-                        break;
-                    case "great_explosion":
-                        spell.Radius = 4;
-                        break;
-                    case "3x3spell":
-                        spell.Radius = 3;
-                        break;
-                    case "xspell":
-                        break;
-                    case "plusspell":
-                        break;
-                    case "plusspelltarget":
-                        break;
-                    case "3sqmwave":
-                        spell.IsDirectional = true;
-                        spell.Length = 3;
-                        break;
-                    case "5sqmwavenarrow":
-                        spell.IsDirectional = true;
-                        spell.Length = 5;
-                        spell.Spread = 3;
-                        break;
-                    case "5sqmwavewide":
-                        spell.IsDirectional = true;
-                        spell.Length = 5;
-                        spell.Spread = 5;
-                        break;
-                    case "1sqmballtarget":
-                        spell.Radius = 1;
-                        spell.OnTarget = true;
-                        break;
-                    case "2sqmballtarget":
-                        spell.Radius = 2;
-                        spell.OnTarget = true;
-                        break;
-                    case "3sqmballtarget":
-                        spell.Radius = 3;
-                        spell.OnTarget = true;
-                        break;
-                    case "4sqmballtarget":
-                        spell.Radius = 4;
-                        spell.OnTarget = true;
-                        break;
-                    case "5sqmballtarget":
-                        spell.Radius = 5;
-                        spell.OnTarget = true;
-                        break;
-                    case "8sqmwave":
-                        spell.IsDirectional = true;
-                        spell.Spread = 5;
-                        spell.Length = 8;
-                        break;
-                    case "10sqmwave":
-                        spell.IsDirectional = true;
-                        spell.Spread = 5;
-                        spell.Length = 10;
-                        break;
-                    case "2sqmring":
-                        break;
-                    case "3sqmring":
-                        break;
-                    case "4sqmring":
-                        break;
-                    case "4sqmballself":
-                        spell.OnTarget = false;
-                        break;
-                    case "5sqmballself":
-                        spell.Radius = 5;
-                        spell.OnTarget = false;
-                        break;
-                    case "6sqmballself":
-                        spell.Radius = 6;
-                        spell.OnTarget = false;
-                        break;
-                    case "4sqmbeam":
-                        spell.IsDirectional = true;
-                        spell.Length = 4;
-                        spell.Spread = 1;
-                        break;
-                    case "5sqmbeam":
-                        spell.IsDirectional = true;
-                        spell.Length = 5;
-                        spell.Spread = 1;
-                        break;
-                    case "6sqmbeam":
-                        spell.IsDirectional = true;
-                        spell.Length = 6;
-                        spell.Spread = 1;
-                        break;
-                    case "7sqmbeam":
-                        spell.IsDirectional = true;
-                        spell.Length = 7;
-                        spell.Spread = 1;
-                        break;
-                    case "8sqmbeam":
-                        spell.IsDirectional = true;
-                        spell.Length = 8;
-                        spell.Spread = 1;
-                        break;
-                    case "energy_wall_north_diag_area":
-                        break;
-                    case "energy_wall_south_diag_area":
-                        break;
-                    case "energy_wall_north_south_area":
-                        break;
-                    case "chivalrous_challenge":
-                        break;
-                }
-
-                return true;
-            }
-            catch
-            {
+            if (!TemplateParser.IsTemplateMatch<SceneTemplate>(input))
                 return false;
+
+            SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(input);
+            if ((scene.Missile != null) && (WikiMissilesToAnimations.ContainsKey(scene.Missile)))
+            {
+                spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
+                spell.OnTarget = true;
             }
+            if ((scene.Effect != null) && (WikiToEffects.ContainsKey(scene.Effect)))
+                spell.AreaEffect = WikiToEffects[scene.Effect];
+            switch (scene.Spell)
+            {
+                case "front_sweep":
+                    spell.IsDirectional = true;
+                    spell.Length = 1;
+                    spell.Spread = 3;
+                    break;
+                case "1sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 1;
+                    break;
+                case "2sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 2;
+                    break;
+                case "3sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 3;
+                    break;
+                case "5sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 5;
+                    break;
+                case "great_explosion":
+                    spell.Radius = 4;
+                    break;
+                case "3x3spell":
+                    spell.Radius = 3;
+                    break;
+                case "xspell":
+                    break;
+                case "plusspell":
+                    break;
+                case "plusspelltarget":
+                    break;
+                case "3sqmwave":
+                    spell.IsDirectional = true;
+                    spell.Length = 3;
+                    break;
+                case "5sqmwavenarrow":
+                    spell.IsDirectional = true;
+                    spell.Length = 5;
+                    spell.Spread = 3;
+                    break;
+                case "5sqmwavewide":
+                    spell.IsDirectional = true;
+                    spell.Length = 5;
+                    spell.Spread = 5;
+                    break;
+                case "1sqmballtarget":
+                    spell.Radius = 1;
+                    spell.OnTarget = true;
+                    break;
+                case "2sqmballtarget":
+                    spell.Radius = 2;
+                    spell.OnTarget = true;
+                    break;
+                case "3sqmballtarget":
+                    spell.Radius = 3;
+                    spell.OnTarget = true;
+                    break;
+                case "4sqmballtarget":
+                    spell.Radius = 4;
+                    spell.OnTarget = true;
+                    break;
+                case "5sqmballtarget":
+                    spell.Radius = 5;
+                    spell.OnTarget = true;
+                    break;
+                case "8sqmwave":
+                    spell.IsDirectional = true;
+                    spell.Spread = 5;
+                    spell.Length = 8;
+                    break;
+                case "10sqmwave":
+                    spell.IsDirectional = true;
+                    spell.Spread = 5;
+                    spell.Length = 10;
+                    break;
+                case "2sqmring":
+                    break;
+                case "3sqmring":
+                    break;
+                case "4sqmring":
+                    break;
+                case "4sqmballself":
+                    spell.OnTarget = false;
+                    break;
+                case "5sqmballself":
+                    spell.Radius = 5;
+                    spell.OnTarget = false;
+                    break;
+                case "6sqmballself":
+                    spell.Radius = 6;
+                    spell.OnTarget = false;
+                    break;
+                case "4sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 4;
+                    spell.Spread = 1;
+                    break;
+                case "5sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 5;
+                    spell.Spread = 1;
+                    break;
+                case "6sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 6;
+                    spell.Spread = 1;
+                    break;
+                case "7sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 7;
+                    spell.Spread = 1;
+                    break;
+                case "8sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 8;
+                    spell.Spread = 1;
+                    break;
+                case "energy_wall_north_diag_area":
+                    break;
+                case "energy_wall_south_diag_area":
+                    break;
+                case "energy_wall_north_south_area":
+                    break;
+                case "chivalrous_challenge":
+                    break;
+            }
+
+            return true;
         }
 
         private static Animation TibiaWikiToAnimation(string missile)
@@ -728,12 +729,12 @@ namespace MonsterConverterTibiaWiki
                             {
                                 double percent = times / kills;
 
-                                if (!double.TryParse(amount, out double count))
+                                if (!int.TryParse(amount, out int count))
                                 {
                                     var amounts = amount.Split("-");
                                     if (amounts.Length >= 2)
                                     {
-                                        double.TryParse(amounts[1], out count);
+                                        int.TryParse(amounts[1], out count);
                                     }
                                 }
                                 count = (count > 0) ? count : 1;
@@ -742,7 +743,7 @@ namespace MonsterConverterTibiaWiki
                                 {
                                     Item = item,
                                     Chance = (decimal)percent,
-                                    Count = (decimal)count
+                                    Count = count
                                 });
                             }
                         }
@@ -751,12 +752,92 @@ namespace MonsterConverterTibiaWiki
                 else
                 {
                     // Creature has loot but no loot statistics. Use information from loot table to generate the loot
+                    // Could be loot item template or just a list of items....
                     foreach (string loot in lootTableTemplate.Loot)
                     {
-                        // Could be loot item template or just a list of items....
-                        // https://tibia.fandom.com/wiki/Template:Loot_Item parse breaks down on this template with one two or three params using different formats
+                        if (!string.IsNullOrEmpty(loot))
+                        {
+                            if (TemplateParser.IsTemplateMatch<LootItemTemplate>(loot))
+                            {
+                                LootItemTemplate lootItem = TemplateParser.Deseralize<LootItemTemplate>(loot);
+                                if (lootItem.Parts != null)
+                                {
+                                    if (lootItem.Parts.Length == 1)
+                                    {
+                                        // template name only
+                                        monster.Items.Add(new Loot() { Item = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT });
+                                    }
+                                    else if (lootItem.Parts.Length == 2)
+                                    {
+                                        // template name + rarity OR count + name
+                                        // Assumes first combination if parts[1] matches a rarity description
+                                        if (TryParseTibiaWikiRarity(lootItem.Parts[1], out decimal chance))
+                                        {
+                                            monster.Items.Add(new Loot() { Item = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT });
+                                        }
+                                        else
+                                        {
+                                            if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
+                                                max = DEFAULT_LOOT_COUNT;
+                                            monster.Items.Add(new Loot() { Item = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max });
+                                        }
+                                    }
+                                    else if (lootItem.Parts.Length == 3)
+                                    {
+                                        // template name + rarity + count
+                                        if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
+                                            max = DEFAULT_LOOT_COUNT;
+                                        TryParseTibiaWikiRarity(lootItem.Parts[2], out decimal chance);
+                                        monster.Items.Add(new Loot() { Item = lootItem.Parts[1], Chance = chance, Count = max });
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        }
+
+        private static bool TryParseTibiaWikiRarity(string input, out decimal chance)
+        {
+            chance = DEFAULT_LOOT_CHANCE;
+            if (input == null)
+                return false;
+
+            input = input.ToLower();
+            if (input == "always")
+            {
+                chance = 1.0M;
+                return true;
+            }
+            else if (input == "common")
+            {
+                chance = 0.35M;
+                return true;
+            }
+            else if (input == "uncommon")
+            {
+                chance = 0.15M;
+                return true;
+            }
+            else if (input == "semi-rare")
+            {
+                chance = 0.025M;
+                return true;
+            }
+            else if (input == "rare")
+            {
+                chance = 0.075M;
+                return true;
+            }
+            else if (input == "very rare")
+            {
+                chance = 0.04M;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

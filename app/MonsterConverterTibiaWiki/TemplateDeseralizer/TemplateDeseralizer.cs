@@ -12,11 +12,28 @@ namespace MonsterConverterTibiaWiki
     {
         private static readonly IDictionary<Type, IDictionary<string, PropertyInfo>> typePropInfoDic = new Dictionary<Type, IDictionary<string, PropertyInfo>>();
 
+        public static bool IsTemplateMatch<T>(string input)
+        {
+            if (input == null)
+                return false;
+
+            Type myType = typeof(T);
+            string templateName = myType.Name;
+            TemplateNameAttribute attr = GetTemplateNameAttribute(myType);
+            if (attr != null)
+            {
+                templateName = attr.Name;
+            }
+
+            Regex templateWholeRegex = new Regex($"(?<before>.*){{{{(?<template>{templateName}.*)}}}}(?<after>.*)", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            return templateWholeRegex.Match(input).Success;
+        }
+
         public static T Deseralize<T>(string input) where T : new()
         {
             if (input == null)
             {
-                throw new Exception("Input is null");
+                throw new NullReferenceException("input is null");
             }
 
             Type myType = typeof(T);
