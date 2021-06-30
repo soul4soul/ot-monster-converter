@@ -205,6 +205,21 @@ namespace MonsterConverterTibiaWiki
             { "yellow sparkles effect", Effect.None } // 12.60?
         };
 
+        private static IDictionary<string, CombatDamage> WikiToElements = new Dictionary<string, CombatDamage>
+        {
+            {"physical", CombatDamage.Physical},
+            {"energy", CombatDamage.Energy},
+            {"earth", CombatDamage.Earth},
+            {"fire", CombatDamage.Fire},
+            {"life draing", CombatDamage.LifeDrain},
+            {"mana drain", CombatDamage.ManaDrain},
+            {"healing", CombatDamage.Healing},
+            {"drown", CombatDamage.Drown},
+            {"ice", CombatDamage.Ice},
+            {"holy", CombatDamage.Holy},
+            {"death", CombatDamage.Death}
+        };
+
         public override string ConverterName { get => "TibiaWiki"; }
 
         public override FileSource FileSource { get => FileSource.Web; }
@@ -274,14 +289,17 @@ namespace MonsterConverterTibiaWiki
 
         private static void ParseSoundList(Monster mon, string sounds)
         {
-            var soundTemplated = TemplateParser.Deseralize<SoundListTemplate>(sounds);
-            if (soundTemplated.Sounds != null)
+            if (TemplateParser.IsTemplateMatch<SoundListTemplate>(sounds))
             {
-                foreach (string sound in soundTemplated.Sounds)
+                var soundTemplated = TemplateParser.Deseralize<SoundListTemplate>(sounds);
+                if (soundTemplated.Sounds != null)
                 {
-                    // Sometimes unknow sound templates include a single empty sound {{SoundList|}}
-                    if (!string.IsNullOrWhiteSpace(sound))
-                        mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
+                    foreach (string sound in soundTemplated.Sounds)
+                    {
+                        // Sometimes unknow sound templates include a single empty sound {{SoundList|}}
+                        if (!string.IsNullOrWhiteSpace(sound))
+                            mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
+                    }
                 }
             }
         }
@@ -414,7 +432,7 @@ namespace MonsterConverterTibiaWiki
             {
                 foreach (string ability in abilityList.Ability)
                 {
-                    if (Regex.IsMatch(ability, @"{{melee\|.*}}"))
+                    if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
                     {
                         var melee = TemplateParser.Deseralize<MeleeTemplate>(ability);
                         var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
@@ -429,7 +447,7 @@ namespace MonsterConverterTibiaWiki
                         }
                         mon.Attacks.Add(spell);
                     }
-                    else if (Regex.IsMatch(ability, @"{{healing\|.*}}"))
+                    if (TemplateParser.IsTemplateMatch<HealingTemplate>(ability))
                     {
                         var healing = TemplateParser.Deseralize<HealingTemplate>(ability);
                         var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
@@ -446,7 +464,7 @@ namespace MonsterConverterTibiaWiki
                         }
                         mon.Attacks.Add(spell);
                     }
-                    else if (Regex.IsMatch(ability, @"{{summon\|.*}}"))
+                    if (TemplateParser.IsTemplateMatch<SummonTemplate>(ability))
                     {
                         var summon = TemplateParser.Deseralize<SummonTemplate>(ability);
                         int maxSummons = 1;
@@ -463,13 +481,13 @@ namespace MonsterConverterTibiaWiki
                             }
                         }
                     }
-                    else if (Regex.IsMatch(ability, @"{{haste\|.*}}"))
+                    if (TemplateParser.IsTemplateMatch<HasteTemplate>(ability))
                     {
                         var haste = TemplateParser.Deseralize<HasteTemplate>(ability);
                         int MinSpeedChange = 300;
                         int MaxSpeedChange = 300;
                         int Duration = 7000;
-                        if (haste.Name.Contains("strong"))
+                        if ((!string.IsNullOrWhiteSpace(haste.Name) && haste.Name.Contains("strong")))
                         {
                             MinSpeedChange = 450;
                             MaxSpeedChange = 450;
@@ -478,11 +496,17 @@ namespace MonsterConverterTibiaWiki
                         var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
                         mon.Attacks.Add(spell);
                     }
-                    else if (Regex.IsMatch(ability, @"{{ability\|.*}}"))
+                    if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
                     {
                         var abilityObj = TemplateParser.Deseralize<AbilityTemplate>(ability);
                         if (TryParseScene(abilityObj.Scene, out Spell spell))
                         {
+                            spell.Name = "combat";
+                            spell.SpellCategory = SpellCategory.Offensive;
+                            spell.DamageElement = CombatDamage.Physical;
+                            if (!string.IsNullOrWhiteSpace(abilityObj.Element) && WikiToElements.ContainsKey(abilityObj.Element.ToLower()))
+                                spell.DamageElement = WikiToElements[abilityObj.Element.ToLower()];
+
                             if (TryParseRange(abilityObj.Damage, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
@@ -492,8 +516,6 @@ namespace MonsterConverterTibiaWiki
                             {
                                 // Could guess defaults based on creature HP, EXP, and bestiary difficulty
                             }
-                            spell.Name = "combat";
-                            spell.SpellCategory = SpellCategory.Offensive;
                             mon.Attacks.Add(spell);
                         }
                         else
@@ -755,43 +777,41 @@ namespace MonsterConverterTibiaWiki
                     // Could be loot item template or just a list of items....
                     foreach (string loot in lootTableTemplate.Loot)
                     {
-                        if (!string.IsNullOrEmpty(loot))
+                        if (TemplateParser.IsTemplateMatch<LootItemTemplate>(loot))
                         {
-                            if (TemplateParser.IsTemplateMatch<LootItemTemplate>(loot))
+                            LootItemTemplate lootItem = TemplateParser.Deseralize<LootItemTemplate>(loot);
+                            if (lootItem.Parts != null)
                             {
-                                LootItemTemplate lootItem = TemplateParser.Deseralize<LootItemTemplate>(loot);
-                                if (lootItem.Parts != null)
+                                if (lootItem.Parts.Length == 1)
                                 {
-                                    if (lootItem.Parts.Length == 1)
+                                    // template name only
+                                    monster.Items.Add(new Loot() { Item = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT });
+                                }
+                                else if (lootItem.Parts.Length == 2)
+                                {
+                                    // template name + rarity OR count + name
+                                    // Assumes first combination if parts[1] matches a rarity description
+                                    if (TryParseTibiaWikiRarity(lootItem.Parts[1], out decimal chance))
                                     {
-                                        // template name only
-                                        monster.Items.Add(new Loot() { Item = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT });
+                                        monster.Items.Add(new Loot() { Item = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT });
                                     }
-                                    else if (lootItem.Parts.Length == 2)
+                                    else
                                     {
-                                        // template name + rarity OR count + name
-                                        // Assumes first combination if parts[1] matches a rarity description
-                                        if (TryParseTibiaWikiRarity(lootItem.Parts[1], out decimal chance))
-                                        {
-                                            monster.Items.Add(new Loot() { Item = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT });
-                                        }
-                                        else
-                                        {
-                                            if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
-                                                max = DEFAULT_LOOT_COUNT;
-                                            monster.Items.Add(new Loot() { Item = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max });
-                                        }
-                                    }
-                                    else if (lootItem.Parts.Length == 3)
-                                    {
-                                        // template name + rarity + count
                                         if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
                                             max = DEFAULT_LOOT_COUNT;
-                                        TryParseTibiaWikiRarity(lootItem.Parts[2], out decimal chance);
-                                        monster.Items.Add(new Loot() { Item = lootItem.Parts[1], Chance = chance, Count = max });
+                                        monster.Items.Add(new Loot() { Item = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max });
                                     }
                                 }
+                                else if (lootItem.Parts.Length == 3)
+                                {
+                                    // template name + rarity + count
+                                    if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
+                                        max = DEFAULT_LOOT_COUNT;
+                                    TryParseTibiaWikiRarity(lootItem.Parts[2], out decimal chance);
+                                    monster.Items.Add(new Loot() { Item = lootItem.Parts[1], Chance = chance, Count = max });
+                                }
                             }
+
                         }
                     }
                 }
@@ -917,7 +937,7 @@ namespace MonsterConverterTibiaWiki
             // Links are HTML encoded
             // %27 is HTML encode for ' character
             // %27%C3% is HTML encode for ñ character
-            var namematches = new Regex("/wiki/(?<name>[[a-zA-Z.()_%27%C3%B1-]+)").Matches(monsterTable);
+            var namematches = new Regex("/wiki/(?<name>[[a-zA-Z0-9.()_%27%C3%B1-]+)").Matches(monsterTable);
             foreach (Match match in namematches)
             {
                 names.Add(match.Groups["name"].Value.Replace("%27", "'").Replace("%C3%B1", "ñ"));
