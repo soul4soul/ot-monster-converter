@@ -24,8 +24,8 @@ namespace MonsterConverterInterface
             return Directory.GetFiles(directory, searchPattern, SearchOption.AllDirectories);
         }
 
-        public abstract ConvertResult ReadMonster(string filename, out Monster monster);
+        public abstract ConvertResultEventArgs ReadMonster(string filename, out Monster monster);
 
-        public abstract ConvertResult WriteMonster(string directory, ref Monster monster);
+        public abstract ConvertResultEventArgs WriteMonster(string directory, ref Monster monster);
     }
 }
