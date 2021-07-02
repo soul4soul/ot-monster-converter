@@ -862,6 +862,48 @@ namespace MonsterConverterTibiaWiki
         }
 
         /// <summary>
+        /// Creature run at can be number or color based
+        /// </summary>
+        /// <param name="monster"></param>
+        /// <param name="runsAt"></param>
+        private void ParseRunAt(Monster monster, string runsAt)
+        {
+            if (TryParseRange(runsAt, out int min, out int max))
+            {
+            }
+            else if (runsAt == "deep red")
+            {
+                max = (int)((monster.Health * 0.04) - 1);
+                min = 1;
+            }
+            else if (runsAt == "red")
+            {
+                max = (int)((monster.Health * 0.3) - 1);
+                min = (int)(monster.Health * 0.04);
+            }
+            else if (runsAt == "yellow")
+            {
+                max = (int)((monster.Health * 0.6) - 1);
+                min = (int)(monster.Health * 0.3);
+            }
+            else if (runsAt == "light green")
+            {
+                max = (int)((monster.Health * 0.95) - 1);
+                min = (int)(monster.Health * 0.6);
+            }
+            else if (runsAt == "green")
+            {
+                max = (int)(monster.Health - 1);
+                min = (int)(monster.Health * 0.95);
+            }
+
+            if (min == 0)
+                monster.RunOnHealth = (uint)max;
+            else
+                monster.RunOnHealth = (uint)((max + min) / 2);
+        }
+
+        /// <summary>
         /// Converts a string representing a numeric range to two intergers
         /// Example numeric ranges which can be parsed are "500", "0-500", and "0-500?"
         /// </summary>
@@ -975,7 +1017,7 @@ namespace MonsterConverterTibiaWiki
             if (RobustTryParse(creature.Exp, out uintVal)) { monster.Experience = uintVal; }
             if (RobustTryParse(creature.Armor, out uintVal)) { monster.TotalArmor = monster.Shielding = uintVal; }
             if (RobustTryParse(creature.Speed, out uintVal)) { monster.Speed = uintVal * 2; }
-            if (RobustTryParse(creature.RunsAt, out uintVal)) { monster.RunOnHealth = uintVal; }
+            if (!string.IsNullOrWhiteSpace(creature.RunsAt)) { ParseRunAt(monster, creature.RunsAt); }
             if (RobustTryParse(creature.Summon, out uintVal)) { monster.SummonCost = uintVal; }
             if (RobustTryParse(creature.Convince, out uintVal)) { monster.ConvinceCost = uintVal; }
             if (RobustTryParse(creature.Illusionable, out boolVal)) { monster.Illusionable = boolVal; }
