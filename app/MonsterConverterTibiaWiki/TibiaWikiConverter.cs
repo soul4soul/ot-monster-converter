@@ -20,6 +20,8 @@ namespace MonsterConverterTibiaWiki
         private const decimal DEFAULT_LOOT_CHANCE = 0.2M;
         private const int DEFAULT_LOOT_COUNT = 1;
 
+        private static readonly HttpClient httpClient = new HttpClient();
+
         // https://tibia.fandom.com/wiki/Missiles
         private static IDictionary<string, Animation> WikiMissilesToAnimations = new Dictionary<string, Animation>
         {
@@ -314,14 +316,9 @@ namespace MonsterConverterTibiaWiki
                 monster.TargetDistance = 1;
         }
 
-        /// <summary>
-        /// Parsing abilties is implemented like this instead of a using the RegexPatternKeys so we can easily print a list of abilties which fail to be parsed
-        /// Abilities from tibiawiki include melee, attacks, and defenses
-        /// </summary>
-        /// <param name="mon"></param>
-        /// <param name="m"></param>
         private static void ParseAbilities(Monster mon, string abilities)
         {
+            // Shouldn't need any of this anymore for ParseAbilityList, but it is still useful for ParseLegacyAbilities
             abilities = abilities.ToLower().Replace("\r", "").Replace("\n", "").Trim();
 
             if (abilities.Contains("ability list"))
@@ -330,6 +327,13 @@ namespace MonsterConverterTibiaWiki
                 ParseLegacyAbilities(mon, abilities);
         }
 
+        /// <summary>
+        /// Historically abilities were a comma seperate list of losely conforming enlgish
+        /// The TibiaWiki admins have replaced this format with a standard template.
+        /// Eventually everything will switch to the ability list template and this function can be removed
+        /// </summary>
+        /// <param name="mon"></param>
+        /// <param name="abilities"></param>
         private static void ParseLegacyAbilities(Monster mon, string abilities)
         {
             if (string.IsNullOrWhiteSpace(abilities) || abilities.Contains("none") || abilities.Contains("unknown") || abilities == "?")
@@ -419,11 +423,6 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        /// <summary>
-        /// To parse abilities from the ability list template we the string needs to be split by top level |
-        /// </summary>
-        /// <param name="mon"></param>
-        /// <param name="abilities"></param>
         private static void ParseAbilityList(Monster mon, string abilities)
         {
             var abilityList = TemplateParser.Deseralize<AbilityListTemplate>(abilities);
@@ -988,13 +987,11 @@ namespace MonsterConverterTibiaWiki
             return names.ToArray();
         }
 
-        private static readonly HttpClient client = new HttpClient();
-
         private static async Task<Parse> RequestData(string endpoint)
         {
-            client.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Clear();
 
-            var streamTask = client.GetStreamAsync(endpoint);
+            var streamTask = httpClient.GetStreamAsync(endpoint);
             var repositories = await JsonSerializer.DeserializeAsync<Root>(await streamTask);
             return repositories.Parse;
         }

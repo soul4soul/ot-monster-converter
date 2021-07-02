@@ -51,7 +51,7 @@ namespace MonsterConverterTibiaWiki
             {
                 T output = new T();
                 PropertyInfo prop;
-                // TODO when there is a param like |look_direction=| this will incorrectly set the field as that value instead of skipping the field or setting the value as an empty string
+                // Fix when there is a param like |look_direction=| this will incorrectly set the field as that value instead of skipping the field or setting the value as an empty string
                 // Seems to work on regexr but not in c#
                 Regex templatePartRegex = new Regex(@"(\s*(?<name>\w+)\s*=)?\s*(?<value>.+)\s*", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
