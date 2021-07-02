@@ -719,7 +719,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private void ParseLoot(Monster monster, string lootTable, string filename)
+        private static void ParseLoot(Monster monster, string lootTable, string filename)
         {
             var lootTableTemplate = TemplateParser.Deseralize<LootTableTemplate>(lootTable);
             if ((lootTableTemplate.Loot != null) && (lootTableTemplate.Loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.Loot[0])))
@@ -866,7 +866,7 @@ namespace MonsterConverterTibiaWiki
         /// </summary>
         /// <param name="monster"></param>
         /// <param name="runsAt"></param>
-        private void ParseRunAt(Monster monster, string runsAt)
+        private static void ParseRunAt(Monster monster, string runsAt)
         {
             if (TryParseRange(runsAt, out int min, out int max))
             {
@@ -990,7 +990,7 @@ namespace MonsterConverterTibiaWiki
 
         private static readonly HttpClient client = new HttpClient();
 
-        private async Task<Parse> RequestData(string endpoint)
+        private static async Task<Parse> RequestData(string endpoint)
         {
             client.DefaultRequestHeaders.Accept.Clear();
 
@@ -1089,7 +1089,8 @@ namespace MonsterConverterTibiaWiki
                 $"| drownDmgMod    = {monster.Drown * 100:0}%",
                 $"| sounds         = {GenericToTibiaWikiVoice(ref monster)}",
                 $"| runsat         = {monster.RunOnHealth}",
-                $"| speed          = {monster.Speed}"
+                $"| speed          = {monster.Speed}",
+                $"| loot           = {GenericToTibiaWikiLootList(ref monster)}"
             };
             string fileName = Path.Combine(directory, monster.FileName);
             File.WriteAllLines(fileName, lines);
@@ -1097,7 +1098,7 @@ namespace MonsterConverterTibiaWiki
             return new ConvertResult(fileName, ConvertError.Warning, "Loot information is not written.");
         }
 
-        private string GenericToTibiaWikiWalkAround(ref Monster monster)
+        private static string GenericToTibiaWikiWalkAround(ref Monster monster)
         {
             string walks = "";
             if (monster.AvoidFire)
@@ -1122,7 +1123,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private string GenericToTibiaWikiWalkThrough(ref Monster monster)
+        private static string GenericToTibiaWikiWalkThrough(ref Monster monster)
         {
             string walks = "";
             if (!monster.AvoidFire)
@@ -1147,7 +1148,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private string GenericToTibiaWikiVoice(ref Monster monster)
+        private static string GenericToTibiaWikiVoice(ref Monster monster)
         {
             string voice = "";
             foreach (var v in monster.Voices)
@@ -1162,6 +1163,53 @@ namespace MonsterConverterTibiaWiki
                 }
             }
             return $"{{{{Sound List|{voice}}}}}";
+        }
+
+        private static string GenericToTibiaWikiLootList(ref Monster monster)
+        {
+            string lootList = "";
+            foreach (var l in monster.Items)
+            {
+                if (string.IsNullOrWhiteSpace(lootList))
+                {
+                    lootList = GenericToTibiaWikiLoot(l);
+                }
+                else
+                {
+                    lootList = $"{lootList}{Environment.NewLine}|{GenericToTibiaWikiLoot(l)}";
+                }
+            }
+            return $"{{{{Loot List{Environment.NewLine}|{lootList}}}}}";
+        }
+
+        private static string GenericToTibiaWikiLoot(Loot loot)
+        {
+            string countPart = "1";
+            if (loot.Count > 1)
+                countPart = $"0-{loot.Count}";
+            string chancePart = "always";
+            if (loot.Chance < 0.005M)
+            {
+                chancePart = "very rare";
+            }
+            else if ((loot.Chance >= 0.005M) && (loot.Chance < 0.01M))
+            {
+                chancePart = "rare";
+            }
+            else if ((loot.Chance >= 0.01M) && (loot.Chance < 0.05M))
+            {
+                chancePart = "semi-rare";
+            }
+            else if ((loot.Chance >= 0.05M) && (loot.Chance < 0.25M))
+            {
+                chancePart = "uncommon";
+            }
+            else if ((loot.Chance >= 0.25M) && (loot.Chance < 1.0M))
+            {
+                chancePart = "common";
+            }
+
+            return $"{{{{Loot Item|{countPart}|{loot.Item}|{chancePart}}}}}";
         }
     }
 }
