@@ -51,7 +51,7 @@ namespace OTMonsterConverter
             }
         }
 
-        private void PrintInfo(ConvertError overallError, ConvertResult source, ConvertResult destination)
+        private void PrintInfo(ConvertError overallError, ConvertResultEventArgs source, ConvertResultEventArgs destination)
         {
             string prefix = "ERROR";
             if (overallError == ConvertError.Warning)
