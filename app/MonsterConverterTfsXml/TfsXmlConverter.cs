@@ -438,7 +438,7 @@ namespace MonsterConverterTfsXml
                     {
                         Name = summon.name,
                         Chance = Math.Min(1, (double)summon.chance / 100),
-                        Rate = (uint)((summon.interval > 0) ? summon.interval : summon.speed),
+                        Interval = (uint)((summon.interval > 0) ? summon.interval : summon.speed),
                         Max = summon.max,
                         Force = summon.force
                     });
