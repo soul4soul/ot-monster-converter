@@ -261,13 +261,13 @@ namespace MonsterConverterTfsRevScriptSys
 
                 // Flags
                 dest.WriteLine("monster.flags = {");
-                dest.WriteLine($"	summonable = {(monster.SummonCost > 0).ToString().ToLower()},");
                 dest.WriteLine($"	attackable = {monster.Attackable.ToString().ToLower()},");
                 dest.WriteLine($"	hostile = {monster.Hostile.ToString().ToLower()},");
+                dest.WriteLine($"	summonable = {(monster.SummonCost > 0).ToString().ToLower()},");
                 dest.WriteLine($"	convinceable = {(monster.ConvinceCost > 0).ToString().ToLower()},");
-                dest.WriteLine($"	pushable = {monster.Pushable.ToString().ToLower()},");
-                dest.WriteLine($"	boss = {monster.IsBoss.ToString().ToLower()},");
                 dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
+                dest.WriteLine($"	boss = {monster.IsBoss.ToString().ToLower()},");
+                dest.WriteLine($"	pushable = {monster.Pushable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
                 dest.WriteLine($"	staticAttackChance = {monster.StaticAttack},");
@@ -422,7 +422,7 @@ namespace MonsterConverterTfsRevScriptSys
                     string summon;
                     for (int i = 0; i < monster.Summons.Count; i++)
                     {
-                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100:0}, interval = {monster.Summons[i].Rate}";
+                        summon = $"	{{name = \"{monster.Summons[i].Name}\", chance = {monster.Summons[i].Chance * 100:0}, interval = {monster.Summons[i].Interval}";
                         if (monster.Summons[i].Max > 0)
                         {
                             summon += $", max = {monster.Summons[i].Max}";
