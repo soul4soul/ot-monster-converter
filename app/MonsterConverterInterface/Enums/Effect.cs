@@ -69,9 +69,11 @@ namespace MonsterConverterInterface.MonsterTypes
         SkullHorizontal,
         SkullVertical,
         Assassin,
-        StepsHorizontal,
+        StepsHorizontal, // TFS compat
+        BloodyHandsHorizontal = StepsHorizontal,
         BloodySteps,
-        StepsVertical,
+        StepsVertical, // TFS compat
+        BloodyHandsVertical = StepsVertical,
         YalahariGhost,
         Bats,
         Smoke,
@@ -79,7 +81,7 @@ namespace MonsterConverterInterface.MonsterTypes
         Dragonhead,
         OrcShaman,
         OrcShamanFire,
-        Thunder,
+        Thunder, // Has whitelight
         Ferumbras,
         ConfettiHorizontal,
         ConfettiVertical,
@@ -90,7 +92,7 @@ namespace MonsterConverterInterface.MonsterTypes
         YellowSmoke = 168,
         GreenSmoke = 169,
         PurpleSmoke = 170,
-        EarlyThunder = 171,
+        EarlyThunder = 171, // Has bluelight
         RagiazBoneCapsule = 172,
         CriticalDamage = 173,
         // 174 is empty
