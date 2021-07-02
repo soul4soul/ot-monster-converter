@@ -22,7 +22,7 @@ namespace OTMonsterConverter
 
     public sealed class FileProcessorEventArgs : EventArgs
     {
-        public FileProcessorEventArgs(ConvertResult source, ConvertResult destination, double completed, double total)
+        public FileProcessorEventArgs(ConvertResultEventArgs source, ConvertResultEventArgs destination, double completed, double total)
         {
             Source = source;
             Destination = destination;
@@ -30,8 +30,8 @@ namespace OTMonsterConverter
             Total = total;
         }
 
-        public ConvertResult Source { get; }
-        public ConvertResult Destination { get; }
+        public ConvertResultEventArgs Source { get; }
+        public ConvertResultEventArgs Destination { get; }
         public double Completed { get; }
         public double Total { get; }
     }
@@ -106,10 +106,10 @@ namespace OTMonsterConverter
             }
         }
 
-        private Tuple<ConvertResult, ConvertResult> ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
+        private Tuple<ConvertResultEventArgs, ConvertResultEventArgs> ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
         {
-            ConvertResult readResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
-            ConvertResult writeResult = new ConvertResult("unknown", ConvertError.Error, "Unknown error occured");
+            ConvertResultEventArgs readResult = new ConvertResultEventArgs("unknown", ConvertError.Error, "Unknown error occured");
+            ConvertResultEventArgs writeResult = new ConvertResultEventArgs("unknown", ConvertError.Error, "Unknown error occured");
 
             // The ReadMonster and Write methods processors should really do their best to catch and return meaningful errors
             try

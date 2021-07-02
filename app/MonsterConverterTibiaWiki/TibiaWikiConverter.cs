@@ -996,7 +996,7 @@ namespace MonsterConverterTibiaWiki
             return repositories.Parse;
         }
 
-        public override ConvertResult ReadMonster(string filename, out Monster monster)
+        public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
             string resultMessage = "Blood type, look type data, and abilities are not parsed.";
 
@@ -1034,7 +1034,7 @@ namespace MonsterConverterTibiaWiki
             if (RobustTryParse(creature.EnergyDmgMod, out uintVal)) { monster.Energy = uintVal / 100.0; }
             if (RobustTryParse(creature.HolyDmgMod, out uintVal)) { monster.Holy = uintVal / 100.0; }
             if (RobustTryParse(creature.IceDmgMod, out uintVal)) { monster.Ice = uintVal / 100.0; }
-            //if (RobustTryParse(creature.HealMod, out uintVal)) { monster. = uintVal / 100.0; }
+            if (RobustTryParse(creature.HealMod, out uintVal)) { monster.Healing = uintVal / 100.0; }
             if (RobustTryParse(creature.LifeDrainDmgMod, out uintVal)) { monster.LifeDrain = uintVal / 100.0; }
             if (RobustTryParse(creature.DrownDmgMod, out uintVal)) { monster.Drown = uintVal / 100.0; }
             if (!string.IsNullOrWhiteSpace(creature.Sounds)) { ParseSoundList(monster, creature.Sounds); }
@@ -1051,10 +1051,10 @@ namespace MonsterConverterTibiaWiki
             }
             monster.Name = textInfo.ToTitleCase(monster.Name);
 
-            return new ConvertResult(filename, ConvertError.Warning, resultMessage);
+            return new ConvertResultEventArgs(filename, ConvertError.Warning, resultMessage);
         }
 
-        public override ConvertResult WriteMonster(string directory, ref Monster monster)
+        public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
             string[] lines =
             {
@@ -1082,6 +1082,7 @@ namespace MonsterConverterTibiaWiki
                 $"| energyDmgMod   = {monster.Energy * 100:0}%",
                 $"| holyDmgMod     = {monster.Holy * 100:0}%",
                 $"| iceDmgMod      = {monster.Ice * 100:0}%",
+                $"| healMod        = {monster.Healing * 100:0}%",
                 $"| hpDrainDmgMod  = {monster.LifeDrain * 100:0}%",
                 $"| drownDmgMod    = {monster.Drown * 100:0}%",
                 $"| sounds         = {GenericToTibiaWikiVoice(ref monster)}",
@@ -1092,7 +1093,7 @@ namespace MonsterConverterTibiaWiki
             string fileName = Path.Combine(directory, monster.FileName);
             File.WriteAllLines(fileName, lines);
 
-            return new ConvertResult(fileName, ConvertError.Warning, "Loot information is not written.");
+            return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Summons, abilities, and description information is not written.");
         }
 
         private static string GenericToTibiaWikiWalkAround(ref Monster monster)
