@@ -93,8 +93,8 @@ namespace OTMonsterConverter
 
             ValidateControls();
             monsterListDataTable = new DataTable("MonsterList");
-            monsterListDataTable.Columns.Add("Source", typeof(ConvertResult));
-            monsterListDataTable.Columns.Add("Destination", typeof(ConvertResult));
+            monsterListDataTable.Columns.Add("Source", typeof(ConvertResultEventArgs));
+            monsterListDataTable.Columns.Add("Destination", typeof(ConvertResultEventArgs));
             dataGridResults.ItemsSource = monsterListDataTable.AsDataView();
         }
 

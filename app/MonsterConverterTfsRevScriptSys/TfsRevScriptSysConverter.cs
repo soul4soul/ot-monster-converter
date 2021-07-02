@@ -208,11 +208,10 @@ namespace MonsterConverterTfsRevScriptSys
 
         public override bool IsWriteSupported { get => true; }
 
-        public override ConvertResult WriteMonster(string directory, ref Monster monster)
+        public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
-            ConvertError code = ConvertError.Success;
-            string message = "";
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
+            ConvertResultEventArgs result = new ConvertResultEventArgs(fileName);
 
             using (var fstream = File.OpenWrite(fileName))
             using (var dest = new StreamWriter(fstream))
@@ -323,11 +322,17 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Fire]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Fire)}}},");
                 dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.LifeDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrain)}}},");
                 dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.ManaDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrain)}}},");
-                //dest.WriteLine($"	{{type = { CombatDamageNames[CombatDamage.Healing]}, percent = {GenericToTfsElemementPercent(monster.XXXX)}}},");
                 dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Drown]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Drown)}}},");
                 dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Ice]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Ice)}}},");
                 dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Holy]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Holy)}}},");
                 dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Death]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Death)}}}");
+                if (monster.Healing != 1)
+                {
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Can't convert unsupported healing combat modifier");
+                    //dest.WriteLine($"	{{type = { CombatDamageNames[CombatDamage.Healing]}, percent = {GenericToTfsElemementPercent(monster.Healing)}}},");
+                }
+
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
@@ -339,18 +344,14 @@ namespace MonsterConverterTfsRevScriptSys
                     {
                         if (spell.SpellCategory == SpellCategory.Offensive)
                         {
-                            Spell s = spell;
-                            var result = GenericToTfsRevScriptSysSpells(ref s);
-                            if (result.Item1 != ConvertError.Success)
+                            var revSpell = GenericToTfsRevScriptSysSpells(spell);
+                            if (revSpell.Item1 != ConvertError.Success)
                             {
-                                if (code != ConvertError.Error)
-                                {
-                                    code = ConvertError.Warning;
-                                    message += result.Item2;
-                                }
+                                result.IncreaseError(revSpell.Item1);
+                                result.AppendMessage(revSpell.Item2);
                                 continue;
                             }
-                            attacks.Add(result.Item2);
+                            attacks.Add(revSpell.Item2);
                         }
                     }
 
@@ -376,18 +377,14 @@ namespace MonsterConverterTfsRevScriptSys
                 {
                     if (spell.SpellCategory == SpellCategory.Defensive)
                     {
-                        Spell s = spell;
-                        var result = GenericToTfsRevScriptSysSpells(ref s);
-                        if (result.Item1 != ConvertError.Success)
+                        var revSpell = GenericToTfsRevScriptSysSpells(spell);
+                        if (revSpell.Item1 != ConvertError.Success)
                         {
-                            if (code != ConvertError.Error)
-                            {
-                                code = ConvertError.Warning;
-                                message += result.Item2;
-                            }
+                            result.IncreaseError(revSpell.Item1);
+                            result.AppendMessage(revSpell.Item2);
                             continue;
                         }
-                        defenses.Add(result.Item2);
+                        defenses.Add(revSpell.Item2);
                     }
                 }
                 dest.WriteLine("monster.defenses = {");
@@ -450,8 +447,8 @@ namespace MonsterConverterTfsRevScriptSys
 
                 if (monster.Scripts.Count(s => s.Type != ScriptType.OnDeath) > 0)
                 {
-                    code = ConvertError.Warning;
-                    message += "Unable to convert scripts.";
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Unable to convert scripts");
                 }
                 var writableEvents = monster.Scripts.Where(s => s.Type == ScriptType.OnDeath).ToList();
                 if (writableEvents.Count > 0)
@@ -524,10 +521,10 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("mType:register(monster)");
             }
 
-            return new ConvertResult(fileName, code, message);
+            return result;
         }
 
-        public override ConvertResult ReadMonster(string filename, out Monster monster)
+        public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
             throw new NotImplementedException();
         }
@@ -543,7 +540,7 @@ namespace MonsterConverterTfsRevScriptSys
         /// </summary>
         /// <param name="spell"></param>
         /// <returns>ConvertError, attack in string format OR error message</returns>
-        public Tuple<ConvertError, string> GenericToTfsRevScriptSysSpells(ref Spell spell)
+        public Tuple<ConvertError, string> GenericToTfsRevScriptSysSpells(Spell spell)
         {
             ConvertError error = ConvertError.Success;
             string attack = "";

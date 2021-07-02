@@ -213,7 +213,7 @@ namespace MonsterConverterTfsXml
         private static string CurrentFileName { get; set; }
 
         // Functions
-        public override ConvertResult ReadMonster(string filename, out Monster monster)
+        public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
             try
             {
@@ -235,17 +235,17 @@ namespace MonsterConverterTfsXml
                 // Guess the registered name, they are actually defined in "monsters.xml" but we don't parse that file...
                 monster.RegisteredName = monster.FileName.Replace('_', ' ');
 
-                return new ConvertResult(filename, ConvertError.Success);
+                return new ConvertResultEventArgs(filename, ConvertError.Success);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error pasring {filename}. Exception {ex.Message}");
                 monster = null;
-                return new ConvertResult(filename, ConvertError.Error, ex.Message);
+                return new ConvertResultEventArgs(filename, ConvertError.Error, ex.Message);
             }
         }
 
-        public override ConvertResult WriteMonster(string directory, ref Monster monster)
+        public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
 
@@ -258,7 +258,7 @@ namespace MonsterConverterTfsXml
                         ));
             xDoc.Save(fileName);
 
-            return new ConvertResult(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
+            return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
         private void xmlToGeneric(TFSXmlMonster tfsMonster, out Monster monster)
