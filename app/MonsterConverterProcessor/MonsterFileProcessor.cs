@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace OTMonsterConverter
+namespace MonsterConverterProcessor
 {
     public enum ScanError
     {
@@ -108,7 +108,7 @@ namespace OTMonsterConverter
 
         private Tuple<ConvertResultEventArgs, ConvertResultEventArgs> ProcessFile(string file, IMonsterConverter input, IMonsterConverter output, string outputDir)
         {
-            ConvertResultEventArgs readResult = new ConvertResultEventArgs("unknown", ConvertError.Error, "Unknown error occured");
+            ConvertResultEventArgs readResult = new ConvertResultEventArgs(file, ConvertError.Error, "Unknown error occured");
             ConvertResultEventArgs writeResult = new ConvertResultEventArgs("unknown", ConvertError.Error, "Unknown error occured");
 
             // The ReadMonster and Write methods processors should really do their best to catch and return meaningful errors

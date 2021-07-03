@@ -1,0 +1,37 @@
+name:  Build on Linux
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: ubuntu-latest
+
+    env:
+      SolutionPath: app/otmc/otmc.csproj
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SolutionPath }}
+
+    - name: Build
+      run: dotnet build ${{ env.SolutionPath }} --no-restore --configuration=${{ env.Configuration }}
+      env:
+        Configuration: ${{ matrix.configuration }}
