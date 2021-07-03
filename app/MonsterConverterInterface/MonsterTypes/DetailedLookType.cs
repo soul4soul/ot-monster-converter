@@ -8,7 +8,7 @@ namespace MonsterConverterInterface.MonsterTypes
     public class DetailedLookType
     {
         // Variables
-        private const ushort MAX_COLOR = 132; //todo is this correct?
+        private const ushort MAX_COLOR = 132;
 
         private ushort _Head;
         private ushort _Body;

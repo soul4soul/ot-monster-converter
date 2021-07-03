@@ -46,18 +46,18 @@ namespace MonsterConverterInterface.MonsterTypes
             TotalArmor = 10;
             Shielding = 5;
 
-            // Elements
-            Fire = 1;
-            Earth = 1;
-            Energy = 1;
-            Ice = 1;
-            Holy = 1;
-            Death = 1;
-            Physical = 1;
-            Drown = 1;
-            LifeDrain = 1;
-            ManaDrain = 1;
-            Healing = 1;
+            // Damage Modifiers
+            FireDmgMod = 1;
+            EarthDmgMod = 1;
+            EnergyDmgMod = 1;
+            IceDmgMod = 1;
+            HolyDmgMod = 1;
+            DeathDmgMod = 1;
+            PhysicalDmgMod = 1;
+            DrownDmgMod = 1;
+            LifeDrainDmgMod = 1;
+            ManaDrainDmgMod = 1;
+            HealingMod = 1;
         }
 
         // Properties
@@ -75,36 +75,36 @@ namespace MonsterConverterInterface.MonsterTypes
         /// </summary>
         public string RegisteredName { get; set; }
         public string Description { get; set; }
-        public uint Health { get; set; }
-        public uint Experience { get; set; }
-        public uint Speed { get; set; }
+        public int Health { get; set; }
+        public int Experience { get; set; }
+        public int Speed { get; set; }
         public IList<Voice> Voices { get; set; }
         public Blood Race { get; set; }
-        public uint RetargetInterval { get; set; }
+        public int RetargetInterval { get; set; }
         public double RetargetChance { get; set; }
-        public uint MaxSummons { get; set; }
+        public int MaxSummons { get; set; }
         public IList<Summon> Summons { get; set; }
 
         // Look
-        public uint CorpseId { get; set; }
-        public uint OutfitIdLookType { get; set; }
-        public uint ItemIdLookType { get; set; } // non 0 means creature looks like an item
+        public int CorpseId { get; set; }
+        public int OutfitIdLookType { get; set; }
+        public int ItemIdLookType { get; set; } // non 0 means creature looks like an item
         public DetailedLookType LookTypeDetails { get; set; }
 
         // Behavior
-        public uint SummonCost { get; set; }
+        public int SummonCost { get; set; }
         public bool Attackable { get; set; }
         public bool Hostile { get; set; }
         public bool Illusionable { get; set; }
-        public uint ConvinceCost { get; set; }
+        public int ConvinceCost { get; set; }
         public bool Pushable { get; set; }
         public bool PushItems { get; set; }
         public bool PushCreatures { get; set; }
-        public uint TargetDistance { get; set; }
-        public uint RunOnHealth { get; set; }
-        public uint StaticAttack { get; set; }
-        public uint LightLevel { get; set; }
-        public uint LightColor { get; set; }
+        public int TargetDistance { get; set; }
+        public int RunOnHealth { get; set; }
+        public int StaticAttack { get; set; }
+        public int LightLevel { get; set; }
+        public int LightColor { get; set; }
         public bool HideHealth { get; set; }
         public bool IsBoss { get; set; }
 
@@ -117,19 +117,19 @@ namespace MonsterConverterInterface.MonsterTypes
         public IList<Spell> Attacks { get; set; }
 
         // Defeneses
-        public uint TotalArmor { get; set; }
-        public uint Shielding { get; set; }
-        public double Fire { get; set; }
-        public double Earth { get; set; }
-        public double Energy { get; set; }
-        public double Ice { get; set; }
-        public double Holy { get; set; }
-        public double Death { get; set; }
-        public double Physical { get; set; }
-        public double Drown { get; set; }
-        public double LifeDrain { get; set; }
-        public double ManaDrain { get; set; }
-        public double Healing { get; set; }  // This is an element type, some mobs like Leiden take damage from healing
+        public int TotalArmor { get; set; }
+        public int Shielding { get; set; }
+        public double FireDmgMod { get; set; }
+        public double EarthDmgMod { get; set; }
+        public double EnergyDmgMod { get; set; }
+        public double IceDmgMod { get; set; }
+        public double HolyDmgMod { get; set; }
+        public double DeathDmgMod { get; set; }
+        public double PhysicalDmgMod { get; set; }
+        public double DrownDmgMod { get; set; }
+        public double LifeDrainDmgMod { get; set; }
+        public double ManaDrainDmgMod { get; set; }
+        public double HealingMod { get; set; }  // This is an element type, some mobs like Leiden take damage from healing
 
         // Immunities
         public bool IgnoreParalyze { get; set; }

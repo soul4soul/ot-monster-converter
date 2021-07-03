@@ -37,7 +37,7 @@ namespace MonsterConverterPyOt.Converter
                 string.Format("{0}.health({1})", lowerName, monster.Health),
                 string.Format("{0}.bloodType({1})", lowerName, GenericToPyOTBlood(monster.Race)), //todo might change
                 string.Format("{0}.defense(armor={1}, fire={2}, earth={3}, energy={4}, ice={5}, holy={6}, death={7}, physical={8}, drown={9}, lifedrain={10}, manadrain={11})",
-                    lowerName, monster.TotalArmor, monster.Fire, monster.Earth, monster.Energy, monster.Ice, monster.Holy, monster.Death, monster.Physical, monster.Drown, monster.LifeDrain, monster.ManaDrain),
+                    lowerName, monster.TotalArmor, monster.FireDmgMod, monster.EarthDmgMod, monster.EnergyDmgMod, monster.IceDmgMod, monster.HolyDmgMod, monster.DeathDmgMod, monster.PhysicalDmgMod, monster.DrownDmgMod, monster.LifeDrainDmgMod, monster.ManaDrainDmgMod),
                 string.Format("{0}.setExperience({1})", lowerName, monster.Experience),
                 string.Format("{0}.setSpeed({1})", lowerName, monster.Speed),
                 //string.Format("{0}.setTargetChance({1})", lowerName, monster.RetargetChance), //Currently unused in pyOT?, consider changing code in pyOT to be chance of 0 to 1 for a percent instead of 0 to 100

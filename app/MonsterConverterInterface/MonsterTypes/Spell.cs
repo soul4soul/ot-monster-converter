@@ -13,11 +13,11 @@ namespace MonsterConverterInterface.MonsterTypes
         public Effect AreaEffect { get; set; }
         public Animation ShootEffect { get; set; }
         public double Chance { get; set; }
-        public uint Interval { get; set; }
-        public uint? Range { get; set; }
-        public uint? Radius { get; set; }
-        public uint? Length { get; set; }
-        public uint? Spread { get; set; }
+        public int Interval { get; set; }
+        public int? Range { get; set; }
+        public int? Radius { get; set; }
+        public int? Length { get; set; }
+        public int? Spread { get; set; }
         public bool? OnTarget { get; set; }
         public bool? IsDirectional { get; set; }
         public SpellDefinition DefinitionStyle { get; set; }
