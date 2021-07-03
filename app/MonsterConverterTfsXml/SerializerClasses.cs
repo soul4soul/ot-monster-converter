@@ -222,9 +222,9 @@ namespace MonsterConverterTfsXml
     public class Defenses
     {
         [XmlAttribute]
-        public uint defense;
+        public int defense;
         [XmlAttribute]
-        public uint armor;
+        public int armor;
 
         [XmlElement(ElementName = "defense")]
         public Attack[] defenses;

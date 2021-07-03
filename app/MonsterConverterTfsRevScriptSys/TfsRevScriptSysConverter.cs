@@ -202,6 +202,15 @@ namespace MonsterConverterTfsRevScriptSys
             {Animation.SimpleArrow,      "CONST_ANI_SIMPLEARROW"},
         };
 
+        IDictionary<Blood, string> BloodToRace = new Dictionary<Blood, string>()
+        {
+            { Blood.blood, "blood" },
+            { Blood.venom, "venom" },
+            { Blood.undead, "undead" },
+            { Blood.fire, "fire" },
+            { Blood.energy, "energy" }
+        };
+
         public override string FileExt { get => "lua"; }
 
         public override bool IsReadSupported { get => false; }
@@ -245,7 +254,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"monster.health = {monster.Health}");
                 dest.WriteLine($"monster.maxHealth = {monster.Health}");
                 dest.WriteLine($"monster.runHealth = {monster.RunOnHealth}");
-                dest.WriteLine($"monster.race = \"{monster.Race}\""); // TODO check if mapping is neeeded
+                dest.WriteLine($"monster.race = \"{BloodToRace[monster.Race]}\"");
                 dest.WriteLine($"monster.corpse = {monster.CorpseId}");
                 dest.WriteLine($"monster.speed = {monster.Speed}");
                 dest.WriteLine($"monster.summonCost = {monster.SummonCost}");
@@ -316,17 +325,17 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("");
 
                 dest.WriteLine("monster.elements = {");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Physical]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Physical)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Energy]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Energy)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Earth]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Earth)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Fire]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Fire)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.LifeDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrain)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.ManaDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrain)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Drown]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Drown)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Ice]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.Ice)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Holy]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Holy)}}},");
-                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Death]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.Death)}}}");
-                if (monster.Healing != 1)
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Physical]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.PhysicalDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Energy]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.EnergyDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Earth]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.EarthDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Fire]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.FireDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.LifeDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.LifeDrainDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.ManaDrain]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.ManaDrainDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Drown]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.DrownDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Ice]}, percent = {GenericToTfsRevScriptSysElemementPercent(monster.IceDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Holy]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.HolyDmgMod)}}},");
+                dest.WriteLine($"	{{type = {CombatDamageNames[CombatDamage.Death]} , percent = {GenericToTfsRevScriptSysElemementPercent(monster.DeathDmgMod)}}}");
+                if (monster.HealingMod != 1)
                 {
                     result.IncreaseError(ConvertError.Warning);
                     result.AppendMessage("Can't convert unsupported healing combat modifier");
