@@ -3,17 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTMonsterConverter", "OTMonsterConverter\OTMonsterConverter.csproj", "{BBD1B272-ACB9-4658-B13B-AE7FB35ECF1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "otmc", "otmc\otmc.csproj", "{BBD1B272-ACB9-4658-B13B-AE7FB35ECF1A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterConverterInterface", "MonsterConverterInterface\MonsterConverterInterface.csproj", "{DCE6644C-1244-4870-8C14-A9FB84278053}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterConverterPyOt", "MonsterConverterPyOt\MonsterConverterPyOt.csproj", "{C9E453D0-44C9-4C5B-993B-0674B0D59BFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterConverterTfsRevScriptSys", "MonsterConverterTfsRevScriptSys\MonsterConverterTfsRevScriptSys.csproj", "{06DEE9D3-54E6-4A93-AEB3-8BF550C139B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterConverterTfsRevScriptSys", "MonsterConverterTfsRevScriptSys\MonsterConverterTfsRevScriptSys.csproj", "{06DEE9D3-54E6-4A93-AEB3-8BF550C139B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterConverterTfsXml", "MonsterConverterTfsXml\MonsterConverterTfsXml.csproj", "{C2FF670C-BBF9-41AA-9613-30FDC5986191}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterConverterTfsXml", "MonsterConverterTfsXml\MonsterConverterTfsXml.csproj", "{C2FF670C-BBF9-41AA-9613-30FDC5986191}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterConverterTibiaWiki", "MonsterConverterTibiaWiki\MonsterConverterTibiaWiki.csproj", "{804873AF-3756-427F-A3C8-4565063AB039}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterConverterTibiaWiki", "MonsterConverterTibiaWiki\MonsterConverterTibiaWiki.csproj", "{804873AF-3756-427F-A3C8-4565063AB039}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMonsterConverter", "OTMonsterConverter\OTMonsterConverter.csproj", "{9228A478-89C4-4277-AC0D-79B22D73B52B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterConverterProcessor", "MonsterConverterProcessor\MonsterConverterProcessor.csproj", "{D1055769-6ED5-4860-9AA9-904395698A89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{804873AF-3756-427F-A3C8-4565063AB039}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{804873AF-3756-427F-A3C8-4565063AB039}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{804873AF-3756-427F-A3C8-4565063AB039}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9228A478-89C4-4277-AC0D-79B22D73B52B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9228A478-89C4-4277-AC0D-79B22D73B52B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9228A478-89C4-4277-AC0D-79B22D73B52B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9228A478-89C4-4277-AC0D-79B22D73B52B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1055769-6ED5-4860-9AA9-904395698A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1055769-6ED5-4860-9AA9-904395698A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1055769-6ED5-4860-9AA9-904395698A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1055769-6ED5-4860-9AA9-904395698A89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

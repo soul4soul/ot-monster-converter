@@ -1,10 +1,9 @@
-﻿using MonsterConverterInterface;
+﻿using MonsterConverterProcessor;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
+using MonsterConverterInterface;
 
-namespace OTMonsterConverter
+namespace otmc
 {
     class ConsoleWindow
     {
@@ -56,7 +55,7 @@ namespace OTMonsterConverter
             string prefix = "ERROR";
             if (overallError == ConvertError.Warning)
                 prefix = "WARNING";
-            Console.WriteLine($"{prefix}: \"{source.File}\" to\"{destination.File}\"");
+            Console.WriteLine($"{prefix}: \"{source.File}\" to \"{destination.File}\"");
 
             if (!string.IsNullOrWhiteSpace(source.Message))
             {

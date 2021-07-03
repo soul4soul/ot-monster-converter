@@ -1,18 +1,17 @@
 ﻿using Mono.Options;
+using MonsterConverterProcessor;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows;
 
-namespace OTMonsterConverter
+namespace otmc
 {
     class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        [STAThread]
-        static int Main(string[] args)
+        private static async Task<int> Main(string[] args)
         {
             bool showHelp = false;
 
@@ -22,8 +21,7 @@ namespace OTMonsterConverter
             string outputFormat = "";
             bool mirrorFolderStructure = true;
 
-            // Breaks the purpose of this being lazyasync...
-            PluginHelper plugins = PluginHelper.Instance.Task.Result;
+            PluginHelper plugins = await PluginHelper.Instance;
             string converterNames = "";
             foreach (var c in plugins.Converters)
             {
@@ -47,7 +45,7 @@ namespace OTMonsterConverter
                 { "o|outputDirectory=", "The output directory of the new monster files.", v => outputDirectory = v },
                 { "inputFormat=", "The starting input monster file format.", v => inputFormat = v },
                 { "outputFormat=", "The desired monster file format.", v => outputFormat = v },
-                { "m|MirrorFolders", "True to mirror the folder structure of the input directory", v => mirrorFolderStructure = v != null },
+                { "m|MirrorFolders", "Mirror the folder structure of the input directory, otherwise flat folder structure is output", v => mirrorFolderStructure = v != null },
                 { "h|help",  "show this message and exit", v => showHelp = v != null },
                 "",
                 "Formats:",
@@ -67,39 +65,25 @@ namespace OTMonsterConverter
                 return -1;
             }
 
-            // Command line arguments detected stay on the CLI
-            if (args.Length != 0)
+            if ((showHelp) || (args.Length == 0))
             {
-                if (showHelp)
-                {
-                    p.WriteOptionDescriptions(Console.Out);
-                    return 0 ;
-                }
+                p.WriteOptionDescriptions(Console.Out);
+                return 0 ;
+            }
 
-                ConsoleWindow consoleWindow = new ConsoleWindow(inputDirectory, outputDirectory, inputFormat, outputFormat, mirrorFolderStructure);
-                if (!consoleWindow.ValidateValues())
-                {
-                    return -2;
-                }
-                if (!consoleWindow.ScanFiles())
-                {
-                    return -3;
-                }
-                else
-                {
-                    return 0;
-                }
+            ConsoleWindow consoleWindow = new ConsoleWindow(inputDirectory, outputDirectory, inputFormat, outputFormat, mirrorFolderStructure);
+            if (!consoleWindow.ValidateValues())
+            {
+                return -2;
+            }
+            if (!consoleWindow.ScanFiles())
+            {
+                return -3;
             }
             else
             {
-                FreeConsole(); // detach console
-                Application app = new Application();
-                app.Run(new MainWindow());
                 return 0;
             }
         }
-
-        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool FreeConsole();
     }
 }
