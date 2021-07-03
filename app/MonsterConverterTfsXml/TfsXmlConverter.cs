@@ -15,8 +15,8 @@ namespace MonsterConverterTfsXml
     {
         public override string ConverterName { get => "TFS XML"; }
 
-        const uint MAX_LOOTCHANCE = 100000;
-        const uint ATTACK_INTERVAL_DEFAULT = 2000;
+        const int MAX_LOOTCHANCE = 100000;
+        const int ATTACK_INTERVAL_DEFAULT = 2000;
 
         private readonly IDictionary<string, Effect> magicEffectNames = new Dictionary<string, Effect>
         {
@@ -266,9 +266,9 @@ namespace MonsterConverterTfsXml
             monster = new Monster()
             {
                 Name = tfsMonster.name,
-                Health = (uint)tfsMonster.health.max,
-                Experience = (uint)tfsMonster.experience,
-                Speed = (uint)tfsMonster.speed,
+                Health = tfsMonster.health.max,
+                Experience = tfsMonster.experience,
+                Speed = tfsMonster.speed,
                 Race = TfsToGenericBlood(tfsMonster.race),
             };
 
@@ -288,12 +288,12 @@ namespace MonsterConverterTfsXml
                 if ((tfsMonster.targetchange.interval != 0) &&
                     (tfsMonster.targetchange.speed == 0))
                 {
-                    monster.RetargetInterval = (uint)tfsMonster.targetchange.interval;
+                    monster.RetargetInterval = tfsMonster.targetchange.interval;
                 }
                 else if ((tfsMonster.targetchange.interval == 0) &&
                          (tfsMonster.targetchange.speed != 0))
                 {
-                    monster.RetargetInterval = (uint)tfsMonster.targetchange.speed;
+                    monster.RetargetInterval = tfsMonster.targetchange.speed;
                 }
                 else if ((tfsMonster.targetchange.interval != 0) &&
                     (tfsMonster.targetchange.speed != 0))
@@ -304,8 +304,8 @@ namespace MonsterConverterTfsXml
 
             if (tfsMonster.look != null)
             {
-                monster.CorpseId = (uint)tfsMonster.look.corpse;
-                monster.OutfitIdLookType = (uint)tfsMonster.look.type;
+                monster.CorpseId = tfsMonster.look.corpse;
+                monster.OutfitIdLookType = tfsMonster.look.type;
                 monster.LookTypeDetails = new DetailedLookType()
                 {
                     Head = (ushort)tfsMonster.look.head,
@@ -315,7 +315,7 @@ namespace MonsterConverterTfsXml
                     Addons = (ushort)tfsMonster.look.addons,
                     Mount = (ushort)tfsMonster.look.mount
                 };
-                monster.ItemIdLookType = (uint)tfsMonster.look.typeex;
+                monster.ItemIdLookType = tfsMonster.look.typeex;
             }
 
             // flags
@@ -329,7 +329,7 @@ namespace MonsterConverterTfsXml
                     {
                         if (x.attr[0].Name == "summonable")
                         {
-                            monster.SummonCost = (uint)tfsMonster.manacost;
+                            monster.SummonCost = tfsMonster.manacost;
                         }
                         else if (x.attr[0].Name == "attackable")
                         {
@@ -345,7 +345,7 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "convinceable")
                         {
-                            monster.ConvinceCost = (uint)tfsMonster.manacost;
+                            monster.ConvinceCost = tfsMonster.manacost;
                         }
                         else if (x.attr[0].Name == "pushable")
                         {
@@ -361,23 +361,23 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "targetdistance")
                         {
-                            monster.TargetDistance = (uint)value;
+                            monster.TargetDistance = value;
                         }
                         else if (x.attr[0].Name == "staticattack")
                         {
-                            monster.StaticAttack = (uint)value;
+                            monster.StaticAttack = value;
                         }
                         else if (x.attr[0].Name == "lightlevel")
                         {
-                            monster.LightLevel = (uint)value;
+                            monster.LightLevel = value;
                         }
                         else if (x.attr[0].Name == "lightcolor")
                         {
-                            monster.LightColor = (uint)value;
+                            monster.LightColor = value;
                         }
                         else if (x.attr[0].Name == "runonhealth")
                         {
-                            monster.RunOnHealth = (uint)value;
+                            monster.RunOnHealth = value;
                         }
                         else if (x.attr[0].Name == "hidehealth")
                         {
@@ -431,14 +431,14 @@ namespace MonsterConverterTfsXml
             // summons
             if (tfsMonster.summons != null)
             {
-                monster.MaxSummons = (uint)tfsMonster.summons.maxSummons;
+                monster.MaxSummons = tfsMonster.summons.maxSummons;
                 foreach (TFSXmlSummon summon in tfsMonster.summons.summon)
                 {
                     monster.Summons.Add(new Summon()
                     {
                         Name = summon.name,
                         Chance = Math.Min(1, (double)summon.chance / 100),
-                        Interval = (uint)((summon.interval > 0) ? summon.interval : summon.speed),
+                        Interval = (summon.interval > 0) ? summon.interval : summon.speed,
                         Max = summon.max,
                         Force = summon.force
                     });
@@ -473,47 +473,47 @@ namespace MonsterConverterTfsXml
                     {
                         if (x.attr[0].Name == "physicalPercent")
                         {
-                            monster.Physical = TfstoGenericElementalPercent(value);
+                            monster.PhysicalDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "icePercent")
                         {
-                            monster.Ice = TfstoGenericElementalPercent(value);
+                            monster.IceDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "poisonPercent")
                         {
-                            monster.Earth = TfstoGenericElementalPercent(value);
+                            monster.EarthDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "earthPercent")
                         {
-                            monster.Earth = TfstoGenericElementalPercent(value);
+                            monster.EarthDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "firePercent")
                         {
-                            monster.Fire = TfstoGenericElementalPercent(value);
+                            monster.FireDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "energyPercent")
                         {
-                            monster.Energy = TfstoGenericElementalPercent(value);
+                            monster.EnergyDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "holyPercent")
                         {
-                            monster.Holy = TfstoGenericElementalPercent(value);
+                            monster.HolyDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "deathPercent")
                         {
-                            monster.Death = TfstoGenericElementalPercent(value);
+                            monster.DeathDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "drownPercent")
                         {
-                            monster.Drown = TfstoGenericElementalPercent(value);
+                            monster.DrownDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "lifedrainPercent")
                         {
-                            monster.LifeDrain = TfstoGenericElementalPercent(value);
+                            monster.LifeDrainDmgMod = TfstoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "manadrainPercent")
                         {
-                            monster.ManaDrain = TfstoGenericElementalPercent(value);
+                            monster.ManaDrainDmgMod = TfstoGenericElementalPercent(value);
                         }
                     }
                 }
@@ -530,34 +530,34 @@ namespace MonsterConverterTfsXml
                         switch (immunity.name)
                         {
                             case TfsXmlNamedImmunity.physical:
-                                monster.Physical = 0;
+                                monster.PhysicalDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.energy:
-                                monster.Energy = 0;
+                                monster.EnergyDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.fire:
-                                monster.Fire = 0;
+                                monster.FireDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.poison: //namedImmunityXml.earth
-                                monster.Earth = 0;
+                                monster.EarthDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.drown:
-                                monster.Drown = 0;
+                                monster.DrownDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.ice:
-                                monster.Ice = 0;
+                                monster.IceDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.holy:
-                                monster.Holy = 0;
+                                monster.HolyDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.death:
-                                monster.Death = 0;
+                                monster.DeathDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.lifedrain:
-                                monster.LifeDrain = 0;
+                                monster.LifeDrainDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.manadrain:
-                                monster.ManaDrain = 0;
+                                monster.ManaDrainDmgMod = 0;
                                 break;
                             case TfsXmlNamedImmunity.paralyze:
                                 monster.IgnoreParalyze = true;
@@ -578,47 +578,47 @@ namespace MonsterConverterTfsXml
                     }
                     else if (immunity.physical != 0)
                     {
-                        monster.Physical = 0;
+                        monster.PhysicalDmgMod = 0;
                     }
                     else if (immunity.energy != 0)
                     {
-                        monster.Energy = 0;
+                        monster.EnergyDmgMod = 0;
                     }
                     else if (immunity.fire != 0)
                     {
-                        monster.Fire = 0;
+                        monster.FireDmgMod = 0;
                     }
                     else if (immunity.poison != 0) //poison and earth are the same
                     {
-                        monster.Earth = 0;
+                        monster.EarthDmgMod = 0;
                     }
                     else if (immunity.earth != 0) //poison and earth are the same
                     {
-                        monster.Earth = 0;
+                        monster.EarthDmgMod = 0;
                     }
                     else if (immunity.drown != 0)
                     {
-                        monster.Drown = 0;
+                        monster.DrownDmgMod = 0;
                     }
                     else if (immunity.ice != 0)
                     {
-                        monster.Ice = 0;
+                        monster.IceDmgMod = 0;
                     }
                     else if (immunity.holy != 0)
                     {
-                        monster.Holy = 0;
+                        monster.HolyDmgMod = 0;
                     }
                     else if (immunity.death != 0)
                     {
-                        monster.Death = 0;
+                        monster.DeathDmgMod = 0;
                     }
                     else if (immunity.lifedrain != 0)
                     {
-                        monster.LifeDrain = 0;
+                        monster.LifeDrainDmgMod = 0;
                     }
                     else if (immunity.manadrain != 0)
                     {
-                        monster.ManaDrain = 0;
+                        monster.ManaDrainDmgMod = 0;
                     }
                     else if (immunity.paralyze != 0)
                     {
@@ -788,11 +788,11 @@ namespace MonsterConverterTfsXml
 
                     if (attack.interval != 0)
                     {
-                        spell.Interval = (uint)attack.interval;
+                        spell.Interval = attack.interval;
                     }
                     else if (attack.speed != 0)
                     {
-                        spell.Interval = (uint)attack.speed;
+                        spell.Interval = attack.speed;
                     }
                     else
                     {
@@ -822,18 +822,18 @@ namespace MonsterConverterTfsXml
 
                     if (attack.range > 0)
                     {
-                        spell.Range = (uint?)attack.range;
+                        spell.Range = (int?)attack.range;
                     }
 
                     if (attack.length > 0)
                     {
-                        spell.Length = (uint?)attack.length;
-                        spell.Spread = (attack.spread == -1) ? 3 : (uint?)attack.spread;
+                        spell.Length = (int?)attack.length;
+                        spell.Spread = (attack.spread == -1) ? 3 : attack.spread;
                     }
 
                     if (attack.radius > 0)
                     {
-                        spell.Radius = (uint?)attack.radius;
+                        spell.Radius = attack.radius;
                         spell.OnTarget = (attack.target == 1);
                     }
 
