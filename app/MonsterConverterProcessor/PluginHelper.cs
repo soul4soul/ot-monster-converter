@@ -11,9 +11,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 
-namespace OTMonsterConverter
+namespace MonsterConverterProcessor
 {
-    class PluginHelper
+    public class PluginHelper
     {
         private static readonly AsyncLazy<PluginHelper> instance = new AsyncLazy<PluginHelper>(CreateAndLoadData);
         private static readonly object lockobject = new object();
