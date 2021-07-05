@@ -19,27 +19,30 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 
 ## Graphical User Interface
 
-Running the executable without arguments will cause the GUI to launch
+The executable named `OTMonsterConverter.exe` is the GUI program. The GUI program works on Windows.
 
 ![Sample GUI Image](https://user-images.githubusercontent.com/5142635/120939976-c2551400-c6e8-11eb-8e53-10ad7f68ea5e.png)
 
 ## Command Line Interface
 
-Access and use the CLI by running `OTMonsterConverter.exe` with arguments
+The executable named `otmc.exe` is the CLI program. The CLI program works on Windows and Linux.
 
 ```ps
-PS C:\...\bin\Release\netcoreapp3.1> .\OTMonsterConverter.exe -help
+PS C:\Users\...\Release> .\otmc.exe
 Usage: OTMonsterConverter [OPTIONS]+
 
 Options:
   -i, --inputDirectory=VALUE The directory of monster files to parse.
   -o, --outputDirectory=VALUE
-                             The directory of monster files to parse.
-      --inputFormat=VALUE    The starting monster file format.
-      --outputFormat=VALUE   The format to converter the monster files to.
-  -m, --MirrorFolders        True to mirror the folder structure of the input
-                               directory
+                             The output directory of the new monster files.
+      --inputFormat=VALUE    The starting input monster file format.
+      --outputFormat=VALUE   The desired monster file format.
+  -m, --MirrorFolders        Mirror the folder structure of the input directory,
+                                otherwise flat folder structure is output
   -h, --help                 show this message and exit
+
+Input Formats: TFS XML, TibiaWiki
+Output Formats: TFS RevScriptSys, TibiaWiki, pyOT
 ```
 
 ## Contributing

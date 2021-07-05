@@ -22,18 +22,30 @@ namespace otmc
             bool mirrorFolderStructure = true;
 
             PluginHelper plugins = await PluginHelper.Instance;
-            string converterNames = "";
+            string inputConverterNames = "";
+            string outputConverterNames = "";
             foreach (var c in plugins.Converters)
             {
-                converterNames += $"{c.ConverterName}, ";
+                if (c.IsReadSupported)
+                    inputConverterNames += $"{c.ConverterName}, ";
+                if (c.IsWriteSupported)
+                    outputConverterNames += $"{c.ConverterName}, ";
             }
-            if (string.IsNullOrWhiteSpace(converterNames))
+            if (string.IsNullOrWhiteSpace(inputConverterNames))
             {
-                converterNames = "No Formats Found";
+                inputConverterNames = "No Formats Found";
             }
             else
             {
-                converterNames = converterNames.Substring(0, converterNames.Length - 2);
+                inputConverterNames = inputConverterNames.Substring(0, inputConverterNames.Length - 2);
+            }
+            if (string.IsNullOrWhiteSpace(outputConverterNames))
+            {
+                outputConverterNames = "No Formats Found";
+            }
+            else
+            {
+                outputConverterNames = outputConverterNames.Substring(0, outputConverterNames.Length - 2);
             }
 
             var p = new OptionSet()
@@ -48,8 +60,8 @@ namespace otmc
                 { "m|MirrorFolders", "Mirror the folder structure of the input directory, otherwise flat folder structure is output", v => mirrorFolderStructure = v != null },
                 { "h|help",  "show this message and exit", v => showHelp = v != null },
                 "",
-                "Formats:",
-                $"{converterNames}",
+                $"Input Formats: {inputConverterNames}",
+                $"Output Formats: {outputConverterNames}",
             };
 
             List<string> extra;
