@@ -16,6 +16,7 @@ namespace MonsterConverterInterface.MonsterTypes
             Look = new LookData();
             Attacks = new List<Spell>();
             Scripts = new List<Script>();
+            TargetStrategy = new TargetStrategy();
 
             SummonCost = 0;
             Attackable = true;
@@ -104,6 +105,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public int TargetDistance { get; set; }
         public int RunOnHealth { get; set; }
         public int StaticAttackChance { get; set; } // Static attack controls how much the monster dances/moves when attacking a target, 100 = completely static, 0 = always dance
+        public TargetStrategy TargetStrategy { get; }
 
         // Walk Behavior
         public bool AvoidFire { get; set; }
