@@ -13,7 +13,7 @@ namespace MonsterConverterInterface.MonsterTypes
             MaxSummons = 0;
             Summons = new List<Summon>();
             Items = new List<Loot>();
-            LookTypeDetails = new DetailedLookType();
+            Look = new LookData();
             Attacks = new List<Spell>();
             Scripts = new List<Script>();
 
@@ -82,12 +82,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public Blood Race { get; set; }
         public int MaxSummons { get; set; }
         public IList<Summon> Summons { get; }
-
-        // Look
-        public int CorpseId { get; set; }
-        public int OutfitIdLookType { get; set; }
-        public int ItemIdLookType { get; set; } // non 0 means creature looks like an item
-        public DetailedLookType LookTypeDetails { get; }
+        public LookData Look { get; }
 
         // Other
         public int SummonCost { get; set; }

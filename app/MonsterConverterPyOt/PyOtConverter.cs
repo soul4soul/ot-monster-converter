@@ -33,7 +33,7 @@ namespace MonsterConverterPyOt
 
             string[] lines =
             {
-                string.Format("{0} = genMonster(\"{1}\", ({2}, {3}), \"{4}\")", lowerName, monster.Name, monster.CorpseId, monster.OutfitIdLookType, monster.Description),
+                string.Format("{0} = genMonster(\"{1}\", ({2}, {3}), \"{4}\")", lowerName, monster.Name, monster.Look.CorpseId, monster.Look.LookId, monster.Description),
                 string.Format("{0}.health({1})", lowerName, monster.Health),
                 string.Format("{0}.bloodType({1})", lowerName, GenericToPyOTBlood(monster.Race)), //todo might change
                 string.Format("{0}.defense(armor={1}, fire={2}, earth={3}, energy={4}, ice={5}, holy={6}, death={7}, physical={8}, drown={9}, lifedrain={10}, manadrain={11})",
