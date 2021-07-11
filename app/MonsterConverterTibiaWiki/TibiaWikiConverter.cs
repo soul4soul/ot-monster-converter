@@ -1037,6 +1037,7 @@ namespace MonsterConverterTibiaWiki
             if (RobustTryParse(creature.HealMod, out intVal)) { monster.HealingMod = intVal / 100.0; }
             if (RobustTryParse(creature.LifeDrainDmgMod, out intVal)) { monster.LifeDrainDmgMod = intVal / 100.0; }
             if (RobustTryParse(creature.DrownDmgMod, out intVal)) { monster.DrownDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.RaceId, out intVal)) { monster.RaceId = intVal; }
             if (!string.IsNullOrWhiteSpace(creature.Sounds)) { ParseSoundList(monster, creature.Sounds); }
             if (!string.IsNullOrWhiteSpace(creature.Behavior)) { ParseBehavior(monster, creature.Behavior); }
             if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities); }

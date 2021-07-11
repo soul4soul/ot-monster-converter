@@ -94,6 +94,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public int LightColor { get; set; }
         public bool HideHealth { get; set; }
         public bool IsBoss { get; set; }
+        public int RaceId { get; set; }
 
         // Behavior
         public bool IsPushable { get; set; }
