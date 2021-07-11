@@ -337,11 +337,11 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "hostile")
                         {
-                            monster.Hostile = value == 1;
+                            monster.IsHostile = value == 1;
                         }
                         else if (x.attr[0].Name == "illusionable")
                         {
-                            monster.Illusionable = value == 1;
+                            monster.IsIllusionable = value == 1;
                         }
                         else if (x.attr[0].Name == "convinceable")
                         {
@@ -349,7 +349,7 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "pushable")
                         {
-                            monster.Pushable = value == 1;
+                            monster.IsPushable = value == 1;
                         }
                         else if (x.attr[0].Name == "canpushitems")
                         {
@@ -365,7 +365,7 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "staticattack")
                         {
-                            monster.StaticAttack = value;
+                            monster.StaticAttackChance = value;
                         }
                         else if (x.attr[0].Name == "lightlevel")
                         {

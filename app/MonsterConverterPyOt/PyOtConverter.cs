@@ -42,7 +42,7 @@ namespace MonsterConverterPyOt
                 string.Format("{0}.setSpeed({1})", lowerName, monster.Speed),
                 //string.Format("{0}.setTargetChance({1})", lowerName, monster.RetargetChance), //Currently unused in pyOT?, consider changing code in pyOT to be chance of 0 to 1 for a percent instead of 0 to 100
                 string.Format("{0}.behavior(summonable={1}, hostile={2}, illusionable={3}, convinceable={4}, pushable={5}, pushItems={6}, pushCreatures={7}, targetDistance={8}, runOnHealth={9}, targetChange={10})",
-                    lowerName, monster.SummonCost, monster.Hostile, monster.Illusionable, monster.ConvinceCost, monster.Pushable, monster.PushItems, monster.PushCreatures, monster.TargetDistance, monster.RunOnHealth, 1),
+                    lowerName, monster.SummonCost, monster.IsHostile, monster.IsIllusionable, monster.ConvinceCost, monster.IsPushable, monster.PushItems, monster.PushCreatures, monster.TargetDistance, monster.RunOnHealth, 1),
                 string.Format("{0}.walkAround(energy={1}, fire={2}, poison={3})", lowerName, monster.AvoidEnergy, monster.AvoidFire, monster.AvoidPoison),
                 string.Format("{0}.immunity(paralyze={1}, invisible={2}, drunk={3})",
                     lowerName, monster.IgnoreParalyze, monster.IgnoreInvisible, monster.IgnoreDrunk),
