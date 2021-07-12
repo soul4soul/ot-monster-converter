@@ -300,7 +300,10 @@ namespace MonsterConverterTibiaWiki
                     {
                         // Sometimes unknow sound templates include a single empty sound {{SoundList|}}
                         if (!string.IsNullOrWhiteSpace(sound))
-                            mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
+                        {
+                            // TibiaWiki doesn't include sound level information, default to say
+                            mon.Voices.Add(new Voice(sound, SoundLevel.Say));
+                        }
                     }
                 }
             }

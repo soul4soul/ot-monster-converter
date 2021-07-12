@@ -423,8 +423,7 @@ namespace MonsterConverterTfsXml
             {
                 foreach (VoiceXml sound in tfsMonster.voices.voice)
                 {
-                    Voice voice = new Voice();
-                    voice.Sound = sound.sentence;
+                    Voice voice = new Voice(sound.sentence);
                     if (!(string.IsNullOrEmpty(sound.yell)) &&
                         ((sound.yell == "1") || (sound.yell == "true")))
                     {
