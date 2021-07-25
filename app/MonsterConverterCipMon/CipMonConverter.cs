@@ -13,7 +13,7 @@ namespace MonsterConverterCipMon
     [Export(typeof(IMonsterConverter))]
     public class CipMonConverter : MonsterConverter
     {
-        public override string ConverterName { get => "CipMon"; }
+        public override string ConverterName { get => "Cip Mon"; }
 
         public override string FileExt { get => "mon"; }
 
@@ -23,6 +23,50 @@ namespace MonsterConverterCipMon
 
         // <race id, registered name>
         private readonly IDictionary<int, string> raceIdNameMap = new Dictionary<int, string>();
+
+        private readonly IDictionary<ConditionType, int> conditionDefaultTick = new Dictionary<ConditionType, int>
+        {
+            {ConditionType.Bleeding,    4000},
+            {ConditionType.Energy,      10000},
+            {ConditionType.Fire,        9000},
+            {ConditionType.Poison,      4000},
+            {ConditionType.Drown,       5000},
+            {ConditionType.Freezing,    8000},
+            {ConditionType.Dazzled,     10000},
+            {ConditionType.Cursed,      4000},
+        };
+
+        [Flags]
+        private enum DamageKinds
+        {
+            Physical = 1,
+            Poison = 2,
+            Fire = 4,
+            Energy = 8,
+            PoisonCondition = 32,
+            FireCondition = 64,
+            EnergyCondition = 128,
+            LifeDrain = 256,
+            ManaDrain = 512
+        }
+
+        private Animation animationFromString(string input)
+        {
+            int animationValue = int.Parse(input);
+            return (Animation)animationValue;
+        }
+
+        private Effect effectFromString(string input)
+        {
+            int value = int.Parse(input);
+            return (Effect)value;
+        }
+
+        private DamageKinds damageKindsFromString(string input)
+        {
+            int value = int.Parse(input);
+            return (DamageKinds)value;
+        }
 
         /// <summary>
         /// Not super efficient but we need a complete list of race ids ahead of time so we can map
@@ -41,8 +85,15 @@ namespace MonsterConverterCipMon
 
                 Match m = Regex.Match(fileContents, @"RaceNumber\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                 if (m.Success) {
-                    int raceId = int.Parse(m.Value);
-                    raceIdNameMap.Add(raceId, registeredName);
+                    int raceId = int.Parse(m.Groups[1].Value);
+                    if (raceIdNameMap.ContainsKey(raceId))
+                    {
+                        raceIdNameMap[raceId] = registeredName;
+                    }
+                    else
+                    {
+                        raceIdNameMap.Add(raceId, registeredName);
+                    }
                 }
             }
 
@@ -53,6 +104,7 @@ namespace MonsterConverterCipMon
         public override ConvertResultEventArgs ReadMonster(string fileName, out Monster monster)
         {
             ConvertResultEventArgs result = new ConvertResultEventArgs(fileName);
+            //ConvertResultEventArgs result = new ConvertResultEventArgs(fileName, ConvertError.Warning, "item ids are in client format");
 
             monster = new Monster();
             monster.FileName = monster.RegisteredName = Path.GetFileNameWithoutExtension(fileName);
@@ -60,26 +112,26 @@ namespace MonsterConverterCipMon
             string fileContents = File.ReadAllText(fileName);
 
             Match m = Regex.Match(fileContents, @"RaceNumber\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.RaceId = int.Parse(m.Value); }
+            if (m.Success) { monster.RaceId = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"Name\s+= ""(.*?)""", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.Name = m.Value; }
+            if (m.Success) { monster.Name = m.Groups[1].Value; }
 
-            m = Regex.Match(fileContents, @"/Article\s+= ""(\S+)""", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            m = Regex.Match(fileContents, @"Article\s+= ""(\S*)""", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
             {
-                if (string.IsNullOrWhiteSpace(m.Value))
+                if (string.IsNullOrWhiteSpace(m.Groups[1].Value))
                 {
                     monster.Description = monster.Name;
                 }
                 else
                 {
-                    monster.Description = string.Format("{0} {1}", m.Value.ToLower(), monster.Name).Trim();
+                    monster.Description = string.Format("{0} {1}", m.Groups[1].Value.ToLower(), monster.Name).Trim();
                 }
             }
 
-            m = Regex.Match(fileContents, @"/Corpse\s+= ""(\d+)""", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.Look.CorpseId = int.Parse(m.Value); }
+            m = Regex.Match(fileContents, @"Corpse\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (m.Success) { monster.Look.CorpseId = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"Outfit\s+= \((?<type>\d+), (?<head>\d+)-(?<body>\d+)-(?<legs>\d+)-(?<feet>\d+)\)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
@@ -104,56 +156,56 @@ namespace MonsterConverterCipMon
                 else
                 {
                     monster.Look.LookType = LookType.Item;
-                    monster.Look.LookId = int.Parse(m.Groups["type"].Value);
+                    monster.Look.LookId = id;
                 }
             }
 
             m = Regex.Match(fileContents, @"Blood\s+= (\S+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
             {
-                if (string.Equals(m.Value, "blood", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(m.Groups[1].Value, "blood", StringComparison.OrdinalIgnoreCase))
                 {
                     monster.Race = Blood.blood;
                 }
-                else if (string.Equals(m.Value, "slime", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(m.Groups[1].Value, "slime", StringComparison.OrdinalIgnoreCase))
                 {
                     monster.Race = Blood.venom;
                 }
-                else if (string.Equals(m.Value, "fire", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(m.Groups[1].Value, "fire", StringComparison.OrdinalIgnoreCase))
                 {
                     monster.Race = Blood.fire;
                 }
-                else if (string.Equals(m.Value, "bones", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(m.Groups[1].Value, "bones", StringComparison.OrdinalIgnoreCase))
                 {
                     monster.Race = Blood.undead;
                 }
             }
 
             m = Regex.Match(fileContents, @"Experience\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.Experience = int.Parse(m.Value); }
+            if (m.Success) { monster.Experience = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"SummonCost\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             int summonCost = 0;
-            if (m.Success) { summonCost = int.Parse(m.Value); }
+            if (m.Success) { summonCost = int.Parse(m.Groups[1].Value); }
             if (!fileContents.Contains("NoSummon", StringComparison.OrdinalIgnoreCase)) { monster.SummonCost = summonCost; }
             if (!fileContents.Contains("NoConvince", StringComparison.OrdinalIgnoreCase)) { monster.ConvinceCost = summonCost; }
 
             m = Regex.Match(fileContents, @"Defend\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.Shielding = int.Parse(m.Value); }
+            if (m.Success) { monster.Shielding = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"Armor\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.TotalArmor = int.Parse(m.Value); }
+            if (m.Success) { monster.TotalArmor = int.Parse(m.Groups[1].Value); }
 
             //m = Regex.Match(fileContents, @"Poison\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
             m = Regex.Match(fileContents, @"LoseTarget\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.RetargetChance = int.Parse(m.Value) / 100.0; }
+            if (m.Success) { monster.RetargetChance = int.Parse(m.Groups[1].Value) / 100.0; }
 
             m = Regex.Match(fileContents, @"FleeThreshold\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.RunOnHealth = int.Parse(m.Value); }
+            if (m.Success) { monster.RunOnHealth = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"HitPoints, (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.Health = int.Parse(m.Value); }
+            if (m.Success) { monster.Health = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"Strategy\s+= \((?<closest>\d+), (?<weakest>\d+), (?<strongest>\d+), (?<random>\d+)\)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
@@ -179,16 +231,16 @@ namespace MonsterConverterCipMon
             if (fileContents.Contains("NoLifeDrain", StringComparison.OrdinalIgnoreCase)) { monster.LifeDrainDmgMod = 0; }
 
             m = Regex.Match(fileContents, @"GoStrength, (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            monster.Speed = (m.Success) ? monster.Speed = int.Parse(m.Value) + 120 : 0;
+            monster.Speed = (m.Success) ? monster.Speed = int.Parse(m.Groups[1].Value) + 120 : 0;
 
             m = Regex.Match(fileContents, @"Attack\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             int attack = 0;
-            if (m.Success) { attack = int.Parse(m.Value); }
+            if (m.Success) { attack = int.Parse(m.Groups[1].Value); }
             monster.IsHostile = (attack != 0);
 
             m = Regex.Match(fileContents, @"FistFighting, (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             int skill = 0;
-            if (m.Success) { skill = int.Parse(m.Value); }
+            if (m.Success) { skill = int.Parse(m.Groups[1].Value); }
 
             if ((attack != 0) && (skill != 0))
             {
@@ -196,7 +248,7 @@ namespace MonsterConverterCipMon
                 {
                     Name = "melee",
                     Interval = 2000,
-                    Chance = 100,
+                    Chance = 1,
                     Range = 1,
                     AttackValue = attack,
                     Skill = skill
@@ -207,22 +259,224 @@ namespace MonsterConverterCipMon
             m = Regex.Match(fileContents, @"Spells.*?= \{(.*?)\}", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
             {
-                var matches = Regex.Matches(m.Value, @"(\S+) \((.*?)\) -\> (\S+) \((.*?)\) \: (\d+)", RegexOptions.Singleline);
-                // TODO parse abilities
+                var matches = Regex.Matches(m.Groups[1].Value, @"(\S+) \((.*?)\) -\> (\S+) \((.*?)\) \: (\d+)", RegexOptions.Singleline);
+                foreach (Match match in matches)
+                {
+                    double chance = 1 / double.Parse(match.Groups[5].Value);
+                    string castType = match.Groups[1].Value.ToLower();
+                    string[] castTypeParams = match.Groups[2].Value.Split(',');
+                    string action = match.Groups[3].Value.ToLower();
+                    string[] actionParams = match.Groups[4].Value.Split(',');
+
+                    Spell spell = new Spell() {
+                        Interval = 2000,
+                        Chance = chance
+                    };
+
+                    if (castType == "actor")
+                    {
+                        spell.AreaEffect = effectFromString(castTypeParams[0]);
+                    }
+                    else if (castType == "victim")
+                    {
+                        spell.Range = int.Parse(castTypeParams[0]);
+                        spell.ShootEffect = animationFromString(castTypeParams[1]);
+                        spell.AreaEffect = effectFromString(castTypeParams[2]);
+                        spell.OnTarget = true;
+                    }
+                    else if (castType == "origin")
+                    {
+                        spell.Radius = int.Parse(castTypeParams[0]) + 1;
+                        spell.AreaEffect = effectFromString(castTypeParams[1]);
+                    }
+                    else if (castType == "destination")
+                    {
+                        spell.Range = int.Parse(castTypeParams[0]);
+                        spell.ShootEffect = animationFromString(castTypeParams[1]);
+                        spell.Radius = int.Parse(castTypeParams[2]) + 1;
+                        spell.AreaEffect = effectFromString(castTypeParams[3]);
+                        spell.OnTarget = true;
+                    }
+                    else if (castType == "angle")
+                    {
+                        spell.Length = int.Parse(castTypeParams[1]);
+                        spell.Spread = int.Parse(castTypeParams[0]) / 10;
+                        spell.AreaEffect = effectFromString(castTypeParams[2]);
+                    }
+                    // else There are no other castTypes in the 7.7 monster pack
+
+                    if (action == "healing")
+                    {
+                        spell.Name = "combat";
+                        spell.Description = "self-healing";
+                        spell.SpellCategory = SpellCategory.Defensive;
+                        spell.DamageElement = CombatDamage.Healing;
+
+                        int baseVal = int.Parse(actionParams[0]);
+                        int variation = int.Parse(actionParams[1]);
+                        spell.MinDamage = baseVal - variation;
+                        spell.MaxDamage = baseVal + variation;
+                    }
+                    else if (action == "speed")
+                    {
+                        spell.Name = "speed";
+                        int baseVal = int.Parse(actionParams[0]);
+                        int variation = int.Parse(actionParams[1]);
+                        spell.MinSpeedChange = baseVal - variation;
+                        spell.MaxSpeedChange = baseVal + variation;
+                        spell.Duration = int.Parse(actionParams[2]) * 1000;
+                        if (baseVal < 0)
+                        {
+                            spell.SpellCategory = SpellCategory.Offensive;
+                            spell.Description = "paralyze";
+                        }
+                        else
+                        {
+                            spell.SpellCategory = SpellCategory.Defensive;
+                            spell.Description = "haste";
+                        }
+                    }
+                    else if (action == "damage")
+                    {
+                        spell.Name = "combat";
+                        spell.SpellCategory = SpellCategory.Offensive;
+
+                        int baseVal = int.Parse(actionParams[1]);
+                        int variation = int.Parse(actionParams[2]);
+                        spell.MinDamage = - baseVal + variation;
+                        spell.MaxDamage = - baseVal - variation;
+
+                        DamageKinds damageKinds = damageKindsFromString(actionParams[0]);
+                        if (damageKinds == DamageKinds.FireCondition)
+                        {
+                            spell.Name = "condition";
+                            spell.Condition = ConditionType.Fire;
+                            spell.Tick = conditionDefaultTick[spell.Condition];
+                            spell.StartDamage = 0;
+                        }
+                        else if (damageKinds == DamageKinds.PoisonCondition)
+                        {
+                            spell.Name = "condition";
+                            spell.Condition = ConditionType.Poison;
+                            spell.Tick = conditionDefaultTick[spell.Condition];
+                            spell.StartDamage = 0;
+                        }
+                        else if (damageKinds == DamageKinds.EnergyCondition)
+                        {
+                            spell.Name = "condition";
+                            spell.Condition = ConditionType.Energy;
+                            spell.Tick = conditionDefaultTick[spell.Condition];
+                            spell.StartDamage = 0;
+                        }
+                        else if (damageKinds == DamageKinds.Physical)
+                        {
+                            spell.DamageElement = CombatDamage.Physical;
+                        }
+                        else if (damageKinds == DamageKinds.Poison)
+                        {
+                            spell.DamageElement = CombatDamage.Earth;
+                        }
+                        else if (damageKinds == DamageKinds.Fire)
+                        {
+                            spell.DamageElement = CombatDamage.Fire;
+                        }
+                        else if (damageKinds == DamageKinds.Energy)
+                        {
+                            spell.DamageElement = CombatDamage.Energy;
+                        }
+                        else if (damageKinds == DamageKinds.LifeDrain)
+                        {
+                            spell.DamageElement = CombatDamage.LifeDrain;
+                        }
+                        else if (damageKinds == DamageKinds.ManaDrain)
+                        {
+                            spell.DamageElement = CombatDamage.ManaDrain;
+                        }
+                        // else There are no other damageKinds used and none are used as flags
+                    }
+                    else if (action == "drunken")
+                    {
+                        spell.Name = "drunk";
+                        spell.SpellCategory = SpellCategory.Offensive;
+                        // NOTE: forumla for drunkness strength is unknown, the only values used by cip are 3 (rest of the monsters) ,6 (djinns), and 7 (bazir only)
+                        spell.Drunkenness = double.Parse(actionParams[0]) / 10.0;
+                        spell.Duration = int.Parse(actionParams[2]) * 1000;
+
+                        result.AppendMessage($"Unknown how to handle drunkness strength {match.Value}");
+                        result.IncreaseError(ConvertError.Warning);
+                    }
+                    else if (action == "outfit")
+                    {
+                        spell.Name = "outfit";
+                        spell.SpellCategory = (castType == "actor") ? SpellCategory.Offensive : SpellCategory.Defensive;
+
+                        Match outfitMatch = Regex.Match(match.Value, @"(?<type>\d+), (?<head>\d+)-(?<body>\d+)-(?<legs>\d+)-(?<feet>\d+)\), (?<duration>\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        if (outfitMatch.Success)
+                        {
+                            spell.MonsterName = raceIdNameMap[int.Parse(outfitMatch.Groups["type"].Value)];
+                            spell.Duration = int.Parse(outfitMatch.Groups["duration"].Value) * 1000;
+                        }
+
+                        outfitMatch = Regex.Match(match.Value, @"(?<type>\d+), (?<id>\d+)\), (?<duration>\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        if (outfitMatch.Success)
+                        {
+                            int type = int.Parse(outfitMatch.Groups["type"].Value);
+                            int id = int.Parse(outfitMatch.Groups["id"].Value);
+                            if ((type == 0) && (id == 0))
+                            {
+                                spell.Name = "invisible";
+                            }
+                            else
+                            {
+                                spell.ItemId = id;
+                            }
+                            spell.Duration = int.Parse(outfitMatch.Groups["duration"].Value) * 1000;
+                        }
+                    }
+                    else if (action == "field")
+                    {
+                        if (actionParams[0] == "1") { spell.Name = "firefield"; }
+                        if (actionParams[0] == "2") { spell.Name = "poisonfield"; }
+                        if (actionParams[0] == "3") { spell.Name = "energyfield"; }
+                        spell.SpellCategory = SpellCategory.Offensive;
+                    }
+                    else if (action == "summon")
+                    {
+                        int raceId = int.Parse(actionParams[0]);
+                        int count = int.Parse(actionParams[1]);
+                        monster.Summons.Add(new Summon()
+                        {
+                            Name = raceIdNameMap[raceId],
+                            Max = count,
+                            Chance = chance
+                        });
+                        monster.MaxSummons += count;
+                        continue;
+                    }
+                    else if (action == "strength")
+                    {
+                        result.AppendMessage($"Unknown spell strength {match.Value}, can't parse spell");
+                        result.IncreaseError(ConvertError.Warning);
+                        continue;
+                    }
+                    // else There are no other actions in the 7.7 monster pack
+
+                    monster.Attacks.Add(spell);
+                }
             }
 
             m = Regex.Match(fileContents, @"Talk.*?= \{(.*?)\}", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
             {
-                var matches = Regex.Matches(m.Value, @"""(.*?)""", RegexOptions.Singleline);
+                var matches = Regex.Matches(m.Groups[1].Value, "\"(.*?)\"", RegexOptions.Singleline);
                 foreach (Match match in matches)
                 {
                     SoundLevel volume = SoundLevel.Say;
-                    string sound = match.Value;
+                    string sound = match.Groups[1].Value;
                     if (sound.StartsWith("#Y"))
                     {
                         volume = SoundLevel.Yell;
-                        sound = match.Value.Substring(2);
+                        sound = sound.Substring(3);
                     }
                     monster.Voices.Add(new Voice(sound, volume));
                 }
@@ -231,14 +485,14 @@ namespace MonsterConverterCipMon
             m = Regex.Match(fileContents, @"Inventory.*?= \{(.*?)\}", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
             {
-                var matches = Regex.Matches(m.Value, @"\((?<id>\d+), (?<count>\d+), (?<chance>\d+)\)", RegexOptions.Singleline);
+                var matches = Regex.Matches(m.Groups[1].Value, @"\((?<id>\d+), (?<count>\d+), (?<chance>\d+)\)", RegexOptions.Singleline);
                 foreach (Match match in matches)
                 {
                     monster.Items.Add(new Loot()
                     {
                         Item = match.Groups["id"].Value,
                         Count = int.Parse(match.Groups["count"].Value),
-                        Chance = decimal.Parse(match.Groups["id"].Value) / 1000
+                        Chance = decimal.Parse(match.Groups["chance"].Value) / 1000
                     });
                 }
             }

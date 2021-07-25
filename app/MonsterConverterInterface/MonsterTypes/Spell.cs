@@ -7,6 +7,11 @@ namespace MonsterConverterInterface.MonsterTypes
     public class Spell
     {
         public string Name { get; set; }
+        /// <summary>
+        /// Free form string field not used by any engine, information stored here is useful for maintaining a server
+        /// For example, it puts a short description to a spell "demon giant gfb"
+        /// etc..
+        /// </summary>
         public string Description { get; set; }
         public SpellCategory SpellCategory { get; set; }
         public int? MinDamage { get; set; }
