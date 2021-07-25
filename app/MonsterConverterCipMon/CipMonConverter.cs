@@ -288,6 +288,7 @@ namespace MonsterConverterCipMon
                     {
                         spell.Radius = int.Parse(castTypeParams[0]) + 1;
                         spell.AreaEffect = effectFromString(castTypeParams[1]);
+                        spell.OnTarget = false;
                     }
                     else if (castType == "destination")
                     {
