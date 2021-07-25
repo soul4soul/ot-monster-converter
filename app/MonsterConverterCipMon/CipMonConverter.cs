@@ -473,7 +473,7 @@ namespace MonsterConverterCipMon
                 {
                     SoundLevel volume = SoundLevel.Say;
                     string sound = match.Groups[1].Value;
-                    if (sound.StartsWith("#Y"))
+                    if (sound.StartsWith("#Y") || sound.StartsWith("#y"))
                     {
                         volume = SoundLevel.Yell;
                         sound = sound.Substring(3);
