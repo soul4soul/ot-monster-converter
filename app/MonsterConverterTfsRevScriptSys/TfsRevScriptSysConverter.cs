@@ -239,7 +239,7 @@ namespace MonsterConverterTfsRevScriptSys
                 {
                     dest.WriteLine($"	lookTypeEx = {monster.Look.LookId}");
                 }
-                else if (monster.Look.LookType == LookType.Item)
+                else if (monster.Look.LookType == LookType.Outfit)
                 {
                     dest.WriteLine($"	lookType = {monster.Look.LookId},");
                     dest.WriteLine($"	lookHead = {monster.Look.Head},");
@@ -249,7 +249,7 @@ namespace MonsterConverterTfsRevScriptSys
                     dest.WriteLine($"	lookAddons = {monster.Look.Addons},");
                     dest.WriteLine($"	lookMount = {monster.Look.Mount}");
                 }
-                else
+                else if (monster.Look.LookType == LookType.Invisible)
                 {
                     result.IncreaseError(ConvertError.Warning);
                     result.AppendMessage("Invisible look type not supported");
