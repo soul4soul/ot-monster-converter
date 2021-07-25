@@ -18,6 +18,7 @@ namespace MonsterConverterInterface.MonsterTypes
             Scripts = new List<Script>();
             TargetStrategy = new TargetStrategy();
 
+            RetargetInterval = 2000;
             SummonCost = 0;
             Attackable = true;
             IsHostile = true;
@@ -143,5 +144,10 @@ namespace MonsterConverterInterface.MonsterTypes
 
         // Attached Scripts
         public IList<Script> Scripts { get; }
+
+        public override string ToString()
+        {
+            return $"{RegisteredName} (HP:{Health}, EXP:{Experience})";
+        }
     }
 }
