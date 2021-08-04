@@ -208,7 +208,7 @@ namespace MonsterConverterTfsXml
 
         public override bool IsReadSupported { get => true; }
 
-        public override bool IsWriteSupported { get => false; }
+        public override bool IsWriteSupported { get => true; }
 
         // Using this won't work we ever parallize processing
         private static string CurrentFileName { get; set; }
@@ -249,13 +249,69 @@ namespace MonsterConverterTfsXml
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
+            ConvertResultEventArgs result = new ConvertResultEventArgs(fileName);
+            if (monster.TargetStrategy.Random != 100)
+            {
+                result.AppendMessage("unsupported target strategy, only random is supported");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            if ((monster.SummonCost > 0) && (monster.ConvinceCost > 0) && (monster.SummonCost != monster.ConvinceCost))
+            {
+                result.AppendMessage("format doesn't support summon and coninvce mana costs being different");
+                result.IncreaseError(ConvertError.Warning);
+            }
 
             XDocument xDoc = XDocument.Load(fileName);
             xDoc.Root.Add(new XElement("monster",
                             new XAttribute("name", monster.Name),
                             new XAttribute("nameDescription", monster.Description),
                             new XAttribute("experience", monster.Experience),
-                            new XAttribute("speed", monster.Speed)
+                            new XAttribute("speed", monster.Speed),
+                            new XAttribute("manacost", monster.SummonCost),
+                            new XElement("health",
+                                new XAttribute("now", monster.Health),
+                                new XAttribute("max", monster.Health)),
+                            // Look
+                            new XElement("targetchange",
+                                new XAttribute("interval", monster.RetargetInterval),
+                                new XAttribute("chance", monster.RetargetChance)),
+                            new XElement("flags",
+                                new XElement("flag",
+                                    new XAttribute("attackable", monster.Attackable ? 1: 0)),
+                                new XElement("flag",
+                                    new XAttribute("hostile", monster.IsHostile ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("summonable", monster.SummonCost > 0 ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("convinceable", monster.ConvinceCost > 0 ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("illusionable", monster.IsIllusionable ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("isboss", monster.IsBoss ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("pushable", monster.IsPushable ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("canpushitems", monster.PushItems ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("canpushcreatures", monster.PushCreatures ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("staticattack", monster.StaticAttackChance)),
+                                new XElement("flag",
+                                    new XAttribute("targetdistance", monster.TargetDistance)),
+                                new XElement("flag",
+                                    new XAttribute("healthHidden", monster.HideHealth ? 1 : 0)),
+                                new XElement("flag",
+                                    new XAttribute("canWalkOnEnergy", monster.AvoidEnergy ? 0 : 1)),
+                                new XElement("flag",
+                                    new XAttribute("canWalkOnFire", monster.AvoidFire ? 0 : 1)),
+                                new XElement("flag",
+                                    new XAttribute("canWalkOnPoison", monster.AvoidPoison ? 0 : 1)))
+                            // attacks
+                            // defense
+                            // elements
+                            // voice
+                            // summon
+                            // loot
                         ));
             xDoc.Save(fileName);
 
