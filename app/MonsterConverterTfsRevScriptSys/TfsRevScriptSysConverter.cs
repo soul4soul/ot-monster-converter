@@ -235,19 +235,24 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"monster.description = \"{monster.Description}\"");
                 dest.WriteLine($"monster.experience = {monster.Experience}");
                 dest.WriteLine("monster.outfit = {");
-                if (monster.ItemIdLookType != 0)
+                if (monster.Look.LookType == LookType.Item)
                 {
-                    dest.WriteLine($"	lookTypeEx = {monster.ItemIdLookType}");
+                    dest.WriteLine($"	lookTypeEx = {monster.Look.LookId}");
                 }
-                else
+                else if (monster.Look.LookType == LookType.Outfit)
                 {
-                    dest.WriteLine($"	lookType = {monster.OutfitIdLookType},");
-                    dest.WriteLine($"	lookHead = {monster.LookTypeDetails.Head},");
-                    dest.WriteLine($"	lookBody = {monster.LookTypeDetails.Body},");
-                    dest.WriteLine($"	lookLegs = {monster.LookTypeDetails.Legs},");
-                    dest.WriteLine($"	lookFeet = {monster.LookTypeDetails.Feet},");
-                    dest.WriteLine($"	lookAddons = {monster.LookTypeDetails.Addons},");
-                    dest.WriteLine($"	lookMount = {monster.LookTypeDetails.Mount}");
+                    dest.WriteLine($"	lookType = {monster.Look.LookId},");
+                    dest.WriteLine($"	lookHead = {monster.Look.Head},");
+                    dest.WriteLine($"	lookBody = {monster.Look.Body},");
+                    dest.WriteLine($"	lookLegs = {monster.Look.Legs},");
+                    dest.WriteLine($"	lookFeet = {monster.Look.Feet},");
+                    dest.WriteLine($"	lookAddons = {monster.Look.Addons},");
+                    dest.WriteLine($"	lookMount = {monster.Look.Mount}");
+                }
+                else if (monster.Look.LookType == LookType.Invisible)
+                {
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Invisible look type not supported");
                 }
                 dest.WriteLine("}");
                 dest.WriteLine("");
@@ -255,7 +260,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"monster.maxHealth = {monster.Health}");
                 dest.WriteLine($"monster.runHealth = {monster.RunOnHealth}");
                 dest.WriteLine($"monster.race = \"{BloodToRace[monster.Race]}\"");
-                dest.WriteLine($"monster.corpse = {monster.CorpseId}");
+                dest.WriteLine($"monster.corpse = {monster.Look.CorpseId}");
                 dest.WriteLine($"monster.speed = {monster.Speed}");
                 dest.WriteLine($"monster.summonCost = {monster.SummonCost}");
                 dest.WriteLine($"monster.maxSummons = {monster.MaxSummons}");
@@ -270,15 +275,15 @@ namespace MonsterConverterTfsRevScriptSys
                 // Flags
                 dest.WriteLine("monster.flags = {");
                 dest.WriteLine($"	attackable = {monster.Attackable.ToString().ToLower()},");
-                dest.WriteLine($"	hostile = {monster.Hostile.ToString().ToLower()},");
+                dest.WriteLine($"	hostile = {monster.IsHostile.ToString().ToLower()},");
                 dest.WriteLine($"	summonable = {(monster.SummonCost > 0).ToString().ToLower()},");
                 dest.WriteLine($"	convinceable = {(monster.ConvinceCost > 0).ToString().ToLower()},");
-                dest.WriteLine($"	illusionable = {monster.Illusionable.ToString().ToLower()},");
+                dest.WriteLine($"	illusionable = {monster.IsIllusionable.ToString().ToLower()},");
                 dest.WriteLine($"	boss = {monster.IsBoss.ToString().ToLower()},");
-                dest.WriteLine($"	pushable = {monster.Pushable.ToString().ToLower()},");
+                dest.WriteLine($"	pushable = {monster.IsPushable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
-                dest.WriteLine($"	staticAttackChance = {monster.StaticAttack},");
+                dest.WriteLine($"	staticAttackChance = {monster.StaticAttackChance},");
                 dest.WriteLine($"	targetDistance = {monster.TargetDistance},");
                 dest.WriteLine($"	healthHidden = {monster.HideHealth.ToString().ToLower()},");
                 dest.WriteLine($"	canWalkOnEnergy = {(!monster.AvoidEnergy).ToString().ToLower()},");

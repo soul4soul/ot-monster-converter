@@ -16,6 +16,7 @@ Tibia OT Monster Converter is a tool for converting monster files between the va
 | [PyOT](https://bitbucket.org/vapus/pyot/)            | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/PyOT-Input-Status)               | [90%](https://github.com/soul4soul/ot-monster-converter/wiki/PyOT-Output-Status)               | - This format can be consider dead as PyOT development has ceased. Unless development is picked back up support for this format is unlikely to be completed. |
 | TFS revscriptsys                                     | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Input-Status)   | [95%](https://github.com/soul4soul/ot-monster-converter/wiki/TFS-revscriptsys-Output-Status)   | - Very new OT monster format that was theorized many years ago. In the future there is a good chance it will replace TFS XML completely. This is likely the output type that most users of this program will use. <br/> - Opentibiabr RevScriptSys format is not completely compatible with TFS RevScriptSys format |
 | [TibiaWiki](https://tibia.fandom.com/wiki/Main_Page) | [85%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Input-Status)         | [70%](https://github.com/soul4soul/ot-monster-converter/wiki/TibiaWiki-Output-Status)          | - Helpful for keeping monsters up to date with cipbia<br/> - See The [Infobox Creature Template](https://tibia.fandom.com/wiki/Template:Infobox_Creature) for information about TibiaWiki Format <br/> - Monsters created from TibiaWiki will require corpse id, looktype, and spells to be created manually |
+| Cip Mon                                              | [95%](https://github.com/soul4soul/ot-monster-converter/wiki/Cip-Mon-Input-Status)           | [0%](https://github.com/soul4soul/ot-monster-converter/wiki/Cip-Mon-Output-Status)             | - Format is for input purposes to easily generte monsters as they were in the 7.7 days |
 
 ## Graphical User Interface
 
@@ -41,7 +42,7 @@ Options:
                                 otherwise flat folder structure is output
   -h, --help                 show this message and exit
 
-Input Formats: TFS XML, TibiaWiki
+Input Formats: Cip Mon, TFS XML, TibiaWiki
 Output Formats: TFS RevScriptSys, TibiaWiki, pyOT
 ```
 

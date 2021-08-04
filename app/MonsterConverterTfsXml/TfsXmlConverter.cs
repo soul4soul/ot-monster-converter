@@ -304,18 +304,28 @@ namespace MonsterConverterTfsXml
 
             if (tfsMonster.look != null)
             {
-                monster.CorpseId = tfsMonster.look.corpse;
-                monster.OutfitIdLookType = tfsMonster.look.type;
-                monster.LookTypeDetails = new DetailedLookType()
+                if (tfsMonster.look.type != 0)
                 {
-                    Head = (ushort)tfsMonster.look.head,
-                    Body = (ushort)tfsMonster.look.body,
-                    Legs = (ushort)tfsMonster.look.legs,
-                    Feet = (ushort)tfsMonster.look.feet,
-                    Addons = (ushort)tfsMonster.look.addons,
-                    Mount = (ushort)tfsMonster.look.mount
-                };
-                monster.ItemIdLookType = tfsMonster.look.typeex;
+                    monster.Look.LookType = LookType.Outfit;
+                    monster.Look.LookId = tfsMonster.look.type;
+                    monster.Look.Head = tfsMonster.look.head;
+                    monster.Look.Body = tfsMonster.look.body;
+                    monster.Look.Legs = tfsMonster.look.legs;
+                    monster.Look.Feet = tfsMonster.look.feet;
+                    monster.Look.Addons = tfsMonster.look.addons;
+                    monster.Look.Mount = tfsMonster.look.mount;
+                }
+                else if (tfsMonster.look.typeex != 0)
+                {
+                    monster.Look.LookType = LookType.Item;
+                    monster.Look.LookId = tfsMonster.look.typeex;
+                }
+                else
+                {
+                    monster.Look.LookType = LookType.Invisible;
+                }
+
+                monster.Look.CorpseId = tfsMonster.look.corpse;
             }
 
             // flags
@@ -337,11 +347,11 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "hostile")
                         {
-                            monster.Hostile = value == 1;
+                            monster.IsHostile = value == 1;
                         }
                         else if (x.attr[0].Name == "illusionable")
                         {
-                            monster.Illusionable = value == 1;
+                            monster.IsIllusionable = value == 1;
                         }
                         else if (x.attr[0].Name == "convinceable")
                         {
@@ -349,7 +359,7 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "pushable")
                         {
-                            monster.Pushable = value == 1;
+                            monster.IsPushable = value == 1;
                         }
                         else if (x.attr[0].Name == "canpushitems")
                         {
@@ -365,7 +375,7 @@ namespace MonsterConverterTfsXml
                         }
                         else if (x.attr[0].Name == "staticattack")
                         {
-                            monster.StaticAttack = value;
+                            monster.StaticAttackChance = value;
                         }
                         else if (x.attr[0].Name == "lightlevel")
                         {
@@ -413,8 +423,7 @@ namespace MonsterConverterTfsXml
             {
                 foreach (VoiceXml sound in tfsMonster.voices.voice)
                 {
-                    Voice voice = new Voice();
-                    voice.Sound = sound.sentence;
+                    Voice voice = new Voice(sound.sentence);
                     if (!(string.IsNullOrEmpty(sound.yell)) &&
                         ((sound.yell == "1") || (sound.yell == "true")))
                     {

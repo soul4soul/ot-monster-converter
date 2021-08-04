@@ -13,20 +13,22 @@ namespace MonsterConverterInterface.MonsterTypes
             MaxSummons = 0;
             Summons = new List<Summon>();
             Items = new List<Loot>();
-            LookTypeDetails = new DetailedLookType();
+            Look = new LookData();
             Attacks = new List<Spell>();
             Scripts = new List<Script>();
+            TargetStrategy = new TargetStrategy();
 
+            RetargetInterval = 2000;
             SummonCost = 0;
             Attackable = true;
-            Hostile = true;
-            Illusionable = false;
+            IsHostile = true;
+            IsIllusionable = false;
             ConvinceCost = 0;
-            Pushable = false;
+            IsPushable = false;
             PushItems = false;
             PushCreatures = false;
             TargetDistance = 1;
-            StaticAttack = 95;
+            StaticAttackChance = 90;
             LightLevel = 0;
             LightColor = 0;
             RunOnHealth = 0;
@@ -78,35 +80,34 @@ namespace MonsterConverterInterface.MonsterTypes
         public int Health { get; set; }
         public int Experience { get; set; }
         public int Speed { get; set; }
-        public IList<Voice> Voices { get; set; }
+        public IList<Voice> Voices { get; }
         public Blood Race { get; set; }
-        public int RetargetInterval { get; set; }
-        public double RetargetChance { get; set; }
         public int MaxSummons { get; set; }
-        public IList<Summon> Summons { get; set; }
+        public IList<Summon> Summons { get; }
+        public LookData Look { get; }
 
-        // Look
-        public int CorpseId { get; set; }
-        public int OutfitIdLookType { get; set; }
-        public int ItemIdLookType { get; set; } // non 0 means creature looks like an item
-        public DetailedLookType LookTypeDetails { get; set; }
-
-        // Behavior
+        // Other
         public int SummonCost { get; set; }
         public bool Attackable { get; set; }
-        public bool Hostile { get; set; }
-        public bool Illusionable { get; set; }
+        public bool IsIllusionable { get; set; }
         public int ConvinceCost { get; set; }
-        public bool Pushable { get; set; }
-        public bool PushItems { get; set; }
-        public bool PushCreatures { get; set; }
-        public int TargetDistance { get; set; }
-        public int RunOnHealth { get; set; }
-        public int StaticAttack { get; set; }
         public int LightLevel { get; set; }
         public int LightColor { get; set; }
         public bool HideHealth { get; set; }
         public bool IsBoss { get; set; }
+        public int RaceId { get; set; }
+
+        // Behavior
+        public bool IsPushable { get; set; }
+        public bool PushItems { get; set; }
+        public bool PushCreatures { get; set; }
+        public bool IsHostile { get; set; }
+        public int RetargetInterval { get; set; }
+        public double RetargetChance { get; set; }
+        public int TargetDistance { get; set; }
+        public int RunOnHealth { get; set; }
+        public int StaticAttackChance { get; set; } // Static attack controls how much the monster dances/moves when attacking a target, 100 = completely static, 0 = always dance
+        public TargetStrategy TargetStrategy { get; }
 
         // Walk Behavior
         public bool AvoidFire { get; set; }
@@ -114,7 +115,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public bool AvoidPoison { get; set; }
 
         // Attacks
-        public IList<Spell> Attacks { get; set; }
+        public IList<Spell> Attacks { get; }
 
         // Defeneses
         public int TotalArmor { get; set; }
@@ -139,9 +140,14 @@ namespace MonsterConverterInterface.MonsterTypes
         public bool IgnoreBleed { get; set; }
 
         // Loot
-        public IList<Loot> Items { get; set; }
+        public IList<Loot> Items { get; }
 
         // Attached Scripts
-        public IList<Script> Scripts { get; set; }
+        public IList<Script> Scripts { get; }
+
+        public override string ToString()
+        {
+            return $"{RegisteredName} (HP:{Health}, EXP:{Experience})";
+        }
     }
 }
