@@ -34,12 +34,12 @@ namespace otmc
 
         private void FileProcessor_OnMonsterConverted(object sender, FileProcessorEventArgs e)
         {
-            if ((e.Source.Code == ConvertError.Error) || (e.Source.Code == ConvertError.Error))
+            if ((e.Source.Code == ConvertError.Error) || (e.Destination.Code == ConvertError.Error))
             {
                 ConvertErrorCount++;
                 PrintInfo(ConvertError.Error, e.Source, e.Destination);
             }
-            else if ((e.Source.Code == ConvertError.Warning) || (e.Source.Code == ConvertError.Warning))
+            else if ((e.Source.Code == ConvertError.Warning) || (e.Destination.Code == ConvertError.Warning))
             {
                 ConvertWarningCount++;
                 PrintInfo(ConvertError.Warning, e.Source, e.Destination);
