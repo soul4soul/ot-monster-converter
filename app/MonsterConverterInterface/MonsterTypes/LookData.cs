@@ -4,39 +4,46 @@ using System.Text;
 
 namespace MonsterConverterInterface.MonsterTypes
 {
-    //todo should we add outfit ID to this class?
-    public class DetailedLookType
+    public class LookData
     {
         // Variables
-        private const ushort MAX_COLOR = 132;
+        private const int MAX_COLOR = 132;
 
-        private ushort _Head;
-        private ushort _Body;
-        private ushort _Legs;
-        private ushort _Feet;
+        private int _Head;
+        private int _Body;
+        private int _Legs;
+        private int _Feet;
 
         // Properties
-        public ushort Head
+        public LookType LookType { get; set; }
+
+        public int LookId { get; set; }
+
+        public int CorpseId { get; set; }
+
+        public int Head
         {
             get { return _Head; }
             set { _Head = (value > MAX_COLOR) ? MAX_COLOR : value; }
         }
-        public ushort Body
+        public int Body
         {
             get { return _Body; }
             set { _Body = (value > MAX_COLOR) ? MAX_COLOR : value; }
         }
-        public ushort Legs
+        public int Legs
         {
             get { return _Legs; }
             set { _Legs = (value > MAX_COLOR) ? MAX_COLOR : value; }
         }
-        public ushort Feet
+        public int Feet
         {
             get { return _Feet; }
             set { _Feet = (value > MAX_COLOR) ? MAX_COLOR : value; }
         }
-        public ushort Addons { get; set; }
-        public ushort Mount { get; set; }
+
+        public int Addons { get; set; }
+
+        public int Mount { get; set; }
     }
 }

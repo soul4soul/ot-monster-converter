@@ -300,7 +300,10 @@ namespace MonsterConverterTibiaWiki
                     {
                         // Sometimes unknow sound templates include a single empty sound {{SoundList|}}
                         if (!string.IsNullOrWhiteSpace(sound))
-                            mon.Voices.Add(new Voice() { Sound = sound, SoundLevel = SoundLevel.Say });
+                        {
+                            // TibiaWiki doesn't include sound level information, default to say
+                            mon.Voices.Add(new Voice(sound, SoundLevel.Say));
+                        }
                     }
                 }
             }
@@ -1017,10 +1020,10 @@ namespace MonsterConverterTibiaWiki
             if (!string.IsNullOrWhiteSpace(creature.RunsAt)) { ParseRunAt(monster, creature.RunsAt); }
             if (RobustTryParse(creature.Summon, out intVal)) { monster.SummonCost = intVal; }
             if (RobustTryParse(creature.Convince, out intVal)) { monster.ConvinceCost = intVal; }
-            if (RobustTryParse(creature.Illusionable, out boolVal)) { monster.Illusionable = boolVal; }
+            if (RobustTryParse(creature.Illusionable, out boolVal)) { monster.IsIllusionable = boolVal; }
             if (RobustTryParse(creature.IsBoss, out boolVal)) { monster.IsBoss = boolVal; }
             if (!string.IsNullOrWhiteSpace(creature.PrimaryType)) { monster.HideHealth = creature.PrimaryType.ToLower().Contains("trap"); }
-            if (RobustTryParse(creature.Pushable, out boolVal)) { monster.Pushable = boolVal; }
+            if (RobustTryParse(creature.Pushable, out boolVal)) { monster.IsPushable = boolVal; }
             // In cipbia ability to push objects means ability to push creatures too
             if (RobustTryParse(creature.PushObjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
             if (RobustTryParse(creature.SenseInvis, out boolVal)) { monster.IgnoreInvisible = boolVal; }
@@ -1037,6 +1040,7 @@ namespace MonsterConverterTibiaWiki
             if (RobustTryParse(creature.HealMod, out intVal)) { monster.HealingMod = intVal / 100.0; }
             if (RobustTryParse(creature.LifeDrainDmgMod, out intVal)) { monster.LifeDrainDmgMod = intVal / 100.0; }
             if (RobustTryParse(creature.DrownDmgMod, out intVal)) { monster.DrownDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.RaceId, out intVal)) { monster.RaceId = intVal; }
             if (!string.IsNullOrWhiteSpace(creature.Sounds)) { ParseSoundList(monster, creature.Sounds); }
             if (!string.IsNullOrWhiteSpace(creature.Behavior)) { ParseBehavior(monster, creature.Behavior); }
             if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities); }
@@ -1066,10 +1070,10 @@ namespace MonsterConverterTibiaWiki
                 $"| armor          = {monster.TotalArmor}",
                 string.Format("| summon         = {0}", monster.SummonCost > 0 ? monster.SummonCost.ToString() : "--"),
                 string.Format("| convince       = {0}", monster.ConvinceCost > 0 ? monster.ConvinceCost.ToString() : "--"),
-                string.Format("| illusionable   = {0}", monster.Illusionable ? "yes" : "no"),
+                string.Format("| illusionable   = {0}", monster.IsIllusionable ? "yes" : "no"),
                 string.Format("| primarytype    = {0}", monster.HideHealth ? "trap" : ""),
                 string.Format("| isboss         = {0}", monster.IsBoss ? "yes" : "no"),
-                string.Format("| pushable       = {0}", monster.Pushable ? "yes" : "no"),
+                string.Format("| pushable       = {0}", monster.IsPushable ? "yes" : "no"),
                 string.Format("| pushobjects    = {0}", monster.PushItems ? "yes" : "no"),
                 $"| walksaround    = {GenericToTibiaWikiWalkAround(ref monster)}",
                 $"| walksthrough   = {GenericToTibiaWikiWalkThrough(ref monster)}",

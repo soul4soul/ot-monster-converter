@@ -7,6 +7,12 @@ namespace MonsterConverterInterface.MonsterTypes
     public class Spell
     {
         public string Name { get; set; }
+        /// <summary>
+        /// Free form string field not used by any engine, information stored here is useful for maintaining a server
+        /// For example, it puts a short description to a spell "demon giant gfb"
+        /// etc..
+        /// </summary>
+        public string Description { get; set; }
         public SpellCategory SpellCategory { get; set; }
         public int? MinDamage { get; set; }
         public int? MaxDamage { get; set; }
@@ -39,5 +45,11 @@ namespace MonsterConverterInterface.MonsterTypes
         public int? ItemId { get; set; }
         // Drunk
         public double? Drunkenness { get; set; }
+
+        public override string ToString()
+        {
+            string category = (SpellCategory == SpellCategory.Offensive) ? "Offenseive" : "Defensive";
+            return $"{category}: {Name} ({Description})";
+        }
     }
 }
