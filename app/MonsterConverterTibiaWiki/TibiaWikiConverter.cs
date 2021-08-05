@@ -1167,21 +1167,40 @@ namespace MonsterConverterTibiaWiki
             return $"{{{{Sound List|{voice}}}}}";
         }
 
-        private static string GenericToTibiaWikiLootList(ref Monster monster)
+        private static void FlattenNestedLoot(IDictionary<string, Loot> flatLoot, IList<Loot> items)
         {
-            string lootList = "";
-            foreach (var l in monster.Items)
+            foreach (var l in items)
             {
-                if (string.IsNullOrWhiteSpace(lootList))
+                if (flatLoot.ContainsKey(l.Item))
                 {
-                    lootList = GenericToTibiaWikiLoot(l);
+                    flatLoot[l.Item].Count += l.Count;
+                    // Chance can't be over 100%
+                    flatLoot[l.Item].Chance = Math.Min(flatLoot[l.Item].Chance + l.Chance, 1);
                 }
                 else
                 {
-                    lootList = $"{lootList}{Environment.NewLine}|{GenericToTibiaWikiLoot(l)}";
+                    flatLoot.Add(l.Item, l);
                 }
+
+                FlattenNestedLoot(flatLoot, l.NestedLoot);
             }
-            return $"{{{{Loot List{Environment.NewLine}|{lootList}}}}}";
+        }
+
+        private static string GenericToTibiaWikiLootList(ref Monster monster)
+        {
+            // Flatten loot list, TibiaWiki doesn't supported nested loot information
+            // Merged duplicate items, TibiaWiki only lists 1 entry per item type
+            // <item id OR name, Loot>
+            IDictionary<string, Loot> flatLoot = new Dictionary<string, Loot>();
+            FlattenNestedLoot(flatLoot, monster.Items);
+
+            // Sort by drop chance to follow TibiaWiki practice
+            string lootList = "";
+            foreach (var l in flatLoot.OrderByDescending(kv => kv.Value.Chance))
+            {
+                lootList = $"{lootList}{Environment.NewLine}|{GenericToTibiaWikiLoot(l.Value)}";
+            }
+            return $"{{{{Loot List{lootList}}}}}";
         }
 
         private static string GenericToTibiaWikiLoot(Loot loot)
