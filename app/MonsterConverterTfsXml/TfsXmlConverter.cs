@@ -662,38 +662,22 @@ namespace MonsterConverterTfsXml
             {
                 foreach (var item in tfsMonster.loot.item)
                 {
-                    string itemType = "";
-                    if (!string.IsNullOrEmpty(item.name))
+                    Loot genericLoot = TfsToGenericLoot(item);
+
+                    if ((item.NestedItems != null) &&
+                        (item.NestedItems.Length > 0))
                     {
-                        itemType = item.name;
-                    }
-                    else if (item.id > 0)
-                    {
-                        itemType = item.id.ToString();
+                        ParseNestedLoot(ref genericLoot, item.NestedItems);
                     }
 
-                    decimal chance = 1;
-                    if (item.chance > 0)
+                    if ((item.Inside != null) &&
+                        (item.Inside.NestedItems != null) &&
+                        (item.Inside.NestedItems.Length > 0))
                     {
-                        chance = item.chance;
-                    }
-                    else if (item.chance1 > 0)
-                    {
-                        chance = item.chance1;
+                        ParseNestedLoot(ref genericLoot, item.Inside.NestedItems);
                     }
 
-                    chance /= MAX_LOOTCHANCE;
-
-                    Loot commonItem = new Loot()
-                    {
-                        Item = itemType,
-                        Chance = chance,
-                        Count = item.countmax,
-                        SubType = item.subtype,
-                        ActionId = item.actionId,
-                        Text = item.text
-                    };
-                    monster.Items.Add(commonItem);
+                    monster.Items.Add(genericLoot);
                 }
             }
 
@@ -713,6 +697,57 @@ namespace MonsterConverterTfsXml
                     monster.Scripts.Add(new Script() { Name = te.Name, Type = ScriptType.OnDeath });
                 }
             }
+        }
+
+        private void ParseNestedLoot(ref Loot lootContainer, Item[] items)
+        {
+            foreach (var item in items)
+            {
+                Loot genericLoot = TfsToGenericLoot(item);
+
+                if ((item.NestedItems != null) &&
+                    (item.NestedItems.Length > 0))
+                {
+                    ParseNestedLoot(ref genericLoot, item.NestedItems);
+                }
+
+                lootContainer.NestedLoot.Add(genericLoot);
+            }
+        }
+
+        private Loot TfsToGenericLoot(Item item)
+        {
+            string itemType = "";
+            if (!string.IsNullOrEmpty(item.name))
+            {
+                itemType = item.name;
+            }
+            else if (item.id > 0)
+            {
+                itemType = item.id.ToString();
+            }
+
+            decimal chance = 1;
+            if (item.chance > 0)
+            {
+                chance = item.chance;
+            }
+            else if (item.chance1 > 0)
+            {
+                chance = item.chance1;
+            }
+
+            chance /= MAX_LOOTCHANCE;
+
+            return new Loot()
+            {
+                Item = itemType,
+                Chance = chance,
+                Count = item.countmax,
+                SubType = item.subtype,
+                ActionId = item.actionId,
+                Text = item.text
+            };
         }
 
         private Blood TfsToGenericBlood(string blood)

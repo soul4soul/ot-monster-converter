@@ -12,10 +12,23 @@ namespace MonsterConverterInterface.MonsterTypes
         public int SubType { get; set; } // Fluids in containers or rune charges
         public int ActionId { get; set; }
         public string Text { get; set; } // Sets text on writables like a letter
+        public List<Loot> NestedLoot { get; }
+
+        public Loot()
+        {
+            NestedLoot = new List<Loot>();
+        }
 
         public override string ToString()
         {
-            return $"{Item} {Count} {Chance:N4}";
+            if (NestedLoot.Count > 0)
+            {
+                return $"{Item} {Count} {Chance:N4} (Nested: {NestedLoot.Count})";
+            }
+            else
+            {
+                return $"{Item} {Count} {Chance:N4}";
+            }
         }
     }
 }
