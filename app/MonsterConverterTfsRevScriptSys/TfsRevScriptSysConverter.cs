@@ -485,49 +485,9 @@ namespace MonsterConverterTfsRevScriptSys
 
                 // Loot
                 dest.WriteLine("monster.loot = {");
-                string loot;
-                for (int i = 0; i < monster.Items.Count; i++)
+                if (monster.Items.Count > 0)
                 {
-                    string item;
-                    if (int.TryParse(monster.Items[i].Item, out int itemid))
-                    {
-                        item = itemid.ToString();
-                    }
-                    else
-                    {
-                        item = $"\"{monster.Items[i].Item}\"";
-                    }
-
-                    decimal chance = monster.Items[i].Chance * MAX_LOOTCHANCE;
-                    loot = $"	{{id = {item}, chance = {chance:0}";
-
-                    if (monster.Items[i].Count > 1)
-                    {
-                        loot += $", maxCount = {monster.Items[i].Count}";
-                    }
-
-                    if (monster.Items[i].SubType > 0)
-                    {
-                        loot += $", subType = {monster.Items[i].SubType}";
-                    }
-
-                    if (monster.Items[i].ActionId > 0)
-                    {
-                        loot += $", actionId = {monster.Items[i].ActionId}";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(monster.Items[i].Text))
-                    {
-                        loot += $", text = {monster.Items[i].Text}";
-                    }
-
-                    loot += "},";
-
-                    if (i == monster.Items.Count - 1)
-                    {
-                        loot = loot.TrimEnd(',');
-                    }
-                    dest.WriteLine(loot);
+                    dest.WriteLine(LootListToRevScriptSysFormat(monster.Items));
                 }
                 dest.WriteLine("}");
                 dest.WriteLine("");
@@ -536,6 +496,71 @@ namespace MonsterConverterTfsRevScriptSys
             }
 
             return result;
+        }
+
+        private static string LootListToRevScriptSysFormat(IList<Loot> items, int tabDepth = 1)
+        {
+            string output = "";
+            for (int i = 0; i < items.Count; i++)
+            {
+                string loot = LootItemToRevScriptSysFormat(items[i], tabDepth);
+                if (i != items.Count - 1)
+                {
+                    loot += $",{Environment.NewLine}";
+                }
+                output += loot;
+            }
+            return output;
+        }
+
+        private static string LootItemToRevScriptSysFormat(Loot loot, int tabDepth)
+        {
+            string tabIndent = string.Concat(Enumerable.Repeat("\t", tabDepth));
+            string rssLootLine;
+
+            string itemQuoted;
+            if (int.TryParse(loot.Item, out int itemid))
+            {
+                itemQuoted = itemid.ToString();
+            }
+            else
+            {
+                itemQuoted = $"\"{loot.Item}\"";
+            }
+
+            decimal chance = loot.Chance * MAX_LOOTCHANCE;
+            rssLootLine = $"{tabIndent}{{id = {itemQuoted}, chance = {chance:0}";
+
+            if (loot.Count > 1)
+            {
+                rssLootLine += $", maxCount = {loot.Count}";
+            }
+
+            if (loot.SubType > 0)
+            {
+                rssLootLine += $", subType = {loot.SubType}";
+            }
+
+            if (loot.ActionId > 0)
+            {
+                rssLootLine += $", actionId = {loot.ActionId}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(loot.Text))
+            {
+                rssLootLine += $", text = {loot.Text}";
+            }
+
+            if (loot.NestedLoot.Count > 0)
+            {
+                rssLootLine += $", child = {{{Environment.NewLine}";
+                rssLootLine += LootListToRevScriptSysFormat(loot.NestedLoot, tabDepth + 2);
+                rssLootLine += $"{Environment.NewLine}{tabIndent}\t}}{Environment.NewLine}{tabIndent}";
+            }
+
+            rssLootLine += "}";
+
+            return rssLootLine;
         }
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
