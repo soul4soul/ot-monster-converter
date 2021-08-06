@@ -6,8 +6,14 @@ namespace MonsterConverterInterface.MonsterTypes
 {
     public class Loot
     {
+        private decimal chance = 0;
+
         public string Item { get; set; }
-        public decimal Chance { get; set; }
+        public decimal Chance 
+        { 
+            get { return chance; }
+            set { chance = Math.Max(value, 1); }
+        }
         public int Count { get; set; }
         public int SubType { get; set; } // Fluids in containers or rune charges
         public int ActionId { get; set; }

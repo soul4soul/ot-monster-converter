@@ -1174,8 +1174,7 @@ namespace MonsterConverterTibiaWiki
                 if (flatLoot.ContainsKey(l.Item))
                 {
                     flatLoot[l.Item].Count += l.Count;
-                    // Chance can't be over 100%
-                    flatLoot[l.Item].Chance = Math.Min(flatLoot[l.Item].Chance + l.Chance, 1);
+                    flatLoot[l.Item].Chance = flatLoot[l.Item].Chance + l.Chance;
                 }
                 else
                 {
