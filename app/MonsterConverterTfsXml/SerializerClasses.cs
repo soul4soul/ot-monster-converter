@@ -283,7 +283,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int speed; //interval and speed are the same
         [XmlAttribute]
-        public int chance;
+        public double chance;
         [XmlElement]
         public VoiceXml[] voice;
     }

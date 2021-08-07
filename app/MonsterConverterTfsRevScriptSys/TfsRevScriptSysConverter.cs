@@ -301,9 +301,8 @@ namespace MonsterConverterTfsRevScriptSys
 
                 // Voices
                 dest.WriteLine("monster.voices = {");
-                dest.WriteLine("	interval = 5000,");
-                dest.WriteLine("	chance = 10,");
-                string voice;
+                dest.WriteLine($"	interval = {monster.VoiceInterval},");
+                dest.WriteLine($"	chance = {monster.VoiceChance * 100:0},");
                 for (int i = 0; i < monster.Voices.Count; i++)
                 {
                     bool yell = false;
@@ -311,7 +310,7 @@ namespace MonsterConverterTfsRevScriptSys
                     {
                         yell = true;
                     }
-                    voice = $"	{{text = \"{monster.Voices[i].Sound}\", yell = {yell.ToString().ToLower()}}},";
+                    string voice = $"	{{text = \"{monster.Voices[i].Sound}\", yell = {yell.ToString().ToLower()}}},";
                     if (i == monster.Voices.Count - 1)
                     {
                         voice = voice.TrimEnd(',');

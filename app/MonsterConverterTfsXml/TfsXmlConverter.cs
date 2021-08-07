@@ -312,11 +312,11 @@ namespace MonsterConverterTfsXml
                         new XElement("flag",
                             new XAttribute("canWalkOnFire", monster.AvoidFire ? 0 : 1)),
                         new XElement("flag",
-                            new XAttribute("canWalkOnPoison", monster.AvoidPoison ? 0 : 1)))
+                            new XAttribute("canWalkOnPoison", monster.AvoidPoison ? 0 : 1))),
                     // attacks
                     // defense
                     // elements
-                    // voice
+                    VoiceGenericToTfsXml(monster)
                     // summon
                     // loot
                     ));
@@ -350,6 +350,20 @@ namespace MonsterConverterTfsXml
             {
                 return new XElement("look");
             }
+        }
+
+        private static XElement VoiceGenericToTfsXml(Monster monster)
+        {
+            XElement voice = new XElement("voices",
+                new XAttribute("interval", monster.VoiceInterval),
+                new XAttribute("chance", monster.VoiceChance * 100));
+            foreach (var v in monster.Voices)
+            {
+                voice.Add(new XElement("voice", 
+                    new XAttribute("sentence", v.Sound),
+                    new XAttribute("yell", v.SoundLevel == SoundLevel.Yell)));
+            }
+            return voice;
         }
 
         private void TfsXmlToGeneric(TFSXmlMonster tfsMonster, IList<string> indexedLootComments, out Monster monster)
@@ -512,6 +526,22 @@ namespace MonsterConverterTfsXml
             if ((tfsMonster.voices != null) &&
                 (tfsMonster.voices.voice != null))
             {
+                // No default vaule in TFS, warning given if missing
+                if (tfsMonster.voices.interval > 0)
+                {
+                    monster.VoiceInterval = tfsMonster.voices.interval;
+                }
+
+                if (tfsMonster.voices.speed > 0)
+                {
+                    monster.VoiceInterval = tfsMonster.voices.speed;
+                }
+
+                if (tfsMonster.voices.chance > 0)
+                {
+                    monster.VoiceChance = tfsMonster.voices.chance / 100;
+                }
+
                 foreach (VoiceXml sound in tfsMonster.voices.voice)
                 {
                     Voice voice = new Voice(sound.sentence);
