@@ -281,7 +281,7 @@ namespace MonsterConverterTfsXml
                     LookGenericToTfsXml(monster.Look),
                     new XElement("targetchange",
                         new XAttribute("interval", monster.RetargetInterval),
-                        new XAttribute("chance", monster.RetargetChance)),
+                        new XAttribute("chance", Math.Round(monster.RetargetChance * 100))),
                     new XElement("flags",
                         new XElement("flag",
                             new XAttribute("attackable", monster.Attackable ? 1 : 0)),
@@ -356,7 +356,7 @@ namespace MonsterConverterTfsXml
         {
             XElement voice = new XElement("voices",
                 new XAttribute("interval", monster.VoiceInterval),
-                new XAttribute("chance", monster.VoiceChance * 100));
+                new XAttribute("chance", Math.Round(monster.VoiceChance * 100)));
             foreach (var v in monster.Voices)
             {
                 voice.Add(new XElement("voice", 
@@ -567,7 +567,7 @@ namespace MonsterConverterTfsXml
                     monster.Summons.Add(new Summon()
                     {
                         Name = summon.name,
-                        Chance = Math.Min(1, (double)summon.chance / 100),
+                        Chance = Math.Min(1, summon.chance / 100),
                         Interval = (summon.interval > 0) ? summon.interval : summon.speed,
                         Max = summon.max,
                         Force = summon.force
