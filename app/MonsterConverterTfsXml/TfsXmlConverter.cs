@@ -318,6 +318,32 @@ namespace MonsterConverterTfsXml
             return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
+        private static XElement LookGenericToTfsXml(LookData look)
+        {
+            if (look.LookType == LookType.Outfit)
+            {
+                return new XElement("look",
+                    new XAttribute("type", look.LookId),
+                    new XAttribute("head", look.Head),
+                    new XAttribute("body", look.Body),
+                    new XAttribute("legs", look.Legs),
+                    new XAttribute("feet", look.Feet),
+                    new XAttribute("addons", look.Addons),
+                    new XAttribute("mount", look.Mount),
+                    new XAttribute("corpse", look.CorpseId));
+            }
+            else if (look.LookType == LookType.Item)
+            {
+                return new XElement("look", 
+                    new XAttribute("typeex", look.LookId),
+                    new XAttribute("corpse", look.CorpseId));
+            }
+            else
+            {
+                return new XElement("look");
+            }
+        }
+
         private void TfsXmlToGeneric(TFSXmlMonster tfsMonster, IList<string> indexedLootComments, out Monster monster)
         {
             monster = new Monster()
