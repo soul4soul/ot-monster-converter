@@ -12,7 +12,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public decimal Chance 
         { 
             get { return chance; }
-            set { chance = Math.Max(value, 1); }
+            set { chance = Math.Min(value, 1); }
         }
         public int Count { get; set; }
         public int SubType { get; set; } // Fluids in containers or rune charges
