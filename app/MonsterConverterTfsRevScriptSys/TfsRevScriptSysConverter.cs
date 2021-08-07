@@ -551,6 +551,11 @@ namespace MonsterConverterTfsRevScriptSys
                 rssLootLine += $", text = {loot.Text}";
             }
 
+            if (!string.IsNullOrWhiteSpace(loot.Description))
+            {
+                rssLootLine += $", description = \"{loot.Description}\"";
+            }
+
             if (loot.NestedLoot.Count > 0)
             {
                 rssLootLine += $", child = {{{Environment.NewLine}";
