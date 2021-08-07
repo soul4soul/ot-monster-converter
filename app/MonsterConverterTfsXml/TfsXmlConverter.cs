@@ -316,9 +316,9 @@ namespace MonsterConverterTfsXml
                     // attacks
                     // defense
                     // elements
-                    VoiceGenericToTfsXml(monster)
+                    VoiceGenericToTfsXml(monster),
                     // summon
-                    // loot
+                    LootGenericToTfsXml(monster.Items)
                     ));
                 doc.WriteTo(xw);
             }
@@ -364,6 +364,58 @@ namespace MonsterConverterTfsXml
                     new XAttribute("yell", v.SoundLevel == SoundLevel.Yell)));
             }
             return voice;
+        }
+
+        private static XElement LootGenericToTfsXml(IList<Loot> items)
+        {
+            XElement loot = new XElement("loot");
+            foreach (var i in items)
+            {
+                loot.Add(NestedLootGenericToTfsXml(i));
+            }
+            return loot;
+        }
+
+        private static XElement NestedLootGenericToTfsXml(Loot i)
+        {
+            XElement item = new XElement("item",
+                new XAttribute("id", i.Item),
+                new XAttribute("chance", Math.Round(i.Chance * MAX_LOOTCHANCE)));
+
+            if (i.Count > 1)
+            {
+                item.Add(new XAttribute("countmax", i.Count));
+            }
+
+            if (i.SubType > 0)
+            {
+                item.Add(new XAttribute("subtype", i.SubType));
+            }
+
+            if (i.ActionId > 0)
+            {
+                item.Add(new XAttribute("actionId", i.ActionId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(i.Text))
+            {
+                item.Add(new XAttribute("text", i.Text));
+            }
+
+            if (!string.IsNullOrWhiteSpace(i.Description))
+            {
+                item.Add(new XAttribute("description", i.Description));
+            }
+
+            if (i.NestedLoot.Count > 0)
+            {
+                foreach (var ni in i.NestedLoot)
+                {
+                    item.Add(NestedLootGenericToTfsXml(ni));
+                }
+            }
+
+            return item;
         }
 
         private void TfsXmlToGeneric(TFSXmlMonster tfsMonster, IList<string> indexedLootComments, out Monster monster)
