@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -19,7 +22,7 @@ namespace MonsterConverterTfsXml
         const int MAX_LOOTCHANCE = 100000;
         const int ATTACK_INTERVAL_DEFAULT = 2000;
 
-        private readonly IDictionary<string, Effect> magicEffectNames = new Dictionary<string, Effect>
+        private readonly BiDictionary<string, Effect> magicEffectNames = new BiDictionary<string, Effect>
         {
             {"redspark",            Effect.DrawBlood},
             {"bluebubble",          Effect.LoseEnergy},
@@ -104,7 +107,7 @@ namespace MonsterConverterTfsXml
             {"purplesmoke",         Effect.PurpleSmoke}
         };
 
-        private readonly IDictionary<string, Animation> shootTypeNames = new Dictionary<string, Animation>
+        private readonly BiDictionary<string, Animation> shootTypeNames = new BiDictionary<string, Animation>
         {
             {"spear",               Animation.Spear},
             {"bolt",                Animation.Bolt},
@@ -158,7 +161,7 @@ namespace MonsterConverterTfsXml
             {"simplearrow",         Animation.SimpleArrow}
         };
 
-        private readonly IDictionary<string, CombatDamage> combatDamageNames = new Dictionary<string, CombatDamage>
+        private readonly IDictionary<string, CombatDamage> combatNamesToCombatDamage = new Dictionary<string, CombatDamage>
         {
             {"physical",    CombatDamage.Physical},
             {"energy",      CombatDamage.Energy},
@@ -172,10 +175,24 @@ namespace MonsterConverterTfsXml
             {"ice",         CombatDamage.Ice},
             {"holy",        CombatDamage.Holy},
             {"death",       CombatDamage.Death}
-            //{"undefined",   CombatDamage.Undefined}
         };
 
-        private readonly IDictionary<string, ConditionType> conditionDamageNames = new Dictionary<string, ConditionType>
+        private readonly IDictionary<CombatDamage, string> combatDamageToAttackName = new Dictionary<CombatDamage, string>
+        {
+            {CombatDamage.Physical, "physical"},
+            {CombatDamage.Energy, "energy"},
+            {CombatDamage.Earth, "earth"},
+            {CombatDamage.Fire, "fire"},
+            {CombatDamage.LifeDrain, "lifedrain"},
+            {CombatDamage.ManaDrain, "manadrain"},
+            {CombatDamage.Healing, "healing"},
+            {CombatDamage.Drown, "drown"},
+            {CombatDamage.Ice, "ice"},
+            {CombatDamage.Holy, "holy"},
+            {CombatDamage.Death, "death"}
+        };
+
+        private readonly IDictionary<string, ConditionType> conditionNamesToConditionType = new Dictionary<string, ConditionType>
         {
             {"physicalcondition",    ConditionType.Bleeding},
             {"bleedcondition",       ConditionType.Bleeding},
@@ -190,6 +207,18 @@ namespace MonsterConverterTfsXml
             {"dazzledcondition",     ConditionType.Dazzled},
             {"cursecondition",       ConditionType.Cursed},
             {"deathcondition",       ConditionType.Cursed}
+        };
+
+        private readonly IDictionary<ConditionType, string> conditionTypeToAttackName = new Dictionary<ConditionType, string>
+        {
+            {ConditionType.Bleeding, "physicalcondition"},
+            {ConditionType.Energy, "energycondition"},
+            {ConditionType.Poison, "earthcondition"},
+            {ConditionType.Fire, "firecondition"},
+            {ConditionType.Drown, "drowncondition"},
+            {ConditionType.Freezing, "icecondition"},
+            {ConditionType.Dazzled, "holycondition"},
+            {ConditionType.Cursed, "cursecondition"}
         };
 
         private readonly IDictionary<ConditionType, int> conditionDefaultTick = new Dictionary<ConditionType, int>
@@ -208,7 +237,7 @@ namespace MonsterConverterTfsXml
 
         public override bool IsReadSupported { get => true; }
 
-        public override bool IsWriteSupported { get => false; }
+        public override bool IsWriteSupported { get => true; }
 
         // Using this won't work we ever parallize processing
         private static string CurrentFileName { get; set; }
@@ -249,17 +278,423 @@ namespace MonsterConverterTfsXml
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
+            ConvertResultEventArgs result = new ConvertResultEventArgs(fileName);
+            if (monster.TargetStrategy.Random != 100)
+            {
+                result.AppendMessage("unsupported target strategy, only random is supported");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            if ((monster.SummonCost > 0) && (monster.ConvinceCost > 0) && (monster.SummonCost != monster.ConvinceCost))
+            {
+                result.AppendMessage("format doesn't support summon and coninvce mana costs being different");
+                result.IncreaseError(ConvertError.Warning);
+            }
 
-            XDocument xDoc = XDocument.Load(fileName);
-            xDoc.Root.Add(new XElement("monster",
-                            new XAttribute("name", monster.Name),
-                            new XAttribute("nameDescription", monster.Description),
-                            new XAttribute("experience", monster.Experience),
-                            new XAttribute("speed", monster.Speed)
-                        ));
-            xDoc.Save(fileName);
+            XmlWriterSettings xws = new XmlWriterSettings();
+            xws.OmitXmlDeclaration = true;
+            xws.Indent = true;
+            xws.IndentChars = "\t";
 
-            return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
+            using (XmlWriter xw = XmlWriter.Create(fileName, xws))
+            {
+                XDocument doc = new XDocument(new XElement("monster",
+                    new XAttribute("name", monster.Name),
+                    new XAttribute("nameDescription", monster.Description),
+                    new XAttribute("experience", monster.Experience),
+                    new XAttribute("speed", monster.Speed),
+                    new XAttribute("manacost", monster.SummonCost),
+                    new XElement("health",
+                        new XAttribute("now", monster.Health),
+                        new XAttribute("max", monster.Health)),
+                    LookGenericToTfsXml(monster.Look, ref result),
+                    new XElement("targetchange",
+                        new XAttribute("interval", monster.RetargetInterval),
+                        new XAttribute("chance", Math.Round(monster.RetargetChance * 100))),
+                    new XElement("flags",
+                        new XElement("flag",
+                            new XAttribute("attackable", monster.Attackable ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("hostile", monster.IsHostile ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("summonable", monster.SummonCost > 0 ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("convinceable", monster.ConvinceCost > 0 ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("illusionable", monster.IsIllusionable ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("isboss", monster.IsBoss ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("pushable", monster.IsPushable ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("canpushitems", monster.PushItems ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("canpushcreatures", monster.PushCreatures ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("staticattack", monster.StaticAttackChance)),
+                        new XElement("flag",
+                            new XAttribute("targetdistance", monster.TargetDistance)),
+                        new XElement("flag",
+                            new XAttribute("healthHidden", monster.HideHealth ? 1 : 0)),
+                        new XElement("flag",
+                            new XAttribute("canWalkOnEnergy", monster.AvoidEnergy ? 0 : 1)),
+                        new XElement("flag",
+                            new XAttribute("canWalkOnFire", monster.AvoidFire ? 0 : 1)),
+                        new XElement("flag",
+                            new XAttribute("canWalkOnPoison", monster.AvoidPoison ? 0 : 1))),
+                    AbilitiesGenericToTfsXmlAttacks(monster),
+                    AbilitiesGenericToTfsXmlDefense(monster),
+                    new XElement("immunities",
+                        new XElement("immunity",
+                                new XAttribute("paralyze", monster.IgnoreParalyze ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("outfit", monster.IgnoreOutfit ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("invisible", monster.IgnoreInvisible ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("drunk", monster.IgnoreDrunk ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("bleed", monster.IgnoreBleed ? 1 : 0))),
+                    new XElement("elements",
+                        new XElement("element",
+                                    new XAttribute("physicalPercent", ElemementPercentGenericToTfsXml(monster.PhysicalDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("EnergyPercent", ElemementPercentGenericToTfsXml(monster.EnergyDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("earthPercent", ElemementPercentGenericToTfsXml(monster.EarthDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("firePercent", ElemementPercentGenericToTfsXml(monster.FireDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("lifedrainPercent", ElemementPercentGenericToTfsXml(monster.LifeDrainDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("manadrainPercent", ElemementPercentGenericToTfsXml(monster.ManaDrainDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("drownPercent", ElemementPercentGenericToTfsXml(monster.DrownDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("icePercent", ElemementPercentGenericToTfsXml(monster.IceDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("holyPercent", ElemementPercentGenericToTfsXml(monster.HolyDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("deathPercent", ElemementPercentGenericToTfsXml(monster.DeathDmgMod)))),
+                    VoiceGenericToTfsXml(monster),
+                    SummonGenericToTfsXml(monster),
+                    LootGenericToTfsXml(monster.Items)
+                    ));
+                doc.WriteTo(xw);
+            }
+
+            return result;
+        }
+
+        private XElement AbilitiesGenericToTfsXmlAttacks(Monster monster)
+        {
+            XElement attacks = new XElement("attacks");
+            foreach (var s in monster.Attacks)
+            {
+                if (s.SpellCategory == SpellCategory.Offensive)
+                {
+                    attacks.Add(SpellGenericToTfsXml(s, "attack"));
+                }
+            }
+            return attacks;
+        }
+
+        private XElement AbilitiesGenericToTfsXmlDefense(Monster monster)
+        {
+            XElement defenses = new XElement("defenses",
+                new XAttribute("armor", monster.TotalArmor),
+                new XAttribute("defense", monster.Shielding));
+            foreach (var s in monster.Attacks)
+            {
+                if (s.SpellCategory == SpellCategory.Defensive)
+                {
+                    defenses.Add(SpellGenericToTfsXml(s, "defense"));
+                }
+            }
+            return defenses;
+        }
+
+        private XElement SpellGenericToTfsXml(Spell spell, string elementName)
+        {
+            XElement ability = new XElement(elementName);
+
+            if (spell.DefinitionStyle == SpellDefinition.TfsLuaScript)
+            {
+                ability.Add(new XAttribute("script", spell.Name));
+                ability.Add(new XAttribute("interval", spell.Interval));
+                ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+
+                if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                {
+                    ability.Add(new XAttribute("min", spell.MinDamage));
+                    ability.Add(new XAttribute("max", spell.MaxDamage));
+                }
+                else if (spell.MaxDamage != null)
+                {
+                    ability.Add(new XAttribute("max", spell.MaxDamage));
+                }
+                if (spell.OnTarget != null)
+                {
+                    ability.Add(new XAttribute("target", (spell.OnTarget == true) ? 1 : 0));
+                }
+                if (spell.IsDirectional != null)
+                {
+                    ability.Add(new XAttribute("direction", (spell.IsDirectional == true) ? 1 : 0));
+                }
+            }
+            else if (spell.DefinitionStyle == SpellDefinition.Raw)
+            {
+                if (spell.Name == "melee")
+                {
+                    ability.Add(new XAttribute("name", spell.Name));
+                    ability.Add(new XAttribute("interval", spell.Interval));
+                    ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+
+                    if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                    {
+                        ability.Add(new XAttribute("min", spell.MinDamage));
+                        ability.Add(new XAttribute("max", spell.MaxDamage));
+                    }
+                    else if (spell.MaxDamage != null)
+                    {
+                        ability.Add(new XAttribute("max", spell.MaxDamage));
+                    }
+                    else if ((spell.AttackValue != null) && (spell.Skill != null))
+                    {
+                        ability.Add(new XAttribute("skill", spell.Skill));
+                        ability.Add(new XAttribute("attack", spell.AttackValue));
+                    }
+                    //else continue which we should never hit?
+
+                    if (spell.Condition != ConditionType.None)
+                    {
+                        ability.Add(new XAttribute(conditionTypeToAttackName[spell.Condition], spell.StartDamage));
+                        ability.Add(new XAttribute("tick", spell.Tick));
+                    }
+                }
+                else
+                {
+                    if (spell.Name == "speed")
+                    {
+                        ability.Add(new XAttribute("name", spell.Name));
+                        ability.Add(new XAttribute("interval", spell.Interval));
+                        ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+                        ability.Add(new XAttribute("minspeedchange", spell.MinSpeedChange));
+                        ability.Add(new XAttribute("maxspeedchange", spell.MaxSpeedChange));
+                    }
+                    else if (spell.Name == "condition")
+                    {
+                        ability.Add(new XAttribute("name", conditionTypeToAttackName[spell.Condition]));
+                        ability.Add(new XAttribute("interval", spell.Interval));
+                        ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+                        ability.Add(new XAttribute("tick", spell.Tick));
+                        ability.Add(new XAttribute("start", spell.StartDamage));
+                    }
+                    else if (spell.Name == "outfit")
+                    {
+                        ability.Add(new XAttribute("name", spell.Name));
+                        ability.Add(new XAttribute("interval", spell.Interval));
+                        ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+                        if (!string.IsNullOrEmpty(spell.MonsterName))
+                        {
+                            ability.Add(new XAttribute("monster", spell.MonsterName));
+                        }
+                        else if (spell.ItemId != null)
+                        {
+                            ability.Add(new XAttribute("item", spell.ItemId));
+                        }
+                    }
+                    else if ((spell.Name == "combat") && (spell.DamageElement != CombatDamage.None))
+                    {
+                        ability.Add(new XAttribute("name", combatDamageToAttackName[spell.DamageElement]));
+                        ability.Add(new XAttribute("interval", spell.Interval));
+                        ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+                    }
+                    else if (spell.Name == "drunk")
+                    {
+                        ability.Add(new XAttribute("name", spell.Name));
+                        ability.Add(new XAttribute("interval", spell.Interval));
+                        ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+                        ability.Add(new XAttribute("drunkenness", spell.Drunkenness * 100));
+                    }
+                    else
+                    {
+                        ability.Add(new XAttribute("name", spell.Name));
+                        ability.Add(new XAttribute("interval", spell.Interval));
+                        ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
+                    }
+
+                    if ((spell.MinDamage != null) && (spell.MaxDamage != null))
+                    {
+                        ability.Add(new XAttribute("min", spell.MinDamage));
+                        ability.Add(new XAttribute("max", spell.MaxDamage));
+                    }
+                    else if (spell.MaxDamage != null)
+                    {
+                        ability.Add(new XAttribute("max", spell.MaxDamage));
+                    }
+                    if (spell.Duration != null)
+                    {
+                        ability.Add(new XAttribute("duration", spell.Duration));
+                    }
+                    if (spell.Range != null)
+                    {
+                        ability.Add(new XAttribute("range", spell.Range));
+                    }
+                    if (spell.Radius != null)
+                    {
+                        ability.Add(new XAttribute("radius", spell.Radius));
+                        ability.Add(new XAttribute("target", (spell.OnTarget == true) ? 1 : 0));
+                    }
+                    if (spell.Length != null)
+                    {
+                        ability.Add(new XAttribute("length", spell.Length));
+                    }
+                    if (spell.Spread != null)
+                    {
+                        ability.Add(new XAttribute("spread", spell.Spread));
+                    }
+                    if (spell.ShootEffect != Animation.None)
+                    {
+                        ability.Add(new XElement("attribute",
+                            new XAttribute("key", "shootEffect"),
+                            new XAttribute("value", shootTypeNames.Reverse[spell.ShootEffect])));
+                    }
+                    if (spell.AreaEffect != Effect.None)
+                    {
+                        ability.Add(new XElement("attribute",
+                            new XAttribute("key", "areaEffect"),
+                            new XAttribute("value", magicEffectNames.Reverse[spell.AreaEffect])));
+                    }
+                }
+            }
+
+            return ability;
+        }
+
+        private static XElement SummonGenericToTfsXml(Monster monster)
+        {
+            XElement summons = new XElement("summons",
+                new XAttribute("maxSummons", monster.MaxSummons));
+            foreach (var s in monster.Summons)
+            {
+                XElement summon = new XElement("voice",
+                    new XAttribute("name", s.Name),
+                    new XAttribute("interval", s.Interval),
+                    new XAttribute("chance", Math.Round(s.Chance * 100)));
+
+                if (s.Max > 0)
+                {
+                    summon.Add(new XAttribute("max", s.Max));
+                }
+
+                if (s.Force)
+                {
+                    summon.Add(new XAttribute("force", s.Force));
+                }
+
+                summons.Add(summon);
+            }
+            return summons;
+        }
+
+        private static double ElemementPercentGenericToTfsXml(double percent)
+        {
+            double value = (1 - percent) * 100;
+            return Math.Round(value);
+        }
+
+        private static XElement LookGenericToTfsXml(LookData look, ref ConvertResultEventArgs result)
+        {
+            if (look.LookType == LookType.Outfit)
+            {
+                return new XElement("look",
+                    new XAttribute("type", look.LookId),
+                    new XAttribute("head", look.Head),
+                    new XAttribute("body", look.Body),
+                    new XAttribute("legs", look.Legs),
+                    new XAttribute("feet", look.Feet),
+                    new XAttribute("addons", look.Addons),
+                    new XAttribute("mount", look.Mount),
+                    new XAttribute("corpse", look.CorpseId));
+            }
+            else if (look.LookType == LookType.Item)
+            {
+                return new XElement("look", 
+                    new XAttribute("typeex", look.LookId),
+                    new XAttribute("corpse", look.CorpseId));
+            }
+            else
+            {
+                result.AppendMessage("Invisible look type not supported");
+                result.IncreaseError(ConvertError.Warning);
+                return new XElement("look");
+            }
+        }
+
+        private static XElement VoiceGenericToTfsXml(Monster monster)
+        {
+            XElement voice = new XElement("voices",
+                new XAttribute("interval", monster.VoiceInterval),
+                new XAttribute("chance", Math.Round(monster.VoiceChance * 100)));
+            foreach (var v in monster.Voices)
+            {
+                voice.Add(new XElement("voice", 
+                    new XAttribute("sentence", v.Sound),
+                    new XAttribute("yell", v.SoundLevel == SoundLevel.Yell)));
+            }
+            return voice;
+        }
+
+        private static XElement LootGenericToTfsXml(IList<Loot> items)
+        {
+            XElement loot = new XElement("loot");
+            foreach (var i in items)
+            {
+                loot.Add(NestedLootGenericToTfsXml(i));
+            }
+            return loot;
+        }
+
+        private static XElement NestedLootGenericToTfsXml(Loot i)
+        {
+            XElement item = new XElement("item",
+                new XAttribute("id", i.Item),
+                new XAttribute("chance", Math.Round(i.Chance * MAX_LOOTCHANCE)));
+
+            if (i.Count > 1)
+            {
+                item.Add(new XAttribute("countmax", i.Count));
+            }
+
+            if (i.SubType > 0)
+            {
+                item.Add(new XAttribute("subtype", i.SubType));
+            }
+
+            if (i.ActionId > 0)
+            {
+                item.Add(new XAttribute("actionId", i.ActionId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(i.Text))
+            {
+                item.Add(new XAttribute("text", i.Text));
+            }
+
+            if (!string.IsNullOrWhiteSpace(i.Description))
+            {
+                item.Add(new XAttribute("description", i.Description));
+            }
+
+            if (i.NestedLoot.Count > 0)
+            {
+                foreach (var ni in i.NestedLoot)
+                {
+                    item.Add(NestedLootGenericToTfsXml(ni));
+                }
+            }
+
+            return item;
         }
 
         private void TfsXmlToGeneric(TFSXmlMonster tfsMonster, IList<string> indexedLootComments, out Monster monster)
@@ -422,6 +857,22 @@ namespace MonsterConverterTfsXml
             if ((tfsMonster.voices != null) &&
                 (tfsMonster.voices.voice != null))
             {
+                // No default vaule in TFS, warning given if missing
+                if (tfsMonster.voices.interval > 0)
+                {
+                    monster.VoiceInterval = tfsMonster.voices.interval;
+                }
+
+                if (tfsMonster.voices.speed > 0)
+                {
+                    monster.VoiceInterval = tfsMonster.voices.speed;
+                }
+
+                if (tfsMonster.voices.chance > 0)
+                {
+                    monster.VoiceChance = tfsMonster.voices.chance / 100;
+                }
+
                 foreach (VoiceXml sound in tfsMonster.voices.voice)
                 {
                     Voice voice = new Voice(sound.sentence);
@@ -447,7 +898,7 @@ namespace MonsterConverterTfsXml
                     monster.Summons.Add(new Summon()
                     {
                         Name = summon.name,
-                        Chance = Math.Min(1, (double)summon.chance / 100),
+                        Chance = Math.Min(1, summon.chance / 100),
                         Interval = (summon.interval > 0) ? summon.interval : summon.speed,
                         Max = summon.max,
                         Force = summon.force
@@ -1000,7 +1451,7 @@ namespace MonsterConverterTfsXml
                     {
                         if (attack.name.Contains("condition"))
                         {
-                            spell.Condition = conditionDamageNames[attack.name];
+                            spell.Condition = conditionNamesToConditionType[attack.name];
                             spell.Name = "condition";
                             spell.Tick = (attack.tick != 0) ? attack.tick : conditionDefaultTick[spell.Condition];
                             spell.StartDamage = attack.start;
@@ -1014,9 +1465,9 @@ namespace MonsterConverterTfsXml
                             spell.MaxDamage = attack.max;
                         }
 
-                        if (combatDamageNames.ContainsKey(spell.Name))
+                        if (combatNamesToCombatDamage.ContainsKey(spell.Name))
                         {
-                            spell.DamageElement = combatDamageNames[spell.Name];
+                            spell.DamageElement = combatNamesToCombatDamage[spell.Name];
                             spell.Name = "combat";
                         }
 

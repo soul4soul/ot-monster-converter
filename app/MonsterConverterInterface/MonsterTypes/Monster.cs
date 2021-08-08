@@ -9,7 +9,6 @@ namespace MonsterConverterInterface.MonsterTypes
         // Constructors
         public Monster()
         {
-            Voices = new List<Voice>();
             MaxSummons = 0;
             Summons = new List<Summon>();
             Items = new List<Loot>();
@@ -17,6 +16,10 @@ namespace MonsterConverterInterface.MonsterTypes
             Attacks = new List<Spell>();
             Scripts = new List<Script>();
             TargetStrategy = new TargetStrategy();
+
+            VoiceInterval = 5000;
+            VoiceChance = 0.1;
+            Voices = new List<Voice>();
 
             RetargetInterval = 2000;
             SummonCost = 0;
@@ -80,11 +83,14 @@ namespace MonsterConverterInterface.MonsterTypes
         public int Health { get; set; }
         public int Experience { get; set; }
         public int Speed { get; set; }
-        public IList<Voice> Voices { get; }
         public Blood Race { get; set; }
         public int MaxSummons { get; set; }
         public IList<Summon> Summons { get; }
         public LookData Look { get; }
+
+        public int VoiceInterval { get; set; }
+        public double VoiceChance { get; set; }
+        public IList<Voice> Voices { get; }
 
         // Other
         public int SummonCost { get; set; }
