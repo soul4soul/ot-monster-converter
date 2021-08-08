@@ -69,12 +69,7 @@ namespace otmc
 
         public bool ValidateValues()
         {
-            if (string.IsNullOrEmpty(inputDirectory))
-            {
-                Console.WriteLine("Input Directory not specified");
-                return false;
-            }
-            else if (string.IsNullOrEmpty(outputDirectory))
+            if (string.IsNullOrEmpty(outputDirectory))
             {
                 Console.WriteLine("Output Directory not specified");
                 return false;
@@ -110,14 +105,11 @@ namespace otmc
                 case ScanError.NoMonstersFound:
                     Console.WriteLine("Couldn't find any monster files.");
                     break;
-                case ScanError.InvalidMonsterDirectory:
-                    Console.WriteLine("The selected project directory is invald.");
-                    break;
-                case ScanError.InvalidMonsterFormat:
-                    Console.WriteLine("The selected input or output monster format is invalid.");
+                case ScanError.InvalidInputDirectory:
+                    Console.WriteLine("The selected input directory is invald.");
                     break;
                 case ScanError.CouldNotCreateDirectory:
-                    Console.WriteLine("Couldn't create destination directory.");
+                    Console.WriteLine("Couldn't create output directory.");
                     break;
                 case ScanError.DirectoriesMatch:
                     Console.WriteLine("Input and output directories can't be the same.");
