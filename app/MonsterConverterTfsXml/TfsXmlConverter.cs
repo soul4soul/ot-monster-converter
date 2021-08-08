@@ -315,7 +315,17 @@ namespace MonsterConverterTfsXml
                             new XAttribute("canWalkOnPoison", monster.AvoidPoison ? 0 : 1))),
                     // attacks
                     // defense
-                    // elements
+                    new XElement("immunities",
+                        new XElement("immunity",
+                                new XAttribute("paralyze", monster.IgnoreParalyze ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("outfit", monster.IgnoreOutfit ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("invisible", monster.IgnoreInvisible ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("drunk", monster.IgnoreDrunk ? 1 : 0)),
+                        new XElement("immunity",
+                                new XAttribute("bleed", monster.IgnoreBleed ? 1 : 0))),
                     VoiceGenericToTfsXml(monster),
                     // summon
                     LootGenericToTfsXml(monster.Items)

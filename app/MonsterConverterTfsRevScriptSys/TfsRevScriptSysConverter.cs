@@ -324,6 +324,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"	{{type = \"paralyze\", condition = {monster.IgnoreParalyze.ToString().ToLower()}}},");
                 dest.WriteLine($"	{{type = \"outfit\", condition = {monster.IgnoreOutfit.ToString().ToLower()}}},");
                 dest.WriteLine($"	{{type = \"invisible\", condition = {monster.IgnoreInvisible.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"drunk\", condition = {monster.IgnoreDrunk.ToString().ToLower()}}},");
                 dest.WriteLine($"	{{type = \"bleed\", condition = {monster.IgnoreBleed.ToString().ToLower()}}}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
