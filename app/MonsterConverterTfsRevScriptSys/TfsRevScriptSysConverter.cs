@@ -349,57 +349,46 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
-                // Offensive abilities
-                if (monster.Attacks.Count > 0)
-                {
-                    IList<string> attacks = new List<string>();
-                    foreach (var spell in monster.Attacks)
-                    {
-                        if (spell.SpellCategory == SpellCategory.Offensive)
-                        {
-                            var revSpell = GenericToTfsRevScriptSysSpells(spell);
-                            if (revSpell.Item1 != ConvertError.Success)
-                            {
-                                result.IncreaseError(revSpell.Item1);
-                                result.AppendMessage(revSpell.Item2);
-                                continue;
-                            }
-                            attacks.Add(revSpell.Item2);
-                        }
-                    }
-
-                    dest.WriteLine("monster.attacks = {");
-                    for (int i = 0; i < attacks.Count; i++)
-                    {
-                        if (i == attacks.Count - 1)
-                        {
-                            dest.WriteLine($"{attacks[i]}");
-                        }
-                        else
-                        {
-                            dest.WriteLine($"{attacks[i]},");
-                        }
-                    }
-                    dest.WriteLine("}");
-                    dest.WriteLine("");
-                }
-
-                // Defensive abilities
+                // abilities
+                IList<string> attacks = new List<string>();
                 IList<string> defenses = new List<string>();
                 foreach (var spell in monster.Attacks)
                 {
-                    if (spell.SpellCategory == SpellCategory.Defensive)
+                    var revSpell = GenericToTfsRevScriptSysSpells(spell);
+                    if (revSpell.Item1 != ConvertError.Success)
                     {
-                        var revSpell = GenericToTfsRevScriptSysSpells(spell);
-                        if (revSpell.Item1 != ConvertError.Success)
-                        {
-                            result.IncreaseError(revSpell.Item1);
-                            result.AppendMessage(revSpell.Item2);
-                            continue;
-                        }
+                        result.IncreaseError(revSpell.Item1);
+                        result.AppendMessage(revSpell.Item2);
+                        continue;
+                    }
+
+                    if (spell.SpellCategory == SpellCategory.Offensive)
+                    {
+                        attacks.Add(revSpell.Item2);
+                    }
+                    else
+                    {
                         defenses.Add(revSpell.Item2);
                     }
                 }
+
+                // Write offensive
+                dest.WriteLine("monster.attacks = {");
+                for (int i = 0; i < attacks.Count; i++)
+                {
+                    if (i == attacks.Count - 1)
+                    {
+                        dest.WriteLine($"{attacks[i]}");
+                    }
+                    else
+                    {
+                        dest.WriteLine($"{attacks[i]},");
+                    }
+                }
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                // Write Defensive
                 dest.WriteLine("monster.defenses = {");
                 dest.WriteLine($"	defense = {monster.Shielding},");
                 if (defenses.Count > 0)
@@ -587,7 +576,7 @@ namespace MonsterConverterTfsRevScriptSys
         public Tuple<ConvertError, string> GenericToTfsRevScriptSysSpells(Spell spell)
         {
             ConvertError error = ConvertError.Success;
-            string attack = "";
+            string attack;
             if (spell.DefinitionStyle == SpellDefinition.TfsLuaScript)
             {
                 attack = $"	{{script =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
@@ -613,7 +602,6 @@ namespace MonsterConverterTfsRevScriptSys
             else if (spell.DefinitionStyle == SpellDefinition.Raw)
             {
                 attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
-
 
                 if (spell.Name == "melee")
                 {
@@ -657,9 +645,9 @@ namespace MonsterConverterTfsRevScriptSys
                             attack += $", item = {spell.ItemId}";
                         }
                     }
-                    else if ((spell.Name == "combat") && (spell.DamageElement != null))
+                    else if ((spell.Name == "combat") && (spell.DamageElement != CombatDamage.None))
                     {
-                        attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
+                        attack += $", type = {CombatDamageNames[spell.DamageElement]}";
                     }
                     else if (spell.Name == "drunk")
                     {
