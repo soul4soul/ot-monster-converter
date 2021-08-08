@@ -263,7 +263,6 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"monster.corpse = {monster.Look.CorpseId}");
                 dest.WriteLine($"monster.speed = {monster.Speed}");
                 dest.WriteLine($"monster.summonCost = {monster.SummonCost}");
-                dest.WriteLine($"monster.maxSummons = {monster.MaxSummons}");
                 dest.WriteLine("");
 
                 dest.WriteLine("monster.changeTarget = {");
@@ -429,6 +428,7 @@ namespace MonsterConverterTfsRevScriptSys
                 // Summons
                 if (monster.Summons.Count > 0)
                 {
+                    dest.WriteLine($"monster.maxSummons = {monster.MaxSummons}");
                     dest.WriteLine("monster.summons = {");
                     string summon;
                     for (int i = 0; i < monster.Summons.Count; i++)

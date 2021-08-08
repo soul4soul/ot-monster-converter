@@ -329,27 +329,27 @@ namespace MonsterConverterTfsXml
                                 new XAttribute("bleed", monster.IgnoreBleed ? 1 : 0))),
                     new XElement("elements",
                         new XElement("element",
-                                    new XAttribute("physicalPercent", GenericToTfsXmlElemementPercent(monster.PhysicalDmgMod))),
+                                    new XAttribute("physicalPercent", ElemementPercentGenericToTfsXml(monster.PhysicalDmgMod))),
                         new XElement("element",
-                                    new XAttribute("EnergyPercent", GenericToTfsXmlElemementPercent(monster.EnergyDmgMod))),
+                                    new XAttribute("EnergyPercent", ElemementPercentGenericToTfsXml(monster.EnergyDmgMod))),
                         new XElement("element",
-                                    new XAttribute("earthPercent", GenericToTfsXmlElemementPercent(monster.EarthDmgMod))),
+                                    new XAttribute("earthPercent", ElemementPercentGenericToTfsXml(monster.EarthDmgMod))),
                         new XElement("element",
-                                    new XAttribute("firePercent", GenericToTfsXmlElemementPercent(monster.FireDmgMod))),
+                                    new XAttribute("firePercent", ElemementPercentGenericToTfsXml(monster.FireDmgMod))),
                         new XElement("element",
-                                    new XAttribute("lifedrainPercent", GenericToTfsXmlElemementPercent(monster.LifeDrainDmgMod))),
+                                    new XAttribute("lifedrainPercent", ElemementPercentGenericToTfsXml(monster.LifeDrainDmgMod))),
                         new XElement("element",
-                                    new XAttribute("manadrainPercent", GenericToTfsXmlElemementPercent(monster.ManaDrainDmgMod))),
+                                    new XAttribute("manadrainPercent", ElemementPercentGenericToTfsXml(monster.ManaDrainDmgMod))),
                         new XElement("element",
-                                    new XAttribute("drownPercent", GenericToTfsXmlElemementPercent(monster.DrownDmgMod))),
+                                    new XAttribute("drownPercent", ElemementPercentGenericToTfsXml(monster.DrownDmgMod))),
                         new XElement("element",
-                                    new XAttribute("icePercent", GenericToTfsXmlElemementPercent(monster.IceDmgMod))),
+                                    new XAttribute("icePercent", ElemementPercentGenericToTfsXml(monster.IceDmgMod))),
                         new XElement("element",
-                                    new XAttribute("holyPercent", GenericToTfsXmlElemementPercent(monster.HolyDmgMod))),
+                                    new XAttribute("holyPercent", ElemementPercentGenericToTfsXml(monster.HolyDmgMod))),
                         new XElement("element",
-                                    new XAttribute("deathPercent", GenericToTfsXmlElemementPercent(monster.DeathDmgMod)))),
+                                    new XAttribute("deathPercent", ElemementPercentGenericToTfsXml(monster.DeathDmgMod)))),
                     VoiceGenericToTfsXml(monster),
-                    // summon
+                    SummonGenericToTfsXml(monster),
                     LootGenericToTfsXml(monster.Items)
                     ));
                 doc.WriteTo(xw);
@@ -358,7 +358,33 @@ namespace MonsterConverterTfsXml
             return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
-        private static double GenericToTfsXmlElemementPercent(double percent)
+        private static XElement SummonGenericToTfsXml(Monster monster)
+        {
+            XElement summons = new XElement("summons",
+                new XAttribute("maxSummons", monster.MaxSummons));
+            foreach (var s in monster.Summons)
+            {
+                XElement summon = new XElement("voice",
+                    new XAttribute("name", s.Name),
+                    new XAttribute("interval", s.Interval),
+                    new XAttribute("chance", Math.Round(s.Chance * 100)));
+
+                if (s.Max > 0)
+                {
+                    summon.Add(new XAttribute("max", s.Max));
+                }
+
+                if (s.Force)
+                {
+                    summon.Add(new XAttribute("force", s.Force));
+                }
+
+                summons.Add(summon);
+            }
+            return summons;
+        }
+
+        private static double ElemementPercentGenericToTfsXml(double percent)
         {
             double value = (1 - percent) * 100;
             return Math.Round(value);
