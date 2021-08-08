@@ -27,7 +27,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public bool? IsDirectional { get; set; }
         public SpellDefinition DefinitionStyle { get; set; }
         // Magic damage
-        public CombatDamage? DamageElement { get; set; }
+        public CombatDamage DamageElement { get; set; }
         // Speed
         public int? MinSpeedChange { get; set; }
         public int? MaxSpeedChange { get; set; }
