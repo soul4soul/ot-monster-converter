@@ -326,6 +326,27 @@ namespace MonsterConverterTfsXml
                                 new XAttribute("drunk", monster.IgnoreDrunk ? 1 : 0)),
                         new XElement("immunity",
                                 new XAttribute("bleed", monster.IgnoreBleed ? 1 : 0))),
+                    new XElement("elements",
+                        new XElement("element",
+                                    new XAttribute("physicalPercent", GenericToTfsXmlElemementPercent(monster.PhysicalDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("EnergyPercent", GenericToTfsXmlElemementPercent(monster.EnergyDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("earthPercent", GenericToTfsXmlElemementPercent(monster.EarthDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("firePercent", GenericToTfsXmlElemementPercent(monster.FireDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("lifedrainPercent", GenericToTfsXmlElemementPercent(monster.LifeDrainDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("manadrainPercent", GenericToTfsXmlElemementPercent(monster.ManaDrainDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("drownPercent", GenericToTfsXmlElemementPercent(monster.DrownDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("icePercent", GenericToTfsXmlElemementPercent(monster.IceDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("holyPercent", GenericToTfsXmlElemementPercent(monster.HolyDmgMod))),
+                        new XElement("element",
+                                    new XAttribute("deathPercent", GenericToTfsXmlElemementPercent(monster.DeathDmgMod)))),
                     VoiceGenericToTfsXml(monster),
                     // summon
                     LootGenericToTfsXml(monster.Items)
@@ -334,6 +355,12 @@ namespace MonsterConverterTfsXml
             }
 
             return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
+        }
+
+        private static double GenericToTfsXmlElemementPercent(double percent)
+        {
+            double value = (1 - percent) * 100;
+            return Math.Round(value);
         }
 
         private static XElement LookGenericToTfsXml(LookData look)
