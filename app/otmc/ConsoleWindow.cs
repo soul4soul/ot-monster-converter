@@ -71,12 +71,12 @@ namespace otmc
         {
             if (string.IsNullOrEmpty(inputDirectory))
             {
-                Console.WriteLine("Solution Directory not specified");
+                Console.WriteLine("Input Directory not specified");
                 return false;
             }
             else if (string.IsNullOrEmpty(outputDirectory))
             {
-                Console.WriteLine("DevExpress Directory not specified");
+                Console.WriteLine("Output Directory not specified");
                 return false;
             }
             else if ((input == null) || (!input.IsReadSupported))
