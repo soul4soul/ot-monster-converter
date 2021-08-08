@@ -6,6 +6,7 @@ namespace MonsterConverterInterface.MonsterTypes
 {
     public enum CombatDamage
     {
+        None,
         Physical,
         Energy,
         Earth,

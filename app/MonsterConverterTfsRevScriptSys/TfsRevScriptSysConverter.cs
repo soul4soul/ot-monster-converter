@@ -263,7 +263,6 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"monster.corpse = {monster.Look.CorpseId}");
                 dest.WriteLine($"monster.speed = {monster.Speed}");
                 dest.WriteLine($"monster.summonCost = {monster.SummonCost}");
-                dest.WriteLine($"monster.maxSummons = {monster.MaxSummons}");
                 dest.WriteLine("");
 
                 dest.WriteLine("monster.changeTarget = {");
@@ -301,9 +300,8 @@ namespace MonsterConverterTfsRevScriptSys
 
                 // Voices
                 dest.WriteLine("monster.voices = {");
-                dest.WriteLine("	interval = 5000,");
-                dest.WriteLine("	chance = 10,");
-                string voice;
+                dest.WriteLine($"	interval = {monster.VoiceInterval},");
+                dest.WriteLine($"	chance = {monster.VoiceChance * 100:0},");
                 for (int i = 0; i < monster.Voices.Count; i++)
                 {
                     bool yell = false;
@@ -311,7 +309,7 @@ namespace MonsterConverterTfsRevScriptSys
                     {
                         yell = true;
                     }
-                    voice = $"	{{text = \"{monster.Voices[i].Sound}\", yell = {yell.ToString().ToLower()}}},";
+                    string voice = $"	{{text = \"{monster.Voices[i].Sound}\", yell = {yell.ToString().ToLower()}}},";
                     if (i == monster.Voices.Count - 1)
                     {
                         voice = voice.TrimEnd(',');
@@ -325,6 +323,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"	{{type = \"paralyze\", condition = {monster.IgnoreParalyze.ToString().ToLower()}}},");
                 dest.WriteLine($"	{{type = \"outfit\", condition = {monster.IgnoreOutfit.ToString().ToLower()}}},");
                 dest.WriteLine($"	{{type = \"invisible\", condition = {monster.IgnoreInvisible.ToString().ToLower()}}},");
+                dest.WriteLine($"	{{type = \"drunk\", condition = {monster.IgnoreDrunk.ToString().ToLower()}}},");
                 dest.WriteLine($"	{{type = \"bleed\", condition = {monster.IgnoreBleed.ToString().ToLower()}}}");
                 dest.WriteLine("}");
                 dest.WriteLine("");
@@ -350,57 +349,46 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine("}");
                 dest.WriteLine("");
 
-                // Offensive abilities
-                if (monster.Attacks.Count > 0)
-                {
-                    IList<string> attacks = new List<string>();
-                    foreach (var spell in monster.Attacks)
-                    {
-                        if (spell.SpellCategory == SpellCategory.Offensive)
-                        {
-                            var revSpell = GenericToTfsRevScriptSysSpells(spell);
-                            if (revSpell.Item1 != ConvertError.Success)
-                            {
-                                result.IncreaseError(revSpell.Item1);
-                                result.AppendMessage(revSpell.Item2);
-                                continue;
-                            }
-                            attacks.Add(revSpell.Item2);
-                        }
-                    }
-
-                    dest.WriteLine("monster.attacks = {");
-                    for (int i = 0; i < attacks.Count; i++)
-                    {
-                        if (i == attacks.Count - 1)
-                        {
-                            dest.WriteLine($"{attacks[i]}");
-                        }
-                        else
-                        {
-                            dest.WriteLine($"{attacks[i]},");
-                        }
-                    }
-                    dest.WriteLine("}");
-                    dest.WriteLine("");
-                }
-
-                // Defensive abilities
+                // abilities
+                IList<string> attacks = new List<string>();
                 IList<string> defenses = new List<string>();
                 foreach (var spell in monster.Attacks)
                 {
-                    if (spell.SpellCategory == SpellCategory.Defensive)
+                    var revSpell = GenericToTfsRevScriptSysSpells(spell);
+                    if (revSpell.Item1 != ConvertError.Success)
                     {
-                        var revSpell = GenericToTfsRevScriptSysSpells(spell);
-                        if (revSpell.Item1 != ConvertError.Success)
-                        {
-                            result.IncreaseError(revSpell.Item1);
-                            result.AppendMessage(revSpell.Item2);
-                            continue;
-                        }
+                        result.IncreaseError(revSpell.Item1);
+                        result.AppendMessage(revSpell.Item2);
+                        continue;
+                    }
+
+                    if (spell.SpellCategory == SpellCategory.Offensive)
+                    {
+                        attacks.Add(revSpell.Item2);
+                    }
+                    else
+                    {
                         defenses.Add(revSpell.Item2);
                     }
                 }
+
+                // Write offensive
+                dest.WriteLine("monster.attacks = {");
+                for (int i = 0; i < attacks.Count; i++)
+                {
+                    if (i == attacks.Count - 1)
+                    {
+                        dest.WriteLine($"{attacks[i]}");
+                    }
+                    else
+                    {
+                        dest.WriteLine($"{attacks[i]},");
+                    }
+                }
+                dest.WriteLine("}");
+                dest.WriteLine("");
+
+                // Write Defensive
                 dest.WriteLine("monster.defenses = {");
                 dest.WriteLine($"	defense = {monster.Shielding},");
                 if (defenses.Count > 0)
@@ -429,6 +417,7 @@ namespace MonsterConverterTfsRevScriptSys
                 // Summons
                 if (monster.Summons.Count > 0)
                 {
+                    dest.WriteLine($"monster.maxSummons = {monster.MaxSummons}");
                     dest.WriteLine("monster.summons = {");
                     string summon;
                     for (int i = 0; i < monster.Summons.Count; i++)
@@ -587,7 +576,7 @@ namespace MonsterConverterTfsRevScriptSys
         public Tuple<ConvertError, string> GenericToTfsRevScriptSysSpells(Spell spell)
         {
             ConvertError error = ConvertError.Success;
-            string attack = "";
+            string attack;
             if (spell.DefinitionStyle == SpellDefinition.TfsLuaScript)
             {
                 attack = $"	{{script =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
@@ -613,7 +602,6 @@ namespace MonsterConverterTfsRevScriptSys
             else if (spell.DefinitionStyle == SpellDefinition.Raw)
             {
                 attack = $"	{{name =\"{spell.Name}\", interval = {spell.Interval}, chance = {spell.Chance * 100:0}";
-
 
                 if (spell.Name == "melee")
                 {
@@ -657,9 +645,9 @@ namespace MonsterConverterTfsRevScriptSys
                             attack += $", item = {spell.ItemId}";
                         }
                     }
-                    else if ((spell.Name == "combat") && (spell.DamageElement != null))
+                    else if ((spell.Name == "combat") && (spell.DamageElement != CombatDamage.None))
                     {
-                        attack += $", type = {CombatDamageNames[(CombatDamage)spell.DamageElement]}";
+                        attack += $", type = {CombatDamageNames[spell.DamageElement]}";
                     }
                     else if (spell.Name == "drunk")
                     {
