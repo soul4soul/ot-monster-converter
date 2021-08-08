@@ -299,7 +299,7 @@ namespace MonsterConverterTfsXml
             {
                 XDocument doc = new XDocument(new XElement("monster",
                     new XAttribute("name", monster.Name),
-                    new XAttribute("nameDescription", monster.Description),
+                    new XAttribute("nameDescription", monster.Description ?? ""),
                     new XAttribute("experience", monster.Experience),
                     new XAttribute("speed", monster.Speed),
                     new XAttribute("manacost", monster.SummonCost),
