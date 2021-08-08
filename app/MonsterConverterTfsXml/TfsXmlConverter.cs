@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -213,35 +214,35 @@ namespace MonsterConverterTfsXml
         private static string CurrentFileName { get; set; }
 
         // Functions
-        public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
+        public override ConvertResultEventArgs ReadMonster(string fileName, out Monster monster)
         {
             try
             {
-                CurrentFileName = filename;
+                CurrentFileName = fileName;
                 XmlSerializer serializer = new XmlSerializer(typeof(TFSXmlMonster));
 
                 serializer.UnknownNode += new XmlNodeEventHandler(Serializer_UnknownNode);
                 serializer.UnknownAttribute += new XmlAttributeEventHandler(Serializer_UnknownAttribute);
 
-                // A FileStream is needed to read the XML document.
-                FileStream fs = new FileStream(filename, FileMode.Open);
+                IList<string> indexedLootComments = ReadLootComments(fileName);
+                using (FileStream fs = new FileStream(fileName, FileMode.Open))
+                {
+                    // Use the Deserialize method to restore the object's state with data from the XML document
+                    TFSXmlMonster tfsMonster = (TFSXmlMonster)serializer.Deserialize(fs);
+                    TfsXmlToGeneric(tfsMonster, indexedLootComments, out monster);
+                }
 
-                // Use the Deserialize method to restore the object's state with data from the XML document.
-                TFSXmlMonster tfsMonster = (TFSXmlMonster)serializer.Deserialize(fs);
-
-                // convert from xml monster classes to generic class
-                xmlToGeneric(tfsMonster, out monster);
-                monster.FileName = Path.GetFileNameWithoutExtension(filename);
+                monster.FileName = Path.GetFileNameWithoutExtension(fileName);
                 // Guess the registered name, they are actually defined in "monsters.xml" but we don't parse that file...
                 monster.RegisteredName = monster.FileName.Replace('_', ' ');
 
-                return new ConvertResultEventArgs(filename, ConvertError.Success);
+                return new ConvertResultEventArgs(fileName, ConvertError.Success);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error pasring {filename}. Exception {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error pasring {fileName}. Exception {ex.Message}");
                 monster = null;
-                return new ConvertResultEventArgs(filename, ConvertError.Error, ex.Message);
+                return new ConvertResultEventArgs(fileName, ConvertError.Error, ex.Message);
             }
         }
 
@@ -261,7 +262,7 @@ namespace MonsterConverterTfsXml
             return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Format incomplete. abilities and other information has not been converted");
         }
 
-        private void xmlToGeneric(TFSXmlMonster tfsMonster, out Monster monster)
+        private void TfsXmlToGeneric(TFSXmlMonster tfsMonster, IList<string> indexedLootComments, out Monster monster)
         {
             monster = new Monster()
             {
@@ -269,7 +270,7 @@ namespace MonsterConverterTfsXml
                 Health = tfsMonster.health.max,
                 Experience = tfsMonster.experience,
                 Speed = tfsMonster.speed,
-                Race = TfsToGenericBlood(tfsMonster.race),
+                Race = TfsXmlToGenericBlood(tfsMonster.race),
             };
 
             if (!string.IsNullOrEmpty(tfsMonster.nameDescription))
@@ -460,7 +461,7 @@ namespace MonsterConverterTfsXml
 
             if (tfsMonster.attacks != null)
             {
-                XmlSpellsToGeneric(ref monster, tfsMonster.attacks.attack, SpellCategory.Offensive);
+                TfsXmlSpellsToGeneric(ref monster, tfsMonster.attacks.attack, SpellCategory.Offensive);
             }
 
             // Defenses
@@ -468,7 +469,7 @@ namespace MonsterConverterTfsXml
             {
                 monster.TotalArmor = tfsMonster.defenses.armor;
                 monster.Shielding = tfsMonster.defenses.defense;
-                XmlSpellsToGeneric(ref monster, tfsMonster.defenses.defenses, SpellCategory.Defensive);
+                TfsXmlSpellsToGeneric(ref monster, tfsMonster.defenses.defenses, SpellCategory.Defensive);
             }
 
             // parseElements
@@ -482,47 +483,47 @@ namespace MonsterConverterTfsXml
                     {
                         if (x.attr[0].Name == "physicalPercent")
                         {
-                            monster.PhysicalDmgMod = TfstoGenericElementalPercent(value);
+                            monster.PhysicalDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "icePercent")
                         {
-                            monster.IceDmgMod = TfstoGenericElementalPercent(value);
+                            monster.IceDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "poisonPercent")
                         {
-                            monster.EarthDmgMod = TfstoGenericElementalPercent(value);
+                            monster.EarthDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "earthPercent")
                         {
-                            monster.EarthDmgMod = TfstoGenericElementalPercent(value);
+                            monster.EarthDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "firePercent")
                         {
-                            monster.FireDmgMod = TfstoGenericElementalPercent(value);
+                            monster.FireDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "energyPercent")
                         {
-                            monster.EnergyDmgMod = TfstoGenericElementalPercent(value);
+                            monster.EnergyDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "holyPercent")
                         {
-                            monster.HolyDmgMod = TfstoGenericElementalPercent(value);
+                            monster.HolyDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "deathPercent")
                         {
-                            monster.DeathDmgMod = TfstoGenericElementalPercent(value);
+                            monster.DeathDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "drownPercent")
                         {
-                            monster.DrownDmgMod = TfstoGenericElementalPercent(value);
+                            monster.DrownDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "lifedrainPercent")
                         {
-                            monster.LifeDrainDmgMod = TfstoGenericElementalPercent(value);
+                            monster.LifeDrainDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                         else if (x.attr[0].Name == "manadrainPercent")
                         {
-                            monster.ManaDrainDmgMod = TfstoGenericElementalPercent(value);
+                            monster.ManaDrainDmgMod = TfsXmltoGenericElementalPercent(value);
                         }
                     }
                 }
@@ -660,40 +661,26 @@ namespace MonsterConverterTfsXml
             if ((tfsMonster.loot != null) &&
                 (tfsMonster.loot.item != null))
             {
+                int itemIndex = 0;
                 foreach (var item in tfsMonster.loot.item)
                 {
-                    string itemType = "";
-                    if (!string.IsNullOrEmpty(item.name))
+                    Loot genericLoot = TfsToGenericLoot(item, indexedLootComments, itemIndex);
+                    itemIndex++;
+
+                    if ((item.NestedItems != null) &&
+                        (item.NestedItems.Length > 0))
                     {
-                        itemType = item.name;
-                    }
-                    else if (item.id > 0)
-                    {
-                        itemType = item.id.ToString();
+                        ParseNestedLoot(ref genericLoot, item.NestedItems, indexedLootComments, ref itemIndex);
                     }
 
-                    decimal chance = 1;
-                    if (item.chance > 0)
+                    if ((item.Inside != null) &&
+                        (item.Inside.NestedItems != null) &&
+                        (item.Inside.NestedItems.Length > 0))
                     {
-                        chance = item.chance;
-                    }
-                    else if (item.chance1 > 0)
-                    {
-                        chance = item.chance1;
+                        ParseNestedLoot(ref genericLoot, item.Inside.NestedItems, indexedLootComments, ref itemIndex);
                     }
 
-                    chance /= MAX_LOOTCHANCE;
-
-                    Loot commonItem = new Loot()
-                    {
-                        Item = itemType,
-                        Chance = chance,
-                        Count = item.countmax,
-                        SubType = item.subtype,
-                        ActionId = item.actionId,
-                        Text = item.text
-                    };
-                    monster.Items.Add(commonItem);
+                    monster.Items.Add(genericLoot);
                 }
             }
 
@@ -715,7 +702,80 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private Blood TfsToGenericBlood(string blood)
+        private void ParseNestedLoot(ref Loot lootContainer, Item[] items, IList<string> indexedLootComments, ref int itemIndex)
+        {
+            foreach (var item in items)
+            {
+                Loot genericLoot = TfsToGenericLoot(item, indexedLootComments, itemIndex);
+                itemIndex++;
+
+                if ((item.NestedItems != null) &&
+                    (item.NestedItems.Length > 0))
+                {
+                    ParseNestedLoot(ref genericLoot, item.NestedItems, indexedLootComments, ref itemIndex);
+                }
+
+                if ((item.Inside != null) &&
+                    (item.Inside.NestedItems != null) &&
+                    (item.Inside.NestedItems.Length > 0))
+                {
+                    ParseNestedLoot(ref genericLoot, item.Inside.NestedItems, indexedLootComments, ref itemIndex);
+                }
+
+                lootContainer.NestedLoot.Add(genericLoot);
+            }
+        }
+
+        private Loot TfsToGenericLoot(Item item, IList<string> indexedLootComments, int itemIndex)
+        {
+            string itemType = "";
+            if (!string.IsNullOrEmpty(item.name))
+            {
+                itemType = item.name;
+            }
+            else if (item.id > 0)
+            {
+                itemType = item.id.ToString();
+            }
+
+            decimal chance = 1;
+            if (item.chance > 0)
+            {
+                chance = item.chance;
+            }
+            else if (item.chance1 > 0)
+            {
+                chance = item.chance1;
+            }
+
+            chance /= MAX_LOOTCHANCE;
+
+            return new Loot()
+            {
+                Item = itemType,
+                Chance = chance,
+                Count = item.countmax,
+                SubType = item.subtype,
+                ActionId = item.actionId,
+                Text = item.text,
+                Description = indexedLootComments[itemIndex]
+            };
+        }
+
+        private static IList<string> ReadLootComments(string fileName)
+        {
+            IList<string> indexedLootComments = new List<string>();
+            string fileContents = File.ReadAllText(fileName);
+            var matches = Regex.Matches(fileContents, @"<item.*?>\s*(<!--(?<comment>.*?)-->)?", RegexOptions.Singleline);
+            foreach (Match match in matches)
+            {
+                indexedLootComments.Add(match.Groups["comment"].Value.Trim());
+            }
+
+            return indexedLootComments;
+        }
+
+        private Blood TfsXmlToGenericBlood(string blood)
         {
             Blood race = Blood.blood; //default
 
@@ -775,7 +835,7 @@ namespace MonsterConverterTfsXml
             return race;
         }
 
-        private void XmlSpellsToGeneric(ref Monster monster, Attack[] spells, SpellCategory category)
+        private void TfsXmlSpellsToGeneric(ref Monster monster, Attack[] spells, SpellCategory category)
         {
             if (spells != null)
             {
@@ -1010,7 +1070,7 @@ namespace MonsterConverterTfsXml
             return bloodName;
         }
 
-        private double TfstoGenericElementalPercent(int percent)
+        private double TfsXmltoGenericElementalPercent(int percent)
         {
             return (1 - ((double)percent / 100));
         }

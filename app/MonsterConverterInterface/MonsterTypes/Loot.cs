@@ -6,16 +6,53 @@ namespace MonsterConverterInterface.MonsterTypes
 {
     public class Loot
     {
+        private decimal chance = 0;
+
+        public Loot()
+        {
+            NestedLoot = new List<Loot>();
+        }
+
         public string Item { get; set; }
-        public decimal Chance { get; set; }
+
+        public decimal Chance
+        {
+            get { return chance; }
+            set { chance = Math.Min(value, 1); }
+        }
+
         public int Count { get; set; }
-        public int SubType { get; set; } // Fluids in containers or rune charges
+
+        /// <summary>
+        /// Fluids in containers or rune charges
+        /// </summary>
+        public int SubType { get; set; }
+
         public int ActionId { get; set; }
-        public string Text { get; set; } // Sets text on writables like a letter
+
+        /// <summary>
+        /// Sets text on writables like a letter
+        /// </summary>
+        public string Text { get; set; }
+
+        public List<Loot> NestedLoot { get; }
+
+        /// <summary>
+        /// Free form string field not used by any engine, information stored here is useful for maintaining a server
+        /// For example, this field can contain the item's name
+        /// </summary>
+        public string Description { get; set; }
 
         public override string ToString()
         {
-            return $"{Item} {Count} {Chance:N4}";
+            if (NestedLoot.Count > 0)
+            {
+                return $"{Item} {Count} {Chance:N4} (Nested: {NestedLoot.Count})";
+            }
+            else
+            {
+                return $"{Item} {Count} {Chance:N4}";
+            }
         }
     }
 }

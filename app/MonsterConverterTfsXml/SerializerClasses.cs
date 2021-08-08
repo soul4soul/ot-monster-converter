@@ -326,7 +326,21 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int actionId;
         [XmlAttribute]
-        public string text; //used for setting text to items like letters?
+        public string text; //used for setting text to items like letters
+
+        [XmlElement(ElementName = "item")]
+        public Item[] NestedItems { get; set; }
+
+        // Pre TFS 1.0 - Really is anybody using this anymore?
+        [XmlElement(ElementName = "inside")]
+        public Inside Inside { get; set; }
+    }
+
+    [XmlRoot(ElementName = "inside")]
+    public class Inside
+    {
+        [XmlElement(ElementName = "item")]
+        public Item[] NestedItems { get; set; }
     }
 
     public class Elements
