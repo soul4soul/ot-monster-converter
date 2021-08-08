@@ -140,14 +140,11 @@ namespace OTMonsterConverter
                 case ScanError.NoMonstersFound:
                     textBlockScanStatus.Text = "Couldn't find any monster files.";
                     break;
-                case ScanError.InvalidMonsterDirectory:
-                    textBlockScanStatus.Text = "The selected project directory is invald.";
-                    break;
-                case ScanError.InvalidMonsterFormat:
-                    textBlockScanStatus.Text = "The selected input or output monster format is invalid.";
+                case ScanError.InvalidInputDirectory:
+                    textBlockScanStatus.Text = "The selected input directory is invald.";
                     break;
                 case ScanError.CouldNotCreateDirectory:
-                    textBlockScanStatus.Text = "Couldn't create destination directory.";
+                    textBlockScanStatus.Text = "Couldn't create output directory.";
                     break;
                 case ScanError.DirectoriesMatch:
                     textBlockScanStatus.Text = "Input and output directories can't be the same.";

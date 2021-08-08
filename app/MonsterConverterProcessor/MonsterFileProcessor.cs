@@ -13,8 +13,7 @@ namespace MonsterConverterProcessor
     public enum ScanError
     {
         Success,
-        InvalidMonsterDirectory,
-        InvalidMonsterFormat,
+        InvalidInputDirectory,
         NoMonstersFound,
         CouldNotCreateDirectory,
         DirectoriesMatch
@@ -46,7 +45,13 @@ namespace MonsterConverterProcessor
         {
             if ((inputConverter.FileSource == FileSource.LocalFiles) && (!Directory.Exists(monsterDirectory)))
             {
-                return ScanError.InvalidMonsterDirectory;
+                return ScanError.InvalidInputDirectory;
+            }
+
+            if ((inputConverter.FileSource == FileSource.LocalFiles) &&
+                (Path.GetFullPath(monsterDirectory) == Path.GetFullPath(outputDirectory)))
+            {
+                return ScanError.DirectoriesMatch;
             }
 
             if (!Directory.Exists(outputDirectory))
@@ -61,16 +66,9 @@ namespace MonsterConverterProcessor
                 }
             }
 
-            if ((inputConverter.FileSource == FileSource.LocalFiles) &&
-                (Path.GetFullPath(monsterDirectory) == Path.GetFullPath(outputDirectory)))
-            {
-                return ScanError.DirectoriesMatch;
-            }
-
             string[] files  = inputConverter.GetFilesForConversion(monsterDirectory);
             if (inputConverter.FileSource == FileSource.Web)
             {
-                // TibiaWiki provides a flat list
                 mirroredFolderStructure = false;
             }
             if ((files != null) && (files.Length == 0))
@@ -111,7 +109,7 @@ namespace MonsterConverterProcessor
             ConvertResultEventArgs readResult = new ConvertResultEventArgs(file, ConvertError.Error, "Unknown error occured");
             ConvertResultEventArgs writeResult = new ConvertResultEventArgs("unknown", ConvertError.Error, "Unknown error occured");
 
-            // The ReadMonster and Write methods processors should really do their best to catch and return meaningful errors
+            // ReadMonster and WriteMonster methods processors should do their best to catch and return meaningful errors
             try
             {
                 readResult = input.ReadMonster(file, out Monster monster);
