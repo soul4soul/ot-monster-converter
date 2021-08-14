@@ -667,8 +667,10 @@ namespace MonsterConverterTfsXml
 
         private static XElement NestedLootGenericToTfsXml(Loot i)
         {
+            string itemType = int.TryParse(i.Item, out _) ? "id" : "name";
+
             XElement item = new XElement("item",
-                new XAttribute("id", i.Item),
+                new XAttribute(itemType, i.Item),
                 new XAttribute("chance", Math.Round(i.Chance * MAX_LOOTCHANCE)));
 
             if (i.Count > 1)
