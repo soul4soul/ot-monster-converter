@@ -356,7 +356,7 @@ namespace MonsterConverterTfsXml
                         new XElement("element",
                                     new XAttribute("physicalPercent", ElemementPercentGenericToTfsXml(monster.PhysicalDmgMod))),
                         new XElement("element",
-                                    new XAttribute("EnergyPercent", ElemementPercentGenericToTfsXml(monster.EnergyDmgMod))),
+                                    new XAttribute("energyPercent", ElemementPercentGenericToTfsXml(monster.EnergyDmgMod))),
                         new XElement("element",
                                     new XAttribute("earthPercent", ElemementPercentGenericToTfsXml(monster.EarthDmgMod))),
                         new XElement("element",
