@@ -291,7 +291,6 @@ namespace MonsterConverterTfsXml
             }
 
             XmlWriterSettings xws = new XmlWriterSettings();
-            xws.OmitXmlDeclaration = true;
             xws.Indent = true;
             xws.IndentChars = "\t";
 
