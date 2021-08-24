@@ -732,7 +732,7 @@ namespace MonsterConverterTibiaWiki
                 if (lootPage != null)
                 {
                     string elements = lootPage.Wikitext.Empty.ToLower();
-                    var lootsectionsRegEx = new Regex("{{loot2(?<loots>.*)}}", RegexOptions.Singleline);
+                    var lootsectionsRegEx = new Regex("{{loot2(?<loots>.*?)}}", RegexOptions.Singleline);
                     if (lootsectionsRegEx.IsMatch(elements))
                     {
                         var lootsection = lootsectionsRegEx.Match(elements);
