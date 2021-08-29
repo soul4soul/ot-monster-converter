@@ -723,7 +723,31 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseLoot(Monster monster, string lootTable, string filename)
+        private record TibiaWikiItemData(string name, string actualName, string ids)
+        {
+            public bool IsSingleId
+            {
+                get { return int.TryParse(ids, out int _); }
+            }
+        }
+
+        private static IDictionary<string, TibiaWikiItemData> itemids = new Dictionary<string, TibiaWikiItemData>();
+        private static void GetItemIds()
+        {
+            string itemlisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text";
+            var itemTable = RequestData(itemlisturl).Result.Text.Empty;
+
+            var itemMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<actualname>.*?)\n<\\/td>\n<td>(?<itemid>.*?)\n<\\/td>").Matches(itemTable);
+            foreach (Match match in itemMatches)
+            {
+                string name = match.Groups["name"].Value.ToLower();
+                string actualName = match.Groups["actualname"].Value.ToLower();
+                string ids = match.Groups["itemid"].Value;
+                itemids.Add(name, new TibiaWikiItemData(name, actualName, ids));
+            }
+        }
+
+        private static void ParseLoot(Monster monster, string lootTable, string filename, ref ConvertResultEventArgs result)
         {
             var lootTableTemplate = TemplateParser.Deseralize<LootTableTemplate>(lootTable);
             if ((lootTableTemplate.Loot != null) && (lootTableTemplate.Loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.Loot[0])))
@@ -765,6 +789,15 @@ namespace MonsterConverterTibiaWiki
                                 }
                                 count = (count > 0) ? count : 1;
 
+                                // https://tibia.fandom.com/wiki/Template:Loot2/List?veaction=editsource
+                                // Two items have redirects, better would be to fix this code to use the text version of the page so the redirects are always up to date
+                                if (item == "skull")
+                                    item = "skull (item)";
+                                if (item == "black skull")
+                                    item = "black skull (item)";
+
+                                GetItemServerId(item, ref result);
+
                                 monster.Items.Add(new LootItem()
                                 {
                                     Name = item,
@@ -786,10 +819,11 @@ namespace MonsterConverterTibiaWiki
                             LootItemTemplate lootItem = TemplateParser.Deseralize<LootItemTemplate>(loot);
                             if (lootItem.Parts != null)
                             {
+                                Loot genericLootItem = null;
                                 if (lootItem.Parts.Length == 1)
                                 {
                                     // template name only
-                                    monster.Items.Add(new LootItem() { Name = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT });
+                                    genericLootItem = new LootItem() { Name = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT };
                                 }
                                 else if (lootItem.Parts.Length == 2)
                                 {
@@ -797,13 +831,13 @@ namespace MonsterConverterTibiaWiki
                                     // Assumes first combination if parts[1] matches a rarity description
                                     if (TryParseTibiaWikiRarity(lootItem.Parts[1], out decimal chance))
                                     {
-                                        monster.Items.Add(new LootItem() { Name = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT });
+                                        genericLootItem = new LootItem() { Name = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT };
                                     }
                                     else
                                     {
                                         if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
                                             max = DEFAULT_LOOT_COUNT;
-                                        monster.Items.Add(new LootItem() { Name = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max });
+                                        genericLootItem = new LootItem() { Name = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max };
                                     }
                                 }
                                 else if (lootItem.Parts.Length == 3)
@@ -812,13 +846,40 @@ namespace MonsterConverterTibiaWiki
                                     if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
                                         max = DEFAULT_LOOT_COUNT;
                                     TryParseTibiaWikiRarity(lootItem.Parts[2], out decimal chance);
-                                    monster.Items.Add(new LootItem() { Name = lootItem.Parts[1], Chance = chance, Count = max });
+                                    genericLootItem = new LootItem() { Name = lootItem.Parts[1], Chance = chance, Count = max };
+                                }
+
+                                if (genericLootItem != null)
+                                {
+                                    GetItemServerId(genericLootItem.Item, ref result);
+
+                                    monster.Items.Add(genericLootItem);
                                 }
                             }
 
                         }
                     }
                 }
+            }
+        }
+
+        // TODO make this method accept a ref of Loot and actually use the object to look up the server id and set it instead of worrying about passing back the value
+        private static void GetItemServerId(string item, ref ConvertResultEventArgs result)
+        {
+            if (itemids.ContainsKey(item))
+            {
+                if (!itemids[item].IsSingleId)
+                {
+                    string message = $"item {item} has missing or multiple ids {itemids[item].ids}";
+                    result.AppendMessage(message);
+                    System.Diagnostics.Debug.WriteLine(message);
+                }
+            }
+            else
+            {
+                string message = $"Can't find item name {item}";
+                result.AppendMessage(message);
+                System.Diagnostics.Debug.WriteLine(message);
             }
         }
 
@@ -1120,6 +1181,16 @@ namespace MonsterConverterTibiaWiki
                 names.Add(match.Groups["name"].Value.Replace("%27", "'").Replace("%C3%B1", "ñ"));
             }
 
+            // Populate item id list, here is as good a place as any to fetch and prepare this information
+            // Only need to get the list once per program execution, between exeuctions its reasonable to retry should the list be empty
+            // It's not worth the overhead to keep trying to get the itemid list should it fail during conversion which is the reason
+            // the itemids are fetched here and not in ParseLoot when the data is needed.
+            if (itemids.Count == 0)
+            {
+                GetItemIds();
+            }
+            
+
             return names.ToArray();
         }
 
@@ -1134,7 +1205,7 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
-            string resultMessage = "Blood type, look type data, and abilities are not parsed.";
+            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Blood type, look type data, and abilities are not parsed.");
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
 
@@ -1184,18 +1255,18 @@ namespace MonsterConverterTibiaWiki
             if (!string.IsNullOrWhiteSpace(creature.Behavior)) { ParseBehavior(monster, creature.Behavior); }
             if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities); }
             if (!string.IsNullOrWhiteSpace(creature.Location)) { monster.Bestiary.Location = creature.Location; }
-            if (!string.IsNullOrWhiteSpace(creature.Loot)) { ParseLoot(monster, creature.Loot, filename); }
+            if (!string.IsNullOrWhiteSpace(creature.Loot)) { ParseLoot(monster, creature.Loot, filename, ref result); }
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
             if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
             {
                 // Better then nothing guess
-                resultMessage += "Guessed creature name";
+                result.AppendMessage("Guessed creature name");
                 monster.Name = monster.FileName;
             }
             monster.Name = textInfo.ToTitleCase(monster.Name);
 
-            return new ConvertResultEventArgs(filename, ConvertError.Warning, resultMessage);
+            return result;
         }
 
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
