@@ -1159,6 +1159,7 @@ namespace MonsterConverterTibiaWiki
             {
                 ParseBestiaryLevel(monster, creature.BestiaryLevel, creature.Occurrence); 
             }
+            if (!string.IsNullOrWhiteSpace(creature.SpawnType)) { monster.IgnoreSpawnBlock = creature.SpawnType.ToLower().Contains("unblockable"); }
             if (RobustTryParse(creature.Pushable, out boolVal)) { monster.IsPushable = boolVal; }
             // In cipbia ability to push objects means ability to push creatures too
             if (RobustTryParse(creature.PushObjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
@@ -1212,6 +1213,7 @@ namespace MonsterConverterTibiaWiki
                 $"| class          = {monster.Bestiary.Class}",
                 $"| bestiarylevel  = {GenericToTibiaWikiBestiaryLevel(ref monster)}",
                 $"| occurence      = {GenericToTibiaWikiOccurennce(ref monster)}",
+                string.Format("| spawntype    = {0}", monster.IgnoreSpawnBlock ? "Unblockable" : ""),
                 string.Format("| isboss         = {0}", monster.IsBoss ? "yes" : "no"),
                 string.Format("| pushable       = {0}", monster.IsPushable ? "yes" : "no"),
                 string.Format("| pushobjects    = {0}", monster.PushItems ? "yes" : "no"),
