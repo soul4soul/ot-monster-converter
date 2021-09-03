@@ -323,6 +323,8 @@ namespace MonsterConverterTfsXml
                         new XElement("flag",
                             new XAttribute("isboss", monster.IsBoss ? 1 : 0)),
                         new XElement("flag",
+                            new XAttribute("ignorespawnblock", monster.IgnoreSpawnBlock ? 1 : 0)),
+                        new XElement("flag",
                             new XAttribute("pushable", monster.IsPushable ? 1 : 0)),
                         new XElement("flag",
                             new XAttribute("canpushitems", monster.PushItems ? 1 : 0)),
@@ -855,6 +857,10 @@ namespace MonsterConverterTfsXml
                         else if (x.attr[0].Name == "isboss")
                         {
                             monster.IsBoss = value == 1;
+                        }
+                        else if (x.attr[0].Name == "ignorespawnblock")
+                        {
+                            monster.IgnoreSpawnBlock = value == 1;
                         }
                         else
                         {

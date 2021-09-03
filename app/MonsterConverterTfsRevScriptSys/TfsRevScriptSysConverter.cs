@@ -279,6 +279,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"	convinceable = {(monster.ConvinceCost > 0).ToString().ToLower()},");
                 dest.WriteLine($"	illusionable = {monster.IsIllusionable.ToString().ToLower()},");
                 dest.WriteLine($"	boss = {monster.IsBoss.ToString().ToLower()},");
+                dest.WriteLine($"	ignoreSpawnBlock = {monster.IgnoreSpawnBlock.ToString().ToLower()},");
                 dest.WriteLine($"	pushable = {monster.IsPushable.ToString().ToLower()},");
                 dest.WriteLine($"	canPushItems = {monster.PushItems.ToString().ToLower()},");
                 dest.WriteLine($"	canPushCreatures = {monster.PushCreatures.ToString().ToLower()},");
