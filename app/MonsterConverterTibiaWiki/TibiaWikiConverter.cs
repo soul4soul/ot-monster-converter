@@ -905,6 +905,138 @@ namespace MonsterConverterTibiaWiki
                 monster.RunOnHealth = (max + min) / 2;
         }
 
+        private void ParseBestiaryLevel(Monster monster, string difficultly, string occurence)
+        {
+            difficultly = difficultly.ToLower();
+            if (difficultly == "harmless")
+            {
+                monster.Bestiary.DifficultlyStarCount = 0;
+            }
+            else if (difficultly == "trivial")
+            {
+                monster.Bestiary.DifficultlyStarCount = 1;
+            }
+            else if (difficultly == "easy")
+            {
+                monster.Bestiary.DifficultlyStarCount = 2;
+            }
+            else if (difficultly == "medium")
+            {
+                monster.Bestiary.DifficultlyStarCount = 3;
+            }
+            else if (difficultly == "hard")
+            {
+                monster.Bestiary.DifficultlyStarCount = 4;
+            }
+            else if (difficultly == "challenging")
+            {
+                monster.Bestiary.DifficultlyStarCount = 5;
+            }
+
+            occurence = occurence.ToLower();
+            if (occurence == "common")
+            {
+                monster.Bestiary.OccuranceDiamondCount = 0;
+            }
+            else if (occurence == "uncommon")
+            {
+                monster.Bestiary.OccuranceDiamondCount = 1;
+            }
+            else if (occurence == "rare")
+            {
+                monster.Bestiary.OccuranceDiamondCount = 2;
+            }
+            else if (occurence == "very rare")
+            {
+                monster.Bestiary.OccuranceDiamondCount = 3;
+            }
+
+            if ((difficultly == "harmless") && (occurence != "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 1;
+                monster.Bestiary.FirstDetailStage = 5;
+                monster.Bestiary.SecondDetailStage = 10;
+                monster.Bestiary.FinalDetailStage = 25;
+            }
+            else if ((difficultly == "harmless") && (occurence == "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 5;
+                monster.Bestiary.FirstDetailStage = 2;
+                monster.Bestiary.SecondDetailStage = 3;
+                monster.Bestiary.FinalDetailStage = 5;
+            }
+            else if ((difficultly == "trivial") && (occurence != "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 5;
+                monster.Bestiary.FirstDetailStage = 10;
+                monster.Bestiary.SecondDetailStage = 100;
+                monster.Bestiary.FinalDetailStage = 250;
+            }
+            else if ((difficultly == "trivial") && (occurence == "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 10;
+                monster.Bestiary.FirstDetailStage = 2;
+                monster.Bestiary.SecondDetailStage = 3;
+                monster.Bestiary.FinalDetailStage = 5;
+            }
+            else if ((difficultly == "easy") && (occurence != "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 15;
+                monster.Bestiary.FirstDetailStage = 25;
+                monster.Bestiary.SecondDetailStage = 250;
+                monster.Bestiary.FinalDetailStage = 500;
+            }
+            else if ((difficultly == "easy") && (occurence == "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 30;
+                monster.Bestiary.FirstDetailStage = 2;
+                monster.Bestiary.SecondDetailStage = 3;
+                monster.Bestiary.FinalDetailStage = 5;
+            }
+            else if ((difficultly == "medium") && (occurence != "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 25;
+                monster.Bestiary.FirstDetailStage = 50;
+                monster.Bestiary.SecondDetailStage = 500;
+                monster.Bestiary.FinalDetailStage = 1000;
+            }
+            else if ((difficultly == "medium") && (occurence == "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 50;
+                monster.Bestiary.FirstDetailStage = 2;
+                monster.Bestiary.SecondDetailStage = 3;
+                monster.Bestiary.FinalDetailStage = 5;
+            }
+            else if ((difficultly == "hard") && (occurence != "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 50;
+                monster.Bestiary.FirstDetailStage = 100;
+                monster.Bestiary.SecondDetailStage = 1000;
+                monster.Bestiary.FinalDetailStage = 2500;
+            }
+            else if ((difficultly == "hard") && (occurence == "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 100;
+                monster.Bestiary.FirstDetailStage = 2;
+                monster.Bestiary.SecondDetailStage = 3;
+                monster.Bestiary.FinalDetailStage = 5;
+            }
+            else if ((difficultly == "challenging") && (occurence != "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 100;
+                monster.Bestiary.FirstDetailStage = 200;
+                monster.Bestiary.SecondDetailStage = 2000;
+                monster.Bestiary.FinalDetailStage = 5000;
+            }
+            else if ((difficultly == "challenging") && (occurence == "very rare"))
+            {
+                monster.Bestiary.CharmPoints = 200;
+                monster.Bestiary.FirstDetailStage = 2;
+                monster.Bestiary.SecondDetailStage = 3;
+                monster.Bestiary.FinalDetailStage = 5;
+            }
+        }
+
         /// <summary>
         /// Converts a string representing a numeric range to two intergers
         /// Example numeric ranges which can be parsed are "500", "0-500", and "0-500?"
@@ -946,7 +1078,6 @@ namespace MonsterConverterTibiaWiki
 
             return int.TryParse(match.Groups["value"].Value, out value);
         }
-
 
         private static bool RobustTryParse(string input, out bool value)
         {
@@ -1023,6 +1154,11 @@ namespace MonsterConverterTibiaWiki
             if (RobustTryParse(creature.Illusionable, out boolVal)) { monster.IsIllusionable = boolVal; }
             if (RobustTryParse(creature.IsBoss, out boolVal)) { monster.IsBoss = boolVal; }
             if (!string.IsNullOrWhiteSpace(creature.PrimaryType)) { monster.HideHealth = creature.PrimaryType.ToLower().Contains("trap"); }
+            if (!string.IsNullOrWhiteSpace(creature.BestiaryClass)) { monster.Bestiary.Class = creature.BestiaryClass; }
+            if (!string.IsNullOrWhiteSpace(creature.BestiaryLevel) && !string.IsNullOrWhiteSpace(creature.Occurrence))
+            {
+                ParseBestiaryLevel(monster, creature.BestiaryLevel, creature.Occurrence); 
+            }
             if (RobustTryParse(creature.Pushable, out boolVal)) { monster.IsPushable = boolVal; }
             // In cipbia ability to push objects means ability to push creatures too
             if (RobustTryParse(creature.PushObjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
@@ -1044,6 +1180,7 @@ namespace MonsterConverterTibiaWiki
             if (!string.IsNullOrWhiteSpace(creature.Sounds)) { ParseSoundList(monster, creature.Sounds); }
             if (!string.IsNullOrWhiteSpace(creature.Behavior)) { ParseBehavior(monster, creature.Behavior); }
             if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities); }
+            if (!string.IsNullOrWhiteSpace(creature.Location)) { monster.Bestiary.Location = creature.Location; }
             if (!string.IsNullOrWhiteSpace(creature.Loot)) { ParseLoot(monster, creature.Loot, filename); }
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
@@ -1072,6 +1209,9 @@ namespace MonsterConverterTibiaWiki
                 string.Format("| convince       = {0}", monster.ConvinceCost > 0 ? monster.ConvinceCost.ToString() : "--"),
                 string.Format("| illusionable   = {0}", monster.IsIllusionable ? "yes" : "no"),
                 string.Format("| primarytype    = {0}", monster.HideHealth ? "trap" : ""),
+                $"| class          = {monster.Bestiary.Class}",
+                $"| bestiarylevel  = {GenericToTibiaWikiBestiaryLevel(ref monster)}",
+                $"| occurence      = {GenericToTibiaWikiOccurennce(ref monster)}",
                 string.Format("| isboss         = {0}", monster.IsBoss ? "yes" : "no"),
                 string.Format("| pushable       = {0}", monster.IsPushable ? "yes" : "no"),
                 string.Format("| pushobjects    = {0}", monster.PushItems ? "yes" : "no"),
@@ -1092,12 +1232,41 @@ namespace MonsterConverterTibiaWiki
                 $"| sounds         = {GenericToTibiaWikiVoice(ref monster)}",
                 $"| runsat         = {monster.RunOnHealth}",
                 $"| speed          = {monster.Speed}",
+                $"| location       = {monster.Bestiary.Location}",
                 $"| loot           = {GenericToTibiaWikiLootList(ref monster)}"
             };
             string fileName = Path.Combine(directory, monster.FileName);
             File.WriteAllLines(fileName, lines);
 
             return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Summons, abilities, and description information is not written.");
+        }
+
+        private object GenericToTibiaWikiOccurennce(ref Monster monster)
+        {
+            if (monster.Bestiary.OccuranceDiamondCount < 0)
+                return "Common";
+            else if (monster.Bestiary.OccuranceDiamondCount < 0)
+                return "Uncommon";
+            else if (monster.Bestiary.OccuranceDiamondCount < 0)
+                return "Rare";
+            else
+                return "Very Rare";
+        }
+
+        private object GenericToTibiaWikiBestiaryLevel(ref Monster monster)
+        {
+            if (monster.Bestiary.DifficultlyStarCount < 0)
+                return "Harmless";
+            else if (monster.Bestiary.DifficultlyStarCount == 1)
+                return "Trivial";
+            else if (monster.Bestiary.DifficultlyStarCount == 2)
+                return "Easy";
+            else if (monster.Bestiary.DifficultlyStarCount == 3)
+                return "Medium";
+            else if (monster.Bestiary.DifficultlyStarCount == 4)
+                return "Hard";
+            else
+                return "Challenging";
         }
 
         private static string GenericToTibiaWikiWalkAround(ref Monster monster)

@@ -102,12 +102,6 @@
         [TemplateParameter(Index = 39, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string DrownDmgMod { get; set; }
 
-        [TemplateParameter(Index = 40, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string BestiaryName { get; set; }
-
-        [TemplateParameter(Index = 41, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string BestiaryText { get; set; }
-
         [TemplateParameter(Index = 42, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string Sounds { get; set; }
 
@@ -125,6 +119,9 @@
 
         [TemplateParameter(Index = 48, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string Speed { get; set; }
+
+        [TemplateParameter(Index = 51, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string Location { get; set; }
 
         [TemplateParameter(Index = 51, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string Loot { get; set; }
