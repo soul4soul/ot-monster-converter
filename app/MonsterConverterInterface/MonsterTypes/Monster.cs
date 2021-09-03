@@ -16,6 +16,7 @@ namespace MonsterConverterInterface.MonsterTypes
             Attacks = new List<Spell>();
             Scripts = new List<Script>();
             TargetStrategy = new TargetStrategy();
+            Bestiary = new BestiaryData();
 
             VoiceInterval = 5000;
             VoiceChance = 0.1;
@@ -87,6 +88,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public int MaxSummons { get; set; }
         public IList<Summon> Summons { get; }
         public LookData Look { get; }
+        public BestiaryData Bestiary { get; }
 
         public int VoiceInterval { get; set; }
         public double VoiceChance { get; set; }
