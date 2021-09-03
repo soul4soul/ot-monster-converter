@@ -37,6 +37,7 @@ namespace MonsterConverterInterface.MonsterTypes
             LightColor = 0;
             RunOnHealth = 0;
             IsBoss = false;
+            IgnoreSpawnBlock = false;
             HideHealth = false;
             AvoidFire = true;
             AvoidEnergy = true;
@@ -104,6 +105,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public bool HideHealth { get; set; }
         public bool IsBoss { get; set; }
         public int RaceId { get; set; }
+        public bool IgnoreSpawnBlock { get; set; }
 
         // Behavior
         public bool IsPushable { get; set; }
