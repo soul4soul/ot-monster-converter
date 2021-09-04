@@ -13,7 +13,14 @@ namespace MonsterConverterInterface.MonsterTypes
             NestedLoot = new List<Loot>();
         }
 
-        public string Item { get; set; }
+        public string ComboIdentifier
+        {
+            get { return $"{Id}:{Name}"; }
+        }
+
+        public ushort Id { get; set; }
+
+        public string Name { get; set; }
 
         public decimal Chance
         {
@@ -47,11 +54,11 @@ namespace MonsterConverterInterface.MonsterTypes
         {
             if (NestedLoot.Count > 0)
             {
-                return $"{Item} {Count} {Chance:N4} (Nested: {NestedLoot.Count})";
+                return $"{ComboIdentifier} {Count} {Chance:N4} (Nested: {NestedLoot.Count})";
             }
             else
             {
-                return $"{Item} {Count} {Chance:N4}";
+                return $"{ComboIdentifier} {Count} {Chance:N4}";
             }
         }
     }

@@ -511,13 +511,13 @@ namespace MonsterConverterTfsRevScriptSys
             string rssLootLine;
 
             string itemQuoted;
-            if (int.TryParse(loot.Item, out int itemid))
+            if (loot.Id > 0)
             {
-                itemQuoted = itemid.ToString();
+                itemQuoted = loot.Id.ToString();
             }
             else
             {
-                itemQuoted = $"\"{loot.Item}\"";
+                itemQuoted = $"\"{loot.Name}\"";
             }
 
             decimal chance = loot.Chance * MAX_LOOTCHANCE;

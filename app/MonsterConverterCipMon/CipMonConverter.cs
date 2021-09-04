@@ -493,7 +493,7 @@ namespace MonsterConverterCipMon
                 {
                     monster.Items.Add(new Loot()
                     {
-                        Item = match.Groups["id"].Value,
+                        Id = ushort.Parse(match.Groups["id"].Value),
                         Count = int.Parse(match.Groups["count"].Value),
                         Chance = decimal.Parse(match.Groups["chance"].Value) / 1000
                     });

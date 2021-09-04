@@ -668,42 +668,50 @@ namespace MonsterConverterTfsXml
             return loot;
         }
 
-        private static XElement NestedLootGenericToTfsXml(Loot i)
+        private static XElement NestedLootGenericToTfsXml(Loot loot)
         {
-            string itemType = int.TryParse(i.Item, out _) ? "id" : "name";
+            XElement item = new XElement("item");
 
-            XElement item = new XElement("item",
-                new XAttribute(itemType, i.Item),
-                new XAttribute("chance", Math.Round(i.Chance * MAX_LOOTCHANCE)));
-
-            if (i.Count > 1)
+            if (loot.Id > 0)
             {
-                item.Add(new XAttribute("countmax", i.Count));
+                item.Add(new XAttribute("id", loot.Id));
             }
 
-            if (i.SubType > 0)
+            if (string.IsNullOrWhiteSpace(loot.Name))
             {
-                item.Add(new XAttribute("subtype", i.SubType));
+                item.Add(new XAttribute("name", loot.Name));
             }
 
-            if (i.ActionId > 0)
+            item.Add(new XAttribute("name", new XAttribute("chance", Math.Round(loot.Chance * MAX_LOOTCHANCE))));
+
+            if (loot.Count > 1)
             {
-                item.Add(new XAttribute("actionId", i.ActionId));
+                item.Add(new XAttribute("countmax", loot.Count));
             }
 
-            if (!string.IsNullOrWhiteSpace(i.Text))
+            if (loot.SubType > 0)
             {
-                item.Add(new XAttribute("text", i.Text));
+                item.Add(new XAttribute("subtype", loot.SubType));
             }
 
-            if (!string.IsNullOrWhiteSpace(i.Description))
+            if (loot.ActionId > 0)
             {
-                item.Add(new XAttribute("description", i.Description));
+                item.Add(new XAttribute("actionId", loot.ActionId));
             }
 
-            if (i.NestedLoot.Count > 0)
+            if (!string.IsNullOrWhiteSpace(loot.Text))
             {
-                foreach (var ni in i.NestedLoot)
+                item.Add(new XAttribute("text", loot.Text));
+            }
+
+            if (!string.IsNullOrWhiteSpace(loot.Description))
+            {
+                item.Add(new XAttribute("description", loot.Description));
+            }
+
+            if (loot.NestedLoot.Count > 0)
+            {
+                foreach (var ni in loot.NestedLoot)
                 {
                     item.Add(NestedLootGenericToTfsXml(ni));
                 }
@@ -1198,16 +1206,6 @@ namespace MonsterConverterTfsXml
 
         private Loot TfsToGenericLoot(Item item, IList<string> indexedLootComments, int itemIndex)
         {
-            string itemType = "";
-            if (!string.IsNullOrEmpty(item.name))
-            {
-                itemType = item.name;
-            }
-            else if (item.id > 0)
-            {
-                itemType = item.id.ToString();
-            }
-
             decimal chance = 1;
             if (item.chance > 0)
             {
@@ -1222,7 +1220,8 @@ namespace MonsterConverterTfsXml
 
             return new Loot()
             {
-                Item = itemType,
+                Id = item.id,
+                Name = item.name,
                 Chance = chance,
                 Count = item.countmax,
                 SubType = item.subtype,

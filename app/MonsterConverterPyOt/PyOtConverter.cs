@@ -165,14 +165,10 @@ namespace MonsterConverterPyOt
 
         private static string LootItemToPyOtString(Loot lootItem)
         {
-            string item;
-            if (int.TryParse(lootItem.Item, out int itemid))
+            string item = $"\"{lootItem.Name}\"";
+            if (lootItem.Id > 0)
             {
-                item = itemid.ToString();
-            }
-            else
-            {
-                item = $"\"{lootItem.Item}\"";
+                item = lootItem.Id.ToString();
             }
 
             decimal chance = lootItem.Chance * 100;

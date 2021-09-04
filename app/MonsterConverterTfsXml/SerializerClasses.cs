@@ -313,7 +313,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public string name;
         [XmlAttribute]
-        public int id;
+        public ushort id;
         [XmlAttribute]
         public int countmax = 1; //default value is 1
         [XmlAttribute]
