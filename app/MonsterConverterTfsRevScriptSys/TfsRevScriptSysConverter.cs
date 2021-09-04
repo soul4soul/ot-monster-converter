@@ -11,8 +11,6 @@ namespace MonsterConverterTfsRevScriptSys
     [Export(typeof(IMonsterConverter))]
     public class TfsRevScriptSysConverter : MonsterConverter
     {
-        public override string ConverterName { get => "TFS RevScriptSys"; }
-
         const uint MAX_LOOTCHANCE = 100000;
 
         IDictionary<ConditionType, string> ConditionToTfsConstant = new Dictionary<ConditionType, string>
@@ -211,7 +209,11 @@ namespace MonsterConverterTfsRevScriptSys
             { Blood.energy, "energy" }
         };
 
+        public override string ConverterName { get => "TFS RevScriptSys"; }
+
         public override string FileExt { get => "lua"; }
+
+        public override ItemIdType ItemIdType { get => ItemIdType.Server; }
 
         public override bool IsReadSupported { get => false; }
 

@@ -226,6 +226,8 @@ namespace MonsterConverterTibiaWiki
 
         public override FileSource FileSource { get => FileSource.Web; }
 
+        public override ItemIdType ItemIdType { get => ItemIdType.Client; }
+
         public override string FileExt { get => "html"; }
 
         public override bool IsReadSupported { get => true; }

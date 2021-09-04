@@ -13,14 +13,6 @@ namespace MonsterConverterCipMon
     [Export(typeof(IMonsterConverter))]
     public class CipMonConverter : MonsterConverter
     {
-        public override string ConverterName { get => "Cip Mon"; }
-
-        public override string FileExt { get => "mon"; }
-
-        public override bool IsReadSupported { get => true; }
-
-        public override bool IsWriteSupported { get => false; }
-
         // <race id, registered name>
         private readonly IDictionary<int, string> raceIdNameMap = new Dictionary<int, string>();
 
@@ -49,6 +41,16 @@ namespace MonsterConverterCipMon
             LifeDrain = 256,
             ManaDrain = 512
         }
+
+        public override string ConverterName { get => "Cip Mon"; }
+
+        public override string FileExt { get => "mon"; }
+
+        public override ItemIdType ItemIdType { get => ItemIdType.Client; }
+
+        public override bool IsReadSupported { get => true; }
+
+        public override bool IsWriteSupported { get => false; }
 
         private Animation animationFromString(string input)
         {

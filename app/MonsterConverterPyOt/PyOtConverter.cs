@@ -18,6 +18,8 @@ namespace MonsterConverterPyOt
 
         public override string FileExt { get => "py"; }
 
+        public override ItemIdType ItemIdType { get => ItemIdType.Server; }
+
         public override bool IsReadSupported { get => false; }
 
         public override bool IsWriteSupported { get => true; }

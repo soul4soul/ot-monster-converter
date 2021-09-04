@@ -17,8 +17,6 @@ namespace MonsterConverterTfsXml
     [Export(typeof(IMonsterConverter))]
     public class TfsXmlConverter : MonsterConverter
     {
-        public override string ConverterName { get => "TFS XML"; }
-
         const int MAX_LOOTCHANCE = 100000;
         const int ATTACK_INTERVAL_DEFAULT = 2000;
 
@@ -233,7 +231,11 @@ namespace MonsterConverterTfsXml
             {ConditionType.Cursed,      4000},
         };
 
+        public override string ConverterName { get => "TFS XML"; }
+
         public override string FileExt { get => "xml"; }
+
+        public override ItemIdType ItemIdType { get => ItemIdType.Server; }
 
         public override bool IsReadSupported { get => true; }
 
