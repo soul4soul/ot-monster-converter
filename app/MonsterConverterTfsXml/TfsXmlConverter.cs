@@ -658,7 +658,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private static XElement LootGenericToTfsXml(IList<Loot> items)
+        private static XElement LootGenericToTfsXml(IList<LootItem> items)
         {
             XElement loot = new XElement("loot");
             foreach (var i in items)
@@ -668,7 +668,7 @@ namespace MonsterConverterTfsXml
             return loot;
         }
 
-        private static XElement NestedLootGenericToTfsXml(Loot loot)
+        private static XElement NestedLootGenericToTfsXml(LootItem loot)
         {
             XElement item = new XElement("item");
 
@@ -1142,7 +1142,7 @@ namespace MonsterConverterTfsXml
                 int itemIndex = 0;
                 foreach (var item in tfsMonster.loot.item)
                 {
-                    Loot genericLoot = TfsToGenericLoot(item, indexedLootComments, itemIndex);
+                    LootItem genericLoot = TfsToGenericLoot(item, indexedLootComments, itemIndex);
                     itemIndex++;
 
                     if ((item.NestedItems != null) &&
@@ -1180,11 +1180,11 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private void ParseNestedLoot(ref Loot lootContainer, Item[] items, IList<string> indexedLootComments, ref int itemIndex)
+        private void ParseNestedLoot(ref LootItem lootContainer, Item[] items, IList<string> indexedLootComments, ref int itemIndex)
         {
             foreach (var item in items)
             {
-                Loot genericLoot = TfsToGenericLoot(item, indexedLootComments, itemIndex);
+                LootItem genericLoot = TfsToGenericLoot(item, indexedLootComments, itemIndex);
                 itemIndex++;
 
                 if ((item.NestedItems != null) &&
@@ -1204,7 +1204,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private Loot TfsToGenericLoot(Item item, IList<string> indexedLootComments, int itemIndex)
+        private LootItem TfsToGenericLoot(Item item, IList<string> indexedLootComments, int itemIndex)
         {
             decimal chance = 1;
             if (item.chance > 0)
@@ -1218,7 +1218,7 @@ namespace MonsterConverterTfsXml
 
             chance /= MAX_LOOTCHANCE;
 
-            return new Loot()
+            return new LootItem()
             {
                 Id = item.id,
                 Name = item.name,

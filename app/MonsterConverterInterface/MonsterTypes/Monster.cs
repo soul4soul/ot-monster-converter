@@ -11,7 +11,7 @@ namespace MonsterConverterInterface.MonsterTypes
         {
             MaxSummons = 0;
             Summons = new List<Summon>();
-            Items = new List<Loot>();
+            Items = new List<LootItem>();
             Look = new LookData();
             Attacks = new List<Spell>();
             Scripts = new List<Script>();
@@ -150,7 +150,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public bool IgnoreBleed { get; set; }
 
         // Loot
-        public IList<Loot> Items { get; }
+        public IList<LootItem> Items { get; }
 
         // Attached Scripts
         public IList<Script> Scripts { get; }

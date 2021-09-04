@@ -490,7 +490,7 @@ namespace MonsterConverterTfsRevScriptSys
             return result;
         }
 
-        private static string LootListToRevScriptSysFormat(IList<Loot> items, int tabDepth = 1)
+        private static string LootListToRevScriptSysFormat(IList<LootItem> items, int tabDepth = 1)
         {
             string output = "";
             for (int i = 0; i < items.Count; i++)
@@ -505,7 +505,7 @@ namespace MonsterConverterTfsRevScriptSys
             return output;
         }
 
-        private static string LootItemToRevScriptSysFormat(Loot loot, int tabDepth)
+        private static string LootItemToRevScriptSysFormat(LootItem loot, int tabDepth)
         {
             string tabIndent = string.Concat(Enumerable.Repeat("\t", tabDepth));
             string rssLootLine;

@@ -134,7 +134,7 @@ namespace MonsterConverterPyOt
          */
         private string GenericToPyOTLoot(string lowerName, ref Monster monster)
         {
-            IList<Loot> flatListLoot = new List<Loot>();
+            IList<LootItem> flatListLoot = new List<LootItem>();
             FlattenNestedLoot(flatListLoot, monster.Items);
             string loot = "";
             foreach (var lootItem in flatListLoot.OrderByDescending(l => l.Chance))
@@ -154,7 +154,7 @@ namespace MonsterConverterPyOt
             return loot;
         }
 
-        private static void FlattenNestedLoot(IList<Loot> flatList, IList<Loot> nestedList)
+        private static void FlattenNestedLoot(IList<LootItem> flatList, IList<LootItem> nestedList)
         {
             foreach (var l in nestedList)
             {
@@ -163,7 +163,7 @@ namespace MonsterConverterPyOt
             }
         }
 
-        private static string LootItemToPyOtString(Loot lootItem)
+        private static string LootItemToPyOtString(LootItem lootItem)
         {
             string item = $"\"{lootItem.Name}\"";
             if (lootItem.Id > 0)

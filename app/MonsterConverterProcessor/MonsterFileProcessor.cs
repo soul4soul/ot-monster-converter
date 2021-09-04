@@ -110,14 +110,14 @@ namespace MonsterConverterProcessor
 
                     if ((itemConversionMethod == ItemConversionMethod.UseClientIds) && (input.ItemIdType == ItemIdType.Server))
                     {
-                        foreach (Loot item in monster.Items)
+                        foreach (LootItem item in monster.Items)
                         {
                             //itemMapping.FindByServerId();
                         }
                     }
                     else if ((itemConversionMethod == ItemConversionMethod.UseServerIds) && (input.ItemIdType == ItemIdType.Client))
                     {
-                        foreach (Loot item in monster.Items)
+                        foreach (LootItem item in monster.Items)
                         {
                             //itemMapping.FindByClientId();
                         }

@@ -765,7 +765,7 @@ namespace MonsterConverterTibiaWiki
                                 }
                                 count = (count > 0) ? count : 1;
 
-                                monster.Items.Add(new Loot()
+                                monster.Items.Add(new LootItem()
                                 {
                                     Name = item,
                                     Chance = (decimal)percent,
@@ -789,7 +789,7 @@ namespace MonsterConverterTibiaWiki
                                 if (lootItem.Parts.Length == 1)
                                 {
                                     // template name only
-                                    monster.Items.Add(new Loot() { Name = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT });
+                                    monster.Items.Add(new LootItem() { Name = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT });
                                 }
                                 else if (lootItem.Parts.Length == 2)
                                 {
@@ -797,13 +797,13 @@ namespace MonsterConverterTibiaWiki
                                     // Assumes first combination if parts[1] matches a rarity description
                                     if (TryParseTibiaWikiRarity(lootItem.Parts[1], out decimal chance))
                                     {
-                                        monster.Items.Add(new Loot() { Name = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT });
+                                        monster.Items.Add(new LootItem() { Name = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT });
                                     }
                                     else
                                     {
                                         if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
                                             max = DEFAULT_LOOT_COUNT;
-                                        monster.Items.Add(new Loot() { Name = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max });
+                                        monster.Items.Add(new LootItem() { Name = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max });
                                     }
                                 }
                                 else if (lootItem.Parts.Length == 3)
@@ -812,7 +812,7 @@ namespace MonsterConverterTibiaWiki
                                     if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
                                         max = DEFAULT_LOOT_COUNT;
                                     TryParseTibiaWikiRarity(lootItem.Parts[2], out decimal chance);
-                                    monster.Items.Add(new Loot() { Name = lootItem.Parts[1], Chance = chance, Count = max });
+                                    monster.Items.Add(new LootItem() { Name = lootItem.Parts[1], Chance = chance, Count = max });
                                 }
                             }
 
@@ -1340,7 +1340,7 @@ namespace MonsterConverterTibiaWiki
             return $"{{{{Sound List|{voice}}}}}";
         }
 
-        private static void FlattenNestedLoot(IDictionary<string, Loot> flatLoot, IList<Loot> items)
+        private static void FlattenNestedLoot(IDictionary<string, LootItem> flatLoot, IList<LootItem> items)
         {
             foreach (var l in items)
             {
@@ -1363,7 +1363,7 @@ namespace MonsterConverterTibiaWiki
             // Flatten loot list, TibiaWiki doesn't supported nested loot information
             // Merged duplicate items, TibiaWiki only lists 1 entry per item type
             // <item id OR name, Loot>
-            IDictionary<string, Loot> flatLoot = new Dictionary<string, Loot>();
+            IDictionary<string, LootItem> flatLoot = new Dictionary<string, LootItem>();
             FlattenNestedLoot(flatLoot, monster.Items);
 
             // Sort by drop chance to follow TibiaWiki practice
@@ -1375,7 +1375,7 @@ namespace MonsterConverterTibiaWiki
             return $"{{{{Loot List{lootList}}}}}";
         }
 
-        private static string GenericToTibiaWikiLoot(Loot loot)
+        private static string GenericToTibiaWikiLoot(LootItem loot)
         {
             string countPart = "1";
             if (loot.Count > 1)

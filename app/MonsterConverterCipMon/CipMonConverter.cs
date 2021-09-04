@@ -491,7 +491,7 @@ namespace MonsterConverterCipMon
                 var matches = Regex.Matches(m.Groups[1].Value, @"\((?<id>\d+), (?<count>\d+), (?<chance>\d+)\)", RegexOptions.Singleline);
                 foreach (Match match in matches)
                 {
-                    monster.Items.Add(new Loot()
+                    monster.Items.Add(new LootItem()
                     {
                         Id = ushort.Parse(match.Groups["id"].Value),
                         Count = int.Parse(match.Groups["count"].Value),
