@@ -127,26 +127,26 @@ namespace OTMonsterConverter
             string outputDir = textBoxOutputPath.Text;
             IMonsterConverter inputFormat = (IMonsterConverter)comboInputFormat.SelectedItem;
             IMonsterConverter outputFormat = (IMonsterConverter)comboOutputFormat.SelectedItem;
-            ScanError result = ScanError.Success;
+            ProcessorScanError result = ProcessorScanError.Success;
             await Task.Run(() =>
             {
-                result = fileProcessor.ConvertMonsterFiles(inputDir, inputFormat, outputDir, outputFormat, true);
+                result = fileProcessor.ConvertMonsterFiles(inputDir, inputFormat, outputDir, outputFormat, mirroredFolderStructure: true);
             });
             switch (result)
             {
-                case ScanError.Success:
+                case ProcessorScanError.Success:
                     textBlockScanStatus.Text = "Completed successfully.";
                     break;
-                case ScanError.NoMonstersFound:
+                case ProcessorScanError.NoMonstersFound:
                     textBlockScanStatus.Text = "Couldn't find any monster files.";
                     break;
-                case ScanError.InvalidInputDirectory:
+                case ProcessorScanError.InvalidInputDirectory:
                     textBlockScanStatus.Text = "The selected input directory is invald.";
                     break;
-                case ScanError.CouldNotCreateDirectory:
+                case ProcessorScanError.CouldNotCreateDirectory:
                     textBlockScanStatus.Text = "Couldn't create output directory.";
                     break;
-                case ScanError.DirectoriesMatch:
+                case ProcessorScanError.DirectoriesMatch:
                     textBlockScanStatus.Text = "Input and output directories can't be the same.";
                     break;
                 default:

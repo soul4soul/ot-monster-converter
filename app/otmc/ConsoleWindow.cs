@@ -93,32 +93,32 @@ namespace otmc
         public bool ScanFiles()
         {
             Console.WriteLine("Scanning...");
-            ScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, mirrorFolderStructure);
+            ProcessorScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, mirroredFolderStructure: mirrorFolderStructure);
             switch (result)
             {
-                case ScanError.Success:
+                case ProcessorScanError.Success:
                     Console.WriteLine("Completed.");
                     Console.WriteLine($"{ConvertSuccessCount} Monsters converted succesfully.");
                     Console.WriteLine($"{ConvertWarningCount} Monsters converted with warnings.");
                     Console.WriteLine($"{ConvertErrorCount} Monsters converted with errors.");
                     break;
-                case ScanError.NoMonstersFound:
+                case ProcessorScanError.NoMonstersFound:
                     Console.WriteLine("Couldn't find any monster files.");
                     break;
-                case ScanError.InvalidInputDirectory:
+                case ProcessorScanError.InvalidInputDirectory:
                     Console.WriteLine("The selected input directory is invald.");
                     break;
-                case ScanError.CouldNotCreateDirectory:
+                case ProcessorScanError.CouldNotCreateDirectory:
                     Console.WriteLine("Couldn't create output directory.");
                     break;
-                case ScanError.DirectoriesMatch:
+                case ProcessorScanError.DirectoriesMatch:
                     Console.WriteLine("Input and output directories can't be the same.");
                     break;
                 default:
                     break;
             }
 
-            return (result == ScanError.Success);
+            return (result == ProcessorScanError.Success);
         }
     }
 }
