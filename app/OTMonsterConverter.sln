@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTMonsterConverter", "OTMon
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterConverterProcessor", "MonsterConverterProcessor\MonsterConverterProcessor.csproj", "{D1055769-6ED5-4860-9AA9-904395698A89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterConverterCipMon", "MonsterConverterCipMon\MonsterConverterCipMon.csproj", "{BFFA95C9-04F4-44A9-A4D4-7E160F09F73E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterConverterCipMon", "MonsterConverterCipMon\MonsterConverterCipMon.csproj", "{BFFA95C9-04F4-44A9-A4D4-7E160F09F73E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTLib", "OTLib\OTLib.csproj", "{91A3AC64-A7CC-4E85-914C-187D49A551DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{BFFA95C9-04F4-44A9-A4D4-7E160F09F73E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFFA95C9-04F4-44A9-A4D4-7E160F09F73E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFFA95C9-04F4-44A9-A4D4-7E160F09F73E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91A3AC64-A7CC-4E85-914C-187D49A551DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91A3AC64-A7CC-4E85-914C-187D49A551DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91A3AC64-A7CC-4E85-914C-187D49A551DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91A3AC64-A7CC-4E85-914C-187D49A551DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
