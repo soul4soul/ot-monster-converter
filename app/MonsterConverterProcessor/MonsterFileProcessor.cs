@@ -2,6 +2,7 @@
 using MonsterConverterInterface.MonsterTypes;
 using OTLib.Collections;
 using OTLib.OTB;
+using OTLib.Server.Items;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -108,22 +109,55 @@ namespace MonsterConverterProcessor
                         Directory.CreateDirectory(outputDir);
                     }
 
+                    IList<string> lootConversionErrors = new List<string>();
                     if ((itemConversionMethod == ItemConversionMethod.UseClientIds) && (input.ItemIdType == ItemIdType.Server))
                     {
-                        foreach (LootItem item in monster.Items)
+                        for (int i = 0; i < monster.Items.Count; i++)
                         {
-                            //itemMapping.FindByServerId();
+                            LootItem item = monster.Items[i];
+                            var foundItems = itemMapping.FindByServerId(item.Id);
+                            if (foundItems.Count == 0)
+                            {
+                                lootConversionErrors.Add($"For given server id {item.ComboIdentifier} can't find client id");
+                            }
+                            else if (foundItems.Count >= 2)
+                            {
+                                string itemList = string.Join(",", foundItems.Select(fi => fi.ClientId));
+                                lootConversionErrors.Add($"For given server id {item.ComboIdentifier} multiple client ids found {itemList}");
+                            }
+                            else
+                            {
+                                item.Id = foundItems.First().ClientId;
+                            }
                         }
                     }
                     else if ((itemConversionMethod == ItemConversionMethod.UseServerIds) && (input.ItemIdType == ItemIdType.Client))
                     {
-                        foreach (LootItem item in monster.Items)
+                        for (int i = 0; i < monster.Items.Count; i++)
                         {
-                            //itemMapping.FindByClientId();
+                            LootItem item = monster.Items[i];
+                            var foundItems = itemMapping.FindByClientId(item.Id);
+                            if (foundItems.Count == 0)
+                            {
+                                lootConversionErrors.Add($"For given client id {item.ComboIdentifier} can't find server id");
+                            }
+                            else if (foundItems.Count >= 2)
+                            {
+                                string itemList = string.Join(",", foundItems.Select(fi => fi.ID));
+                                lootConversionErrors.Add($"For given client id {item.ComboIdentifier} multiple server ids found {itemList}");
+                            }
+                            else
+                            {
+                                item.Id = foundItems.First().ID;
+                            }
                         }
                     }
 
                     writeResult = output.WriteMonster(outputDir, ref monster);
+                    foreach (var msg in lootConversionErrors)
+                    {
+                        writeResult.AppendMessage(msg);
+                    }
                 }
             }
             catch (Exception ex)
