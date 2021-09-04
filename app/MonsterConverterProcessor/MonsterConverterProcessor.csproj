@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MonsterConverterInterface\MonsterConverterInterface.csproj" />
+    <ProjectReference Include="..\OTLib\OTLib.csproj" />
   </ItemGroup>
 
 </Project>
