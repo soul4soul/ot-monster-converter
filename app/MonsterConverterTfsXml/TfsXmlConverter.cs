@@ -677,12 +677,12 @@ namespace MonsterConverterTfsXml
                 item.Add(new XAttribute("id", loot.Id));
             }
 
-            if (string.IsNullOrWhiteSpace(loot.Name))
+            if (!string.IsNullOrWhiteSpace(loot.Name))
             {
                 item.Add(new XAttribute("name", loot.Name));
             }
 
-            item.Add(new XAttribute("name", new XAttribute("chance", Math.Round(loot.Chance * MAX_LOOTCHANCE))));
+            item.Add(new XAttribute("chance", Math.Round(loot.Chance * MAX_LOOTCHANCE)));
 
             if (loot.Count > 1)
             {

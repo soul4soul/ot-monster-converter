@@ -154,6 +154,10 @@ namespace MonsterConverterProcessor
                     }
 
                     writeResult = output.WriteMonster(outputDir, ref monster);
+                    if (lootConversionErrors.Count > 0)
+                    {
+                        writeResult.IncreaseError(ConvertError.Warning);
+                    }
                     foreach (var msg in lootConversionErrors)
                     {
                         writeResult.AppendMessage(msg);
