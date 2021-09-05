@@ -3,6 +3,7 @@ using MonsterConverterProcessor;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace otmc
 {
@@ -19,11 +20,13 @@ namespace otmc
             string outputDirectory = "";
             string inputFormat = "";
             string outputFormat = "";
+            string otbPath = "";
+            string itemConversionMethod = "";
             bool mirrorFolderStructure = true;
 
             PluginHelper plugins = await PluginHelper.Instance;
-            string inputConverterNames = "";
-            string outputConverterNames = "";
+            string inputConverterNames = "No Formats Found";
+            string outputConverterNames = "No Formats Found";
             foreach (var c in plugins.Converters)
             {
                 if (c.IsReadSupported)
@@ -31,19 +34,11 @@ namespace otmc
                 if (c.IsWriteSupported)
                     outputConverterNames += $"{c.ConverterName}, ";
             }
-            if (string.IsNullOrWhiteSpace(inputConverterNames))
-            {
-                inputConverterNames = "No Formats Found";
-            }
-            else
+            if (!string.IsNullOrWhiteSpace(inputConverterNames))
             {
                 inputConverterNames = inputConverterNames.Substring(0, inputConverterNames.Length - 2);
             }
-            if (string.IsNullOrWhiteSpace(outputConverterNames))
-            {
-                outputConverterNames = "No Formats Found";
-            }
-            else
+            if (!string.IsNullOrWhiteSpace(outputConverterNames))
             {
                 outputConverterNames = outputConverterNames.Substring(0, outputConverterNames.Length - 2);
             }
@@ -57,11 +52,14 @@ namespace otmc
                 { "o|outputDirectory=", "The output directory of the new monster files.", v => outputDirectory = v },
                 { "inputFormat=", "The starting input monster file format.", v => inputFormat = v },
                 { "outputFormat=", "The desired monster file format.", v => outputFormat = v },
+                { "otbPath=", "The path to an otb file.", v => otbPath = v },
+                { "c|conversionMethod=", "Desired item id types used for the converted monser loot.", v => itemConversionMethod = v },
                 { "m|MirrorFolders", "Mirror the folder structure of the input directory, otherwise flat folder structure is output", v => mirrorFolderStructure = v != null },
                 { "h|help",  "show this message and exit", v => showHelp = v != null },
                 "",
                 $"Input Formats: {inputConverterNames}",
                 $"Output Formats: {outputConverterNames}",
+                $"Item Conversion Methods: {string.Join(", ", Enum.GetValues(typeof(ItemConversionMethod)))}",
             };
 
             List<string> extra;
@@ -83,7 +81,7 @@ namespace otmc
                 return 0 ;
             }
 
-            ConsoleWindow consoleWindow = new ConsoleWindow(inputDirectory, outputDirectory, inputFormat, outputFormat, mirrorFolderStructure);
+            ConsoleWindow consoleWindow = new ConsoleWindow(inputDirectory, outputDirectory, inputFormat, outputFormat, otbPath, itemConversionMethod, mirrorFolderStructure);
             if (!consoleWindow.ValidateValues())
             {
                 return -2;

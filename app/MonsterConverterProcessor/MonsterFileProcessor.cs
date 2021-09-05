@@ -60,7 +60,7 @@ namespace MonsterConverterProcessor
                 OtbReader otbReader = new OtbReader();
                 if (!otbReader.Read(otbmPath))
                 {
-                    return ProcessorScanError.OtbmReadFailed;
+                    return ProcessorScanError.OtbReadFailed;
                 }
                 itemMapping = otbReader.Items;
             }

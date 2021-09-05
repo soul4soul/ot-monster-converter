@@ -13,6 +13,6 @@ namespace MonsterConverterProcessor
         NoMonstersFound,
         CouldNotCreateDirectory,
         DirectoriesMatch,
-        OtbmReadFailed,
+        OtbReadFailed,
     }
 }

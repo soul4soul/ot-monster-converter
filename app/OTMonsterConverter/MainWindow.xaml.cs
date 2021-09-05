@@ -1,5 +1,6 @@
 ﻿using MonsterConverterInterface;
 using MonsterConverterProcessor;
+using System;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows;
@@ -77,12 +78,12 @@ namespace OTMonsterConverter
                 textBoxOtbFilePath.IsEnabled = true;
             }
 
-            bool isOtbmConfigured = (((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds) ||
+            bool isOtbConfigured = (((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds) ||
                             (((ItemConversionMethod)comboItemConversion.SelectedItem != ItemConversionMethod.KeepSouceIds) && (textBoxOtbFilePath.Text != "")));
 
             if (buttonConvert != null)
             {
-                buttonConvert.IsEnabled = isInputOutputConfigured && isOtbmConfigured;
+                buttonConvert.IsEnabled = isInputOutputConfigured && isOtbConfigured;
             }
         }
 
@@ -97,9 +98,10 @@ namespace OTMonsterConverter
                     comboOutputFormat.Items.Add(p);
             }
 
-            comboItemConversion.Items.Add(ItemConversionMethod.KeepSouceIds);
-            comboItemConversion.Items.Add(ItemConversionMethod.UseServerIds);
-            comboItemConversion.Items.Add(ItemConversionMethod.UseClientIds);
+            foreach (var method in Enum.GetValues(typeof(ItemConversionMethod)))
+            {
+                comboItemConversion.Items.Add(method);
+            }
             comboItemConversion.SelectedItem = ItemConversionMethod.KeepSouceIds;
 
             ValidateControls();
@@ -170,6 +172,9 @@ namespace OTMonsterConverter
                     break;
                 case ProcessorScanError.DirectoriesMatch:
                     textBlockScanStatus.Text = "Input and output directories can't be the same.";
+                    break;
+                case ProcessorScanError.OtbReadFailed:
+                    textBlockScanStatus.Text = "Unable to read the specified OTB file.";
                     break;
                 default:
                     break;

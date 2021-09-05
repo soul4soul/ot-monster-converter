@@ -8,25 +8,30 @@ namespace otmc
     class ConsoleWindow
     {
         private MonsterFileProcessor fileProcessor;
-        private string inputDirectory;
-        private string outputDirectory;
+        private readonly string inputDirectory;
+        private readonly string outputDirectory;
+        private readonly string otbPath;
         private IMonsterConverter input;
         private IMonsterConverter output;
+        private ItemConversionMethod itemConversionMethod;
         private bool mirrorFolderStructure;
 
         private int ConvertSuccessCount = 0;
         private int ConvertWarningCount = 0;
         private int ConvertErrorCount = 0;
 
-        public ConsoleWindow(string inputDirectory, string outputDirectory, string inputFormatName, string outputFormatName, bool mirrorFolderStructure)
+        public ConsoleWindow(string inputDirectory, string outputDirectory, string inputFormatName, string outputFormatName, string otbPath, string itemConversionMethodValue, bool mirrorFolderStructure)
         {
             this.inputDirectory = inputDirectory;
             this.outputDirectory = outputDirectory;
+            this.otbPath = otbPath;
             this.mirrorFolderStructure = mirrorFolderStructure;
 
             PluginHelper plugins = PluginHelper.Instance.Task.Result;
             input = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == inputFormatName);
             output = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == outputFormatName);
+
+            itemConversionMethod = (ItemConversionMethod)Enum.Parse(typeof(ItemConversionMethod), itemConversionMethodValue);
 
             fileProcessor = new MonsterFileProcessor();
             fileProcessor.OnMonsterConverted += FileProcessor_OnMonsterConverted;
@@ -84,6 +89,11 @@ namespace otmc
                 Console.WriteLine("Output format was not specified or invalid");
                 return false;
             }
+            else if (!Enum.IsDefined(typeof(ItemConversionMethod), itemConversionMethod))
+            {
+                Console.WriteLine("Item Conversion method was not specified or invalid");
+                return false;
+            }
             else
             {
                 return true;
@@ -93,7 +103,7 @@ namespace otmc
         public bool ScanFiles()
         {
             Console.WriteLine("Scanning...");
-            ProcessorScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, mirroredFolderStructure: mirrorFolderStructure);
+            ProcessorScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, otbPath, itemConversionMethod, mirroredFolderStructure: mirrorFolderStructure);
             switch (result)
             {
                 case ProcessorScanError.Success:
@@ -113,6 +123,9 @@ namespace otmc
                     break;
                 case ProcessorScanError.DirectoriesMatch:
                     Console.WriteLine("Input and output directories can't be the same.");
+                    break;
+                case ProcessorScanError.OtbReadFailed:
+                    Console.WriteLine("Unable to read the specified OTB file.");
                     break;
                 default:
                     break;
