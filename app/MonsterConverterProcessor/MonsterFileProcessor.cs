@@ -115,19 +115,22 @@ namespace MonsterConverterProcessor
                         for (int i = 0; i < monster.Items.Count; i++)
                         {
                             LootItem item = monster.Items[i];
-                            var foundItems = itemMapping.FindByServerId(item.Id);
-                            if (foundItems.Count == 0)
+                            if (item.Id > 0)
                             {
-                                lootConversionErrors.Add($"For given server id {item.ComboIdentifier} can't find client id");
-                            }
-                            else if (foundItems.Count >= 2)
-                            {
-                                string itemList = string.Join(",", foundItems.Select(fi => fi.ClientId));
-                                lootConversionErrors.Add($"For given server id {item.ComboIdentifier} multiple client ids found {itemList}");
-                            }
-                            else
-                            {
-                                item.Id = foundItems.First().ClientId;
+                                var foundItems = itemMapping.FindByServerId(item.Id);
+                                if (foundItems.Count == 0)
+                                {
+                                    lootConversionErrors.Add($"For given server id {item.ComboIdentifier} can't find client id");
+                                }
+                                else if (foundItems.Count >= 2)
+                                {
+                                    string itemList = string.Join(",", foundItems.Select(fi => fi.ClientId));
+                                    lootConversionErrors.Add($"For given server id {item.ComboIdentifier} multiple client ids found {itemList}");
+                                }
+                                else
+                                {
+                                    item.Id = foundItems.First().ClientId;
+                                }
                             }
                         }
                     }
@@ -136,19 +139,22 @@ namespace MonsterConverterProcessor
                         for (int i = 0; i < monster.Items.Count; i++)
                         {
                             LootItem item = monster.Items[i];
-                            var foundItems = itemMapping.FindByClientId(item.Id);
-                            if (foundItems.Count == 0)
+                            if (item.Id > 0)
                             {
-                                lootConversionErrors.Add($"For given client id {item.ComboIdentifier} can't find server id");
-                            }
-                            else if (foundItems.Count >= 2)
-                            {
-                                string itemList = string.Join(",", foundItems.Select(fi => fi.ID));
-                                lootConversionErrors.Add($"For given client id {item.ComboIdentifier} multiple server ids found {itemList}");
-                            }
-                            else
-                            {
-                                item.Id = foundItems.First().ID;
+                                var foundItems = itemMapping.FindByClientId(item.Id);
+                                if (foundItems.Count == 0)
+                                {
+                                    lootConversionErrors.Add($"For given client id {item.ComboIdentifier} can't find server id");
+                                }
+                                else if (foundItems.Count >= 2)
+                                {
+                                    string itemList = string.Join(",", foundItems.Select(fi => fi.ID));
+                                    lootConversionErrors.Add($"For given client id {item.ComboIdentifier} multiple server ids found {itemList}");
+                                }
+                                else
+                                {
+                                    item.Id = foundItems.First().ID;
+                                }
                             }
                         }
                     }
