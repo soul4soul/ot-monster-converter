@@ -68,17 +68,17 @@ namespace OTMonsterConverter
             // Set enable state of otbm fields
             if ((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds)
             {
-                buttonOtbmFilePath.IsEnabled = false;
-                textBoxOtbmFilePath.IsEnabled = false;
+                buttonOtbFilePath.IsEnabled = false;
+                textBoxOtbFilePath.IsEnabled = false;
             }
             else
             {
-                buttonOtbmFilePath.IsEnabled = true;
-                textBoxOtbmFilePath.IsEnabled = true;
+                buttonOtbFilePath.IsEnabled = true;
+                textBoxOtbFilePath.IsEnabled = true;
             }
 
             bool isOtbmConfigured = (((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds) ||
-                            (((ItemConversionMethod)comboItemConversion.SelectedItem != ItemConversionMethod.KeepSouceIds) && (textBoxOtbmFilePath.Text != "")));
+                            (((ItemConversionMethod)comboItemConversion.SelectedItem != ItemConversionMethod.KeepSouceIds) && (textBoxOtbFilePath.Text != "")));
 
             if (buttonConvert != null)
             {
@@ -148,7 +148,7 @@ namespace OTMonsterConverter
             IMonsterConverter outputFormat = (IMonsterConverter)comboOutputFormat.SelectedItem;
             string outputDir = textBoxOutputPath.Text;
             ItemConversionMethod conversionMethod = (ItemConversionMethod)comboItemConversion.SelectedItem;
-            string otbPath = textBoxOtbmFilePath.Text;
+            string otbPath = textBoxOtbFilePath.Text;
             ProcessorScanError result = ProcessorScanError.Success;
             await Task.Run(() =>
             {
@@ -197,15 +197,15 @@ namespace OTMonsterConverter
             about.ShowDialog();
         }
 
-        private void buttonOtbmFilePath_Click(object sender, RoutedEventArgs e)
+        private void buttonOtbFilePath_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
+            var fileDialog = new Microsoft.Win32.OpenFileDialog();
             fileDialog.Filter = "Open Tibia Binary (.otb)|*.otb";
             fileDialog.DefaultExt = ".otb";
             fileDialog.Title = "Select an otb file";
             if (fileDialog.ShowDialog() == true)
             {
-                textBoxOtbmFilePath.Text = fileDialog.FileName;
+                textBoxOtbFilePath.Text = fileDialog.FileName;
             }
             ValidateControls();
         }

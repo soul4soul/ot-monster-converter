@@ -79,14 +79,14 @@
             <Label Grid.Row="4" Grid.Column="0" Content="Item Id Conversion"/>
             <ComboBox x:Name="comboItemConversion" Grid.Row="4" Grid.Column="1" Margin="5" SelectionChanged="comboItemConversion_SelectionChanged"/>
 
-            <Label Grid.Row="5" Grid.Column="0" Content="OTBM File"/>
+            <Label Grid.Row="5" Grid.Column="0" Content="OTB File"/>
             <Grid Grid.Row="5" Grid.Column="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="textBoxOtbmFilePath" Grid.Column="0" IsReadOnly="True" Margin="0, 0, 10, 0"/>
-                <Button x:Name="buttonOtbmFilePath" Grid.Column="1" Content="Browse" Width="75" Click="buttonOtbmFilePath_Click"/>
+                <TextBox x:Name="textBoxOtbFilePath" Grid.Column="0" IsReadOnly="True" Margin="0, 0, 10, 0"/>
+                <Button x:Name="buttonOtbFilePath" Grid.Column="1" Content="Browse" Width="75" Click="buttonOtbFilePath_Click"/>
             </Grid>
 
             <Button x:Name="buttonConvert" Grid.Row="6" Grid.ColumnSpan="2" Content="Convert" Margin="5" Click="buttonConvert_Click"/>
