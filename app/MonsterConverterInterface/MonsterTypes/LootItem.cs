@@ -4,16 +4,23 @@ using System.Text;
 
 namespace MonsterConverterInterface.MonsterTypes
 {
-    public class Loot
+    public class LootItem
     {
         private decimal chance = 0;
 
-        public Loot()
+        public LootItem()
         {
-            NestedLoot = new List<Loot>();
+            NestedLoot = new List<LootItem>();
         }
 
-        public string Item { get; set; }
+        public string ComboIdentifier
+        {
+            get { return $"{Id}:{Name}"; }
+        }
+
+        public ushort Id { get; set; }
+
+        public string Name { get; set; }
 
         public decimal Chance
         {
@@ -35,7 +42,7 @@ namespace MonsterConverterInterface.MonsterTypes
         /// </summary>
         public string Text { get; set; }
 
-        public List<Loot> NestedLoot { get; }
+        public List<LootItem> NestedLoot { get; }
 
         /// <summary>
         /// Free form string field not used by any engine, information stored here is useful for maintaining a server
@@ -47,11 +54,11 @@ namespace MonsterConverterInterface.MonsterTypes
         {
             if (NestedLoot.Count > 0)
             {
-                return $"{Item} {Count} {Chance:N4} (Nested: {NestedLoot.Count})";
+                return $"{ComboIdentifier} {Count} {Chance:N4} (Nested: {NestedLoot.Count})";
             }
             else
             {
-                return $"{Item} {Count} {Chance:N4}";
+                return $"{ComboIdentifier} {Count} {Chance:N4}";
             }
         }
     }

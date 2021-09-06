@@ -11,8 +11,6 @@ namespace MonsterConverterTfsRevScriptSys
     [Export(typeof(IMonsterConverter))]
     public class TfsRevScriptSysConverter : MonsterConverter
     {
-        public override string ConverterName { get => "TFS RevScriptSys"; }
-
         const uint MAX_LOOTCHANCE = 100000;
 
         IDictionary<ConditionType, string> ConditionToTfsConstant = new Dictionary<ConditionType, string>
@@ -211,7 +209,11 @@ namespace MonsterConverterTfsRevScriptSys
             { Blood.energy, "energy" }
         };
 
+        public override string ConverterName { get => "TFS RevScriptSys"; }
+
         public override string FileExt { get => "lua"; }
+
+        public override ItemIdType ItemIdType { get => ItemIdType.Server; }
 
         public override bool IsReadSupported { get => false; }
 
@@ -488,7 +490,7 @@ namespace MonsterConverterTfsRevScriptSys
             return result;
         }
 
-        private static string LootListToRevScriptSysFormat(IList<Loot> items, int tabDepth = 1)
+        private static string LootListToRevScriptSysFormat(IList<LootItem> items, int tabDepth = 1)
         {
             string output = "";
             for (int i = 0; i < items.Count; i++)
@@ -503,19 +505,19 @@ namespace MonsterConverterTfsRevScriptSys
             return output;
         }
 
-        private static string LootItemToRevScriptSysFormat(Loot loot, int tabDepth)
+        private static string LootItemToRevScriptSysFormat(LootItem loot, int tabDepth)
         {
             string tabIndent = string.Concat(Enumerable.Repeat("\t", tabDepth));
             string rssLootLine;
 
             string itemQuoted;
-            if (int.TryParse(loot.Item, out int itemid))
+            if (loot.Id > 0)
             {
-                itemQuoted = itemid.ToString();
+                itemQuoted = loot.Id.ToString();
             }
             else
             {
-                itemQuoted = $"\"{loot.Item}\"";
+                itemQuoted = $"\"{loot.Name}\"";
             }
 
             decimal chance = loot.Chance * MAX_LOOTCHANCE;
