@@ -9,6 +9,12 @@ namespace MonsterConverterInterface
         Web
     }
 
+    public enum ItemIdType
+    {
+        Server,
+        Client
+    }
+
     // name, isreadsupported, and iswritesupported can all be metadataattributes should that be valuable localfile source too
     // none of those fields deal with function they all are for information only
     public interface IMonsterConverter
@@ -18,6 +24,8 @@ namespace MonsterConverterInterface
         string FileExt { get; }
 
         FileSource FileSource { get; }
+
+        ItemIdType ItemIdType { get; }
 
         bool IsReadSupported { get; }
 

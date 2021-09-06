@@ -1,5 +1,6 @@
 ﻿using MonsterConverterInterface;
 using MonsterConverterProcessor;
+using System;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,9 +38,7 @@ namespace OTMonsterConverter
 
         private void ValidateControls()
         {
-            bool result = false;
-
-            // Control file selection controls properly
+            // Set enable state of input controls
             if (comboInputFormat.SelectedItem == null)
             {
                 textBoxInputPath.IsEnabled = true;
@@ -51,23 +50,40 @@ namespace OTMonsterConverter
                 buttonInputPath.IsEnabled = (((IMonsterConverter)comboInputFormat.SelectedItem).FileSource == FileSource.LocalFiles);
             }
 
-            // Determine that all finds are set correctly before the convert button is enabled
+            // Determine that all fields are set correctly before the convert button is enabled
+            bool isInputOutputConfigured;
             if ((comboInputFormat.SelectedItem != null) && (((IMonsterConverter)comboInputFormat.SelectedItem).FileSource == FileSource.Web))
             {
-                result = ((textBoxOutputPath.Text != "") &&
+                isInputOutputConfigured = ((textBoxOutputPath.Text != "") &&
                           (comboInputFormat.SelectedItem != null) &&
                           (comboOutputFormat.SelectedItem != null));
             }
             else
             {
-                result = ((textBoxInputPath.Text != "") &&
+                isInputOutputConfigured = ((textBoxInputPath.Text != "") &&
                           (textBoxOutputPath.Text != "") &&
                           (comboInputFormat.SelectedItem != null) &&
                           (comboOutputFormat.SelectedItem != null));
             }
+
+            // Set enable state of otbm fields
+            if ((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds)
+            {
+                buttonOtbFilePath.IsEnabled = false;
+                textBoxOtbFilePath.IsEnabled = false;
+            }
+            else
+            {
+                buttonOtbFilePath.IsEnabled = true;
+                textBoxOtbFilePath.IsEnabled = true;
+            }
+
+            bool isOtbConfigured = (((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds) ||
+                            (((ItemConversionMethod)comboItemConversion.SelectedItem != ItemConversionMethod.KeepSouceIds) && (textBoxOtbFilePath.Text != "")));
+
             if (buttonConvert != null)
             {
-                buttonConvert.IsEnabled = result;
+                buttonConvert.IsEnabled = isInputOutputConfigured && isOtbConfigured;
             }
         }
 
@@ -81,6 +97,12 @@ namespace OTMonsterConverter
                 if (p.IsWriteSupported)
                     comboOutputFormat.Items.Add(p);
             }
+
+            foreach (var method in Enum.GetValues(typeof(ItemConversionMethod)))
+            {
+                comboItemConversion.Items.Add(method);
+            }
+            comboItemConversion.SelectedItem = ItemConversionMethod.KeepSouceIds;
 
             ValidateControls();
             monsterListDataTable = new DataTable("MonsterList");
@@ -123,31 +145,36 @@ namespace OTMonsterConverter
 
             monsterListDataTable.Rows.Clear();
 
-            string inputDir = textBoxInputPath.Text;
-            string outputDir = textBoxOutputPath.Text;
             IMonsterConverter inputFormat = (IMonsterConverter)comboInputFormat.SelectedItem;
+            string inputDir = textBoxInputPath.Text;
             IMonsterConverter outputFormat = (IMonsterConverter)comboOutputFormat.SelectedItem;
-            ScanError result = ScanError.Success;
+            string outputDir = textBoxOutputPath.Text;
+            ItemConversionMethod conversionMethod = (ItemConversionMethod)comboItemConversion.SelectedItem;
+            string otbPath = textBoxOtbFilePath.Text;
+            ProcessorScanError result = ProcessorScanError.Success;
             await Task.Run(() =>
             {
-                result = fileProcessor.ConvertMonsterFiles(inputDir, inputFormat, outputDir, outputFormat, true);
+                result = fileProcessor.ConvertMonsterFiles(inputDir, inputFormat, outputDir, outputFormat, otbPath, conversionMethod, mirroredFolderStructure: true);
             });
             switch (result)
             {
-                case ScanError.Success:
+                case ProcessorScanError.Success:
                     textBlockScanStatus.Text = "Completed successfully.";
                     break;
-                case ScanError.NoMonstersFound:
+                case ProcessorScanError.NoMonstersFound:
                     textBlockScanStatus.Text = "Couldn't find any monster files.";
                     break;
-                case ScanError.InvalidInputDirectory:
+                case ProcessorScanError.InvalidInputDirectory:
                     textBlockScanStatus.Text = "The selected input directory is invald.";
                     break;
-                case ScanError.CouldNotCreateDirectory:
+                case ProcessorScanError.CouldNotCreateDirectory:
                     textBlockScanStatus.Text = "Couldn't create output directory.";
                     break;
-                case ScanError.DirectoriesMatch:
+                case ProcessorScanError.DirectoriesMatch:
                     textBlockScanStatus.Text = "Input and output directories can't be the same.";
+                    break;
+                case ProcessorScanError.OtbReadFailed:
+                    textBlockScanStatus.Text = "Unable to read the specified OTB file.";
                     break;
                 default:
                     break;
@@ -173,6 +200,24 @@ namespace OTMonsterConverter
         {
             var about = new AboutWindow();
             about.ShowDialog();
+        }
+
+        private void buttonOtbFilePath_Click(object sender, RoutedEventArgs e)
+        {
+            var fileDialog = new Microsoft.Win32.OpenFileDialog();
+            fileDialog.Filter = "Open Tibia Binary (.otb)|*.otb";
+            fileDialog.DefaultExt = ".otb";
+            fileDialog.Title = "Select an otb file";
+            if (fileDialog.ShowDialog() == true)
+            {
+                textBoxOtbFilePath.Text = fileDialog.FileName;
+            }
+            ValidateControls();
+        }
+
+        private void comboItemConversion_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ValidateControls();
         }
     }
 }

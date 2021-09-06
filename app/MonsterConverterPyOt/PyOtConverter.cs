@@ -18,6 +18,8 @@ namespace MonsterConverterPyOt
 
         public override string FileExt { get => "py"; }
 
+        public override ItemIdType ItemIdType { get => ItemIdType.Server; }
+
         public override bool IsReadSupported { get => false; }
 
         public override bool IsWriteSupported { get => true; }
@@ -132,7 +134,7 @@ namespace MonsterConverterPyOt
          */
         private string GenericToPyOTLoot(string lowerName, ref Monster monster)
         {
-            IList<Loot> flatListLoot = new List<Loot>();
+            IList<LootItem> flatListLoot = new List<LootItem>();
             FlattenNestedLoot(flatListLoot, monster.Items);
             string loot = "";
             foreach (var lootItem in flatListLoot.OrderByDescending(l => l.Chance))
@@ -152,7 +154,7 @@ namespace MonsterConverterPyOt
             return loot;
         }
 
-        private static void FlattenNestedLoot(IList<Loot> flatList, IList<Loot> nestedList)
+        private static void FlattenNestedLoot(IList<LootItem> flatList, IList<LootItem> nestedList)
         {
             foreach (var l in nestedList)
             {
@@ -161,16 +163,12 @@ namespace MonsterConverterPyOt
             }
         }
 
-        private static string LootItemToPyOtString(Loot lootItem)
+        private static string LootItemToPyOtString(LootItem lootItem)
         {
-            string item;
-            if (int.TryParse(lootItem.Item, out int itemid))
+            string item = $"\"{lootItem.Name}\"";
+            if (lootItem.Id > 0)
             {
-                item = itemid.ToString();
-            }
-            else
-            {
-                item = $"\"{lootItem.Item}\"";
+                item = lootItem.Id.ToString();
             }
 
             decimal chance = lootItem.Chance * 100;

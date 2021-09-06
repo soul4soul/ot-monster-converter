@@ -14,6 +14,8 @@ namespace MonsterConverterInterface
 
         public virtual FileSource FileSource { get => FileSource.LocalFiles; }
 
+        public abstract ItemIdType ItemIdType { get; }
+
         public abstract bool IsReadSupported { get; }
 
         public abstract bool IsWriteSupported { get; }

@@ -41,6 +41,8 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -74,9 +76,22 @@
                 <Button x:Name="buttonOutputPath" Grid.Column="1" Content="Browse" Width="75" Click="buttonOutputPath_Click"/>
             </Grid>
 
-            <Button x:Name="buttonConvert" Grid.Row="4" Grid.ColumnSpan="2" Content="Convert" Margin="5" Click="buttonConvert_Click"/>
+            <Label Grid.Row="4" Grid.Column="0" Content="Item Id Conversion"/>
+            <ComboBox x:Name="comboItemConversion" Grid.Row="4" Grid.Column="1" Margin="5" SelectionChanged="comboItemConversion_SelectionChanged"/>
 
-            <DataGrid x:Name="dataGridResults" Grid.Row="5" Grid.ColumnSpan="2" Margin="5" IsReadOnly="True"  AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False">
+            <Label Grid.Row="5" Grid.Column="0" Content="OTB File"/>
+            <Grid Grid.Row="5" Grid.Column="1" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="textBoxOtbFilePath" Grid.Column="0" IsReadOnly="True" Margin="0, 0, 10, 0"/>
+                <Button x:Name="buttonOtbFilePath" Grid.Column="1" Content="Browse" Width="75" Click="buttonOtbFilePath_Click"/>
+            </Grid>
+
+            <Button x:Name="buttonConvert" Grid.Row="6" Grid.ColumnSpan="2" Content="Convert" Margin="5" Click="buttonConvert_Click"/>
+
+            <DataGrid x:Name="dataGridResults" Grid.Row="7" Grid.ColumnSpan="2" Margin="5" IsReadOnly="True"  AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Source" Binding="{Binding Source.File}"/>
                     <DataGridTextColumn Header="Destination" Binding="{Binding Destination.File}"/>
