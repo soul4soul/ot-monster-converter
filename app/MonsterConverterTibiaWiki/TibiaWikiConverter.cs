@@ -17,10 +17,14 @@ namespace MonsterConverterTibiaWiki
     [Export(typeof(IMonsterConverter))]
     public class TibiaWikiConverter : MonsterConverter
     {
+        private record TibiaWikiItemData(string Name, string ActualName, string Ids) { }
+
         private const decimal DEFAULT_LOOT_CHANCE = 0.2M;
         private const int DEFAULT_LOOT_COUNT = 1;
 
         private static readonly HttpClient httpClient = new HttpClient();
+
+        private static IDictionary<string, TibiaWikiItemData> itemids = new Dictionary<string, TibiaWikiItemData>();
 
         // https://tibia.fandom.com/wiki/Missiles
         private static IDictionary<string, Animation> WikiMissilesToAnimations = new Dictionary<string, Animation>
@@ -723,15 +727,6 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private record TibiaWikiItemData(string Name, string ActualName, string Ids)
-        {
-            public bool IsSingleId
-            {
-                get { return int.TryParse(Ids, out int _); }
-            }
-        }
-
-        private static IDictionary<string, TibiaWikiItemData> itemids = new Dictionary<string, TibiaWikiItemData>();
         private static void GetItemIds()
         {
             string itemlisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text";
@@ -867,21 +862,27 @@ namespace MonsterConverterTibiaWiki
 
         private static void SetItemServerId(ref LootItem item, ref ConvertResultEventArgs result)
         {
-            if (itemids.ContainsKey(item.Name))
+            string loweredName = item.Name.ToLower();
+            if (itemids.ContainsKey(loweredName))
             {
-                if (!itemids[item.Name].IsSingleId)
+                if (ushort.TryParse(itemids[loweredName].Ids, out ushort _))
                 {
-                    string message = $"item {item} has missing or multiple ids {itemids[item.Name].Ids}";
+                    item.Id = ushort.Parse(itemids[loweredName].Ids);
+                }
+                else if (string.IsNullOrWhiteSpace(itemids[loweredName].Ids))
+                {
+                    string message = $"TibiaWiki is missing item id for item {loweredName}";
                     result.AppendMessage(message);
                 }
                 else
                 {
-                    item.Id = ushort.Parse(itemids[item.Name].Ids);
+                    string message = $"TibiaWiki has malformatted or multiple ids {itemids[loweredName].Ids} for item {loweredName}";
+                    result.AppendMessage(message);
                 }
             }
             else
             {
-                string message = $"Can't find item name {item}";
+                string message = $"TibiaWiki has no data for item name {loweredName}";
                 result.AppendMessage(message);
             }
         }
