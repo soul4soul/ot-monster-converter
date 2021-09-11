@@ -21,12 +21,12 @@ namespace otmc
             string inputFormat = "";
             string outputFormat = "";
             string otbPath = "";
-            string itemConversionMethod = "";
+            string itemConversionMethod = ItemConversionMethod.KeepSouceIds.ToString();
             bool mirrorFolderStructure = true;
 
             PluginHelper plugins = await PluginHelper.Instance;
-            string inputConverterNames = "No Formats Found";
-            string outputConverterNames = "No Formats Found";
+            string inputConverterNames = "";
+            string outputConverterNames = "";
             foreach (var c in plugins.Converters)
             {
                 if (c.IsReadSupported)
@@ -38,14 +38,26 @@ namespace otmc
             {
                 inputConverterNames = inputConverterNames.Substring(0, inputConverterNames.Length - 2);
             }
+            else
+            {
+                inputConverterNames = "No Formats Found";
+            }
             if (!string.IsNullOrWhiteSpace(outputConverterNames))
             {
                 outputConverterNames = outputConverterNames.Substring(0, outputConverterNames.Length - 2);
             }
+            else
+            {
+                outputConverterNames = "No Formats Found";
+            }
 
             var p = new OptionSet()
             {
-                "Usage: OTMonsterConverter [OPTIONS]+",
+                "OT Monster Converter:",
+                "Developed By Soul4Soul",
+                "Repository located at https://github.com/soul4soul/ot-monster-converter",
+                "",
+                "Usage: otmc [OPTIONS]+",
                 "",
                 "Options:",
                 { "i|inputDirectory=", "The directory of monster files to parse.", v => inputDirectory = v },
@@ -53,13 +65,13 @@ namespace otmc
                 { "inputFormat=", "The starting input monster file format.", v => inputFormat = v },
                 { "outputFormat=", "The desired monster file format.", v => outputFormat = v },
                 { "otbPath=", "The path to an otb file.", v => otbPath = v },
-                { "c|conversionMethod=", "Desired item id types used for the converted monser loot.", v => itemConversionMethod = v },
+                { "itemIdFormat=", "Desired item id types used for the converted monser loot.", v => itemConversionMethod = v },
                 { "m|MirrorFolders", "Mirror the folder structure of the input directory, otherwise flat folder structure is output", v => mirrorFolderStructure = v != null },
                 { "h|help",  "show this message and exit", v => showHelp = v != null },
                 "",
                 $"Input Formats: {inputConverterNames}",
                 $"Output Formats: {outputConverterNames}",
-                $"Item Conversion Methods: {string.Join(", ", Enum.GetValues(typeof(ItemConversionMethod)))}",
+                $"Item Id Formats: {string.Join(", ", Enum.GetNames(typeof(ItemConversionMethod)))}",
             };
 
             List<string> extra;
@@ -69,9 +81,9 @@ namespace otmc
             }
             catch (OptionException e)
             {
-                Console.Write("OTMonsterConverter: ");
+                Console.Write("OT Monster Converter: ");
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Try `OTMonsterConverter --help' for more information.");
+                Console.WriteLine("Try `otmc --help' for more information and if the issue persists report it.");
                 return -1;
             }
 

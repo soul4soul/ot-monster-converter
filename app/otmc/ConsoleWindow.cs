@@ -13,7 +13,7 @@ namespace otmc
         private readonly string otbPath;
         private IMonsterConverter input;
         private IMonsterConverter output;
-        private ItemConversionMethod itemConversionMethod;
+        private string itemConversionMethodValue;
         private bool mirrorFolderStructure;
 
         private int ConvertSuccessCount = 0;
@@ -26,12 +26,11 @@ namespace otmc
             this.outputDirectory = outputDirectory;
             this.otbPath = otbPath;
             this.mirrorFolderStructure = mirrorFolderStructure;
+            this.itemConversionMethodValue = itemConversionMethodValue;
 
             PluginHelper plugins = PluginHelper.Instance.Task.Result;
             input = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == inputFormatName);
             output = plugins.Converters.FirstOrDefault(mc => mc.ConverterName == outputFormatName);
-
-            itemConversionMethod = (ItemConversionMethod)Enum.Parse(typeof(ItemConversionMethod), itemConversionMethodValue);
 
             fileProcessor = new MonsterFileProcessor();
             fileProcessor.OnMonsterConverted += FileProcessor_OnMonsterConverted;
@@ -89,7 +88,7 @@ namespace otmc
                 Console.WriteLine("Output format was not specified or invalid");
                 return false;
             }
-            else if (!Enum.IsDefined(typeof(ItemConversionMethod), itemConversionMethod))
+            else if (!Enum.TryParse<ItemConversionMethod>(itemConversionMethodValue, out _))
             {
                 Console.WriteLine("Item Conversion method was not specified or invalid");
                 return false;
@@ -103,7 +102,7 @@ namespace otmc
         public bool ScanFiles()
         {
             Console.WriteLine("Scanning...");
-            ProcessorScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, otbPath, itemConversionMethod, mirroredFolderStructure: mirrorFolderStructure);
+            ProcessorScanError result = fileProcessor.ConvertMonsterFiles(inputDirectory, input, outputDirectory, output, otbPath, Enum.Parse<ItemConversionMethod>(itemConversionMethodValue), mirroredFolderStructure: mirrorFolderStructure);
             switch (result)
             {
                 case ProcessorScanError.Success:
