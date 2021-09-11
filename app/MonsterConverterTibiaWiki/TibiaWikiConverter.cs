@@ -798,7 +798,7 @@ namespace MonsterConverterTibiaWiki
                                     Chance = (decimal)percent,
                                     Count = count
                                 };
-                                SetItemServerId(ref lootItem, ref result);
+                                SetItemId(ref lootItem, ref result);
 
                                 monster.Items.Add(lootItem);
                             }
@@ -848,7 +848,7 @@ namespace MonsterConverterTibiaWiki
 
                                 if (genericLootItem != null)
                                 {
-                                    SetItemServerId(ref genericLootItem, ref result);
+                                    SetItemId(ref genericLootItem, ref result);
 
                                     monster.Items.Add(genericLootItem);
                                 }
@@ -860,7 +860,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void SetItemServerId(ref LootItem item, ref ConvertResultEventArgs result)
+        private static void SetItemId(ref LootItem item, ref ConvertResultEventArgs result)
         {
             string loweredName = item.Name.ToLower();
             if (itemids.ContainsKey(loweredName))
