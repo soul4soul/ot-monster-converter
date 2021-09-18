@@ -299,7 +299,7 @@ namespace MonsterConverterTibiaWiki
         {
             if (TemplateParser.IsTemplateMatch<SoundListTemplate>(sounds))
             {
-                var soundTemplated = TemplateParser.Deseralize<SoundListTemplate>(sounds);
+                var soundTemplated = TemplateParser.Deserialize<SoundListTemplate>(sounds);
                 if (soundTemplated.Sounds != null)
                 {
                     foreach (string sound in soundTemplated.Sounds)
@@ -434,7 +434,7 @@ namespace MonsterConverterTibiaWiki
 
         private static void ParseAbilityList(Monster mon, string abilities)
         {
-            var abilityList = TemplateParser.Deseralize<AbilityListTemplate>(abilities);
+            var abilityList = TemplateParser.Deserialize<AbilityListTemplate>(abilities);
 
             if (abilityList.Ability != null)
             {
@@ -442,7 +442,7 @@ namespace MonsterConverterTibiaWiki
                 {
                     if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
                     {
-                        var melee = TemplateParser.Deseralize<MeleeTemplate>(ability);
+                        var melee = TemplateParser.Deserialize<MeleeTemplate>(ability);
                         var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
                         if (TryParseRange(melee.Damage, out int min, out int max))
                         {
@@ -457,7 +457,7 @@ namespace MonsterConverterTibiaWiki
                     }
                     if (TemplateParser.IsTemplateMatch<HealingTemplate>(ability))
                     {
-                        var healing = TemplateParser.Deseralize<HealingTemplate>(ability);
+                        var healing = TemplateParser.Deserialize<HealingTemplate>(ability);
                         var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
                         if (TryParseRange(healing.Damage, out int min, out int max))
                         {
@@ -474,7 +474,7 @@ namespace MonsterConverterTibiaWiki
                     }
                     if (TemplateParser.IsTemplateMatch<SummonTemplate>(ability))
                     {
-                        var summon = TemplateParser.Deseralize<SummonTemplate>(ability);
+                        var summon = TemplateParser.Deserialize<SummonTemplate>(ability);
                         int maxSummons = 1;
                         TryParseRange(summon.Amount, out int min, out maxSummons);
                         mon.MaxSummons += maxSummons;
@@ -491,7 +491,7 @@ namespace MonsterConverterTibiaWiki
                     }
                     if (TemplateParser.IsTemplateMatch<HasteTemplate>(ability))
                     {
-                        var haste = TemplateParser.Deseralize<HasteTemplate>(ability);
+                        var haste = TemplateParser.Deserialize<HasteTemplate>(ability);
                         int MinSpeedChange = 300;
                         int MaxSpeedChange = 300;
                         int Duration = 7000;
@@ -506,7 +506,7 @@ namespace MonsterConverterTibiaWiki
                     }
                     if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
                     {
-                        var abilityObj = TemplateParser.Deseralize<AbilityTemplate>(ability);
+                        var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
                         if (TryParseScene(abilityObj.Scene, out Spell spell))
                         {
                             spell.Name = "combat";
@@ -553,7 +553,7 @@ namespace MonsterConverterTibiaWiki
             if (!TemplateParser.IsTemplateMatch<SceneTemplate>(input))
                 return false;
 
-            SceneTemplate scene = TemplateParser.Deseralize<SceneTemplate>(input);
+            SceneTemplate scene = TemplateParser.Deserialize<SceneTemplate>(input);
             if ((scene.Missile != null) && (WikiMissilesToAnimations.ContainsKey(scene.Missile)))
             {
                 spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
@@ -744,7 +744,7 @@ namespace MonsterConverterTibiaWiki
 
         private static void ParseLoot(Monster monster, string lootTable, string filename, ref ConvertResultEventArgs result)
         {
-            var lootTableTemplate = TemplateParser.Deseralize<LootTableTemplate>(lootTable);
+            var lootTableTemplate = TemplateParser.Deserialize<LootTableTemplate>(lootTable);
             if ((lootTableTemplate.Loot != null) && (lootTableTemplate.Loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.Loot[0])))
             {
                 // Request for full loot stats now that we are sure monster has loot
@@ -813,7 +813,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         if (TemplateParser.IsTemplateMatch<LootItemTemplate>(loot))
                         {
-                            LootItemTemplate lootItem = TemplateParser.Deseralize<LootItemTemplate>(loot);
+                            LootItemTemplate lootItem = TemplateParser.Deserialize<LootItemTemplate>(loot);
                             if (lootItem.Parts != null)
                             {
                                 LootItem genericLootItem = null;
@@ -1216,7 +1216,7 @@ namespace MonsterConverterTibiaWiki
             int intVal;
             bool boolVal;
             var monsterPage = RequestData(monsterurl).Result;
-            InfoboxCreatureTemplate creature = TemplateParser.Deseralize<InfoboxCreatureTemplate>(monsterPage.Wikitext.Empty);
+            InfoboxCreatureTemplate creature = TemplateParser.Deserialize<InfoboxCreatureTemplate>(monsterPage.Wikitext.Empty);
             monster = new Monster();
             if (!string.IsNullOrWhiteSpace(creature.Name)) { monster.RegisteredName = monster.FileName = creature.Name; }
             if (!string.IsNullOrWhiteSpace(creature.ActualName)) { monster.Name = creature.ActualName; }

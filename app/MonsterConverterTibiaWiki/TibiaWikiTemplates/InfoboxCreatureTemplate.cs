@@ -3,6 +3,14 @@
     [TemplateName("Infobox Creature", Url = "https://tibia.fandom.com/wiki/Template:Infobox_Creature")]
     class InfoboxCreatureTemplate
     {
+        // Unknown purpose parameter used by tibiawiki, default the value for compliant output
+        [TemplateParameter(Index = 0, Required = ParameterRequired.Yes, Indicator = ParameterIndicator.Name)]
+        public string List { get; set; } = "{{{1|}}}";
+
+        // Unknown purpose parameter used by tibiawiki, default the value for compliant output
+        [TemplateParameter(Index = 1, Required = ParameterRequired.Yes, Indicator = ParameterIndicator.Name)]
+        public string GetValue { get; set; } = "{{{GetValue|}}}";
+
         [TemplateParameter(Index = 2, Required = ParameterRequired.Yes, Indicator = ParameterIndicator.Name)]
         public string Name { get; set; }
 

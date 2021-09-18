@@ -11,6 +11,7 @@ namespace MonsterConverterTibiaWiki
     static class TemplateParser
     {
         private static readonly IDictionary<Type, IDictionary<string, PropertyInfo>> typePropInfoDic = new Dictionary<Type, IDictionary<string, PropertyInfo>>();
+        private static readonly IDictionary<Type, IList<PropInfoWithTemplateAttr>> typeOrderedPropInfo = new Dictionary<Type, IList<PropInfoWithTemplateAttr>>();
 
         public static bool IsTemplateMatch<T>(string input)
         {
@@ -29,7 +30,109 @@ namespace MonsterConverterTibiaWiki
             return templateWholeRegex.Match(input).Success;
         }
 
-        public static T Deseralize<T>(string input) where T : new()
+        public static string Serialize<T>(T input, bool isSingleLine = true) where T : new()
+        {
+            Type myType = typeof(T);
+            string templateName = myType.Name;
+            TemplateNameAttribute attr = GetTemplateNameAttribute(myType);
+            if (attr != null)
+            {
+                templateName = attr.Name;
+            }
+
+            if (!typeOrderedPropInfo.ContainsKey(myType))
+                typeOrderedPropInfo.Add(myType, GetIndexedPropertyNames2(myType));
+            var indexedPropertyNames = typeOrderedPropInfo[myType];
+
+            // Used to align equal signs for multiline output
+            var longestParamName = 0;
+            foreach (var propInfoTemplateAttr in indexedPropertyNames)
+            {
+                string name = propInfoTemplateAttr.PropertyInfo.Name;
+                if (!string.IsNullOrWhiteSpace(propInfoTemplateAttr.TemplateNameAttribute.Name))
+                {
+                    name = propInfoTemplateAttr.TemplateNameAttribute.Name;
+                }
+                if (name.Length > longestParamName)
+                {
+                    longestParamName = name.Length;
+                }
+            }
+
+            string paramPrefix = isSingleLine ? "|" : $"{Environment.NewLine}| ";
+            string paramAfterEqualAlignment = isSingleLine ? "" : " ";
+            string templateClosingAlignment = isSingleLine ? "" : $"{Environment.NewLine}";
+
+            string output = $"{{{{{templateName}";
+            foreach (var propInfoTemplateAttr in indexedPropertyNames)
+            {
+                string name = propInfoTemplateAttr.PropertyInfo.Name;
+                if (!string.IsNullOrWhiteSpace(propInfoTemplateAttr.TemplateNameAttribute.Name))
+                {
+                    name = propInfoTemplateAttr.TemplateNameAttribute.Name;
+                }
+
+                object value;
+                if (propInfoTemplateAttr.PropertyInfo.PropertyType.IsArray)
+                {
+                    object objArray = propInfoTemplateAttr.PropertyInfo.GetValue(input, new object[0]);
+                    value = string.Join("|", objArray as object[]);
+                }
+                else
+                {
+                    value = propInfoTemplateAttr.PropertyInfo.GetValue(input);
+                }
+
+                if (value == null && propInfoTemplateAttr.TemplateNameAttribute.Required == ParameterRequired.No)
+                {
+                    continue;
+                }
+
+                if (propInfoTemplateAttr.TemplateNameAttribute.Indicator == ParameterIndicator.Name)
+                {
+                    string paramBeforeEqualAlignment = "";
+                    if (!isSingleLine)
+                    {
+                        int spaceCount = longestParamName - name.Length + 1;
+                        paramBeforeEqualAlignment = " ".Multiply(spaceCount);
+                    }
+                    output += $"{paramPrefix}{name}{paramBeforeEqualAlignment}={paramAfterEqualAlignment}{value}";
+                }
+                else
+                {
+                    output += $"{paramPrefix}{value}";
+                }
+            }
+            output += $"{templateClosingAlignment}}}}}";
+
+            return output;
+        }
+
+        private record PropInfoWithTemplateAttr(PropertyInfo PropertyInfo, TemplateParameterAttribute TemplateNameAttribute);
+
+        private static IList<PropInfoWithTemplateAttr> GetIndexedPropertyNames2(Type myType)
+        {
+            IList<PropInfoWithTemplateAttr> result = new List<PropInfoWithTemplateAttr>();
+
+            foreach (PropertyInfo pi in myType.GetProperties())
+            {
+                object[] attrObjs = pi.GetCustomAttributes(typeof(TemplateParameterAttribute), false);
+                if (attrObjs.Length == 0) { continue; }
+
+                foreach (var attrObj in attrObjs)
+                {
+                    TemplateParameterAttribute templateParmAttr = attrObj as TemplateParameterAttribute;
+                    if (templateParmAttr != null)
+                    {
+                        result.Add(new PropInfoWithTemplateAttr(pi, templateParmAttr));
+                    }
+                }
+            }
+
+            return result.OrderBy(p => p.TemplateNameAttribute.Index).ToList();
+        }
+
+        public static T Deserialize<T>(string input) where T : new()
         {
             if (input == null)
             {
@@ -142,10 +245,12 @@ namespace MonsterConverterTibiaWiki
         private static TemplateNameAttribute GetTemplateNameAttribute(MemberInfo element)
         {
             Attribute[] attrs = Attribute.GetCustomAttributes(element, typeof(TemplateNameAttribute));
-            if (attrs.Length >= 1)
-                return attrs[0] as TemplateNameAttribute;
-            else
-                return null;
+            foreach (var attrObj in attrs)
+            {
+                if (attrObj is TemplateNameAttribute)
+                    return attrObj as TemplateNameAttribute;
+            }
+            return null;
         }
 
         private static IDictionary<string, PropertyInfo> GetIndexedPropertyNames(Type myType)
@@ -158,16 +263,21 @@ namespace MonsterConverterTibiaWiki
                 object[] attrObjs = pi.GetCustomAttributes(typeof(TemplateParameterAttribute), false);
                 if (attrObjs.Length == 0) { continue; }
 
-                TemplateParameterAttribute templateParmAttr = attrObjs[0] as TemplateParameterAttribute;
+                foreach (var attrObj in attrObjs)
+                {
+                    TemplateParameterAttribute templateParmAttr = attrObj as TemplateParameterAttribute;
+                    if (templateParmAttr != null)
+                    {
+                        string loopUpName = pi.Name.ToLower();
+                        if (!string.IsNullOrWhiteSpace(templateParmAttr.Name))
+                            loopUpName = templateParmAttr.Name.ToLower();
 
-                string loopUpName = pi.Name.ToLower();
-                if (!string.IsNullOrWhiteSpace(templateParmAttr.Name))
-                    loopUpName = templateParmAttr.Name.ToLower();
-
-                if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Position))
-                    propInfoDic.Add(templateParmAttr.Index.ToString(), pi);
-                if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Name))
-                    propInfoDic.Add(loopUpName, pi);
+                        if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Position))
+                            propInfoDic.Add(templateParmAttr.Index.ToString(), pi);
+                        if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Name))
+                            propInfoDic.Add(loopUpName, pi);
+                    }
+                }
             }
 
             return propInfoDic;
