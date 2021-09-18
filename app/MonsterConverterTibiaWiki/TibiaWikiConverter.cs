@@ -1275,52 +1275,52 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
-            string[] lines =
+            InfoboxCreatureTemplate creature = new InfoboxCreatureTemplate()
             {
-                "{{Infobox Creature|List={{{1|}}}|GetValue={{{GetValue|}}}",
-                $"| name           = {monster.RegisteredName}",
-                $"| hp             = {monster.Health}",
-                $"| actualname     = {monster.Name}",
-                $"| exp            = {monster.Experience}",
-                $"| armor          = {monster.TotalArmor}",
-                string.Format("| summon         = {0}", monster.SummonCost > 0 ? monster.SummonCost.ToString() : "--"),
-                string.Format("| convince       = {0}", monster.ConvinceCost > 0 ? monster.ConvinceCost.ToString() : "--"),
-                string.Format("| illusionable   = {0}", monster.IsIllusionable ? "yes" : "no"),
-                string.Format("| primarytype    = {0}", monster.HideHealth ? "trap" : ""),
-                $"| class          = {monster.Bestiary.Class}",
-                $"| bestiarylevel  = {GenericToTibiaWikiBestiaryLevel(ref monster)}",
-                $"| occurence      = {GenericToTibiaWikiOccurennce(ref monster)}",
-                string.Format("| spawntype    = {0}", monster.IgnoreSpawnBlock ? "Unblockable" : ""),
-                string.Format("| isboss         = {0}", monster.IsBoss ? "yes" : "no"),
-                string.Format("| pushable       = {0}", monster.IsPushable ? "yes" : "no"),
-                string.Format("| pushobjects    = {0}", monster.PushItems ? "yes" : "no"),
-                $"| walksaround    = {GenericToTibiaWikiWalkAround(ref monster)}",
-                $"| walksthrough   = {GenericToTibiaWikiWalkThrough(ref monster)}",
-                string.Format("| paraimmune     = {0}", monster.IgnoreParalyze ? "yes" : "no"),
-                string.Format("| senseinvis     = {0}", monster.IgnoreInvisible ? "yes" : "no"),
-                $"| physicalDmgMod = {monster.PhysicalDmgMod * 100:0}%",
-                $"| earthDmgMod    = {monster.EarthDmgMod * 100:0}%",
-                $"| fireDmgMod     = {monster.FireDmgMod * 100:0}%",
-                $"| deathDmgMod    = {monster.DeathDmgMod * 100:0}%",
-                $"| energyDmgMod   = {monster.EnergyDmgMod * 100:0}%",
-                $"| holyDmgMod     = {monster.HolyDmgMod * 100:0}%",
-                $"| iceDmgMod      = {monster.IceDmgMod * 100:0}%",
-                $"| healMod        = {monster.HealingMod * 100:0}%",
-                $"| hpDrainDmgMod  = {monster.LifeDrainDmgMod * 100:0}%",
-                $"| drownDmgMod    = {monster.DrownDmgMod * 100:0}%",
-                $"| sounds         = {GenericToTibiaWikiVoice(ref monster)}",
-                $"| runsat         = {monster.RunOnHealth}",
-                $"| speed          = {monster.Speed}",
-                $"| location       = {monster.Bestiary.Location}",
-                $"| loot           = {GenericToTibiaWikiLootList(ref monster)}"
+                Name = monster.RegisteredName,
+                Hp = monster.Health.ToString(),
+                ActualName = monster.Name,
+                Exp = monster.Experience.ToString(),
+                Armor = monster.TotalArmor.ToString(),
+                Summon = monster.SummonCost > 0 ? monster.SummonCost.ToString() : "--",
+                Convince = monster.ConvinceCost > 0 ? monster.ConvinceCost.ToString() : "--",
+                Illusionable = monster.IsIllusionable ? "yes" : "no",
+                PrimaryType = monster.HideHealth ? "trap" : "",
+                BestiaryClass = monster.Bestiary.Class,
+                BestiaryLevel = GenericToTibiaWikiBestiaryLevel(monster),
+                Occurrence = GenericToTibiaWikiOccurennce(monster),
+                SpawnType = monster.IgnoreSpawnBlock ? "Unblockable" : "",
+                IsBoss = monster.IsBoss ? "yes" : "no",
+                Pushable = monster.IsPushable ? "yes" : "no",
+                PushObjects = monster.PushItems ? "yes" : "no",
+                WalksAround = GenericToTibiaWikiWalkAround(monster),
+                WalksThrough = GenericToTibiaWikiWalkThrough(monster),
+                ParaImmune = monster.IgnoreParalyze ? "yes" : "no",
+                SenseInvis = monster.IgnoreInvisible ? "yes" : "no",
+                PhysicalDmgMod = $"{monster.PhysicalDmgMod * 100:0}%",
+                EarthDmgMod = $"{monster.EarthDmgMod * 100:0}%",
+                FireDmgMod = $"{monster.FireDmgMod * 100:0}%",
+                DeathDmgMod = $"{monster.DeathDmgMod * 100:0}%",
+                EnergyDmgMod = $"{monster.EnergyDmgMod * 100:0}%",
+                HolyDmgMod = $"{monster.HolyDmgMod * 100:0}%",
+                IceDmgMod = $"{monster.IceDmgMod * 100:0}%",
+                HealMod = $"{monster.HealingMod * 100:0}%",
+                LifeDrainDmgMod = $"{monster.LifeDrainDmgMod * 100:0}%",
+                DrownDmgMod = $"{monster.DrownDmgMod * 100:0}%",
+                Sounds = GenericToTibiaWikiVoice(monster),
+                RunsAt = monster.RunOnHealth.ToString(),
+                Speed = monster.Speed.ToString(),
+                Location = monster.Bestiary.Location,
+                Loot = GenericToTibiaWikiLootList(monster)
             };
+            string output = TemplateParser.Serialize(creature, false);
             string fileName = Path.Combine(directory, monster.FileName);
-            File.WriteAllLines(fileName, lines);
+            File.WriteAllText(fileName, output);
 
             return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Summons, abilities, and description information is not written.");
         }
 
-        private object GenericToTibiaWikiOccurennce(ref Monster monster)
+        private string GenericToTibiaWikiOccurennce(Monster monster)
         {
             if (monster.Bestiary.OccuranceDiamondCount < 0)
                 return "Common";
@@ -1332,7 +1332,7 @@ namespace MonsterConverterTibiaWiki
                 return "Very Rare";
         }
 
-        private object GenericToTibiaWikiBestiaryLevel(ref Monster monster)
+        private string GenericToTibiaWikiBestiaryLevel(Monster monster)
         {
             if (monster.Bestiary.DifficultlyStarCount < 0)
                 return "Harmless";
@@ -1348,7 +1348,7 @@ namespace MonsterConverterTibiaWiki
                 return "Challenging";
         }
 
-        private static string GenericToTibiaWikiWalkAround(ref Monster monster)
+        private static string GenericToTibiaWikiWalkAround(Monster monster)
         {
             string walks = "";
             if (monster.AvoidFire)
@@ -1373,7 +1373,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static string GenericToTibiaWikiWalkThrough(ref Monster monster)
+        private static string GenericToTibiaWikiWalkThrough(Monster monster)
         {
             string walks = "";
             if (!monster.AvoidFire)
@@ -1398,21 +1398,11 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static string GenericToTibiaWikiVoice(ref Monster monster)
+        private static string GenericToTibiaWikiVoice(Monster monster)
         {
-            string voice = "";
-            foreach (var v in monster.Voices)
-            {
-                if (string.IsNullOrWhiteSpace(voice))
-                {
-                    voice = v.Sound;
-                }
-                else
-                {
-                    voice = $"{voice}|{v.Sound}";
-                }
-            }
-            return $"{{{{Sound List|{voice}}}}}";
+            SoundListTemplate sound = new SoundListTemplate();
+            sound.Sounds = monster.Voices.Select(v => v.Sound).ToArray();
+            return TemplateParser.Serialize(sound, true);
         }
 
         private static void FlattenNestedLoot(IDictionary<string, LootItem> flatLoot, IList<LootItem> items)
@@ -1433,7 +1423,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static string GenericToTibiaWikiLootList(ref Monster monster)
+        private static string GenericToTibiaWikiLootList(Monster monster)
         {
             // Flatten loot list, TibiaWiki doesn't supported nested loot information
             // Merged duplicate items, TibiaWiki only lists 1 entry per item type
@@ -1442,12 +1432,9 @@ namespace MonsterConverterTibiaWiki
             FlattenNestedLoot(flatLoot, monster.Items);
 
             // Sort by drop chance to follow TibiaWiki practice
-            string lootList = "";
-            foreach (var l in flatLoot.OrderByDescending(kv => kv.Value.Chance))
-            {
-                lootList = $"{lootList}{Environment.NewLine}|{GenericToTibiaWikiLoot(l.Value)}";
-            }
-            return $"{{{{Loot List{lootList}}}}}";
+            LootTableTemplate lootTable = new LootTableTemplate();
+            lootTable.Loot = flatLoot.OrderByDescending(kv => kv.Value.Chance).Select(kv => GenericToTibiaWikiLoot(kv.Value)).ToArray();
+            return TemplateParser.Serialize(lootTable, false);
         }
 
         private static string GenericToTibiaWikiLoot(LootItem loot)
