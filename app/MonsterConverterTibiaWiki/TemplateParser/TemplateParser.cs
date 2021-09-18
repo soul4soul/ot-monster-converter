@@ -76,7 +76,7 @@ namespace MonsterConverterTibiaWiki
                 if (propInfoTemplateAttr.PropertyInfo.PropertyType.IsArray)
                 {
                     object objArray = propInfoTemplateAttr.PropertyInfo.GetValue(input, new object[0]);
-                    value = string.Join("|", objArray as object[]);
+                    value = string.Join($"{paramPrefix}", objArray as object[]);
                 }
                 else
                 {
