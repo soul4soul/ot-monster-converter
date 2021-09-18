@@ -41,7 +41,7 @@ namespace MonsterConverterTibiaWiki
             }
 
             if (!typeOrderedPropInfo.ContainsKey(myType))
-                typeOrderedPropInfo.Add(myType, GetIndexedPropertyNames2(myType));
+                typeOrderedPropInfo.Add(myType, GetOrderedPropertyNames(myType));
             var indexedPropertyNames = typeOrderedPropInfo[myType];
 
             // Used to align equal signs for multiline output
@@ -110,7 +110,7 @@ namespace MonsterConverterTibiaWiki
 
         private record PropInfoWithTemplateAttr(PropertyInfo PropertyInfo, TemplateParameterAttribute TemplateNameAttribute);
 
-        private static IList<PropInfoWithTemplateAttr> GetIndexedPropertyNames2(Type myType)
+        private static IList<PropInfoWithTemplateAttr> GetOrderedPropertyNames(Type myType)
         {
             IList<PropInfoWithTemplateAttr> result = new List<PropInfoWithTemplateAttr>();
 
