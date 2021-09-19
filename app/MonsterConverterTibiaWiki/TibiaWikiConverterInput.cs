@@ -1059,10 +1059,10 @@ namespace MonsterConverterTibiaWiki
                     spell.Range = 5;
                     break;
                 case "great_explosion":
-                    spell.Radius = 4;
+                    spell.Radius = 5;
                     break;
                 case "3x3spell":
-                    spell.Radius = 3;
+                    spell.Radius = 4;
                     break;
                 case "xspell":
                     break;
@@ -1086,23 +1086,23 @@ namespace MonsterConverterTibiaWiki
                     spell.Spread = 5;
                     break;
                 case "1sqmballtarget":
-                    spell.Radius = 1;
-                    spell.OnTarget = true;
-                    break;
-                case "2sqmballtarget":
                     spell.Radius = 2;
                     spell.OnTarget = true;
                     break;
-                case "3sqmballtarget":
+                case "2sqmballtarget":
                     spell.Radius = 3;
                     spell.OnTarget = true;
                     break;
-                case "4sqmballtarget":
+                case "3sqmballtarget":
                     spell.Radius = 4;
                     spell.OnTarget = true;
                     break;
-                case "5sqmballtarget":
+                case "4sqmballtarget":
                     spell.Radius = 5;
+                    spell.OnTarget = true;
+                    break;
+                case "5sqmballtarget":
+                    spell.Radius = 6;
                     spell.OnTarget = true;
                     break;
                 case "8sqmwave":
@@ -1122,15 +1122,15 @@ namespace MonsterConverterTibiaWiki
                 case "4sqmring":
                     break;
                 case "4sqmballself":
-                    spell.Radius = 4;
-                    spell.OnTarget = false;
-                    break;
-                case "5sqmballself":
                     spell.Radius = 5;
                     spell.OnTarget = false;
                     break;
-                case "6sqmballself":
+                case "5sqmballself":
                     spell.Radius = 6;
+                    spell.OnTarget = false;
+                    break;
+                case "6sqmballself":
+                    spell.Radius = 7;
                     spell.OnTarget = false;
                     break;
                 case "4sqmbeam":

@@ -48,6 +48,7 @@ namespace MonsterConverterTibiaWiki
                 Sounds = GenericToTibiaWikiVoice(monster),
                 RunsAt = monster.RunOnHealth.ToString(),
                 Speed = monster.Speed.ToString(),
+                Abilities = GenericToTibiaWikiAbilities(monster),
                 Location = monster.Bestiary.Location,
                 Loot = GenericToTibiaWikiLootList(monster)
             };
@@ -209,6 +210,281 @@ namespace MonsterConverterTibiaWiki
             }
 
             return $"{{{{Loot Item|{countPart}|{name}|{chancePart}}}}}";
+        }
+
+        private static string GenericToTibiaWikiAbilities(Monster mon)
+        {
+            IList<string> abilities = new List<string>();
+            foreach (var s in mon.Summons)
+            {
+                SummonTemplate summon = new SummonTemplate()
+                {
+                    Creature = s.Name,
+                    Amount = Math.Max(1, s.Max).ToString()
+                };
+                abilities.Add(TemplateParser.Serialize(summon));
+            }
+
+            foreach (var s in mon.Attacks)
+            {
+                string wikiName = s.Name;
+                if (!string.IsNullOrWhiteSpace(s.Description))
+                {
+                    wikiName = s.Description;
+                }
+
+                string damage = "-";
+                if ((s.MinDamage != null) && (s.MaxDamage != null))
+                {
+                    var min = Math.Abs((int)s.MinDamage);
+                    var max = Math.Abs((int)s.MaxDamage);
+                    damage = $"{min:0}-{max:0}";
+                }
+                else if (s.MaxDamage != null)
+                {
+                    var max = Math.Abs((int)s.MaxDamage);
+                    damage = $"{max:0}";
+                }
+
+                if (s.Name == "melee")
+                {
+                    MeleeTemplate melee = new MeleeTemplate();
+                    if (wikiName.ToLower() != "melee")
+                    {
+                        melee.Name = wikiName;
+                    }
+                    melee.Damage = damage;
+                    if (WikiToElements.Reverse.ContainsKey(s.DamageElement))
+                    {
+                        melee.Element = WikiToElements.Reverse[s.DamageElement];
+                    }
+
+                    if (GenericSpellToScene(s, mon.Name, out string scene))
+                    {
+                        melee.Scene = scene;
+                    }
+
+                    abilities.Add(TemplateParser.Serialize(melee));
+                }
+                else if (s.Name == "haste")
+                {
+                    HasteTemplate haste = new HasteTemplate();
+                    haste.Name = wikiName;
+                    abilities.Add(TemplateParser.Serialize(haste));
+                }
+                else if (s.Name == "combat")
+                {
+                    if ((s.DamageElement == CombatDamage.Healing) && (s.SpellCategory == SpellCategory.Defensive))
+                    {
+                        HealingTemplate healing = new HealingTemplate();
+                        healing.Name = wikiName;
+                        healing.Damage = damage;
+
+                        if (GenericSpellToScene(s, mon.Name, out string scene))
+                        {
+                            healing.Scene = scene;
+                        }
+
+                        abilities.Add(TemplateParser.Serialize(healing));
+                    }
+                    else
+                    {
+                        AbilityTemplate ability = new AbilityTemplate();
+                        ability.Name = wikiName;
+                        ability.Damage = damage;
+                        if (WikiToElements.Reverse.ContainsKey(s.DamageElement))
+                        {
+                            ability.Element = WikiToElements.Reverse[s.DamageElement];
+                        }
+
+                        if (GenericSpellToScene(s, mon.Name, out string scene))
+                        {
+                            ability.Scene = scene;
+                        }
+
+                        abilities.Add(TemplateParser.Serialize(ability));
+                    }
+                }
+            }
+
+            AbilityListTemplate abilityList = new AbilityListTemplate();
+            abilityList.Ability = abilities.ToArray();
+            return TemplateParser.Serialize(abilityList, false);
+        }
+
+        private static bool GenericSpellToScene(Spell spell, string caster, out string sceneSerailized)
+        {
+            bool hasSceneData = false;
+            SceneTemplate scene = new SceneTemplate();
+            scene.Caster = caster;
+
+            if (missileIds.Reverse.ContainsKey(spell.ShootEffect))
+            {
+                scene.Missile = missileIds.Reverse[spell.ShootEffect];
+            }
+            if (effectIds.Reverse.ContainsKey(spell.AreaEffect))
+            {
+                scene.Effect = effectIds.Reverse[spell.AreaEffect];
+            }
+
+            // Sort from most strict requirements to least strict
+            if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 3))
+            {
+                scene.Spell = "front_sweep";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 1))
+            {
+                scene.Spell = "8sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 7) && (spell.Spread == 1))
+            {
+                scene.Spell = "7sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 6) && (spell.Spread == 1))
+            {
+                scene.Spell = "6sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 1))
+            {
+                scene.Spell = "5sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 4) && (spell.Spread == 1))
+            {
+                scene.Spell = "4sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 5))
+            {
+                scene.Spell = "8sqmwave";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 10) && (spell.Spread == 5))
+            {
+                scene.Spell = "10sqmwave";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 3))
+            {
+                scene.Spell = "3sqmwave";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 3))
+            {
+                scene.Spell = "5sqmwavenarrow";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 5))
+            {
+                scene.Spell = "5sqmwavewide";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 1))
+            {
+                scene.Spell = "1sqmballtarget";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 2))
+            {
+                scene.Spell = "2sqmballtarget";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 3))
+            {
+                scene.Spell = "3sqmballtarget";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 4))
+            {
+                scene.Spell = "4sqmballtarget";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 5))
+            {
+                scene.Spell = "5sqmballtarget";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Radius - 1 == 4))
+            {
+                scene.Spell = "4sqmballself";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Radius - 1 == 5))
+            {
+                scene.Spell = "5sqmballself";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Radius - 1 == 6))
+            {
+                scene.Spell = "6sqmballself";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Range == 1))
+            {
+                scene.Spell = "1sqmstrike";
+                scene.MissileDistance = "1/1";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Range == 2))
+            {
+                scene.Spell = "2sqmstrike";
+                scene.MissileDistance = "2/2";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Range == 3))
+            {
+                scene.Spell = "3sqmstrike";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Range == 5))
+            {
+                scene.Spell = "5sqmstrike";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if (spell.Radius - 1 == 4)
+            {
+                scene.Spell = "great_explosion";
+                hasSceneData = true;
+            }
+            else if (spell.Radius - 1 == 3)
+            {
+                scene.Spell = "3x3spell";
+                hasSceneData = true;
+            }
+
+            sceneSerailized = TemplateParser.Serialize(scene);
+            return hasSceneData;
         }
     }
 }
