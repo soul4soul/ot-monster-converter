@@ -634,68 +634,68 @@ namespace MonsterConverterTibiaWiki
         };
 
         // https://tibia.fandom.com/wiki/Missiles
-        private static IDictionary<string, Animation> WikiMissilesToAnimations = new Dictionary<string, Animation>
+        private static IDictionary<string, Missile> WikiToMissle = new Dictionary<string, Missile>
         {
-            { "death missile (large)", Animation.SuddenDeath },
-            { "death missile", Animation.Death },
-            { "earth missile effect", Animation.Earth },
-            { "energy ball missile", Animation.EnergyBall },
-            { "energy missile", Animation.Energy },
-            { "ethereal spear missile", Animation.EtherealSpear },
-            { "fire missile", Animation.Fire },
-            { "holy missile (appearance)", Animation.Holy },
-            { "holy missile (small)", Animation.SmallHoly },
-            { "ice missile", Animation.Ice },
-            { "ice shard missile", Animation.SmallIce },
-            { "poison missile", Animation.Poison },
-            { "rocks missile", Animation.SmallEarth },
-            { "small rock missile", Animation.Explosion },
-            { "throwing axe missile", Animation.WhirlwindAxe },
-            { "throwing club missile", Animation.WhirlwindClub },
-            { "throwing sword missile", Animation.WhirlwindSword },
-            { "arrow missile", Animation.Arrow },
-            { "bolt missile", Animation.Bolt },
-            { "burst arrow missile", Animation.BurstArrow },
-            { "crystalline arrow effect", Animation.CrystallineArrow },
-            { "diamond arrow missile", Animation.None }, // 11.4
-            { "drill bolt effect", Animation.DrillBolt },
-            { "earth arrow missile", Animation.EarthArrow },
-            { "envenomed arrow missile", Animation.EnvenomedArrow },
-            { "flaming arrow missile", Animation.FlammingArrow },
-            { "flash arrow missile", Animation.FlashArrow },
-            { "infernal bolt missile", Animation.InfernalBolt },
-            { "onyx arrow missile", Animation.OnyxArrow },
-            { "piercing bolt missile", Animation.PiercingBolt },
-            { "poison arrow missile", Animation.PoisonArrow },
-            { "power bolt missile", Animation.PowerBolt },
-            { "prismatic bolt missile", Animation.PrismaticBolt },
-            { "shiver arrow missile", Animation.ShiverArrow },
-            { "simple arrow missile", Animation.SimpleArrow },
-            { "sniper arrow missile", Animation.SniperArrow },
-            { "spectral bolt missile", Animation.None }, // 11.4
-            { "tarsal arrow missile", Animation.TarsalArrow },
-            { "vortex bolt missile", Animation.VortexBolt },
-            { "assassin star missile", Animation.RedStar },
-            { "enchanted spear missile", Animation.EnchantedSpear },
-            { "glooth spear missile", Animation.GloothSpear },
-            { "hunting spear missile", Animation.HuntingSpear },
-            { "leaf star missile", Animation.None }, // 11.4
-            { "royal spear missile", Animation.RoyalSpear },
-            { "royal star missile", Animation.None }, // 11.4
-            { "small stone missile", Animation.SmallStone },
-            { "snowball missile", Animation.Snowball },
-            { "spear missile", Animation.Spear },
-            { "throwing cake missile", Animation.Cake },
-            { "throwing knife missile", Animation.ThrowingKnife },
-            { "throwing star missile", Animation.ThrowingStar },
-            { "viper star missile", Animation.GreenStar },
-            { "stone missile", Animation.LargeRock }
+            { "death missile (large)", Missile.SuddenDeath },
+            { "death missile", Missile.Death },
+            { "earth missile effect", Missile.Earth },
+            { "energy ball missile", Missile.EnergyBall },
+            { "energy missile", Missile.Energy },
+            { "ethereal spear missile", Missile.EtherealSpear },
+            { "fire missile", Missile.Fire },
+            { "holy missile (appearance)", Missile.Holy },
+            { "holy missile (small)", Missile.SmallHoly },
+            { "ice missile", Missile.Ice },
+            { "ice shard missile", Missile.SmallIce },
+            { "poison missile", Missile.Poison },
+            { "rocks missile", Missile.SmallEarth },
+            { "small rock missile", Missile.Explosion },
+            { "throwing axe missile", Missile.WhirlwindAxe },
+            { "throwing club missile", Missile.WhirlwindClub },
+            { "throwing sword missile", Missile.WhirlwindSword },
+            { "arrow missile", Missile.Arrow },
+            { "bolt missile", Missile.Bolt },
+            { "burst arrow missile", Missile.BurstArrow },
+            { "crystalline arrow effect", Missile.CrystallineArrow },
+            { "diamond arrow missile", Missile.None }, // 11.4
+            { "drill bolt effect", Missile.DrillBolt },
+            { "earth arrow missile", Missile.EarthArrow },
+            { "envenomed arrow missile", Missile.EnvenomedArrow },
+            { "flaming arrow missile", Missile.FlammingArrow },
+            { "flash arrow missile", Missile.FlashArrow },
+            { "infernal bolt missile", Missile.InfernalBolt },
+            { "onyx arrow missile", Missile.OnyxArrow },
+            { "piercing bolt missile", Missile.PiercingBolt },
+            { "poison arrow missile", Missile.PoisonArrow },
+            { "power bolt missile", Missile.PowerBolt },
+            { "prismatic bolt missile", Missile.PrismaticBolt },
+            { "shiver arrow missile", Missile.ShiverArrow },
+            { "simple arrow missile", Missile.SimpleArrow },
+            { "sniper arrow missile", Missile.SniperArrow },
+            { "spectral bolt missile", Missile.None }, // 11.4
+            { "tarsal arrow missile", Missile.TarsalArrow },
+            { "vortex bolt missile", Missile.VortexBolt },
+            { "assassin star missile", Missile.RedStar },
+            { "enchanted spear missile", Missile.EnchantedSpear },
+            { "glooth spear missile", Missile.GloothSpear },
+            { "hunting spear missile", Missile.HuntingSpear },
+            { "leaf star missile", Missile.None }, // 11.4
+            { "royal spear missile", Missile.RoyalSpear },
+            { "royal star missile", Missile.None }, // 11.4
+            { "small stone missile", Missile.SmallStone },
+            { "snowball missile", Missile.Snowball },
+            { "spear missile", Missile.Spear },
+            { "throwing cake missile", Missile.Cake },
+            { "throwing knife missile", Missile.ThrowingKnife },
+            { "throwing star missile", Missile.ThrowingStar },
+            { "viper star missile", Missile.GreenStar },
+            { "stone missile", Missile.LargeRock }
         };
 
         // https://tibia.fandom.com/wiki/Effects
         // For each effect tibiawiki includes effect id in the individual effect templates
         // We could generate this via code if we want to, the advance is that it's always up to date and accurate
-        private static IDictionary<string, Effect> WikiToEffects = new Dictionary<string, Effect>
+        private static IDictionary<string, Effect> WikiToEffect = new Dictionary<string, Effect>
         {
             { "black smoke effect", Effect.BlackSmoke },
             { "block effect", Effect.None }, // 12.31
@@ -1216,19 +1216,19 @@ namespace MonsterConverterTibiaWiki
         /// <returns>True for success</returns>
         private static bool TryParseScene(string input, out Spell spell)
         {
-            spell = new Spell() { AreaEffect = Effect.None, ShootEffect = Animation.None, Interval = 2000, Chance = 0.15 };
+            spell = new Spell() { AreaEffect = Effect.None, ShootEffect = Missile.None, Interval = 2000, Chance = 0.15 };
 
             if (!TemplateParser.IsTemplateMatch<SceneTemplate>(input))
                 return false;
 
             SceneTemplate scene = TemplateParser.Deserialize<SceneTemplate>(input);
-            if ((scene.Missile != null) && (WikiMissilesToAnimations.ContainsKey(scene.Missile)))
+            if ((scene.Missile != null) && (WikiToMissle.ContainsKey(scene.Missile)))
             {
-                spell.ShootEffect = WikiMissilesToAnimations[scene.Missile];
+                spell.ShootEffect = WikiToMissle[scene.Missile];
                 spell.OnTarget = true;
             }
-            if ((scene.Effect != null) && (WikiToEffects.ContainsKey(scene.Effect)))
-                spell.AreaEffect = WikiToEffects[scene.Effect];
+            if ((scene.Effect != null) && (WikiToEffect.ContainsKey(scene.Effect)))
+                spell.AreaEffect = WikiToEffect[scene.Effect];
             switch (scene.Spell)
             {
                 case "front_sweep":
@@ -1363,35 +1363,35 @@ namespace MonsterConverterTibiaWiki
             return true;
         }
 
-        private static Animation TibiaWikiToAnimation(string missile)
+        private static Missile TibiaWikiToAnimation(string missile)
         {
             if ((missile == "spear") || (missile == "spears"))
             {
-                return Animation.Spear;
+                return Missile.Spear;
             }
             else if ((missile == "throwing knives") || (missile == "throwing knife"))
             {
-                return Animation.ThrowingKnife;
+                return Missile.ThrowingKnife;
             }
             else if ((missile == "bolt") || (missile == "bolts"))
             {
-                return Animation.Bolt;
+                return Missile.Bolt;
             }
             else if ((missile == "arrow") || (missile == "arrows"))
             {
-                return Animation.Arrow;
+                return Missile.Arrow;
             }
             else if (missile.Contains("boulder"))
             {
-                return Animation.LargeRock;
+                return Missile.LargeRock;
             }
             else if (missile.Contains("stone"))
             {
-                return Animation.SmallStone;
+                return Missile.SmallStone;
             }
             else
             {
-                return Animation.None;
+                return Missile.None;
             }
         }
 

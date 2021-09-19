@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MonsterConverterInterface.MonsterTypes
 {
-    public enum Animation
+    public enum Missile
     {
         None = 0,
         Spear,

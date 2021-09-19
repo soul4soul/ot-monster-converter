@@ -52,10 +52,10 @@ namespace MonsterConverterCipMon
 
         public override bool IsWriteSupported { get => false; }
 
-        private Animation animationFromString(string input)
+        private Missile animationFromString(string input)
         {
             int animationValue = int.Parse(input);
-            return (Animation)animationValue;
+            return (Missile)animationValue;
         }
 
         private Effect effectFromString(string input)

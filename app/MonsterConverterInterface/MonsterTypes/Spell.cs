@@ -16,7 +16,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public int? MinDamage { get; set; }
         public int? MaxDamage { get; set; }
         public Effect AreaEffect { get; set; }
-        public Animation ShootEffect { get; set; }
+        public Missile ShootEffect { get; set; }
         public double Chance { get; set; }
         public int Interval { get; set; }
         public int? Range { get; set; }
