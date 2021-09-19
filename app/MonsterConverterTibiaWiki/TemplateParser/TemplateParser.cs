@@ -72,11 +72,18 @@ namespace MonsterConverterTibiaWiki
                     name = propInfoTemplateAttr.TemplateNameAttribute.Name;
                 }
 
-                object value;
+                object value = null;
                 if (propInfoTemplateAttr.PropertyInfo.PropertyType.IsArray)
                 {
-                    object objArray = propInfoTemplateAttr.PropertyInfo.GetValue(input, new object[0]);
-                    value = string.Join($"{paramPrefix}", objArray as object[]);
+                    object objValue = propInfoTemplateAttr.PropertyInfo.GetValue(input, new object[0]);
+                    if (objValue is object[])
+                    {
+                        object[] objArray = objValue as object[];
+                        if (objArray.Length > 0)
+                        {
+                            value = string.Join($"{paramPrefix}", objArray);
+                        }
+                    }
                 }
                 else
                 {
