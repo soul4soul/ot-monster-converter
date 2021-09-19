@@ -633,65 +633,6 @@ namespace MonsterConverterTibiaWiki
             {1885, new LookData() { LookType = LookType.Outfit, LookId=1268, Head=0, Body=14, Legs=0, Feet=34, Addons=0 } }
         };
 
-        // https://tibia.fandom.com/wiki/Missiles
-        private static IDictionary<string, Missile> WikiToMissle = new Dictionary<string, Missile>
-        {
-            { "death missile (large)", Missile.SuddenDeath },
-            { "death missile", Missile.Death },
-            { "earth missile effect", Missile.Earth },
-            { "energy ball missile", Missile.EnergyBall },
-            { "energy missile", Missile.Energy },
-            { "ethereal spear missile", Missile.EtherealSpear },
-            { "fire missile", Missile.Fire },
-            { "holy missile (appearance)", Missile.Holy },
-            { "holy missile (small)", Missile.SmallHoly },
-            { "ice missile", Missile.Ice },
-            { "ice shard missile", Missile.SmallIce },
-            { "poison missile", Missile.Poison },
-            { "rocks missile", Missile.SmallEarth },
-            { "small rock missile", Missile.Explosion },
-            { "throwing axe missile", Missile.WhirlwindAxe },
-            { "throwing club missile", Missile.WhirlwindClub },
-            { "throwing sword missile", Missile.WhirlwindSword },
-            { "arrow missile", Missile.Arrow },
-            { "bolt missile", Missile.Bolt },
-            { "burst arrow missile", Missile.BurstArrow },
-            { "crystalline arrow effect", Missile.CrystallineArrow },
-            { "diamond arrow missile", Missile.None }, // 11.4
-            { "drill bolt effect", Missile.DrillBolt },
-            { "earth arrow missile", Missile.EarthArrow },
-            { "envenomed arrow missile", Missile.EnvenomedArrow },
-            { "flaming arrow missile", Missile.FlammingArrow },
-            { "flash arrow missile", Missile.FlashArrow },
-            { "infernal bolt missile", Missile.InfernalBolt },
-            { "onyx arrow missile", Missile.OnyxArrow },
-            { "piercing bolt missile", Missile.PiercingBolt },
-            { "poison arrow missile", Missile.PoisonArrow },
-            { "power bolt missile", Missile.PowerBolt },
-            { "prismatic bolt missile", Missile.PrismaticBolt },
-            { "shiver arrow missile", Missile.ShiverArrow },
-            { "simple arrow missile", Missile.SimpleArrow },
-            { "sniper arrow missile", Missile.SniperArrow },
-            { "spectral bolt missile", Missile.None }, // 11.4
-            { "tarsal arrow missile", Missile.TarsalArrow },
-            { "vortex bolt missile", Missile.VortexBolt },
-            { "assassin star missile", Missile.RedStar },
-            { "enchanted spear missile", Missile.EnchantedSpear },
-            { "glooth spear missile", Missile.GloothSpear },
-            { "hunting spear missile", Missile.HuntingSpear },
-            { "leaf star missile", Missile.None }, // 11.4
-            { "royal spear missile", Missile.RoyalSpear },
-            { "royal star missile", Missile.None }, // 11.4
-            { "small stone missile", Missile.SmallStone },
-            { "snowball missile", Missile.Snowball },
-            { "spear missile", Missile.Spear },
-            { "throwing cake missile", Missile.Cake },
-            { "throwing knife missile", Missile.ThrowingKnife },
-            { "throwing star missile", Missile.ThrowingStar },
-            { "viper star missile", Missile.GreenStar },
-            { "stone missile", Missile.LargeRock }
-        };
-
         // https://tibia.fandom.com/wiki/Effects
         // For each effect tibiawiki includes effect id in the individual effect templates
         // We could generate this via code if we want to, the advance is that it's always up to date and accurate
@@ -1222,9 +1163,9 @@ namespace MonsterConverterTibiaWiki
                 return false;
 
             SceneTemplate scene = TemplateParser.Deserialize<SceneTemplate>(input);
-            if ((scene.Missile != null) && (WikiToMissle.ContainsKey(scene.Missile)))
+            if ((scene.Missile != null) && (missileIds.ContainsKey(scene.Missile)))
             {
-                spell.ShootEffect = WikiToMissle[scene.Missile];
+                spell.ShootEffect = missileIds[scene.Missile];
                 spell.OnTarget = true;
             }
             if ((scene.Effect != null) && (WikiToEffect.ContainsKey(scene.Effect)))
@@ -1516,20 +1457,20 @@ namespace MonsterConverterTibiaWiki
         private static void SetItemId(ref LootItem item, ref ConvertResultEventArgs result)
         {
             string loweredName = item.Name.ToLower();
-            if (itemids.ContainsKey(loweredName))
+            if (itemIds.ContainsKey(loweredName))
             {
-                if (ushort.TryParse(itemids[loweredName].Ids, out ushort _))
+                if (ushort.TryParse(itemIds[loweredName].Ids, out ushort _))
                 {
-                    item.Id = ushort.Parse(itemids[loweredName].Ids);
+                    item.Id = ushort.Parse(itemIds[loweredName].Ids);
                 }
-                else if (string.IsNullOrWhiteSpace(itemids[loweredName].Ids))
+                else if (string.IsNullOrWhiteSpace(itemIds[loweredName].Ids))
                 {
                     string message = $"TibiaWiki is missing item id for item {loweredName}";
                     result.AppendMessage(message);
                 }
                 else
                 {
-                    string message = $"TibiaWiki has malformatted or multiple ids {itemids[loweredName].Ids} for item {loweredName}";
+                    string message = $"TibiaWiki has malformatted or multiple ids {itemIds[loweredName].Ids} for item {loweredName}";
                     result.AppendMessage(message);
                 }
             }

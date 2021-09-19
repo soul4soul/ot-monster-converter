@@ -50,12 +50,16 @@ namespace MonsterConverterInterface.MonsterTypes
         Explosion,
         Cake,
         TarsalArrow = 44,
-        VortexBolt = 45,
-        PrismaticBolt,
+        VortexBolt,
+        PrismaticBolt = 48,
         CrystallineArrow,
         DrillBolt,
         EnvenomedArrow,
-        GloothSpear,
-        SimpleArrow
+        GloothSpear = 53,
+        SimpleArrow,
+        LeafStar,
+        DiamondArrow,
+        SpectralBolt,
+        RoyalStar
     }
 }

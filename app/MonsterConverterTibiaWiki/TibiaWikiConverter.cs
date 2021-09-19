@@ -24,7 +24,11 @@ namespace MonsterConverterTibiaWiki
 
         private static readonly HttpClient httpClient = new HttpClient();
 
-        private static IDictionary<string, TibiaWikiItemData> itemids = new Dictionary<string, TibiaWikiItemData>();
+        // <item name, data>
+        private static IDictionary<string, TibiaWikiItemData> itemIds = new Dictionary<string, TibiaWikiItemData>();
+
+        // <missile name, missile>
+        private static IDictionary<string, Missile> missileIds = new Dictionary<string, Missile>();
 
         public override string ConverterName { get => "TibiaWiki"; }
 
@@ -54,15 +58,19 @@ namespace MonsterConverterTibiaWiki
                 names.Add(match.Groups["name"].Value.Replace("%27", "'").Replace("%C3%B1", "ñ"));
             }
 
-            // Populate item id list, here is as good a place as any to fetch and prepare this information
+            // Populate id lists, here is as good a place as any to fetch and prepare this information
             // Only need to get the list once per program execution, between exeuctions its reasonable to retry should the list be empty
-            // It's not worth the overhead to keep trying to get the itemid list should it fail during conversion which is the reason
-            // the itemids are fetched here and not in ParseLoot when the data is needed.
-            if (itemids.Count == 0)
+            // It's not worth the overhead to keep trying to get the id lists should they fail during conversion which is the reason
+            // the ids are fetched here and not in Parse when the data is needed for the first time.
+            if (itemIds.Count == 0)
             {
                 GetItemIds();
             }
-            
+
+            if (missileIds.Count == 0)
+            {
+                GetMissileIds();
+            }
 
             return names.ToArray();
         }
@@ -87,7 +95,21 @@ namespace MonsterConverterTibiaWiki
                 string name = match.Groups["name"].Value.ToLower();
                 string actualName = match.Groups["actualname"].Value.ToLower();
                 string ids = match.Groups["itemid"].Value;
-                itemids.Add(name, new TibiaWikiItemData(name, actualName, ids));
+                itemIds.Add(name, new TibiaWikiItemData(name, actualName, ids));
+            }
+        }
+
+        private static void GetMissileIds()
+        {
+            string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Missles&prop=text";
+            var missileTable = RequestData(missilelisturl).Result.Text.Empty;
+
+            var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<itemid>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
+            foreach (Match match in missileMatches)
+            {
+                string name = match.Groups["name"].Value.ToLower();
+                string id = match.Groups["itemid"].Value.ToLower();
+                missileIds.Add(name, Enum.Parse<Missile>(id));
             }
         }
     }
