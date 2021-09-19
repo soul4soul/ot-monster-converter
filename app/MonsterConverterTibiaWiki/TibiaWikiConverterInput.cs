@@ -1037,6 +1037,10 @@ namespace MonsterConverterTibiaWiki
 
             switch (scene.Spell)
             {
+                case "singleeffect":
+                    spell.OnTarget = false;
+                    spell.Radius = 1;
+                    break;
                 case "front_sweep":
                     spell.IsDirectional = true;
                     spell.Length = 1;
@@ -1062,13 +1066,16 @@ namespace MonsterConverterTibiaWiki
                     spell.Radius = 5;
                     break;
                 case "3x3spell":
-                    spell.Radius = 4;
+                    spell.Radius = 3;
                     break;
                 case "xspell":
                     break;
                 case "plusspell":
+                    spell.Radius = 2;
                     break;
                 case "plusspelltarget":
+                    spell.OnTarget = true;
+                    spell.Radius = 2;
                     break;
                 case "3sqmwave":
                     spell.IsDirectional = true;
@@ -1086,23 +1093,23 @@ namespace MonsterConverterTibiaWiki
                     spell.Spread = 5;
                     break;
                 case "1sqmballtarget":
-                    spell.Radius = 2;
-                    spell.OnTarget = true;
-                    break;
-                case "2sqmballtarget":
                     spell.Radius = 3;
                     spell.OnTarget = true;
                     break;
-                case "3sqmballtarget":
+                case "2sqmballtarget":
                     spell.Radius = 4;
                     spell.OnTarget = true;
                     break;
-                case "4sqmballtarget":
+                case "3sqmballtarget":
                     spell.Radius = 5;
                     spell.OnTarget = true;
                     break;
-                case "5sqmballtarget":
+                case "4sqmballtarget":
                     spell.Radius = 6;
+                    spell.OnTarget = true;
+                    break;
+                case "5sqmballtarget":
+                    spell.Radius = 7;
                     spell.OnTarget = true;
                     break;
                 case "8sqmwave":
@@ -1121,16 +1128,24 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "4sqmring":
                     break;
-                case "4sqmballself":
+                case "2sqmballself":
+                    spell.Radius = 4;
+                    spell.OnTarget = false;
+                    break;
+                case "3sqmballself":
                     spell.Radius = 5;
                     spell.OnTarget = false;
                     break;
-                case "5sqmballself":
+                case "4sqmballself":
                     spell.Radius = 6;
                     spell.OnTarget = false;
                     break;
-                case "6sqmballself":
+                case "5sqmballself":
                     spell.Radius = 7;
+                    spell.OnTarget = false;
+                    break;
+                case "6sqmballself":
+                    spell.Radius = 8;
                     spell.OnTarget = false;
                     break;
                 case "4sqmbeam":

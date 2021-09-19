@@ -394,52 +394,74 @@ namespace MonsterConverterTibiaWiki
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 1))
+            else if ((spell.OnTarget == true) && (spell.Radius == 2))
+            {
+                scene.Spell = "plusspell";
+                scene.MissileDistance = "3/3";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius == 3))
             {
                 scene.Spell = "1sqmballtarget";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 2))
+            else if ((spell.OnTarget == true) && (spell.Radius == 4))
             {
                 scene.Spell = "2sqmballtarget";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 3))
+            else if ((spell.OnTarget == true) && (spell.Radius == 5))
             {
                 scene.Spell = "3sqmballtarget";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 4))
+            else if ((spell.OnTarget == true) && (spell.Radius == 6))
             {
                 scene.Spell = "4sqmballtarget";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Radius - 1 == 5))
+            else if ((spell.OnTarget == true) && (spell.Radius == 7))
             {
                 scene.Spell = "5sqmballtarget";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == false) && (spell.Radius - 1 == 4))
+            else if ((spell.OnTarget == false) && (spell.Radius == 1))
+            {
+                scene.Spell = "singleeffect";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Radius == 4))
+            {
+                scene.Spell = "2sqmballself";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Radius == 5))
+            {
+                scene.Spell = "3sqmballself";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Radius == 6))
             {
                 scene.Spell = "4sqmballself";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == false) && (spell.Radius - 1 == 5))
+            else if ((spell.OnTarget == false) && (spell.Radius == 7))
             {
                 scene.Spell = "5sqmballself";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == false) && (spell.Radius - 1 == 6))
+            else if ((spell.OnTarget == false) && (spell.Radius == 8))
             {
                 scene.Spell = "6sqmballself";
                 hasSceneData = true;
@@ -472,14 +494,19 @@ namespace MonsterConverterTibiaWiki
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if (spell.Radius - 1 == 4)
+            else if (spell.Radius == 5)
             {
                 scene.Spell = "great_explosion";
                 hasSceneData = true;
             }
-            else if (spell.Radius - 1 == 3)
+            else if (spell.Radius == 3)
             {
                 scene.Spell = "3x3spell";
+                hasSceneData = true;
+            }
+            else if (spell.Radius == 2)
+            {
+                scene.Spell = "plusspell";
                 hasSceneData = true;
             }
 
