@@ -30,6 +30,9 @@ namespace MonsterConverterTibiaWiki
         // <missile name, missile>
         private static IDictionary<string, Missile> missileIds = new Dictionary<string, Missile>();
 
+        // <effect name, missile>
+        private static IDictionary<string, Effect> effectIds = new Dictionary<string, Effect>();
+
         public override string ConverterName { get => "TibiaWiki"; }
 
         public override FileSource FileSource { get => FileSource.Web; }
@@ -72,6 +75,11 @@ namespace MonsterConverterTibiaWiki
                 GetMissileIds();
             }
 
+            if (effectIds.Count == 0)
+            {
+                GetEffectIds();
+            }
+
             return names.ToArray();
         }
 
@@ -104,12 +112,29 @@ namespace MonsterConverterTibiaWiki
             string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Missles&prop=text";
             var missileTable = RequestData(missilelisturl).Result.Text.Empty;
 
-            var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<itemid>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
+            var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
             foreach (Match match in missileMatches)
             {
                 string name = match.Groups["name"].Value.ToLower();
-                string id = match.Groups["itemid"].Value.ToLower();
+                string id = match.Groups["id"].Value.ToLower();
                 missileIds.Add(name, Enum.Parse<Missile>(id));
+            }
+        }
+
+        private static void GetEffectIds()
+        {
+            string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Effects&prop=text";
+            var missileTable = RequestData(missilelisturl).Result.Text.Empty;
+
+            var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
+            foreach (Match match in missileMatches)
+            {
+                string name = match.Groups["name"].Value.ToLower();
+                string id = match.Groups["id"].Value.ToLower();
+                if (Enum.TryParse(id, out Effect effect))
+                {
+                    effectIds.Add(name, effect);
+                }
             }
         }
     }

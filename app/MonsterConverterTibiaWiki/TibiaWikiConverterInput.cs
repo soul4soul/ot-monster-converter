@@ -633,132 +633,6 @@ namespace MonsterConverterTibiaWiki
             {1885, new LookData() { LookType = LookType.Outfit, LookId=1268, Head=0, Body=14, Legs=0, Feet=34, Addons=0 } }
         };
 
-        // https://tibia.fandom.com/wiki/Effects
-        // For each effect tibiawiki includes effect id in the individual effect templates
-        // We could generate this via code if we want to, the advance is that it's always up to date and accurate
-        private static IDictionary<string, Effect> WikiToEffect = new Dictionary<string, Effect>
-        {
-            { "black smoke effect", Effect.BlackSmoke },
-            { "block effect", Effect.None }, // 12.31
-            { "flitter effect", Effect.None }, // should be in by 9.40
-            { "floating block effect", Effect.None }, // 12.31
-            { "green smoke effect", Effect.GreenSmoke },
-            { "purple smoke effect", Effect.PurpleSmoke },
-            { "red smoke effect", Effect.RedSmoke },
-            { "steam effect", Effect.Smoke },
-            { "sun priest effect", Effect.None }, // 12.4
-            { "the cube effect", Effect.None }, // 12.2
-            { "werelion effect", Effect.None }, // 2.4
-            { "yellow smoke effect", Effect.YellowSmoke },
-            { "assassin effect", Effect.Assassin },
-            { "big scratching effect", Effect.None }, // 12.4
-            { "bite effect", Effect.None }, // 12.4
-            { "blue ghost effect", Effect.None }, // 11.5
-            { "demon mirror effect", Effect.MirrorHorizontal }, // Could be vertical too
-            { "exploding kraknaknork effect", Effect.OrcShamanFire },//
-            { "fae effect 1", Effect.None }, // 11.4
-            { "fae effect 2", Effect.None }, // 11.4
-            { "ferumbras effect", Effect.Ferumbras },
-            { "ghost smoke effect", Effect.None }, // 12.3
-            { "ghostly bite effect", Effect.None }, // 12.4
-            { "ghostly scratch effect", Effect.None }, // 12.4
-            { "green ghost effect", Effect.YalahariGhost },
-            { "kraknaknork effect", Effect.OrcShaman },
-            { "scratching effect", Effect.StepsHorizontal },
-            { "sea serpent effect", Effect.WaterCreature },
-            { "slash effect", Effect.None }, //12.4
-            { "thaian effect 1", Effect.None }, //12.3
-            { "thaian effect 2", Effect.None }, //12.3
-            { "vanishing fae effect", Effect.None }, //11.4
-            { "black blood effect", Effect.None }, // 12.20
-            { "blood effect", Effect.DrawBlood },
-            { "blue chain effect", Effect.None }, // 12.00?
-            { "blue electricity effect", Effect.EnergyHit },
-            { "carnivorous plant effect", Effect.Carniphila },
-            { "challenge effect", Effect.None }, // 12.55
-            { "cloud effect", Effect.SmallClouds },
-            { "critical hit effect", Effect.CriticalDamage },
-            { "death effect", Effect.MortArea },
-            { "divine dazzle effect", Effect.None }, // 12.60
-            { "dust effect", Effect.GroundShaker },
-            { "electrical spark effect", Effect.None }, // 12.70
-            { "energy effect", Effect.EnergyArea },
-            { "explosion effect", Effect.ExplosionArea },
-            { "fire effect", Effect.HitByFire },
-            { "fireball effect", Effect.FireArea },
-            { "flame effect", Effect.FireAttack },
-            { "green chain effect", Effect.None }, // 12.00?
-            { "grey chain effect", Effect.None }, // 12.00?
-            { "holy cross effect", Effect.HolyArea },
-            { "holy effect", Effect.HolyDamage },
-            { "ice crystal effect", Effect.GiantIce },
-            { "ice explosion effect", Effect.IceAttack },
-            { "ice tornado effect", Effect.IceTornado },
-            { "icicle effect", Effect.IceArea },
-            { "large plant effect", Effect.BigPlants },
-            { "orange chain effect", Effect.None }, // 12.00?
-            { "plant effect", Effect.SmallPlants },
-            { "poison effect 1", Effect.GreenRings },
-            { "poison effect 2", Effect.HitByPoison },
-            { "poison effect 3", Effect.PoisonArea },
-            { "purple chain effect", Effect.None }, // 12.00?
-            { "purple electricity effect", Effect.PurpleEnergy },
-            { "ripple effect", Effect.LoseEnergy },
-            { "rooting effect", Effect.None }, // 12.40
-            { "slicing plant effect", Effect.PlantAttack },
-            { "stars effect", Effect.Stun },
-            { "stone shower effect", Effect.Stones },
-            { "thunderstorm effect", Effect.BigClouds },
-            { "yellow chain effect", Effect.None }, // 12.00?
-            { "yellow electricity effect", Effect.YellowEnergy },
-            { "yellow poison effect", Effect.YellowRings },
-            { "map effect", Effect.None }, // 11.80
-            { "point of interest effect", Effect.None }, // 11.80
-            { "point of interest found effect", Effect.None }, // 11.80
-            { "tile highlight effect", Effect.TutorialSquare },
-            { "tutorial arrow effect", Effect.TutorialArrow },
-            { "bat swarm effect", Effect.Bats },
-            { "blast effect", Effect.ExplosionHit },
-            { "blue confetti effect", Effect.FireworkBlue },
-            { "blue notes effect", Effect.SoundBlue },
-            { "blue sparkles effect", Effect.MagicBlue },
-            { "bubbles effect", Effect.Bubbles },
-            { "confetti effect", Effect.GiftWraps },
-            { "cream cake effect", Effect.Cake },//
-            { "die effect", Effect.Craps },
-            { "green confetti effect", Effect.None }, // 12.02
-            { "green notes effect", Effect.SoundGreen },
-            { "green sparkles effect", Effect.MagicGreen },
-            { "grey teleport effect", Effect.None }, // 12.70
-            { "hearts effect", Effect.Hearts },
-            { "jumping fish effect", Effect.PlungingFish },
-            { "light blue teleport effect", Effect.None }, // 12.70
-            { "light effect", Effect.Thunder },
-            { "moonlight effect", Effect.EarlyThunder },
-            { "orange confetti effect", Effect.None }, // 12.02
-            { "orange teleport effect", Effect.None }, // 12.70
-            { "poof effect", Effect.Poff },//
-            { "prismatic sparkles effect", Effect.None }, // 12.15
-            { "purple confetti effect", Effect.None }, // 12.02
-            { "purple notes effect", Effect.SoundPurple },
-            { "purple teleport effect", Effect.None }, // 12.70
-            { "red confetti effect", Effect.FireworkRed },
-            { "red notes effect", Effect.SoundRed },//
-            { "red sparkles effect", Effect.MagicRed },
-            { "red teleport effect", Effect.None }, // 12.70
-            { "snoring effect", Effect.Sleep },
-            { "sparks effect", Effect.BlockHit },
-            { "spooky face effect", Effect.SkullHorizontal }, // Could be vertical too
-            { "teleport effect", Effect.Teleport },
-            { "trembling effect", Effect.HitArea },
-            { "turquoise confetti effect", Effect.None }, // 12.02
-            { "water splash effect", Effect.WaterSplash },
-            { "white notes effect", Effect.SoundWhite },//
-            { "yellow confetti effect", Effect.FireworkYellow },
-            { "yellow notes effect", Effect.SoundYellow },
-            { "yellow sparkles effect", Effect.None } // 12.60?
-        };
-
         private static IDictionary<string, CombatDamage> WikiToElements = new Dictionary<string, CombatDamage>
         {
             {"physical", CombatDamage.Physical},
@@ -831,9 +705,9 @@ namespace MonsterConverterTibiaWiki
             }
             if (!string.IsNullOrWhiteSpace(creature.Sounds)) { ParseSoundList(monster, creature.Sounds); }
             if (!string.IsNullOrWhiteSpace(creature.Behavior)) { ParseBehavior(monster, creature.Behavior); }
-            if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities); }
+            if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities, result); }
             if (!string.IsNullOrWhiteSpace(creature.Location)) { monster.Bestiary.Location = creature.Location; }
-            if (!string.IsNullOrWhiteSpace(creature.Loot)) { ParseLoot(monster, creature.Loot, filename, ref result); }
+            if (!string.IsNullOrWhiteSpace(creature.Loot)) { ParseLoot(monster, creature.Loot, filename, result); }
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
             if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
@@ -934,15 +808,15 @@ namespace MonsterConverterTibiaWiki
                 monster.TargetDistance = 1;
         }
 
-        private static void ParseAbilities(Monster mon, string abilities)
+        private static void ParseAbilities(Monster mon, string abilities, ConvertResultEventArgs result)
         {
             // Shouldn't need any of this anymore for ParseAbilityList, but it is still useful for ParseLegacyAbilities
             abilities = abilities.ToLower().Replace("\r", "").Replace("\n", "").Trim();
 
             if (abilities.Contains("ability list"))
-                ParseAbilityList(mon, abilities);
+                ParseAbilityList(mon, abilities, result);
             else
-                ParseLegacyAbilities(mon, abilities);
+                ParseLegacyAbilities(mon, abilities, result);
         }
 
         /// <summary>
@@ -952,7 +826,7 @@ namespace MonsterConverterTibiaWiki
         /// </summary>
         /// <param name="mon"></param>
         /// <param name="abilities"></param>
-        private static void ParseLegacyAbilities(Monster mon, string abilities)
+        private static void ParseLegacyAbilities(Monster mon, string abilities, ConvertResultEventArgs result)
         {
             if (string.IsNullOrWhiteSpace(abilities) || abilities.Contains("none") || abilities.Contains("unknown") || abilities == "?")
                 return;
@@ -1041,7 +915,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseAbilityList(Monster mon, string abilities)
+        private static void ParseAbilityList(Monster mon, string abilities, ConvertResultEventArgs result)
         {
             var abilityList = TemplateParser.Deserialize<AbilityListTemplate>(abilities);
 
@@ -1076,6 +950,8 @@ namespace MonsterConverterTibiaWiki
                         else
                         {
                             // Guess defaults based on creature HP
+                            result.AppendMessage($"Guessing health range for ability {ability}");
+                            result.IncreaseError(ConvertError.Warning);
                             spell.MinDamage = (int?)(mon.Health * 0.1);
                             spell.MaxDamage = (int?)(mon.Health * 0.25);
                         }
@@ -1115,6 +991,7 @@ namespace MonsterConverterTibiaWiki
                     }
                     if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
                     {
+                        // TODO, report errors converting abilities each ability should be a single error entry even if that ability has multiple problems use a single entry
                         var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
                         if (TryParseScene(abilityObj.Scene, out Spell spell))
                         {
@@ -1168,8 +1045,11 @@ namespace MonsterConverterTibiaWiki
                 spell.ShootEffect = missileIds[scene.Missile];
                 spell.OnTarget = true;
             }
-            if ((scene.Effect != null) && (WikiToEffect.ContainsKey(scene.Effect)))
-                spell.AreaEffect = WikiToEffect[scene.Effect];
+            if ((scene.Effect != null) && (effectIds.ContainsKey(scene.Effect)))
+            {
+                spell.AreaEffect = effectIds[scene.Effect];
+            }
+
             switch (scene.Spell)
             {
                 case "front_sweep":
@@ -1336,7 +1216,7 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseLoot(Monster monster, string lootTable, string filename, ref ConvertResultEventArgs result)
+        private static void ParseLoot(Monster monster, string lootTable, string filename, ConvertResultEventArgs result)
         {
             var lootTableTemplate = TemplateParser.Deserialize<LootTableTemplate>(lootTable);
             if ((lootTableTemplate.Loot != null) && (lootTableTemplate.Loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.Loot[0])))
