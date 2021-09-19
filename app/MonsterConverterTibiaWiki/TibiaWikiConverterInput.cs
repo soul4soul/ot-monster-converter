@@ -633,21 +633,6 @@ namespace MonsterConverterTibiaWiki
             {1885, new LookData() { LookType = LookType.Outfit, LookId=1268, Head=0, Body=14, Legs=0, Feet=34, Addons=0 } }
         };
 
-        private static IDictionary<string, CombatDamage> WikiToElements = new Dictionary<string, CombatDamage>
-        {
-            {"physical", CombatDamage.Physical},
-            {"energy", CombatDamage.Energy},
-            {"earth", CombatDamage.Earth},
-            {"fire", CombatDamage.Fire},
-            {"life draing", CombatDamage.LifeDrain},
-            {"mana drain", CombatDamage.ManaDrain},
-            {"healing", CombatDamage.Healing},
-            {"drown", CombatDamage.Drown},
-            {"ice", CombatDamage.Ice},
-            {"holy", CombatDamage.Holy},
-            {"death", CombatDamage.Death}
-        };
-
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
             ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Blood type, look type data, and abilities are not parsed.");
@@ -1088,6 +1073,7 @@ namespace MonsterConverterTibiaWiki
                 case "3sqmwave":
                     spell.IsDirectional = true;
                     spell.Length = 3;
+                    spell.Spread = 3;
                     break;
                 case "5sqmwavenarrow":
                     spell.IsDirectional = true;
@@ -1136,6 +1122,7 @@ namespace MonsterConverterTibiaWiki
                 case "4sqmring":
                     break;
                 case "4sqmballself":
+                    spell.Radius = 4;
                     spell.OnTarget = false;
                     break;
                 case "5sqmballself":

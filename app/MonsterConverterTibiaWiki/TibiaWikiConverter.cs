@@ -24,14 +24,30 @@ namespace MonsterConverterTibiaWiki
 
         private static readonly HttpClient httpClient = new HttpClient();
 
+        // <element name, damage type>
+        private static BiDictionary<string, CombatDamage> WikiToElements = new BiDictionary<string, CombatDamage>
+        {
+            {"physical", CombatDamage.Physical},
+            {"energy", CombatDamage.Energy},
+            {"earth", CombatDamage.Earth},
+            {"fire", CombatDamage.Fire},
+            {"life draing", CombatDamage.LifeDrain},
+            {"mana drain", CombatDamage.ManaDrain},
+            {"healing", CombatDamage.Healing},
+            {"drown", CombatDamage.Drown},
+            {"ice", CombatDamage.Ice},
+            {"holy", CombatDamage.Holy},
+            {"death", CombatDamage.Death}
+        };
+
         // <item name, data>
         private static IDictionary<string, TibiaWikiItemData> itemIds = new Dictionary<string, TibiaWikiItemData>();
 
         // <missile name, missile>
-        private static IDictionary<string, Missile> missileIds = new Dictionary<string, Missile>();
+        private static BiDictionary<string, Missile> missileIds = new BiDictionary<string, Missile>();
 
         // <effect name, missile>
-        private static IDictionary<string, Effect> effectIds = new Dictionary<string, Effect>();
+        private static BiDictionary<string, Effect> effectIds = new BiDictionary<string, Effect>();
 
         public override string ConverterName { get => "TibiaWiki"; }
 
