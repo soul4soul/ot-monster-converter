@@ -10,6 +10,8 @@ namespace MonsterConverterTibiaWiki
 {
     static class TemplateParser
     {
+        private record PropInfoWithTemplateAttr(PropertyInfo PropertyInfo, TemplateParameterAttribute TemplateNameAttribute);
+
         private static readonly IDictionary<Type, IDictionary<string, PropertyInfo>> typePropInfoDic = new Dictionary<Type, IDictionary<string, PropertyInfo>>();
         private static readonly IDictionary<Type, IList<PropInfoWithTemplateAttr>> typeOrderedPropInfo = new Dictionary<Type, IList<PropInfoWithTemplateAttr>>();
 
@@ -114,8 +116,6 @@ namespace MonsterConverterTibiaWiki
 
             return output;
         }
-
-        private record PropInfoWithTemplateAttr(PropertyInfo PropertyInfo, TemplateParameterAttribute TemplateNameAttribute);
 
         private static IList<PropInfoWithTemplateAttr> GetOrderedPropertyNames(Type myType)
         {
