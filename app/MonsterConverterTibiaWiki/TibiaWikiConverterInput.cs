@@ -1044,7 +1044,7 @@ namespace MonsterConverterTibiaWiki
                 case "front_sweep":
                     spell.IsDirectional = true;
                     spell.Length = 1;
-                    spell.Spread = 3;
+                    spell.Spread = 1;
                     break;
                 case "1sqmstrike":
                     spell.OnTarget = true;
@@ -1080,7 +1080,7 @@ namespace MonsterConverterTibiaWiki
                 case "3sqmwave":
                     spell.IsDirectional = true;
                     spell.Length = 3;
-                    spell.Spread = 3;
+                    spell.Spread = 2;
                     break;
                 case "5sqmwavenarrow":
                     spell.IsDirectional = true;
@@ -1090,7 +1090,7 @@ namespace MonsterConverterTibiaWiki
                 case "5sqmwavewide":
                     spell.IsDirectional = true;
                     spell.Length = 5;
-                    spell.Spread = 5;
+                    spell.Spread = 2;
                     break;
                 case "1sqmballtarget":
                     spell.Radius = 3;
@@ -1114,12 +1114,12 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "8sqmwave":
                     spell.IsDirectional = true;
-                    spell.Spread = 5;
+                    spell.Spread = 3;
                     spell.Length = 8;
                     break;
                 case "10sqmwave":
                     spell.IsDirectional = true;
-                    spell.Spread = 5;
+                    spell.Spread = 4;
                     spell.Length = 10;
                     break;
                 case "2sqmring":
@@ -1151,27 +1151,27 @@ namespace MonsterConverterTibiaWiki
                 case "4sqmbeam":
                     spell.IsDirectional = true;
                     spell.Length = 4;
-                    spell.Spread = 1;
+                    spell.Spread = 0;
                     break;
                 case "5sqmbeam":
                     spell.IsDirectional = true;
                     spell.Length = 5;
-                    spell.Spread = 1;
+                    spell.Spread = 0;
                     break;
                 case "6sqmbeam":
                     spell.IsDirectional = true;
                     spell.Length = 6;
-                    spell.Spread = 1;
+                    spell.Spread = 0;
                     break;
                 case "7sqmbeam":
                     spell.IsDirectional = true;
                     spell.Length = 7;
-                    spell.Spread = 1;
+                    spell.Spread = 0;
                     break;
                 case "8sqmbeam":
                     spell.IsDirectional = true;
                     spell.Length = 8;
-                    spell.Spread = 1;
+                    spell.Spread = 0;
                     break;
                 case "energy_wall_north_diag_area":
                     break;

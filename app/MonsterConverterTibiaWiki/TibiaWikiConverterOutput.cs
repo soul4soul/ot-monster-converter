@@ -328,55 +328,55 @@ namespace MonsterConverterTibiaWiki
             }
 
             // Sort from most strict requirements to least strict
-            if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 3))
+            if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 1))
             {
                 scene.Spell = "front_sweep";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 1))
+            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 0))
             {
                 scene.Spell = "8sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 7) && (spell.Spread == 1))
+            else if ((spell.IsDirectional == true) && (spell.Length == 7) && (spell.Spread == 0))
             {
                 scene.Spell = "7sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 6) && (spell.Spread == 1))
+            else if ((spell.IsDirectional == true) && (spell.Length == 6) && (spell.Spread == 0))
             {
                 scene.Spell = "6sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 1))
+            else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 0))
             {
                 scene.Spell = "5sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 4) && (spell.Spread == 1))
+            else if ((spell.IsDirectional == true) && (spell.Length == 4) && (spell.Spread == 0))
             {
                 scene.Spell = "4sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 5))
+            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 3))
             {
                 scene.Spell = "8sqmwave";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 10) && (spell.Spread == 5))
+            else if ((spell.IsDirectional == true) && (spell.Length == 10) && (spell.Spread == 4))
             {
                 scene.Spell = "10sqmwave";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 3))
+            else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 2))
             {
                 scene.Spell = "3sqmwave";
                 scene.LookDirection = "east";
@@ -388,7 +388,7 @@ namespace MonsterConverterTibiaWiki
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 5))
+            else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 2))
             {
                 scene.Spell = "5sqmwavewide";
                 scene.LookDirection = "east";
