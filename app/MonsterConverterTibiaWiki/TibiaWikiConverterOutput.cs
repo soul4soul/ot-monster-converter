@@ -215,16 +215,6 @@ namespace MonsterConverterTibiaWiki
         private static string GenericToTibiaWikiAbilities(Monster mon)
         {
             IList<string> abilities = new List<string>();
-            foreach (var s in mon.Summons)
-            {
-                SummonTemplate summon = new SummonTemplate()
-                {
-                    Creature = s.Name,
-                    Amount = Math.Max(1, s.Max).ToString()
-                };
-                abilities.Add(TemplateParser.Serialize(summon));
-            }
-
             foreach (var s in mon.Attacks)
             {
                 string wikiName = s.Name;
@@ -305,6 +295,16 @@ namespace MonsterConverterTibiaWiki
                         abilities.Add(TemplateParser.Serialize(ability));
                     }
                 }
+            }
+
+            foreach (var s in mon.Summons)
+            {
+                SummonTemplate summon = new SummonTemplate()
+                {
+                    Creature = s.Name,
+                    Amount = Math.Max(1, s.Max).ToString()
+                };
+                abilities.Add(TemplateParser.Serialize(summon));
             }
 
             AbilityListTemplate abilityList = new AbilityListTemplate();
