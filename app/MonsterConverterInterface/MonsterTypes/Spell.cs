@@ -21,6 +21,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public int Interval { get; set; }
         public int? Range { get; set; }
         public int? Radius { get; set; }
+        public int? Ring { get; set; }
         public int? Length { get; set; }
         public int? Spread { get; set; }
         public bool? OnTarget { get; set; }

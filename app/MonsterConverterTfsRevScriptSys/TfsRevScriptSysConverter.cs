@@ -677,6 +677,10 @@ namespace MonsterConverterTfsRevScriptSys
                     {
                         attack += $", radius = {spell.Radius}, target = {spell.OnTarget.ToString().ToLower()}";
                     }
+                    if (spell.Ring != null)
+                    {
+                        attack += $", ring = {spell.Ring}, target = {spell.OnTarget.ToString().ToLower()}";
+                    }
                     if (spell.Length != null)
                     {
                         attack += $", length = {spell.Length}";
