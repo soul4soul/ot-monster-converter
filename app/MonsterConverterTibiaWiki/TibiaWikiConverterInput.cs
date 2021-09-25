@@ -1073,6 +1073,7 @@ namespace MonsterConverterTibiaWiki
                     spell.Radius = 3;
                     break;
                 case "xspell":
+                    spell.Ring = 2;
                     break;
                 case "plusspell":
                     spell.Radius = 2;
@@ -1127,10 +1128,13 @@ namespace MonsterConverterTibiaWiki
                     spell.Length = 10;
                     break;
                 case "2sqmring":
+                    spell.Ring = 3;
                     break;
                 case "3sqmring":
+                    spell.Ring = 4;
                     break;
                 case "4sqmring":
+                    spell.Ring = 5;
                     break;
                 case "2sqmballself":
                     spell.Radius = 4;

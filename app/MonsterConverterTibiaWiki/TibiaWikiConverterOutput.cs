@@ -519,6 +519,26 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "plusspell";
                 hasSceneData = true;
             }
+            else if ((spell.OnTarget == false) && (spell.Ring == 2))
+            {
+                scene.Spell = "xspell";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Ring == 3))
+            {
+                scene.Spell = "2sqmring";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Ring == 4))
+            {
+                scene.Spell = "3sqmring";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == false) && (spell.Ring == 5))
+            {
+                scene.Spell = "4sqmring";
+                hasSceneData = true;
+            }
 
             sceneSerailized = TemplateParser.Serialize(scene);
             return hasSceneData;
