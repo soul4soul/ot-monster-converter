@@ -1049,18 +1049,22 @@ namespace MonsterConverterTibiaWiki
                 case "1sqmstrike":
                     spell.OnTarget = true;
                     spell.Range = 1;
+                    spell.Radius = 1;
                     break;
                 case "2sqmstrike":
                     spell.OnTarget = true;
                     spell.Range = 2;
+                    spell.Radius = 1;
                     break;
                 case "3sqmstrike":
                     spell.OnTarget = true;
                     spell.Range = 3;
+                    spell.Radius = 1;
                     break;
                 case "5sqmstrike":
                     spell.OnTarget = true;
                     spell.Range = 5;
+                    spell.Radius = 1;
                     break;
                 case "great_explosion":
                     spell.Radius = 5;

@@ -476,28 +476,28 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "6sqmballself";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Range == 1))
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 1))
             {
                 scene.Spell = "1sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Range == 2))
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 2))
             {
                 scene.Spell = "2sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Range == 3))
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 3))
             {
                 scene.Spell = "3sqmstrike";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
-            else if ((spell.OnTarget == true) && (spell.Range == 5))
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 5))
             {
                 scene.Spell = "5sqmstrike";
                 scene.MissileDistance = "3/3";
