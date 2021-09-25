@@ -31,7 +31,7 @@ namespace MonsterConverterTibiaWiki
             {"energy", CombatDamage.Energy},
             {"earth", CombatDamage.Earth},
             {"fire", CombatDamage.Fire},
-            {"life draing", CombatDamage.LifeDrain},
+            {"life drain", CombatDamage.LifeDrain},
             {"mana drain", CombatDamage.ManaDrain},
             {"healing", CombatDamage.Healing},
             {"drown", CombatDamage.Drown},
