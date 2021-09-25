@@ -131,8 +131,8 @@ namespace MonsterConverterTibiaWiki
             var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
             foreach (Match match in missileMatches)
             {
-                string name = match.Groups["name"].Value.ToLower();
-                string id = match.Groups["id"].Value.ToLower();
+                string name = match.Groups["name"].Value;
+                string id = match.Groups["id"].Value;
                 missileIds.Add(name, Enum.Parse<Missile>(id));
             }
         }
@@ -145,8 +145,8 @@ namespace MonsterConverterTibiaWiki
             var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
             foreach (Match match in missileMatches)
             {
-                string name = match.Groups["name"].Value.ToLower();
-                string id = match.Groups["id"].Value.ToLower();
+                string name = match.Groups["name"].Value;
+                string id = match.Groups["id"].Value;
                 if (Enum.TryParse(id, out Effect effect))
                 {
                     effectIds.Add(name, effect);
