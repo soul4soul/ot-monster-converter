@@ -1367,6 +1367,7 @@ namespace MonsterConverterTfsXml
                     {
                         spell.Length = (int?)attack.length;
                         spell.Spread = (attack.spread == -1) ? 3 : attack.spread;
+                        spell.IsDirectional = true;
                     }
 
                     if (attack.radius > 0)
