@@ -552,6 +552,11 @@ namespace MonsterConverterTfsXml
                         ability.Add(new XAttribute("radius", spell.Radius));
                         ability.Add(new XAttribute("target", (spell.OnTarget == true) ? 1 : 0));
                     }
+                    if (spell.Ring != null)
+                    {
+                        ability.Add(new XAttribute("ring", spell.Ring));
+                        ability.Add(new XAttribute("target", (spell.OnTarget == true) ? 1 : 0));
+                    }
                     if (spell.Length != null)
                     {
                         ability.Add(new XAttribute("length", spell.Length));
@@ -1373,6 +1378,12 @@ namespace MonsterConverterTfsXml
                     if (attack.radius > 0)
                     {
                         spell.Radius = attack.radius;
+                        spell.OnTarget = (attack.target == 1);
+                    }
+
+                    if (attack.ring > 0)
+                    {
+                        spell.Ring = attack.ring;
                         spell.OnTarget = (attack.target == 1);
                     }
 

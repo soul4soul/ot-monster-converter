@@ -165,6 +165,8 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int radius = 0;
         [XmlAttribute]
+        public int ring = 0;
+        [XmlAttribute]
         public int direction = -1; // 0/1, default is 0, set to 1 if length is set, only parsed if scripts attribute is set
         [XmlAttribute]
         public int target = -1; // 0/1, default is 0, parsed if script or radius attribute is set
