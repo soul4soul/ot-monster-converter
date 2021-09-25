@@ -107,7 +107,7 @@ namespace MonsterConverterInterface.MonsterTypes
         FaeExplosion = 184,
         FaeComing,
         FaeGoing,
-        BigCloudsSinleSpace = 188,
+        BigCloudsSingleSpace = 188,
         StonesSingleSpace,
         BlueGhost = 191,
         PointOfInterest = 193,
