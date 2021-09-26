@@ -1091,6 +1091,11 @@ namespace MonsterConverterTibiaWiki
                     spell.Length = 3;
                     spell.Spread = 2;
                     break;
+                case "3sqmwavewide":
+                    spell.IsDirectional = true;
+                    spell.Length = 3;
+                    spell.Spread = 1;
+                    break;
                 case "5sqmwavenarrow":
                     spell.IsDirectional = true;
                     spell.Length = 5;

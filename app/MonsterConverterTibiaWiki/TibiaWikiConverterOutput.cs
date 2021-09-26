@@ -392,6 +392,12 @@ namespace MonsterConverterTibiaWiki
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
+            else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 1))
+            {
+                scene.Spell = "3sqmwavewide";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
             else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 3))
             {
                 scene.Spell = "5sqmwavenarrow";
