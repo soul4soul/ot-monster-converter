@@ -641,8 +641,12 @@ namespace MonsterConverterTibiaWiki
 
             int intVal;
             bool boolVal;
+
             var monsterPage = RequestData(monsterurl).Result;
-            InfoboxCreatureTemplate creature = TemplateParser.Deserialize<InfoboxCreatureTemplate>(monsterPage.Wikitext.Empty);
+            // Replace html on page with nothing, the data inside the tags isn't needed and the template parser can choke on it
+            var textWithoutHtml = Regex.Replace(monsterPage.Wikitext.Empty, @"<([A-z0-9]*)\b[^>]*>.*?<\/\1>", "", RegexOptions.Singleline | RegexOptions.Compiled);
+
+            InfoboxCreatureTemplate creature = TemplateParser.Deserialize<InfoboxCreatureTemplate>(textWithoutHtml);
             monster = new Monster();
             if (!string.IsNullOrWhiteSpace(creature.Name)) { monster.RegisteredName = monster.FileName = creature.Name; }
             if (!string.IsNullOrWhiteSpace(creature.ActualName)) { monster.Name = creature.ActualName; }
