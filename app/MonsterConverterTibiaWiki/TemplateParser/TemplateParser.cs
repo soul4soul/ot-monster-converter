@@ -92,7 +92,7 @@ namespace MonsterConverterTibiaWiki
                     value = propInfoTemplateAttr.PropertyInfo.GetValue(input);
                 }
 
-                if (value == null && propInfoTemplateAttr.TemplateNameAttribute.Required == ParameterRequired.No)
+                if (value == null && propInfoTemplateAttr.TemplateNameAttribute.Required != ParameterRequired.Yes)
                 {
                     continue;
                 }
