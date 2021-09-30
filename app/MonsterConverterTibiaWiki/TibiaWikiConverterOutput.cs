@@ -248,19 +248,62 @@ namespace MonsterConverterTibiaWiki
                     {
                         melee.Element = WikiToElements.Reverse[s.DamageElement];
                     }
-
-                    if (GenericSpellToScene(s, mon.Name, out string scene))
-                    {
-                        melee.Scene = scene;
-                    }
+                    melee.Scene = GenericSpellToScene(s, mon.Name);
 
                     abilities.Add(TemplateParser.Serialize(melee));
                 }
-                else if (s.Name == "haste")
+                else if (s.Name == "speed")
                 {
-                    HasteTemplate haste = new HasteTemplate();
-                    haste.Name = wikiName;
-                    abilities.Add(TemplateParser.Serialize(haste));
+                    if (s.SpellCategory == SpellCategory.Defensive)
+                    {
+                        HasteTemplate haste = new HasteTemplate();
+                        if (wikiName == s.Name)
+                        {
+                            wikiName = null; // Let TibiaWiki handle it
+                        }
+                        haste.Name = wikiName;
+                        abilities.Add(TemplateParser.Serialize(haste));
+                    }
+                    else
+                    {
+                        // Use ability or debuff template
+                    }
+                }
+                else if (s.Name == "firefield")
+                {
+                    AbilityTemplate ability = new AbilityTemplate();
+                    if (wikiName == s.Name)
+                    {
+                        wikiName = "Creates [[Fire Field|Fire]]";
+                    }
+                    ability.Name = wikiName;
+                    ability.Element = WikiToElements.Reverse[CombatDamage.Fire];
+                    ability.Scene = GenericSpellToScene(s, mon.Name, "Fire");
+                    abilities.Add(TemplateParser.Serialize(ability));
+                }
+                else if (s.Name == "energyfield")
+                {
+                    AbilityTemplate ability = new AbilityTemplate();
+                    if (wikiName == s.Name)
+                    {
+                        wikiName = "Creates [[Energy Field|Energy_Field_(Field)]]";
+                    }
+                    ability.Name = wikiName;
+                    ability.Element = WikiToElements.Reverse[CombatDamage.Energy];
+                    ability.Scene = GenericSpellToScene(s, mon.Name, "Energy_Field_(Field)");
+                    abilities.Add(TemplateParser.Serialize(ability));
+                }
+                else if (s.Name == "poisonfield")
+                {
+                    AbilityTemplate ability = new AbilityTemplate();
+                    if (wikiName == s.Name)
+                    {
+                        wikiName = "Creates [[Poison Field|Poison_Gas]]";
+                    }
+                    ability.Name = wikiName;
+                    ability.Element = WikiToElements.Reverse[CombatDamage.Earth];
+                    ability.Scene = GenericSpellToScene(s, mon.Name, "Poison_Gas");
+                    abilities.Add(TemplateParser.Serialize(ability));
                 }
                 else if (s.Name == "combat")
                 {
@@ -269,11 +312,7 @@ namespace MonsterConverterTibiaWiki
                         HealingTemplate healing = new HealingTemplate();
                         healing.Name = wikiName;
                         healing.Damage = damage;
-
-                        if (GenericSpellToScene(s, mon.Name, out string scene))
-                        {
-                            healing.Scene = scene;
-                        }
+                        healing.Scene = GenericSpellToScene(s, mon.Name);
 
                         abilities.Add(TemplateParser.Serialize(healing));
                     }
@@ -286,12 +325,7 @@ namespace MonsterConverterTibiaWiki
                         {
                             ability.Element = WikiToElements.Reverse[s.DamageElement];
                         }
-
-                        if (GenericSpellToScene(s, mon.Name, out string scene))
-                        {
-                            ability.Scene = scene;
-                        }
-
+                        ability.Scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(ability));
                     }
                 }
@@ -312,7 +346,7 @@ namespace MonsterConverterTibiaWiki
             return TemplateParser.Serialize(abilityList, false);
         }
 
-        private static bool GenericSpellToScene(Spell spell, string caster, out string sceneSerailized)
+        private static string GenericSpellToScene(Spell spell, string caster, string field = null)
         {
             bool hasSceneData = false;
             SceneTemplate scene = new SceneTemplate();
@@ -336,6 +370,8 @@ namespace MonsterConverterTibiaWiki
             {
                 scene.Effect = effectIds.Reverse[spell.AreaEffect];
             }
+
+            // Not sure what to do yet with the field, could put it in effect?
 
             // Sort from most strict requirements to least strict
             if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 1))
@@ -415,6 +451,7 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "plusspelltarget";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.Effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 3))
@@ -422,6 +459,7 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "1sqmballtarget";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.Effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 4))
@@ -429,6 +467,7 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "2sqmballtarget";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.Effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 5))
@@ -436,6 +475,7 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "3sqmballtarget";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.Effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 6))
@@ -443,6 +483,7 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "4sqmballtarget";
                 scene.MissileDistance = "4/4";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.Effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 7))
@@ -450,6 +491,7 @@ namespace MonsterConverterTibiaWiki
                 scene.Spell = "5sqmballtarget";
                 scene.MissileDistance = "5/5";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.Effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 1))
@@ -546,8 +588,11 @@ namespace MonsterConverterTibiaWiki
                 hasSceneData = true;
             }
 
-            sceneSerailized = TemplateParser.Serialize(scene);
-            return hasSceneData;
+            if (hasSceneData)
+            {
+                return TemplateParser.Serialize(scene);
+            }
+            return null;
         }
     }
 }
