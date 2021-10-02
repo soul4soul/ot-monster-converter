@@ -37,13 +37,17 @@ namespace MonsterConverterTibiaWiki
             Type myType = typeof(T);
             string templateName = myType.Name;
             TemplateNameAttribute attr = GetTemplateNameAttribute(myType);
+            string beforePropName = null;
+            string afterPropName = null;
             if (attr != null)
             {
                 templateName = attr.Name;
+                beforePropName = attr.BeforeCaptureProperty;
+                afterPropName = attr.AfterCaptureProperty;
             }
 
             if (!typeOrderedPropInfo.ContainsKey(myType))
-                typeOrderedPropInfo.Add(myType, GetOrderedPropertyNames(myType));
+                typeOrderedPropInfo.Add(myType, GetOrderedPropertyNames(myType, beforePropName, afterPropName));
             var indexedPropertyNames = typeOrderedPropInfo[myType];
 
             // Used to align equal signs for multiline output
@@ -66,6 +70,7 @@ namespace MonsterConverterTibiaWiki
             string templateClosingAlignment = isSingleLine ? "" : $"{Environment.NewLine}";
 
             string output = $"{{{{{templateName}";
+            bool hasSkippedProp = false;
             foreach (var propInfoTemplateAttr in indexedPropertyNames)
             {
                 string name = propInfoTemplateAttr.PropertyInfo.Name;
@@ -94,10 +99,11 @@ namespace MonsterConverterTibiaWiki
 
                 if (value == null && propInfoTemplateAttr.TemplateNameAttribute.Required != ParameterRequired.Yes)
                 {
+                    hasSkippedProp = true;
                     continue;
                 }
 
-                if (propInfoTemplateAttr.TemplateNameAttribute.Indicator == ParameterIndicator.Name)
+                if (propInfoTemplateAttr.TemplateNameAttribute.Indicator == ParameterIndicator.Name || hasSkippedProp)
                 {
                     string paramBeforeEqualAlignment = "";
                     if (!isSingleLine)
@@ -117,12 +123,14 @@ namespace MonsterConverterTibiaWiki
             return output;
         }
 
-        private static IList<PropInfoWithTemplateAttr> GetOrderedPropertyNames(Type myType)
+        private static IList<PropInfoWithTemplateAttr> GetOrderedPropertyNames(Type myType, string beforePropName, string afterPropName)
         {
             IList<PropInfoWithTemplateAttr> result = new List<PropInfoWithTemplateAttr>();
 
             foreach (PropertyInfo pi in myType.GetProperties())
             {
+                if ((pi.Name == beforePropName) || (pi.Name == afterPropName)) { continue; }
+
                 object[] attrObjs = pi.GetCustomAttributes(typeof(TemplateParameterAttribute), false);
                 if (attrObjs.Length == 0) { continue; }
 
