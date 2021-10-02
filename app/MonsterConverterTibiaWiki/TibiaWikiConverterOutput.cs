@@ -446,8 +446,10 @@ namespace MonsterConverterTibiaWiki
             {
                 scene.effect = effectIds.Reverse[spell.AreaEffect];
             }
-
-            // Not sure what to do yet with the field, could put it in effect?
+            if (field != null)
+            {
+                scene.effect = field;
+            }
 
             // Sort from most strict requirements to least strict
             if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 1))
