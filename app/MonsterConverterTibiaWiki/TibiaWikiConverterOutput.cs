@@ -58,7 +58,7 @@ namespace MonsterConverterTibiaWiki
                 sounds = GenericToTibiaWikiVoice(monster),
                 runsat = monster.RunOnHealth.ToString(),
                 speed = monster.Speed.ToString(),
-                abilities = GenericToTibiaWikiAbilities(monster, ref result),
+                abilities = GenericToTibiaWikiAbilities(monster, result),
                 location = monster.Bestiary.Location,
                 loot = GenericToTibiaWikiLootList(monster)
             };
@@ -221,7 +221,7 @@ namespace MonsterConverterTibiaWiki
             return $"{{{{Loot Item|{countPart}|{name}|{chancePart}}}}}";
         }
 
-        private static string GenericToTibiaWikiAbilities(Monster mon, ref ConvertResultEventArgs result)
+        private static string GenericToTibiaWikiAbilities(Monster mon, ConvertResultEventArgs result)
         {
             IList<string> abilities = new List<string>();
             foreach (var s in mon.Attacks)

@@ -704,11 +704,11 @@ namespace MonsterConverterTibiaWiki
             if (!string.IsNullOrWhiteSpace(creature.location)) { monster.Bestiary.Location = creature.location; }
             if (!string.IsNullOrWhiteSpace(creature.loot)) { ParseLoot(monster, creature.loot, filename, result); }
 
-            if (creature.bestiaryclass.Equals("undead", StringComparison.OrdinalIgnoreCase))
+            if (creature.bestiaryclass != null && creature.bestiaryclass.Equals("undead", StringComparison.OrdinalIgnoreCase))
             {
                 monster.Race = Blood.undead;
             }
-            else if (creature.bestiaryclass.Equals("construct", StringComparison.OrdinalIgnoreCase))
+            else if (creature.bestiaryclass != null && creature.bestiaryclass.Equals("construct", StringComparison.OrdinalIgnoreCase))
             {
                 monster.Race = Blood.undead;
             }
@@ -791,7 +791,7 @@ namespace MonsterConverterTibiaWiki
                 {
                     foreach (string sound in soundTemplated.sounds)
                     {
-                        // Sometimes unknow sound templates include a single empty sound {{SoundList|}}
+                        // Sometimes sound templates include a single empty sound {{SoundList|}}
                         if (!string.IsNullOrWhiteSpace(sound))
                         {
                             // TibiaWiki doesn't include sound level information, default to say
@@ -814,10 +814,7 @@ namespace MonsterConverterTibiaWiki
 
         private static void ParseAbilities(Monster mon, string abilities, ConvertResultEventArgs result)
         {
-            // Shouldn't need any of this anymore for ParseAbilityList, but it is still useful for ParseLegacyAbilities
-            abilities = abilities.ToLower().Replace("\r", "").Replace("\n", "").Trim();
-
-            if (abilities.Contains("ability list"))
+            if (TemplateParser.IsTemplateMatch<AbilityListTemplate>(abilities))
                 ParseAbilityList(mon, abilities, result);
             else
                 ParseLegacyAbilities(mon, abilities, result);
@@ -832,6 +829,7 @@ namespace MonsterConverterTibiaWiki
         /// <param name="abilities"></param>
         private static void ParseLegacyAbilities(Monster mon, string abilities, ConvertResultEventArgs result)
         {
+            abilities = abilities.ToLower().Replace("\r", "").Replace("\n", "").Trim();
             if (string.IsNullOrWhiteSpace(abilities) || abilities.Contains("none") || abilities.Contains("unknown") || abilities == "?")
                 return;
 
