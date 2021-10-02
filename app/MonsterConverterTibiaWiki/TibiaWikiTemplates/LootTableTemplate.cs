@@ -4,6 +4,6 @@
     class LootTableTemplate
     {
         [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string[] Loot { get; set; }
+        public string[] loot { get; set; }
     }
 }

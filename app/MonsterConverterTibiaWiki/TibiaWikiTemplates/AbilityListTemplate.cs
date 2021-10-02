@@ -4,6 +4,6 @@
     class AbilityListTemplate
     {
         [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string[] Ability { get; set; }
+        public string[] ability { get; set; }
     }
 }

@@ -4,6 +4,6 @@
     class LootItemTemplate
     {
         [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string[] Parts { get; set; }
+        public string[] parts { get; set; }
     }
 }

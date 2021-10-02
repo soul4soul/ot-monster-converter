@@ -4,6 +4,6 @@
     class SoundListTemplate
     {
         [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string[] Sounds { get; set; }
+        public string[] sounds { get; set; }
     }
 }

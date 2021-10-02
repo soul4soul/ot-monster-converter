@@ -10,6 +10,8 @@ namespace MonsterConverterTibiaWiki
 {
     static class TemplateParser
     {
+        private record PropInfoWithTemplateAttr(PropertyInfo PropertyInfo, TemplateParameterAttribute TemplateNameAttribute);
+
         private static readonly IDictionary<Type, IDictionary<string, PropertyInfo>> typePropInfoDic = new Dictionary<Type, IDictionary<string, PropertyInfo>>();
         private static readonly IDictionary<Type, IList<PropInfoWithTemplateAttr>> typeOrderedPropInfo = new Dictionary<Type, IList<PropInfoWithTemplateAttr>>();
 
@@ -35,13 +37,17 @@ namespace MonsterConverterTibiaWiki
             Type myType = typeof(T);
             string templateName = myType.Name;
             TemplateNameAttribute attr = GetTemplateNameAttribute(myType);
+            string beforePropName = null;
+            string afterPropName = null;
             if (attr != null)
             {
                 templateName = attr.Name;
+                beforePropName = attr.BeforeCaptureProperty;
+                afterPropName = attr.AfterCaptureProperty;
             }
 
             if (!typeOrderedPropInfo.ContainsKey(myType))
-                typeOrderedPropInfo.Add(myType, GetOrderedPropertyNames(myType));
+                typeOrderedPropInfo.Add(myType, GetOrderedPropertyNames(myType, beforePropName, afterPropName));
             var indexedPropertyNames = typeOrderedPropInfo[myType];
 
             // Used to align equal signs for multiline output
@@ -64,6 +70,7 @@ namespace MonsterConverterTibiaWiki
             string templateClosingAlignment = isSingleLine ? "" : $"{Environment.NewLine}";
 
             string output = $"{{{{{templateName}";
+            bool hasSkippedProp = false;
             foreach (var propInfoTemplateAttr in indexedPropertyNames)
             {
                 string name = propInfoTemplateAttr.PropertyInfo.Name;
@@ -90,12 +97,13 @@ namespace MonsterConverterTibiaWiki
                     value = propInfoTemplateAttr.PropertyInfo.GetValue(input);
                 }
 
-                if (value == null && propInfoTemplateAttr.TemplateNameAttribute.Required == ParameterRequired.No)
+                if (value == null && propInfoTemplateAttr.TemplateNameAttribute.Required != ParameterRequired.Yes)
                 {
+                    hasSkippedProp = true;
                     continue;
                 }
 
-                if (propInfoTemplateAttr.TemplateNameAttribute.Indicator == ParameterIndicator.Name)
+                if (propInfoTemplateAttr.TemplateNameAttribute.Indicator == ParameterIndicator.Name || hasSkippedProp)
                 {
                     string paramBeforeEqualAlignment = "";
                     if (!isSingleLine)
@@ -115,14 +123,14 @@ namespace MonsterConverterTibiaWiki
             return output;
         }
 
-        private record PropInfoWithTemplateAttr(PropertyInfo PropertyInfo, TemplateParameterAttribute TemplateNameAttribute);
-
-        private static IList<PropInfoWithTemplateAttr> GetOrderedPropertyNames(Type myType)
+        private static IList<PropInfoWithTemplateAttr> GetOrderedPropertyNames(Type myType, string beforePropName, string afterPropName)
         {
             IList<PropInfoWithTemplateAttr> result = new List<PropInfoWithTemplateAttr>();
 
             foreach (PropertyInfo pi in myType.GetProperties())
             {
+                if ((pi.Name == beforePropName) || (pi.Name == afterPropName)) { continue; }
+
                 object[] attrObjs = pi.GetCustomAttributes(typeof(TemplateParameterAttribute), false);
                 if (attrObjs.Length == 0) { continue; }
 
@@ -171,21 +179,21 @@ namespace MonsterConverterTibiaWiki
 
                 if ((attr != null) && (attr.BeforeCaptureProperty != null) && (m.Groups["before"].Success))
                 {
-                    if (!indexedPropertyNames.ContainsKey(attr.BeforeCaptureProperty.ToLower()))
+                    if (!indexedPropertyNames.ContainsKey(attr.BeforeCaptureProperty))
                     {
                         System.Diagnostics.Debug.WriteLine($"template {templateName} no matching BeforeCaptureProperty found");
                     }
-                    prop = indexedPropertyNames[attr.BeforeCaptureProperty.ToLower()];
+                    prop = indexedPropertyNames[attr.BeforeCaptureProperty];
                     prop.SetValue(output, m.Groups["before"].Value.Trim(), null);
                 }
 
                 if ((attr != null) && (attr.AfterCaptureProperty != null) && (m.Groups["after"].Success))
                 {
-                    if (!indexedPropertyNames.ContainsKey(attr.AfterCaptureProperty.ToLower()))
+                    if (!indexedPropertyNames.ContainsKey(attr.AfterCaptureProperty))
                     {
                         System.Diagnostics.Debug.WriteLine($"template {templateName} no matching AfterCaptureProperty found");
                     }
-                    prop = indexedPropertyNames[attr.AfterCaptureProperty.ToLower()];
+                    prop = indexedPropertyNames[attr.AfterCaptureProperty];
                     prop.SetValue(output, m.Groups["after"].Value.Trim(), null);
                 }
 
@@ -200,7 +208,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         if (m.Groups["name"].Success)
                         {
-                            string parameterName = m.Groups["name"].Value.ToLower();
+                            string parameterName = m.Groups["name"].Value;
                             if (!indexedPropertyNames.ContainsKey(parameterName))
                             {
                                 System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
@@ -275,9 +283,9 @@ namespace MonsterConverterTibiaWiki
                     TemplateParameterAttribute templateParmAttr = attrObj as TemplateParameterAttribute;
                     if (templateParmAttr != null)
                     {
-                        string loopUpName = pi.Name.ToLower();
+                        string loopUpName = pi.Name;
                         if (!string.IsNullOrWhiteSpace(templateParmAttr.Name))
-                            loopUpName = templateParmAttr.Name.ToLower();
+                            loopUpName = templateParmAttr.Name;
 
                         if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Position))
                             propInfoDic.Add(templateParmAttr.Index.ToString(), pi);

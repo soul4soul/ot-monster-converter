@@ -45,5 +45,16 @@ namespace MonsterConverterInterface.MonsterTypes
         public int Addons { get; set; }
 
         public int Mount { get; set; }
+
+        public void CopyFrom(LookData other)
+        {
+            LookType = other.LookType;
+            LookId = other.LookId;
+            Head = other.Head;
+            Body = other.Body;
+            Legs = other.Legs;
+            Feet = other.Feet;
+            Addons = other.Addons;
+        }
     }
 }
