@@ -13,6 +13,9 @@ namespace MonsterConverterTibiaWiki
     {
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
+            string fileName = Path.Combine(directory, monster.FileName);
+            ConvertResultEventArgs result = new ConvertResultEventArgs(fileName);
+
             string article = monster.Description.ToLower().Replace(monster.Name.ToLower(), "").Trim();
             if (article != "a" || article != "an")
             {
@@ -55,15 +58,14 @@ namespace MonsterConverterTibiaWiki
                 sounds = GenericToTibiaWikiVoice(monster),
                 runsat = monster.RunOnHealth.ToString(),
                 speed = monster.Speed.ToString(),
-                abilities = GenericToTibiaWikiAbilities(monster),
+                abilities = GenericToTibiaWikiAbilities(monster, ref result),
                 location = monster.Bestiary.Location,
                 loot = GenericToTibiaWikiLootList(monster)
             };
             string output = TemplateParser.Serialize(creature, false);
-            string fileName = Path.Combine(directory, monster.FileName);
             File.WriteAllText(fileName, output);
 
-            return new ConvertResultEventArgs(fileName, ConvertError.Warning, "abilities not written.");
+            return result;
         }
 
         private string GenericToTibiaWikiOccurennce(Monster monster)
@@ -219,7 +221,7 @@ namespace MonsterConverterTibiaWiki
             return $"{{{{Loot Item|{countPart}|{name}|{chancePart}}}}}";
         }
 
-        private static string GenericToTibiaWikiAbilities(Monster mon)
+        private static string GenericToTibiaWikiAbilities(Monster mon, ref ConvertResultEventArgs result)
         {
             IList<string> abilities = new List<string>();
             foreach (var s in mon.Attacks)
@@ -334,6 +336,34 @@ namespace MonsterConverterTibiaWiki
                         ability.scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(ability));
                     }
+                }
+                else if (s.Name == "invisible")
+                {
+                    AbilityTemplate ability = new AbilityTemplate();
+                    ability.name = wikiName;
+                    ability.element = "invisible";
+
+                    int timeSecVal = (s.Duration == null) ? 1 : (int)s.Duration / 1000;
+                    string timeStr = (timeSecVal > 1) ? $"{timeSecVal} seconds" : "1 second";
+
+                    string rate = "";
+                    if (s.Chance >= 0.25)
+                    {
+                        rate = ", often";
+                    }
+                    else if (s.Chance < 0.05)
+                    {
+                        rate = ", rarely";
+                    }
+
+                    ability.damage = $"{timeStr}{rate}";
+                    ability.scene = GenericSpellToScene(s, mon.Name);
+                    abilities.Add(TemplateParser.Serialize(ability));
+                }
+                else
+                {
+                    result.AppendMessage($"Can't convert ability {s}");
+                    result.IncreaseError(ConvertError.Warning);
                 }
             }
 
