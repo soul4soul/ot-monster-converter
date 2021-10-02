@@ -318,6 +318,10 @@ namespace MonsterConverterTibiaWiki
                     if ((s.DamageElement == CombatDamage.Healing) && (s.SpellCategory == SpellCategory.Defensive))
                     {
                         HealingTemplate healing = new HealingTemplate();
+                        if (wikiName == s.Name)
+                        {
+                            wikiName = null; // Let wiki handle it
+                        }
                         healing.name = wikiName;
                         healing.damage = damage;
                         healing.scene = GenericSpellToScene(s, mon.Name);
