@@ -44,9 +44,9 @@ namespace MonsterConverterInterface.MonsterTypes
             AvoidPoison = true;
 
             // Immunities
-            IgnoreParalyze = false;
-            IgnoreInvisible = false;
-            IgnoreDrunk = false;
+            IgnoreParalyze = true;
+            IgnoreInvisible = true;
+            IgnoreDrunk = true;
             IgnoreOutfit = false;
 
             // Defences
