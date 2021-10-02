@@ -635,7 +635,7 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
-            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Blood type and abilities are not parsed.");
+            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Blood type guessed and abilities are not parsed.");
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
 
@@ -703,6 +703,15 @@ namespace MonsterConverterTibiaWiki
             if (!string.IsNullOrWhiteSpace(creature.abilities)) { ParseAbilities(monster, creature.abilities, result); }
             if (!string.IsNullOrWhiteSpace(creature.location)) { monster.Bestiary.Location = creature.location; }
             if (!string.IsNullOrWhiteSpace(creature.loot)) { ParseLoot(monster, creature.loot, filename, result); }
+
+            if (creature.bestiaryclass.Equals("undead", StringComparison.OrdinalIgnoreCase))
+            {
+                monster.Race = Blood.undead;
+            }
+            else if (creature.bestiaryclass.Equals("construct", StringComparison.OrdinalIgnoreCase))
+            {
+                monster.Race = Blood.undead;
+            }
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
             if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
