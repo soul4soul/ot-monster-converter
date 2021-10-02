@@ -635,7 +635,7 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
-            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Blood type, look type data, and abilities are not parsed.");
+            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Blood type and abilities are not parsed.");
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
 
@@ -691,6 +691,11 @@ namespace MonsterConverterTibiaWiki
                 if (hardcodedLooks.ContainsKey(monster.RaceId))
                 {
                     monster.Look.CopyFrom(hardcodedLooks[monster.RaceId]);
+                }
+                else
+                {
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Look type not found");
                 }
             }
             if (!string.IsNullOrWhiteSpace(creature.sounds)) { ParseSoundList(monster, creature.sounds); }
