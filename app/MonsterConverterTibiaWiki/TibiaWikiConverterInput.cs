@@ -635,7 +635,7 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
-            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Blood type guessed and abilities are not parsed.");
+            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Corpses id missing, blood type guessed, and limited ability parsing.");
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
 
@@ -821,7 +821,7 @@ namespace MonsterConverterTibiaWiki
         }
 
         /// <summary>
-        /// Historically abilities were a comma seperate list of losely conforming enlgish
+        /// Historically abilities were a comma seperate list of losely conforming english
         /// The TibiaWiki admins have replaced this format with a standard template.
         /// Eventually everything will switch to the ability list template and this function can be removed
         /// </summary>
