@@ -293,6 +293,7 @@ namespace MonsterConverterTfsXml
             }
 
             XmlWriterSettings xws = new XmlWriterSettings();
+            xws.Encoding = new UTF8Encoding(false);
             xws.Indent = true;
             xws.IndentChars = "\t";
 
