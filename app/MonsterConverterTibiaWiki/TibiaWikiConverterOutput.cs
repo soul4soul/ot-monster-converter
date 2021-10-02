@@ -13,9 +13,16 @@ namespace MonsterConverterTibiaWiki
     {
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
+            string article = monster.Description.ToLower().Replace(monster.Name.ToLower(), "").Trim();
+            if (article != "a" || article != "an")
+            {
+                article = null;
+            }
+
             InfoboxCreatureTemplate creature = new InfoboxCreatureTemplate()
             {
                 name = monster.RegisteredName,
+                article = article,
                 hp = monster.Health.ToString(),
                 actualname = monster.Name,
                 exp = monster.Experience.ToString(),
@@ -56,7 +63,7 @@ namespace MonsterConverterTibiaWiki
             string fileName = Path.Combine(directory, monster.FileName);
             File.WriteAllText(fileName, output);
 
-            return new ConvertResultEventArgs(fileName, ConvertError.Warning, "Summons, abilities, and description information is not written.");
+            return new ConvertResultEventArgs(fileName, ConvertError.Warning, "abilities not written.");
         }
 
         private string GenericToTibiaWikiOccurennce(Monster monster)
