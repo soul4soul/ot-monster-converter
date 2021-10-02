@@ -648,8 +648,9 @@ namespace MonsterConverterTibiaWiki
 
             InfoboxCreatureTemplate creature = TemplateParser.Deserialize<InfoboxCreatureTemplate>(textWithoutHtml);
             monster = new Monster();
-            if (!string.IsNullOrWhiteSpace(creature.name)) { monster.RegisteredName = monster.FileName = creature.name; }
-            if (!string.IsNullOrWhiteSpace(creature.actualName)) { monster.Name = creature.actualName; }
+            monster.FileName = filename;
+            if (!string.IsNullOrWhiteSpace(creature.name)) { monster.RegisteredName = creature.name; }
+            if (!string.IsNullOrWhiteSpace(creature.actualname)) { monster.Name = creature.actualname; }
             if (!string.IsNullOrWhiteSpace(creature.article)) { ParseArticle(monster, creature.article); }
             if (RobustTryParse(creature.hp, out intVal)) { monster.Health = intVal; }
             if (RobustTryParse(creature.exp, out intVal)) { monster.Experience = intVal; }
