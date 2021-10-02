@@ -171,21 +171,21 @@ namespace MonsterConverterTibiaWiki
 
                 if ((attr != null) && (attr.BeforeCaptureProperty != null) && (m.Groups["before"].Success))
                 {
-                    if (!indexedPropertyNames.ContainsKey(attr.BeforeCaptureProperty.ToLower()))
+                    if (!indexedPropertyNames.ContainsKey(attr.BeforeCaptureProperty))
                     {
                         System.Diagnostics.Debug.WriteLine($"template {templateName} no matching BeforeCaptureProperty found");
                     }
-                    prop = indexedPropertyNames[attr.BeforeCaptureProperty.ToLower()];
+                    prop = indexedPropertyNames[attr.BeforeCaptureProperty];
                     prop.SetValue(output, m.Groups["before"].Value.Trim(), null);
                 }
 
                 if ((attr != null) && (attr.AfterCaptureProperty != null) && (m.Groups["after"].Success))
                 {
-                    if (!indexedPropertyNames.ContainsKey(attr.AfterCaptureProperty.ToLower()))
+                    if (!indexedPropertyNames.ContainsKey(attr.AfterCaptureProperty))
                     {
                         System.Diagnostics.Debug.WriteLine($"template {templateName} no matching AfterCaptureProperty found");
                     }
-                    prop = indexedPropertyNames[attr.AfterCaptureProperty.ToLower()];
+                    prop = indexedPropertyNames[attr.AfterCaptureProperty];
                     prop.SetValue(output, m.Groups["after"].Value.Trim(), null);
                 }
 
@@ -200,7 +200,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         if (m.Groups["name"].Success)
                         {
-                            string parameterName = m.Groups["name"].Value.ToLower();
+                            string parameterName = m.Groups["name"].Value;
                             if (!indexedPropertyNames.ContainsKey(parameterName))
                             {
                                 System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
@@ -275,9 +275,9 @@ namespace MonsterConverterTibiaWiki
                     TemplateParameterAttribute templateParmAttr = attrObj as TemplateParameterAttribute;
                     if (templateParmAttr != null)
                     {
-                        string loopUpName = pi.Name.ToLower();
+                        string loopUpName = pi.Name;
                         if (!string.IsNullOrWhiteSpace(templateParmAttr.Name))
-                            loopUpName = templateParmAttr.Name.ToLower();
+                            loopUpName = templateParmAttr.Name;
 
                         if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Position))
                             propInfoDic.Add(templateParmAttr.Index.ToString(), pi);

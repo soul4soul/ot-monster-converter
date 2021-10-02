@@ -648,43 +648,43 @@ namespace MonsterConverterTibiaWiki
 
             InfoboxCreatureTemplate creature = TemplateParser.Deserialize<InfoboxCreatureTemplate>(textWithoutHtml);
             monster = new Monster();
-            if (!string.IsNullOrWhiteSpace(creature.Name)) { monster.RegisteredName = monster.FileName = creature.Name; }
-            if (!string.IsNullOrWhiteSpace(creature.ActualName)) { monster.Name = creature.ActualName; }
-            if (!string.IsNullOrWhiteSpace(creature.Article)) { ParseArticle(monster, creature.Article); }
-            if (RobustTryParse(creature.Hp, out intVal)) { monster.Health = intVal; }
-            if (RobustTryParse(creature.Exp, out intVal)) { monster.Experience = intVal; }
-            if (RobustTryParse(creature.Armor, out intVal)) { monster.TotalArmor = monster.Shielding = intVal; }
-            if (RobustTryParse(creature.Speed, out intVal)) { monster.Speed = intVal * 2; }
-            if (!string.IsNullOrWhiteSpace(creature.RunsAt)) { ParseRunAt(monster, creature.RunsAt); }
-            if (RobustTryParse(creature.Summon, out intVal)) { monster.SummonCost = intVal; }
-            if (RobustTryParse(creature.Convince, out intVal)) { monster.ConvinceCost = intVal; }
-            if (RobustTryParse(creature.Illusionable, out boolVal)) { monster.IsIllusionable = boolVal; }
-            if (RobustTryParse(creature.IsBoss, out boolVal)) { monster.IsBoss = boolVal; }
-            if (!string.IsNullOrWhiteSpace(creature.PrimaryType)) { monster.HideHealth = creature.PrimaryType.ToLower().Contains("trap"); }
-            if (!string.IsNullOrWhiteSpace(creature.BestiaryClass)) { monster.Bestiary.Class = creature.BestiaryClass; }
-            if (!string.IsNullOrWhiteSpace(creature.BestiaryLevel) && !string.IsNullOrWhiteSpace(creature.Occurrence))
+            if (!string.IsNullOrWhiteSpace(creature.name)) { monster.RegisteredName = monster.FileName = creature.name; }
+            if (!string.IsNullOrWhiteSpace(creature.actualName)) { monster.Name = creature.actualName; }
+            if (!string.IsNullOrWhiteSpace(creature.article)) { ParseArticle(monster, creature.article); }
+            if (RobustTryParse(creature.hp, out intVal)) { monster.Health = intVal; }
+            if (RobustTryParse(creature.exp, out intVal)) { monster.Experience = intVal; }
+            if (RobustTryParse(creature.armor, out intVal)) { monster.TotalArmor = monster.Shielding = intVal; }
+            if (RobustTryParse(creature.speed, out intVal)) { monster.Speed = intVal * 2; }
+            if (!string.IsNullOrWhiteSpace(creature.runsat)) { ParseRunAt(monster, creature.runsat); }
+            if (RobustTryParse(creature.summon, out intVal)) { monster.SummonCost = intVal; }
+            if (RobustTryParse(creature.convince, out intVal)) { monster.ConvinceCost = intVal; }
+            if (RobustTryParse(creature.illusionable, out boolVal)) { monster.IsIllusionable = boolVal; }
+            if (RobustTryParse(creature.isboss, out boolVal)) { monster.IsBoss = boolVal; }
+            if (!string.IsNullOrWhiteSpace(creature.primarytype)) { monster.HideHealth = creature.primarytype.ToLower().Contains("trap"); }
+            if (!string.IsNullOrWhiteSpace(creature.bestiaryclass)) { monster.Bestiary.Class = creature.bestiaryclass; }
+            if (!string.IsNullOrWhiteSpace(creature.bestiarylevel) && !string.IsNullOrWhiteSpace(creature.occurrence))
             {
-                ParseBestiaryLevel(monster, creature.BestiaryLevel, creature.Occurrence);
+                ParseBestiaryLevel(monster, creature.bestiarylevel, creature.occurrence);
             }
-            if (!string.IsNullOrWhiteSpace(creature.SpawnType)) { monster.IgnoreSpawnBlock = creature.SpawnType.ToLower().Contains("unblockable"); }
-            if (RobustTryParse(creature.Pushable, out boolVal)) { monster.IsPushable = boolVal; }
+            if (!string.IsNullOrWhiteSpace(creature.spawntype)) { monster.IgnoreSpawnBlock = creature.spawntype.ToLower().Contains("unblockable"); }
+            if (RobustTryParse(creature.pushable, out boolVal)) { monster.IsPushable = boolVal; }
             // In cipbia ability to push objects means ability to push creatures too
-            if (RobustTryParse(creature.PushObjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
-            if (RobustTryParse(creature.SenseInvis, out boolVal)) { monster.IgnoreInvisible = boolVal; }
-            if (RobustTryParse(creature.ParaImmune, out boolVal)) { monster.IgnoreParalyze = boolVal; }
-            if (!string.IsNullOrWhiteSpace(creature.WalksAround)) { ParseWalksAround(monster, creature.WalksAround); }
-            if (!string.IsNullOrWhiteSpace(creature.WalksThrough)) { ParseWalksThrough(monster, creature.WalksThrough); }
-            if (RobustTryParse(creature.PhysicalDmgMod, out intVal)) { monster.PhysicalDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.EarthDmgMod, out intVal)) { monster.EarthDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.FireDmgMod, out intVal)) { monster.FireDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.DeathDmgMod, out intVal)) { monster.DeathDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.EnergyDmgMod, out intVal)) { monster.EnergyDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.HolyDmgMod, out intVal)) { monster.HolyDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.IceDmgMod, out intVal)) { monster.IceDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.HealMod, out intVal)) { monster.HealingMod = intVal / 100.0; }
-            if (RobustTryParse(creature.LifeDrainDmgMod, out intVal)) { monster.LifeDrainDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.DrownDmgMod, out intVal)) { monster.DrownDmgMod = intVal / 100.0; }
-            if (RobustTryParse(creature.RaceId, out intVal))
+            if (RobustTryParse(creature.pushobjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
+            if (RobustTryParse(creature.senseinvis, out boolVal)) { monster.IgnoreInvisible = boolVal; }
+            if (RobustTryParse(creature.paraimmune, out boolVal)) { monster.IgnoreParalyze = boolVal; }
+            if (!string.IsNullOrWhiteSpace(creature.walksaround)) { ParseWalksAround(monster, creature.walksaround); }
+            if (!string.IsNullOrWhiteSpace(creature.walksthrough)) { ParseWalksThrough(monster, creature.walksthrough); }
+            if (RobustTryParse(creature.physicaldmgmod, out intVal)) { monster.PhysicalDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.earthdmgmod, out intVal)) { monster.EarthDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.firedmgmod, out intVal)) { monster.FireDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.deathdmgmod, out intVal)) { monster.DeathDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.energydmgmod, out intVal)) { monster.EnergyDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.holydmgmod, out intVal)) { monster.HolyDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.icedmgmod, out intVal)) { monster.IceDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.healmod, out intVal)) { monster.HealingMod = intVal / 100.0; }
+            if (RobustTryParse(creature.lifedraindmgmod, out intVal)) { monster.LifeDrainDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.drowndmgmod, out intVal)) { monster.DrownDmgMod = intVal / 100.0; }
+            if (RobustTryParse(creature.raceid, out intVal))
             {
                 monster.RaceId = intVal;
                 if (hardcodedLooks.ContainsKey(monster.RaceId))
@@ -692,11 +692,11 @@ namespace MonsterConverterTibiaWiki
                     monster.Look.CopyFrom(hardcodedLooks[monster.RaceId]);
                 }
             }
-            if (!string.IsNullOrWhiteSpace(creature.Sounds)) { ParseSoundList(monster, creature.Sounds); }
-            if (!string.IsNullOrWhiteSpace(creature.Behavior)) { ParseBehavior(monster, creature.Behavior); }
-            if (!string.IsNullOrWhiteSpace(creature.Abilities)) { ParseAbilities(monster, creature.Abilities, result); }
-            if (!string.IsNullOrWhiteSpace(creature.Location)) { monster.Bestiary.Location = creature.Location; }
-            if (!string.IsNullOrWhiteSpace(creature.Loot)) { ParseLoot(monster, creature.Loot, filename, result); }
+            if (!string.IsNullOrWhiteSpace(creature.sounds)) { ParseSoundList(monster, creature.sounds); }
+            if (!string.IsNullOrWhiteSpace(creature.behavior)) { ParseBehavior(monster, creature.behavior); }
+            if (!string.IsNullOrWhiteSpace(creature.abilities)) { ParseAbilities(monster, creature.abilities, result); }
+            if (!string.IsNullOrWhiteSpace(creature.location)) { monster.Bestiary.Location = creature.location; }
+            if (!string.IsNullOrWhiteSpace(creature.loot)) { ParseLoot(monster, creature.loot, filename, result); }
 
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
             if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
@@ -772,9 +772,9 @@ namespace MonsterConverterTibiaWiki
             if (TemplateParser.IsTemplateMatch<SoundListTemplate>(sounds))
             {
                 var soundTemplated = TemplateParser.Deserialize<SoundListTemplate>(sounds);
-                if (soundTemplated.Sounds != null)
+                if (soundTemplated.sounds != null)
                 {
-                    foreach (string sound in soundTemplated.Sounds)
+                    foreach (string sound in soundTemplated.sounds)
                     {
                         // Sometimes unknow sound templates include a single empty sound {{SoundList|}}
                         if (!string.IsNullOrWhiteSpace(sound))
@@ -908,15 +908,15 @@ namespace MonsterConverterTibiaWiki
         {
             var abilityList = TemplateParser.Deserialize<AbilityListTemplate>(abilities);
 
-            if (abilityList.Ability != null)
+            if (abilityList.ability != null)
             {
-                foreach (string ability in abilityList.Ability)
+                foreach (string ability in abilityList.ability)
                 {
                     if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
                     {
                         var melee = TemplateParser.Deserialize<MeleeTemplate>(ability);
                         var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                        if (TryParseRange(melee.Damage, out int min, out int max))
+                        if (TryParseRange(melee.damage, out int min, out int max))
                         {
                             spell.MinDamage = -min;
                             spell.MaxDamage = -max;
@@ -931,7 +931,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         var healing = TemplateParser.Deserialize<HealingTemplate>(ability);
                         var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                        if (TryParseRange(healing.Damage, out int min, out int max))
+                        if (TryParseRange(healing.damage, out int min, out int max))
                         {
                             spell.MinDamage = min;
                             spell.MaxDamage = max;
@@ -950,14 +950,14 @@ namespace MonsterConverterTibiaWiki
                     {
                         var summon = TemplateParser.Deserialize<SummonTemplate>(ability);
                         int maxSummons = 1;
-                        TryParseRange(summon.Amount, out int min, out maxSummons);
+                        TryParseRange(summon.amount, out int min, out maxSummons);
                         mon.MaxSummons += maxSummons;
-                        string firstSummonName = summon.Creature;
+                        string firstSummonName = summon.creature;
                         mon.Summons.Add(new Summon() { Name = firstSummonName });
 
-                        if (summon.Creatures != null)
+                        if (summon.creatures != null)
                         {
-                            foreach (var name in summon.Creatures)
+                            foreach (var name in summon.creatures)
                             {
                                 mon.Summons.Add(new Summon() { Name = name });
                             }
@@ -969,7 +969,7 @@ namespace MonsterConverterTibiaWiki
                         int MinSpeedChange = 300;
                         int MaxSpeedChange = 300;
                         int Duration = 7000;
-                        if ((!string.IsNullOrWhiteSpace(haste.Name) && haste.Name.Contains("strong")))
+                        if ((!string.IsNullOrWhiteSpace(haste.name) && haste.name.Contains("strong")))
                         {
                             MinSpeedChange = 450;
                             MaxSpeedChange = 450;
@@ -982,15 +982,15 @@ namespace MonsterConverterTibiaWiki
                     {
                         // TODO, report errors converting abilities each ability should be a single error entry even if that ability has multiple problems use a single entry
                         var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
-                        if (TryParseScene(abilityObj.Scene, out Spell spell))
+                        if (TryParseScene(abilityObj.scene, out Spell spell))
                         {
                             spell.Name = "combat";
                             spell.SpellCategory = SpellCategory.Offensive;
                             spell.DamageElement = CombatDamage.Physical;
-                            if (!string.IsNullOrWhiteSpace(abilityObj.Element) && WikiToElements.ContainsKey(abilityObj.Element.ToLower()))
-                                spell.DamageElement = WikiToElements[abilityObj.Element.ToLower()];
+                            if (!string.IsNullOrWhiteSpace(abilityObj.element) && WikiToElements.ContainsKey(abilityObj.element.ToLower()))
+                                spell.DamageElement = WikiToElements[abilityObj.element.ToLower()];
 
-                            if (TryParseRange(abilityObj.Damage, out int min, out int max))
+                            if (TryParseRange(abilityObj.damage, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
@@ -1029,17 +1029,17 @@ namespace MonsterConverterTibiaWiki
                 return false;
 
             SceneTemplate scene = TemplateParser.Deserialize<SceneTemplate>(input);
-            if ((scene.Missile != null) && (missileIds.ContainsKey(scene.Missile)))
+            if ((scene.missile != null) && (missileIds.ContainsKey(scene.missile)))
             {
-                spell.ShootEffect = missileIds[scene.Missile];
+                spell.ShootEffect = missileIds[scene.missile];
                 spell.OnTarget = true;
             }
-            if ((scene.Effect != null) && (effectIds.ContainsKey(scene.Effect)))
+            if ((scene.effect != null) && (effectIds.ContainsKey(scene.effect)))
             {
-                spell.AreaEffect = effectIds[scene.Effect];
+                spell.AreaEffect = effectIds[scene.effect];
             }
 
-            switch (scene.Spell)
+            switch (scene.spell)
             {
                 case "singleeffect":
                     spell.OnTarget = false;
@@ -1238,7 +1238,7 @@ namespace MonsterConverterTibiaWiki
         private static void ParseLoot(Monster monster, string lootTable, string filename, ConvertResultEventArgs result)
         {
             var lootTableTemplate = TemplateParser.Deserialize<LootTableTemplate>(lootTable);
-            if ((lootTableTemplate.Loot != null) && (lootTableTemplate.Loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.Loot[0])))
+            if ((lootTableTemplate.loot != null) && (lootTableTemplate.loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.loot[0])))
             {
                 // Request for full loot stats now that we are sure monster has loot
                 string looturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=Loot_Statistics:{filename}&prop=wikitext";
@@ -1302,41 +1302,41 @@ namespace MonsterConverterTibiaWiki
                 {
                     // Creature has loot but no loot statistics. Use information from loot table to generate the loot
                     // Could be loot item template or just a list of items....
-                    foreach (string loot in lootTableTemplate.Loot)
+                    foreach (string loot in lootTableTemplate.loot)
                     {
                         if (TemplateParser.IsTemplateMatch<LootItemTemplate>(loot))
                         {
                             LootItemTemplate lootItem = TemplateParser.Deserialize<LootItemTemplate>(loot);
-                            if (lootItem.Parts != null)
+                            if (lootItem.parts != null)
                             {
                                 LootItem genericLootItem = null;
-                                if (lootItem.Parts.Length == 1)
+                                if (lootItem.parts.Length == 1)
                                 {
                                     // template name only
-                                    genericLootItem = new LootItem() { Name = lootItem.Parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT };
+                                    genericLootItem = new LootItem() { Name = lootItem.parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT };
                                 }
-                                else if (lootItem.Parts.Length == 2)
+                                else if (lootItem.parts.Length == 2)
                                 {
                                     // template name + rarity OR count + name
                                     // Assumes first combination if parts[1] matches a rarity description
-                                    if (TryParseTibiaWikiRarity(lootItem.Parts[1], out decimal chance))
+                                    if (TryParseTibiaWikiRarity(lootItem.parts[1], out decimal chance))
                                     {
-                                        genericLootItem = new LootItem() { Name = lootItem.Parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT };
+                                        genericLootItem = new LootItem() { Name = lootItem.parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT };
                                     }
                                     else
                                     {
-                                        if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
+                                        if (!TryParseRange(lootItem.parts[0], out int min, out int max))
                                             max = DEFAULT_LOOT_COUNT;
-                                        genericLootItem = new LootItem() { Name = lootItem.Parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max };
+                                        genericLootItem = new LootItem() { Name = lootItem.parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max };
                                     }
                                 }
-                                else if (lootItem.Parts.Length == 3)
+                                else if (lootItem.parts.Length == 3)
                                 {
                                     // template name + rarity + count
-                                    if (!TryParseRange(lootItem.Parts[0], out int min, out int max))
+                                    if (!TryParseRange(lootItem.parts[0], out int min, out int max))
                                         max = DEFAULT_LOOT_COUNT;
-                                    TryParseTibiaWikiRarity(lootItem.Parts[2], out decimal chance);
-                                    genericLootItem = new LootItem() { Name = lootItem.Parts[1], Chance = chance, Count = max };
+                                    TryParseTibiaWikiRarity(lootItem.parts[2], out decimal chance);
+                                    genericLootItem = new LootItem() { Name = lootItem.parts[1], Chance = chance, Count = max };
                                 }
 
                                 if (genericLootItem != null)

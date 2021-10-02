@@ -4,12 +4,12 @@
     class SummonTemplate
     {
         [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string Creature { get; set; }
+        public string creature { get; set; }
 
         [TemplateParameter(Index = 1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string Amount { get; set; } = "1";
+        public string amount { get; set; } = "1";
 
         [TemplateParameter(Index = 2, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position)]
-        public string[] Creatures { get; set; }
+        public string[] creatures { get; set; }
     }
 }

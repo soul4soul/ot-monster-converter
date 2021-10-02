@@ -15,42 +15,42 @@ namespace MonsterConverterTibiaWiki
         {
             InfoboxCreatureTemplate creature = new InfoboxCreatureTemplate()
             {
-                Name = monster.RegisteredName,
-                Hp = monster.Health.ToString(),
-                ActualName = monster.Name,
-                Exp = monster.Experience.ToString(),
-                Armor = monster.TotalArmor.ToString(),
-                Summon = monster.SummonCost > 0 ? monster.SummonCost.ToString() : "--",
-                Convince = monster.ConvinceCost > 0 ? monster.ConvinceCost.ToString() : "--",
-                Illusionable = monster.IsIllusionable ? "yes" : "no",
-                PrimaryType = monster.HideHealth ? "trap" : "",
-                BestiaryClass = monster.Bestiary.Class,
-                BestiaryLevel = GenericToTibiaWikiBestiaryLevel(monster),
-                Occurrence = GenericToTibiaWikiOccurennce(monster),
-                SpawnType = monster.IgnoreSpawnBlock ? "Unblockable" : "",
-                IsBoss = monster.IsBoss ? "yes" : "no",
-                Pushable = monster.IsPushable ? "yes" : "no",
-                PushObjects = monster.PushItems ? "yes" : "no",
-                WalksAround = GenericToTibiaWikiWalkAround(monster),
-                WalksThrough = GenericToTibiaWikiWalkThrough(monster),
-                ParaImmune = monster.IgnoreParalyze ? "yes" : "no",
-                SenseInvis = monster.IgnoreInvisible ? "yes" : "no",
-                PhysicalDmgMod = $"{monster.PhysicalDmgMod * 100:0}%",
-                EarthDmgMod = $"{monster.EarthDmgMod * 100:0}%",
-                FireDmgMod = $"{monster.FireDmgMod * 100:0}%",
-                DeathDmgMod = $"{monster.DeathDmgMod * 100:0}%",
-                EnergyDmgMod = $"{monster.EnergyDmgMod * 100:0}%",
-                HolyDmgMod = $"{monster.HolyDmgMod * 100:0}%",
-                IceDmgMod = $"{monster.IceDmgMod * 100:0}%",
-                HealMod = $"{monster.HealingMod * 100:0}%",
-                LifeDrainDmgMod = $"{monster.LifeDrainDmgMod * 100:0}%",
-                DrownDmgMod = $"{monster.DrownDmgMod * 100:0}%",
-                Sounds = GenericToTibiaWikiVoice(monster),
-                RunsAt = monster.RunOnHealth.ToString(),
-                Speed = monster.Speed.ToString(),
-                Abilities = GenericToTibiaWikiAbilities(monster),
-                Location = monster.Bestiary.Location,
-                Loot = GenericToTibiaWikiLootList(monster)
+                name = monster.RegisteredName,
+                hp = monster.Health.ToString(),
+                actualname = monster.Name,
+                exp = monster.Experience.ToString(),
+                armor = monster.TotalArmor.ToString(),
+                summon = monster.SummonCost > 0 ? monster.SummonCost.ToString() : "--",
+                convince = monster.ConvinceCost > 0 ? monster.ConvinceCost.ToString() : "--",
+                illusionable = monster.IsIllusionable ? "yes" : "no",
+                primarytype = monster.HideHealth ? "trap" : "",
+                bestiaryclass = monster.Bestiary.Class,
+                bestiarylevel = GenericToTibiaWikiBestiaryLevel(monster),
+                occurrence = GenericToTibiaWikiOccurennce(monster),
+                spawntype = monster.IgnoreSpawnBlock ? "Unblockable" : "",
+                isboss = monster.IsBoss ? "yes" : "no",
+                pushable = monster.IsPushable ? "yes" : "no",
+                pushobjects = monster.PushItems ? "yes" : "no",
+                walksaround = GenericToTibiaWikiWalkAround(monster),
+                walksthrough = GenericToTibiaWikiWalkThrough(monster),
+                paraimmune = monster.IgnoreParalyze ? "yes" : "no",
+                senseinvis = monster.IgnoreInvisible ? "yes" : "no",
+                physicaldmgmod = $"{monster.PhysicalDmgMod * 100:0}%",
+                earthdmgmod = $"{monster.EarthDmgMod * 100:0}%",
+                firedmgmod = $"{monster.FireDmgMod * 100:0}%",
+                deathdmgmod = $"{monster.DeathDmgMod * 100:0}%",
+                energydmgmod = $"{monster.EnergyDmgMod * 100:0}%",
+                holydmgmod = $"{monster.HolyDmgMod * 100:0}%",
+                icedmgmod = $"{monster.IceDmgMod * 100:0}%",
+                healmod = $"{monster.HealingMod * 100:0}%",
+                lifedraindmgmod = $"{monster.LifeDrainDmgMod * 100:0}%",
+                drowndmgmod = $"{monster.DrownDmgMod * 100:0}%",
+                sounds = GenericToTibiaWikiVoice(monster),
+                runsat = monster.RunOnHealth.ToString(),
+                speed = monster.Speed.ToString(),
+                abilities = GenericToTibiaWikiAbilities(monster),
+                location = monster.Bestiary.Location,
+                loot = GenericToTibiaWikiLootList(monster)
             };
             string output = TemplateParser.Serialize(creature, false);
             string fileName = Path.Combine(directory, monster.FileName);
@@ -140,7 +140,7 @@ namespace MonsterConverterTibiaWiki
         private static string GenericToTibiaWikiVoice(Monster monster)
         {
             SoundListTemplate sound = new SoundListTemplate();
-            sound.Sounds = monster.Voices.Select(v => v.Sound).ToArray();
+            sound.sounds = monster.Voices.Select(v => v.Sound).ToArray();
             return TemplateParser.Serialize(sound, true);
         }
 
@@ -172,7 +172,7 @@ namespace MonsterConverterTibiaWiki
 
             // Sort by drop chance to follow TibiaWiki practice
             LootTableTemplate lootTable = new LootTableTemplate();
-            lootTable.Loot = flatLoot.OrderByDescending(kv => kv.Value.Chance).Select(kv => GenericToTibiaWikiLoot(kv.Value)).ToArray();
+            lootTable.loot = flatLoot.OrderByDescending(kv => kv.Value.Chance).Select(kv => GenericToTibiaWikiLoot(kv.Value)).ToArray();
             return TemplateParser.Serialize(lootTable, false);
         }
 
@@ -241,15 +241,14 @@ namespace MonsterConverterTibiaWiki
                     MeleeTemplate melee = new MeleeTemplate();
                     if (wikiName.ToLower() != "melee")
                     {
-                        melee.Name = wikiName;
+                        melee.name = wikiName;
                     }
-                    melee.Damage = damage;
+                    melee.damage = damage;
                     if (WikiToElements.Reverse.ContainsKey(s.DamageElement))
                     {
-                        melee.Element = WikiToElements.Reverse[s.DamageElement];
+                        melee.element = WikiToElements.Reverse[s.DamageElement];
                     }
-                    melee.Scene = GenericSpellToScene(s, mon.Name);
-
+                    melee.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(melee));
                 }
                 else if (s.Name == "speed")
@@ -261,7 +260,7 @@ namespace MonsterConverterTibiaWiki
                         {
                             wikiName = null; // Let TibiaWiki handle it
                         }
-                        haste.Name = wikiName;
+                        haste.name = wikiName;
                         abilities.Add(TemplateParser.Serialize(haste));
                     }
                     else
@@ -276,9 +275,9 @@ namespace MonsterConverterTibiaWiki
                     {
                         wikiName = "Creates [[Fire Field|Fire]]";
                     }
-                    ability.Name = wikiName;
-                    ability.Element = WikiToElements.Reverse[CombatDamage.Fire];
-                    ability.Scene = GenericSpellToScene(s, mon.Name, "Fire");
+                    ability.name = wikiName;
+                    ability.element = WikiToElements.Reverse[CombatDamage.Fire];
+                    ability.scene = GenericSpellToScene(s, mon.Name, "Fire");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
                 else if (s.Name == "energyfield")
@@ -288,9 +287,9 @@ namespace MonsterConverterTibiaWiki
                     {
                         wikiName = "Creates [[Energy Field|Energy_Field_(Field)]]";
                     }
-                    ability.Name = wikiName;
-                    ability.Element = WikiToElements.Reverse[CombatDamage.Energy];
-                    ability.Scene = GenericSpellToScene(s, mon.Name, "Energy_Field_(Field)");
+                    ability.name = wikiName;
+                    ability.element = WikiToElements.Reverse[CombatDamage.Energy];
+                    ability.scene = GenericSpellToScene(s, mon.Name, "Energy_Field_(Field)");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
                 else if (s.Name == "poisonfield")
@@ -300,9 +299,9 @@ namespace MonsterConverterTibiaWiki
                     {
                         wikiName = "Creates [[Poison Field|Poison_Gas]]";
                     }
-                    ability.Name = wikiName;
-                    ability.Element = WikiToElements.Reverse[CombatDamage.Earth];
-                    ability.Scene = GenericSpellToScene(s, mon.Name, "Poison_Gas");
+                    ability.name = wikiName;
+                    ability.element = WikiToElements.Reverse[CombatDamage.Earth];
+                    ability.scene = GenericSpellToScene(s, mon.Name, "Poison_Gas");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
                 else if (s.Name == "combat")
@@ -310,22 +309,22 @@ namespace MonsterConverterTibiaWiki
                     if ((s.DamageElement == CombatDamage.Healing) && (s.SpellCategory == SpellCategory.Defensive))
                     {
                         HealingTemplate healing = new HealingTemplate();
-                        healing.Name = wikiName;
-                        healing.Damage = damage;
-                        healing.Scene = GenericSpellToScene(s, mon.Name);
+                        healing.name = wikiName;
+                        healing.damage = damage;
+                        healing.scene = GenericSpellToScene(s, mon.Name);
 
                         abilities.Add(TemplateParser.Serialize(healing));
                     }
                     else
                     {
                         AbilityTemplate ability = new AbilityTemplate();
-                        ability.Name = wikiName;
-                        ability.Damage = damage;
+                        ability.name = wikiName;
+                        ability.damage = damage;
                         if (WikiToElements.Reverse.ContainsKey(s.DamageElement))
                         {
-                            ability.Element = WikiToElements.Reverse[s.DamageElement];
+                            ability.element = WikiToElements.Reverse[s.DamageElement];
                         }
-                        ability.Scene = GenericSpellToScene(s, mon.Name);
+                        ability.scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(ability));
                     }
                 }
@@ -335,14 +334,14 @@ namespace MonsterConverterTibiaWiki
             {
                 SummonTemplate summon = new SummonTemplate()
                 {
-                    Creature = s.Name,
-                    Amount = Math.Max(1, s.Max).ToString()
+                    creature = s.Name,
+                    amount = Math.Max(1, s.Max).ToString()
                 };
                 abilities.Add(TemplateParser.Serialize(summon));
             }
 
             AbilityListTemplate abilityList = new AbilityListTemplate();
-            abilityList.Ability = abilities.ToArray();
+            abilityList.ability = abilities.ToArray();
             return TemplateParser.Serialize(abilityList, false);
         }
 
@@ -350,7 +349,7 @@ namespace MonsterConverterTibiaWiki
         {
             bool hasSceneData = false;
             SceneTemplate scene = new SceneTemplate();
-            scene.Caster = caster;
+            scene.caster = caster;
 
             if (missileIds.Count == 0)
             {
@@ -364,11 +363,11 @@ namespace MonsterConverterTibiaWiki
 
             if (missileIds.Reverse.ContainsKey(spell.ShootEffect))
             {
-                scene.Missile = missileIds.Reverse[spell.ShootEffect];
+                scene.missile = missileIds.Reverse[spell.ShootEffect];
             }
             if (effectIds.Reverse.ContainsKey(spell.AreaEffect))
             {
-                scene.Effect = effectIds.Reverse[spell.AreaEffect];
+                scene.effect = effectIds.Reverse[spell.AreaEffect];
             }
 
             // Not sure what to do yet with the field, could put it in effect?
@@ -376,215 +375,215 @@ namespace MonsterConverterTibiaWiki
             // Sort from most strict requirements to least strict
             if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 1))
             {
-                scene.Spell = "front_sweep";
+                scene.spell = "front_sweep";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 0))
             {
-                scene.Spell = "8sqmbeam";
+                scene.spell = "8sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 7) && (spell.Spread == 0))
             {
-                scene.Spell = "7sqmbeam";
+                scene.spell = "7sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 6) && (spell.Spread == 0))
             {
-                scene.Spell = "6sqmbeam";
+                scene.spell = "6sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 0))
             {
-                scene.Spell = "5sqmbeam";
+                scene.spell = "5sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 4) && (spell.Spread == 0))
             {
-                scene.Spell = "4sqmbeam";
+                scene.spell = "4sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 3))
             {
-                scene.Spell = "8sqmwave";
+                scene.spell = "8sqmwave";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 10) && (spell.Spread == 4))
             {
-                scene.Spell = "10sqmwave";
+                scene.spell = "10sqmwave";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 2))
             {
-                scene.Spell = "3sqmwave";
+                scene.spell = "3sqmwave";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 1))
             {
-                scene.Spell = "3sqmwavewide";
+                scene.spell = "3sqmwavewide";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 3))
             {
-                scene.Spell = "5sqmwavenarrow";
+                scene.spell = "5sqmwavenarrow";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.IsDirectional == true) && (spell.Length == 5) && (spell.Spread == 2))
             {
-                scene.Spell = "5sqmwavewide";
+                scene.spell = "5sqmwavewide";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 2))
             {
-                scene.Spell = "plusspelltarget";
+                scene.spell = "plusspelltarget";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
-                scene.EffectOnTarget = scene.Effect;
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 3))
             {
-                scene.Spell = "1sqmballtarget";
+                scene.spell = "1sqmballtarget";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
-                scene.EffectOnTarget = scene.Effect;
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 4))
             {
-                scene.Spell = "2sqmballtarget";
+                scene.spell = "2sqmballtarget";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
-                scene.EffectOnTarget = scene.Effect;
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 5))
             {
-                scene.Spell = "3sqmballtarget";
+                scene.spell = "3sqmballtarget";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
-                scene.EffectOnTarget = scene.Effect;
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 6))
             {
-                scene.Spell = "4sqmballtarget";
+                scene.spell = "4sqmballtarget";
                 scene.MissileDistance = "4/4";
                 scene.MissileDirection = "south-east";
-                scene.EffectOnTarget = scene.Effect;
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 7))
             {
-                scene.Spell = "5sqmballtarget";
+                scene.spell = "5sqmballtarget";
                 scene.MissileDistance = "5/5";
                 scene.MissileDirection = "south-east";
-                scene.EffectOnTarget = scene.Effect;
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 1))
             {
-                scene.Spell = "singleeffect";
+                scene.spell = "singleeffect";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 4))
             {
-                scene.Spell = "2sqmballself";
+                scene.spell = "2sqmballself";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
-                scene.Spell = "3sqmballself";
+                scene.spell = "3sqmballself";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 6))
             {
-                scene.Spell = "4sqmballself";
+                scene.spell = "4sqmballself";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 7))
             {
-                scene.Spell = "5sqmballself";
+                scene.spell = "5sqmballself";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 8))
             {
-                scene.Spell = "6sqmballself";
+                scene.spell = "6sqmballself";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 1))
             {
-                scene.Spell = "1sqmstrike";
+                scene.spell = "1sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 2))
             {
-                scene.Spell = "2sqmstrike";
+                scene.spell = "2sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 3))
             {
-                scene.Spell = "3sqmstrike";
+                scene.spell = "3sqmstrike";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 5))
             {
-                scene.Spell = "5sqmstrike";
+                scene.spell = "5sqmstrike";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
-                scene.Spell = "great_explosion";
+                scene.spell = "great_explosion";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 3))
             {
-                scene.Spell = "3x3spell";
+                scene.spell = "3x3spell";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 2))
             {
-                scene.Spell = "plusspell";
+                scene.spell = "plusspell";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 2))
             {
-                scene.Spell = "xspell";
+                scene.spell = "xspell";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 3))
             {
-                scene.Spell = "2sqmring";
+                scene.spell = "2sqmring";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 4))
             {
-                scene.Spell = "3sqmring";
+                scene.spell = "3sqmring";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 5))
             {
-                scene.Spell = "4sqmring";
+                scene.spell = "4sqmring";
                 hasSceneData = true;
             }
 

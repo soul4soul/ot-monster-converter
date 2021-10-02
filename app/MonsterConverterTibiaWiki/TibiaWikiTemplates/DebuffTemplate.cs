@@ -4,13 +4,13 @@
     class DebuffTemplate
     {
         [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position | ParameterIndicator.Name)]
-        public string Name { get; set; }
+        public string name { get; set; }
 
         [TemplateParameter(Index = 1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position | ParameterIndicator.Name)]
-        public string Effect { get; set; }
+        public string effect { get; set; }
 
         [TemplateParameter(Index = 1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string Scene { get; set; }
+        public string scene { get; set; }
 
         [TemplateParameter(Indicator = ParameterIndicator.Name)]
         public string BeforeText { get; set; }
