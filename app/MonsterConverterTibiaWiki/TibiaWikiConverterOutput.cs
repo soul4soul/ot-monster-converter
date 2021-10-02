@@ -388,6 +388,18 @@ namespace MonsterConverterTibiaWiki
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
+                else if (s.Name == "drunk")
+                {
+                    AbilityTemplate ability = new AbilityTemplate();
+                    if (s.Name == wikiName)
+                    {
+                        wikiName = "Causes [[Drunkenness]]";
+                    }
+                    ability.name = wikiName;
+                    ability.element = "drunk";
+                    ability.scene = GenericSpellToScene(s, mon.Name);
+                    abilities.Add(TemplateParser.Serialize(ability));
+                }
                 else
                 {
                     result.AppendMessage($"Can't convert ability {s}");
