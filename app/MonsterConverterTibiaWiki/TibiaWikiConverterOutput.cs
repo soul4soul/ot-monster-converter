@@ -360,6 +360,34 @@ namespace MonsterConverterTibiaWiki
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
+                else if (s.Name == "outfit")
+                {
+                    if (s.ItemId != null)
+                    {
+                        result.AppendMessage($"Can't convert ability {s}, outfit with item");
+                        result.IncreaseError(ConvertError.Warning);
+                        continue;
+                    }
+
+                    AbilityTemplate ability = new AbilityTemplate();
+                    if (s.Name == wikiName)
+                    {
+                        wikiName = "Creature Illusion";
+                    }
+                    ability.name = wikiName;
+
+                    if (s.SpellCategory == SpellCategory.Offensive)
+                    {
+                        ability.damage = $"Turns you into [[{s.MonsterName}]]";
+                    }
+                    else
+                    {
+                        ability.damage = $"Shapeshifts into [[{s.MonsterName}]]";
+                    }
+                    ability.element = "shapeshifting";
+                    ability.scene = GenericSpellToScene(s, mon.Name);
+                    abilities.Add(TemplateParser.Serialize(ability));
+                }
                 else
                 {
                     result.AppendMessage($"Can't convert ability {s}");
