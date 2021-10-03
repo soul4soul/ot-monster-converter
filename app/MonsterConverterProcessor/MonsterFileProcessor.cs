@@ -109,62 +109,17 @@ namespace MonsterConverterProcessor
                         Directory.CreateDirectory(outputDir);
                     }
 
-                    IList<string> lootConversionErrors = new List<string>();
-                    if ((itemConversionMethod == ItemConversionMethod.UseClientIds) && (input.ItemIdType == ItemIdType.Server))
-                    {
-                        for (int i = 0; i < monster.Items.Count; i++)
-                        {
-                            LootItem item = monster.Items[i];
-                            if (item.Id > 0)
-                            {
-                                var foundItems = itemMapping.FindByServerId(item.Id);
-                                if (foundItems.Count == 0)
-                                {
-                                    lootConversionErrors.Add($"For given server id {item.ComboIdentifier} can't find client id");
-                                }
-                                else if (foundItems.Count >= 2)
-                                {
-                                    string itemList = string.Join(",", foundItems.Select(fi => fi.ClientId));
-                                    lootConversionErrors.Add($"For given server id {item.ComboIdentifier} multiple client ids found {itemList}");
-                                }
-                                else
-                                {
-                                    item.Id = foundItems.First().ClientId;
-                                }
-                            }
-                        }
-                    }
-                    else if ((itemConversionMethod == ItemConversionMethod.UseServerIds) && (input.ItemIdType == ItemIdType.Client))
-                    {
-                        for (int i = 0; i < monster.Items.Count; i++)
-                        {
-                            LootItem item = monster.Items[i];
-                            if (item.Id > 0)
-                            {
-                                var foundItems = itemMapping.FindByClientId(item.Id);
-                                if (foundItems.Count == 0)
-                                {
-                                    lootConversionErrors.Add($"For given client id {item.ComboIdentifier} can't find server id");
-                                }
-                                else if (foundItems.Count >= 2)
-                                {
-                                    string itemList = string.Join(",", foundItems.Select(fi => fi.ID));
-                                    lootConversionErrors.Add($"For given client id {item.ComboIdentifier} multiple server ids found {itemList}");
-                                }
-                                else
-                                {
-                                    item.Id = foundItems.First().ID;
-                                }
-                            }
-                        }
-                    }
+                    IList<string> itemConversionErrors = new List<string>();
+                    ConvertCorpsesId(input, itemConversionMethod, itemMapping, monster, itemConversionErrors);
+                    ConvertLootIds(input, itemConversionMethod, itemMapping, monster, itemConversionErrors);
+                    ConvertChangeOutfitIds(input, itemConversionMethod, itemMapping, monster, itemConversionErrors);
 
                     writeResult = output.WriteMonster(outputDir, ref monster);
-                    if (lootConversionErrors.Count > 0)
+                    if (itemConversionErrors.Count > 0)
                     {
                         writeResult.IncreaseError(ConvertError.Warning);
                     }
-                    foreach (var msg in lootConversionErrors)
+                    foreach (var msg in itemConversionErrors)
                     {
                         writeResult.AppendMessage(msg);
                     }
@@ -175,6 +130,105 @@ namespace MonsterConverterProcessor
                 System.Diagnostics.Debug.WriteLine($"Error pasring {file}. Exception {ex.Message}");
             }
             return new(readResult, writeResult);
+        }
+
+        private static string ConvertItemId(ref ushort id, string idDescription, IMonsterConverter input, ItemConversionMethod itemConversionMethod, ServerItemList itemMapping, Monster monster)
+        {
+            string result = null;
+            if ((itemConversionMethod == ItemConversionMethod.UseClientIds) && (input.ItemIdType == ItemIdType.Server))
+            {
+                if (id > 0)
+                {
+                    var foundItems = itemMapping.FindByServerId(id);
+                    if (foundItems.Count == 0)
+                    {
+                        result = $"For given server id {idDescription} can't find client id";
+                    }
+                    else if (foundItems.Count >= 2)
+                    {
+                        string itemList = string.Join(",", foundItems.Select(fi => fi.ClientId));
+                        result = $"For given server id {idDescription} multiple client ids found {itemList}";
+                    }
+                    else
+                    {
+                        id = foundItems.First().ClientId;
+                    }
+                }
+            }
+            else if ((itemConversionMethod == ItemConversionMethod.UseServerIds) && (input.ItemIdType == ItemIdType.Client))
+            {
+                if (id > 0)
+                {
+                    var foundItems = itemMapping.FindByClientId(id);
+                    if (foundItems.Count == 0)
+                    {
+                        result = $"For given client id {idDescription} can't find server id";
+                    }
+                    else if (foundItems.Count >= 2)
+                    {
+                        string itemList = string.Join(",", foundItems.Select(fi => fi.ID));
+                        result = $"For given client id {idDescription} multiple server ids found {itemList}";
+                    }
+                    else
+                    {
+                        id = foundItems.First().ID;
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static void ConvertCorpsesId(IMonsterConverter input, ItemConversionMethod itemConversionMethod, ServerItemList itemMapping, Monster monster, IList<string> itemConversionErrors)
+        {
+            ushort corpseId = monster.Look.CorpseId;
+            string result = ConvertItemId(ref corpseId, $"{corpseId}:{monster.Name}", input, itemConversionMethod, itemMapping, monster);
+            if (result == null)
+            {
+                monster.Look.CorpseId = corpseId;
+            }
+            else
+            {
+                itemConversionErrors.Add(result);
+            }
+        }
+
+        private static void ConvertLootIds(IMonsterConverter input, ItemConversionMethod itemConversionMethod, ServerItemList itemMapping, Monster monster, IList<string> itemConversionErrors)
+        {
+            for (int i = 0; i < monster.Items.Count; i++)
+            {
+                LootItem item = monster.Items[i];
+                ushort itemId = item.Id;
+                string result = ConvertItemId(ref itemId, item.ComboIdentifier, input, itemConversionMethod, itemMapping, monster);
+                if (result == null)
+                {
+                    item.Id = itemId;
+                }
+                else
+                {
+                    itemConversionErrors.Add(result);
+                }
+            }
+        }
+
+        private static void ConvertChangeOutfitIds(IMonsterConverter input, ItemConversionMethod itemConversionMethod, ServerItemList itemMapping, Monster monster, IList<string> itemConversionErrors)
+        {
+            for (int i = 0; i < monster.Attacks.Count; i++)
+            {
+                Spell spell = monster.Attacks[i];
+                if (spell.ItemId != null && spell.ItemId > 0)
+                {
+                    ushort itemId = (ushort)spell.ItemId;
+                    string result = ConvertItemId(ref itemId, $"{itemId}:{spell}", input, itemConversionMethod, itemMapping, monster);
+                    if (result == null)
+                    {
+                        spell.ItemId = itemId;
+                    }
+                    else
+                    {
+                        itemConversionErrors.Add(result);
+                    }
+                }
+            }
         }
 
         protected bool RaiseEvent<T>(EventHandler<T> eventHandler, T args) where T : EventArgs

@@ -118,7 +118,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int mount = 0;
         [XmlAttribute]
-        public int corpse = 0;
+        public ushort corpse = 0;
     }
 
     public class TfsXmlSpellAttributes
@@ -218,7 +218,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public string monster;
         [XmlAttribute]
-        public int item;
+        public ushort item;
     }
 
     public class Defenses
