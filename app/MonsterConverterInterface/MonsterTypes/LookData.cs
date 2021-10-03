@@ -19,7 +19,7 @@ namespace MonsterConverterInterface.MonsterTypes
 
         public int LookId { get; set; }
 
-        public int CorpseId { get; set; }
+        public ushort CorpseId { get; set; }
 
         public int Head
         {

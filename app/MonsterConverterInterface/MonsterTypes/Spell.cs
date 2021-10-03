@@ -42,7 +42,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public ConditionType Condition { get; set; }
         // Outfit stuff
         public string MonsterName { get; set; }
-        public int? ItemId { get; set; }
+        public ushort? ItemId { get; set; }
         // Drunk
         public double? Drunkenness { get; set; }
 

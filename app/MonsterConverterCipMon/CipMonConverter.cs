@@ -133,7 +133,7 @@ namespace MonsterConverterCipMon
             }
 
             m = Regex.Match(fileContents, @"Corpse\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (m.Success) { monster.Look.CorpseId = int.Parse(m.Groups[1].Value); }
+            if (m.Success) { monster.Look.CorpseId = ushort.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"Outfit\s+= \((?<type>\d+), (?<head>\d+)-(?<body>\d+)-(?<legs>\d+)-(?<feet>\d+)\)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success)
@@ -424,7 +424,7 @@ namespace MonsterConverterCipMon
                         if (outfitMatch.Success)
                         {
                             int type = int.Parse(outfitMatch.Groups["type"].Value);
-                            int id = int.Parse(outfitMatch.Groups["id"].Value);
+                            ushort id = ushort.Parse(outfitMatch.Groups["id"].Value);
                             if ((type == 0) && (id == 0))
                             {
                                 spell.Name = "invisible";
