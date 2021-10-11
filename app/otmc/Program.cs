@@ -21,7 +21,7 @@ namespace otmc
             string inputFormat = "";
             string outputFormat = "";
             string otbPath = "";
-            string itemConversionMethod = ItemConversionMethod.KeepSouceIds.ToString();
+            string itemConversionMethod = ItemConversionMethod.KeepSourceIds.ToString();
             bool mirrorFolderStructure = true;
 
             PluginHelper plugins = await PluginHelper.Instance;

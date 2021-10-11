@@ -67,7 +67,7 @@ namespace OTMonsterConverter
             }
 
             // Set enable state of otbm fields
-            if ((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds)
+            if ((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSourceIds)
             {
                 buttonOtbFilePath.IsEnabled = false;
                 textBoxOtbFilePath.IsEnabled = false;
@@ -78,8 +78,8 @@ namespace OTMonsterConverter
                 textBoxOtbFilePath.IsEnabled = true;
             }
 
-            bool isOtbConfigured = (((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSouceIds) ||
-                            (((ItemConversionMethod)comboItemConversion.SelectedItem != ItemConversionMethod.KeepSouceIds) && (textBoxOtbFilePath.Text != "")));
+            bool isOtbConfigured = (((ItemConversionMethod)comboItemConversion.SelectedItem == ItemConversionMethod.KeepSourceIds) ||
+                            (((ItemConversionMethod)comboItemConversion.SelectedItem != ItemConversionMethod.KeepSourceIds) && (textBoxOtbFilePath.Text != "")));
 
             if (buttonConvert != null)
             {
@@ -102,7 +102,7 @@ namespace OTMonsterConverter
             {
                 comboItemConversion.Items.Add(method);
             }
-            comboItemConversion.SelectedItem = ItemConversionMethod.KeepSouceIds;
+            comboItemConversion.SelectedItem = ItemConversionMethod.KeepSourceIds;
 
             ValidateControls();
             monsterListDataTable = new DataTable("MonsterList");

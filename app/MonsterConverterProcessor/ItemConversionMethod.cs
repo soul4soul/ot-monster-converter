@@ -8,7 +8,7 @@ namespace MonsterConverterProcessor
 {
     public enum ItemConversionMethod
     {
-        KeepSouceIds,
+        KeepSourceIds,
         UseServerIds,
         UseClientIds
     }
