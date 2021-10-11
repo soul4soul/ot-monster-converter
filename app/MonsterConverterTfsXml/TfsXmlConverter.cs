@@ -378,11 +378,11 @@ namespace MonsterConverterTfsXml
                         new XElement("element",
                                     new XAttribute("deathPercent", ElemementPercentGenericToTfsXml(monster.DeathDmgMod))))
                     );
-                AbilitiesGenericToTfsXmlAttacks(monster, ref monsterElement);
+                AbilitiesGenericToTfsXmlAttacks(monster, monsterElement);
                 monsterElement.Add(AbilitiesGenericToTfsXmlDefense(monster));
-                VoiceGenericToTfsXml(monster, ref monsterElement);
-                SummonGenericToTfsXml(monster, ref monsterElement);
-                monsterElement.Add(LootGenericToTfsXml(monster.Items));
+                VoiceGenericToTfsXml(monster, monsterElement);
+                SummonGenericToTfsXml(monster, monsterElement);
+                LootGenericToTfsXml(monster.Items, monsterElement);
                 XDocument doc = new XDocument(monsterElement);
                 doc.WriteTo(xw);
             }
@@ -390,7 +390,7 @@ namespace MonsterConverterTfsXml
             return result;
         }
 
-        private void AbilitiesGenericToTfsXmlAttacks(Monster monster, ref XElement monsterElement)
+        private void AbilitiesGenericToTfsXmlAttacks(Monster monster, XElement monsterElement)
         {
             XElement attacks = new XElement("attacks");
             foreach (var s in monster.Attacks)
@@ -584,7 +584,7 @@ namespace MonsterConverterTfsXml
             return ability;
         }
 
-        private static void SummonGenericToTfsXml(Monster monster, ref XElement monsterElement)
+        private static void SummonGenericToTfsXml(Monster monster, XElement monsterElement)
         {
             XElement summons = new XElement("summons",
                 new XAttribute("maxSummons", monster.MaxSummons));
@@ -647,7 +647,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private static void VoiceGenericToTfsXml(Monster monster, ref XElement monsterElement)
+        private static void VoiceGenericToTfsXml(Monster monster, XElement monsterElement)
         {
             XElement voices = new XElement("voices",
                 new XAttribute("interval", monster.VoiceInterval),
@@ -664,14 +664,17 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private static XElement LootGenericToTfsXml(IList<LootItem> items)
+        private static void LootGenericToTfsXml(IList<LootItem> items, XElement monsterElement)
         {
             XElement loot = new XElement("loot");
             foreach (var i in items)
             {
                 loot.Add(NestedLootGenericToTfsXml(i));
             }
-            return loot;
+            if (loot.HasElements)
+            {
+                monsterElement.Add(loot);
+            }
         }
 
         private static XElement NestedLootGenericToTfsXml(LootItem loot)
