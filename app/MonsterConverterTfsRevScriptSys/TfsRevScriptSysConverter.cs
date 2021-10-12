@@ -691,7 +691,7 @@ namespace MonsterConverterTfsRevScriptSys
                     }
                     if (spell.ShootEffect != Missile.None)
                     {
-                        attack += $", ShootEffect = {shootTypeNames[spell.ShootEffect]}";
+                        attack += $", shootEffect = {shootTypeNames[spell.ShootEffect]}";
                     }
                     if (spell.AreaEffect != Effect.None)
                     {
