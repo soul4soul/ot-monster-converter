@@ -51,7 +51,7 @@ Options:
 
 Input Formats: TibiaWiki, TFS XML, Cip Mon
 Output Formats: TFS RevScriptSys, TibiaWiki, TFS XML, pyOT
-Item Id Formats: KeepSouceIds, UseServerIds, UseClientIds
+Item Id Formats: KeepSourceIds, UseServerIds, UseClientIds
 ```
 
 ## Contributing

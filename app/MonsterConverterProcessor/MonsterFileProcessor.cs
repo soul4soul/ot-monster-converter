@@ -19,7 +19,7 @@ namespace MonsterConverterProcessor
         public event EventHandler<FileProcessorEventArgs> OnMonsterConverted;
 
         // Functions
-        public ProcessorScanError ConvertMonsterFiles(string monsterDirectory, IMonsterConverter inputConverter, string outputDirectory, IMonsterConverter outputConverter, string otbmPath = null, ItemConversionMethod itemConversionMethod = ItemConversionMethod.KeepSouceIds, bool mirroredFolderStructure = false)
+        public ProcessorScanError ConvertMonsterFiles(string monsterDirectory, IMonsterConverter inputConverter, string outputDirectory, IMonsterConverter outputConverter, string otbmPath = null, ItemConversionMethod itemConversionMethod = ItemConversionMethod.KeepSourceIds, bool mirroredFolderStructure = false)
         {
             if ((inputConverter.FileSource == FileSource.LocalFiles) && (!Directory.Exists(monsterDirectory)))
             {
@@ -55,7 +55,7 @@ namespace MonsterConverterProcessor
             }
 
             ServerItemList itemMapping = null;
-            if ((itemConversionMethod != ItemConversionMethod.KeepSouceIds) && (otbmPath != null))
+            if ((itemConversionMethod != ItemConversionMethod.KeepSourceIds) && (otbmPath != null))
             {
                 OtbReader otbReader = new OtbReader();
                 if (!otbReader.Read(otbmPath))
