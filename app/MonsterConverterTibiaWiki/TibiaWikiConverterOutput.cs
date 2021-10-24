@@ -13,6 +13,11 @@ namespace MonsterConverterTibiaWiki
     {
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
+            // Unlike input we have no better place to init Ids
+            GetItemIds();
+            GetMissileIds();
+            GetEffectIds();
+
             string fileName = Path.Combine(directory, monster.FileName);
             ConvertResultEventArgs result = new ConvertResultEventArgs(fileName);
 
@@ -212,8 +217,17 @@ namespace MonsterConverterTibiaWiki
                 chancePart = "common";
             }
 
-            string name = loot.Name;
-            if (string.IsNullOrWhiteSpace(name))
+            // Wiki Name > item name in file > id
+            string name;
+            if (itemsById.ContainsKey(loot.Id))
+            {
+                name = itemsById[loot.Id].Name;
+            }
+            else if (!string.IsNullOrWhiteSpace(loot.Name))
+            {
+                name = loot.Name;
+            }
+            else
             {
                 name = loot.Id.ToString();
             }
@@ -366,11 +380,23 @@ namespace MonsterConverterTibiaWiki
                 }
                 else if (s.Name == "outfit")
                 {
+                    string transform;
                     if (s.ItemId != null)
                     {
-                        result.AppendMessage($"Can't convert ability {s}, outfit with item");
-                        result.IncreaseError(ConvertError.Warning);
-                        continue;
+                        int id = (int)s.ItemId;
+                        if (!itemsById.ContainsKey(id))
+                        {
+                            // Sometimes mobs turn you into immovable and unpickable items such as, a snowman, football, and cocooned victim
+                            // Would have to change wiki table from pickable items to all items to handle those items
+                            result.AppendMessage($"Can't convert ability {s}, outfit with item id {id}");
+                            result.IncreaseError(ConvertError.Warning);
+                            continue;
+                        }
+                        transform = $"[[{itemsById[id].Name}]]";
+                    }
+                    else
+                    {
+                        transform = $"[[{s.MonsterName}]]";
                     }
 
                     AbilityTemplate ability = new AbilityTemplate();
@@ -382,11 +408,11 @@ namespace MonsterConverterTibiaWiki
 
                     if (s.SpellCategory == SpellCategory.Offensive)
                     {
-                        ability.damage = $"Turns you into [[{s.MonsterName}]]";
+                        ability.damage = $"Turns you into {transform}";
                     }
                     else
                     {
-                        ability.damage = $"Shapeshifts into [[{s.MonsterName}]]";
+                        ability.damage = $"Shapeshifts into {transform}";
                     }
                     ability.element = "shapeshifting";
                     ability.scene = GenericSpellToScene(s, mon.Name);
@@ -431,16 +457,6 @@ namespace MonsterConverterTibiaWiki
             bool hasSceneData = false;
             SceneTemplate scene = new SceneTemplate();
             scene.caster = caster;
-
-            if (missileIds.Count == 0)
-            {
-                GetMissileIds();
-            }
-
-            if (effectIds.Count == 0)
-            {
-                GetEffectIds();
-            }
 
             if (missileIds.Reverse.ContainsKey(spell.ShootEffect))
             {

@@ -1369,20 +1369,20 @@ namespace MonsterConverterTibiaWiki
         private static void SetItemId(ref LootItem item, ref ConvertResultEventArgs result)
         {
             string loweredName = item.Name.ToLower();
-            if (itemIds.ContainsKey(loweredName))
+            if (itemsByName.ContainsKey(loweredName))
             {
-                if (ushort.TryParse(itemIds[loweredName].Ids, out ushort _))
+                if (ushort.TryParse(itemsByName[loweredName].Ids, out ushort _))
                 {
-                    item.Id = ushort.Parse(itemIds[loweredName].Ids);
+                    item.Id = ushort.Parse(itemsByName[loweredName].Ids);
                 }
-                else if (string.IsNullOrWhiteSpace(itemIds[loweredName].Ids))
+                else if (string.IsNullOrWhiteSpace(itemsByName[loweredName].Ids))
                 {
                     string message = $"TibiaWiki is missing item id for item {loweredName}";
                     result.AppendMessage(message);
                 }
                 else
                 {
-                    string message = $"TibiaWiki has malformatted or multiple ids {itemIds[loweredName].Ids} for item {loweredName}";
+                    string message = $"TibiaWiki has malformatted or multiple ids {itemsByName[loweredName].Ids} for item {loweredName}";
                     result.AppendMessage(message);
                 }
             }

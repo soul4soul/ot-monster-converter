@@ -41,7 +41,9 @@ namespace MonsterConverterTibiaWiki
         };
 
         // <item name, data>
-        private static IDictionary<string, TibiaWikiItemData> itemIds = new Dictionary<string, TibiaWikiItemData>();
+        private static IDictionary<string, TibiaWikiItemData> itemsByName = new Dictionary<string, TibiaWikiItemData>();
+        // <item id, data>
+        private static IDictionary<int, TibiaWikiItemData> itemsById = new Dictionary<int, TibiaWikiItemData>();
 
         // <missile name, missile>
         private static BiDictionary<string, Missile> missileIds = new BiDictionary<string, Missile>();
@@ -81,20 +83,9 @@ namespace MonsterConverterTibiaWiki
             // Only need to get the list once per program execution, between exeuctions its reasonable to retry should the list be empty
             // It's not worth the overhead to keep trying to get the id lists should they fail during conversion which is the reason
             // the ids are fetched here and not in Parse when the data is needed for the first time.
-            if (itemIds.Count == 0)
-            {
-                GetItemIds();
-            }
-
-            if (missileIds.Count == 0)
-            {
-                GetMissileIds();
-            }
-
-            if (effectIds.Count == 0)
-            {
-                GetEffectIds();
-            }
+            GetItemIds();
+            GetMissileIds();
+            GetEffectIds();
 
             return names.ToArray();
         }
@@ -110,6 +101,12 @@ namespace MonsterConverterTibiaWiki
 
         private static void GetItemIds()
         {
+            if (itemsByName.Count != 0)
+            {
+                // Ids were already fetched
+                return;
+            }
+
             string itemlisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text";
             var itemTable = RequestData(itemlisturl).Result.Text.Empty;
 
@@ -119,12 +116,49 @@ namespace MonsterConverterTibiaWiki
                 string name = match.Groups["name"].Value.ToLower();
                 string actualName = match.Groups["actualname"].Value.ToLower();
                 string ids = match.Groups["itemid"].Value;
-                itemIds.Add(name, new TibiaWikiItemData(name, actualName, ids));
+                TibiaWikiItemData data = new TibiaWikiItemData(name, actualName, ids);
+                if (itemsByName.ContainsKey(name))
+                {
+                    // Bug with TibiaWiki Data
+                    continue;
+                }
+                itemsByName.Add(name, data);
+
+                if (ushort.TryParse(ids, out ushort id))
+                {
+                    if (itemsById.ContainsKey(id))
+                    {
+                        // Bug with TibiaWiki Data
+                        continue;
+                    }
+                    itemsById.Add(id, data);
+                }
+                else
+                {
+                    foreach (var i in ids.Split(","))
+                    {
+                        if (ushort.TryParse(i, out id))
+                        {
+                            if (itemsById.ContainsKey(id))
+                            {
+                                // Bug with TibiaWiki Data
+                                continue;
+                            }
+                            itemsById.Add(id, data);
+                        }
+                    }
+                }
             }
         }
 
         private static void GetMissileIds()
         {
+            if (missileIds.Count != 0)
+            {
+                // Ids were already fetched
+                return;
+            }
+
             string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Missles&prop=text";
             var missileTable = RequestData(missilelisturl).Result.Text.Empty;
 
@@ -139,7 +173,13 @@ namespace MonsterConverterTibiaWiki
 
         private static void GetEffectIds()
         {
-            string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Effects&prop=text";
+            if (effectIds.Count != 0)
+            {
+                // Ids were already fetched
+                return;
+            }
+
+                string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Effects&prop=text";
             var missileTable = RequestData(missilelisturl).Result.Text.Empty;
 
             var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
