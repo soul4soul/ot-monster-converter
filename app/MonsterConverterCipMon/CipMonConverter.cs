@@ -42,6 +42,11 @@ namespace MonsterConverterCipMon
             ManaDrain = 512
         }
 
+        /// <summary>
+        /// Monster speed in OT server if offset from cipbia by 120
+        /// </summary>
+        private readonly int SPEED_OFFSET = 120;
+
         public override string ConverterName { get => "Cip Mon"; }
 
         public override string FileExt { get => "mon"; }
@@ -233,7 +238,7 @@ namespace MonsterConverterCipMon
             if (fileContents.Contains("NoLifeDrain", StringComparison.OrdinalIgnoreCase)) { monster.LifeDrainDmgMod = 0; }
 
             m = Regex.Match(fileContents, @"GoStrength, (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            monster.Speed = (m.Success) ? monster.Speed = int.Parse(m.Groups[1].Value) + 120 : 0;
+            monster.Speed = (m.Success) ? monster.Speed = int.Parse(m.Groups[1].Value) + SPEED_OFFSET : 0;
 
             m = Regex.Match(fileContents, @"Attack\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             int attack = 0;
@@ -325,16 +330,18 @@ namespace MonsterConverterCipMon
                         spell.Name = "speed";
                         int baseVal = int.Parse(actionParams[0]);
                         int variation = int.Parse(actionParams[1]);
-                        spell.MinSpeedChange = baseVal - variation;
-                        spell.MaxSpeedChange = baseVal + variation;
                         spell.Duration = int.Parse(actionParams[2]) * 1000;
                         if (baseVal < 0)
                         {
+                            spell.MinSpeedChange = baseVal + variation - SPEED_OFFSET;
+                            spell.MaxSpeedChange = baseVal - variation - SPEED_OFFSET;
                             spell.SpellCategory = SpellCategory.Offensive;
                             spell.Description = "paralyze";
                         }
                         else
                         {
+                            spell.MinSpeedChange = baseVal - variation + SPEED_OFFSET;
+                            spell.MaxSpeedChange = baseVal + variation + SPEED_OFFSET;
                             spell.SpellCategory = SpellCategory.Defensive;
                             spell.Description = "haste";
                         }
@@ -439,8 +446,8 @@ namespace MonsterConverterCipMon
                     else if (action == "field")
                     {
                         if (actionParams[0] == "1") { spell.Name = "firefield"; }
-                        if (actionParams[0] == "2") { spell.Name = "poisonfield"; }
-                        if (actionParams[0] == "3") { spell.Name = "energyfield"; }
+                        else if (actionParams[0] == "2") { spell.Name = "poisonfield"; }
+                        else if (actionParams[0] == "3") { spell.Name = "energyfield"; }
                         spell.SpellCategory = SpellCategory.Offensive;
                     }
                     else if (action == "summon")
@@ -458,7 +465,16 @@ namespace MonsterConverterCipMon
                     }
                     else if (action == "strength")
                     {
-                        result.AppendMessage($"Unknown spell strength {match.Value}, can't parse spell");
+                        string effectedSkills = "";
+                        if (actionParams[0] == "1") { effectedSkills = "fist, club, sword, axe"; }
+                        else if (actionParams[0] == "2") { effectedSkills = "distance"; }
+                        else if (actionParams[0] == "3") { effectedSkills = "fist, club, sword, axe, distance"; }
+                        else if (actionParams[0] == "5") { effectedSkills = "fist, club, sword, axe, shielding"; }
+                        int baseVal = int.Parse(actionParams[1]);
+                        int variation = int.Parse(actionParams[2]);
+                        spell.Duration = int.Parse(actionParams[3]) * 1000;
+                        spell.SpellCategory = (baseVal < 0) ? SpellCategory.Offensive : SpellCategory.Defensive;
+                        result.AppendMessage($"Unable to convert strength ability, {spell.SpellCategory} change {effectedSkills} by {baseVal} +/- {variation} for {spell.Duration}ms");
                         result.IncreaseError(ConvertError.Warning);
                         continue;
                     }
