@@ -667,6 +667,7 @@ namespace MonsterConverterTibiaWiki
             {
                 ParseBestiaryLevel(monster, creature.bestiarylevel, creature.occurrence);
             }
+            if (!string.IsNullOrWhiteSpace(creature.attacktype)) { monster.TargetDistance = creature.attacktype.ToLower().Contains("distance") ? 4 : 1; }
             if (!string.IsNullOrWhiteSpace(creature.spawntype)) { monster.IgnoreSpawnBlock = creature.spawntype.ToLower().Contains("unblockable"); }
             if (RobustTryParse(creature.pushable, out boolVal)) { monster.IsPushable = boolVal; }
             // In cipbia ability to push objects means ability to push creatures too
@@ -699,7 +700,6 @@ namespace MonsterConverterTibiaWiki
                 }
             }
             if (!string.IsNullOrWhiteSpace(creature.sounds)) { ParseSoundList(monster, creature.sounds); }
-            if (!string.IsNullOrWhiteSpace(creature.behavior)) { ParseBehavior(monster, creature.behavior); }
             if (!string.IsNullOrWhiteSpace(creature.abilities)) { ParseAbilities(monster, creature.abilities, result); }
             if (!string.IsNullOrWhiteSpace(creature.location)) { monster.Bestiary.Location = creature.location; }
             if (!string.IsNullOrWhiteSpace(creature.loot)) { ParseLoot(monster, creature.loot, filename, result); }
@@ -800,16 +800,6 @@ namespace MonsterConverterTibiaWiki
                     }
                 }
             }
-        }
-
-        private static void ParseBehavior(Monster monster, string behavior)
-        {
-            // TibiaWiki generally doesn't provide distance so we default to 4. In TFS monster pack 70 of 77 monsters which use distance attack stand at a range of 4.
-            behavior = behavior.ToLower();
-            if (behavior.Contains("distance") || behavior.Contains("range"))
-                monster.TargetDistance = 4;
-            else
-                monster.TargetDistance = 1;
         }
 
         private static void ParseAbilities(Monster mon, string abilities, ConvertResultEventArgs result)
