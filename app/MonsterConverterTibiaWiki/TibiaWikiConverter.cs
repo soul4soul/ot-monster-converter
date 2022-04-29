@@ -24,20 +24,20 @@ namespace MonsterConverterTibiaWiki
 
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // <element name, damage type>
-        private static BiDictionary<string, CombatDamage> WikiToElements = new BiDictionary<string, CombatDamage>
+        // <damage type, element name>
+        private static Dictionary<CombatDamage, string> WikiToElements = new Dictionary<CombatDamage, string>
         {
-            {"physical", CombatDamage.Physical},
-            {"energy", CombatDamage.Energy},
-            {"earth", CombatDamage.Earth},
-            {"fire", CombatDamage.Fire},
-            {"life drain", CombatDamage.LifeDrain},
-            {"mana drain", CombatDamage.ManaDrain},
-            {"healing", CombatDamage.Healing},
-            {"drown", CombatDamage.Drown},
-            {"ice", CombatDamage.Ice},
-            {"holy", CombatDamage.Holy},
-            {"death", CombatDamage.Death}
+            {CombatDamage.Physical, "physical"},
+            {CombatDamage.Energy, "energy"},
+            {CombatDamage.Earth, "earth"},
+            {CombatDamage.Fire, "fire"},
+            {CombatDamage.LifeDrain, "life drain"},
+            {CombatDamage.ManaDrain, "mana drain"},
+            {CombatDamage.Healing, "healing"},
+            {CombatDamage.Drown, "drown"},
+            {CombatDamage.Ice, "ice"},
+            {CombatDamage.Holy, "holy"},
+            {CombatDamage.Death, "death"}
         };
 
         // <item name, data>

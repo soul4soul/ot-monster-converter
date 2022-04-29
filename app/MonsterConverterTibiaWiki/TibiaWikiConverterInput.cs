@@ -1002,7 +1002,7 @@ namespace MonsterConverterTibiaWiki
                         }
                         mon.Attacks.Add(spell);
                     }
-                    if (TemplateParser.IsTemplateMatch<HealingTemplate>(ability))
+                    else if (TemplateParser.IsTemplateMatch<HealingTemplate>(ability))
                     {
                         var healing = TemplateParser.Deserialize<HealingTemplate>(ability);
                         var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
@@ -1021,7 +1021,7 @@ namespace MonsterConverterTibiaWiki
                         }
                         mon.Attacks.Add(spell);
                     }
-                    if (TemplateParser.IsTemplateMatch<SummonTemplate>(ability))
+                    else if (TemplateParser.IsTemplateMatch<SummonTemplate>(ability))
                     {
                         var summon = TemplateParser.Deserialize<SummonTemplate>(ability);
                         int maxSummons = 1;
@@ -1038,7 +1038,7 @@ namespace MonsterConverterTibiaWiki
                             }
                         }
                     }
-                    if (TemplateParser.IsTemplateMatch<HasteTemplate>(ability))
+                    else if (TemplateParser.IsTemplateMatch<HasteTemplate>(ability))
                     {
                         var haste = TemplateParser.Deserialize<HasteTemplate>(ability);
                         int MinSpeedChange = 300;
@@ -1053,28 +1053,29 @@ namespace MonsterConverterTibiaWiki
                         var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
                         mon.Attacks.Add(spell);
                     }
-                    if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
+                    else if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
                     {
                         // TODO, report errors converting abilities each ability should be a single error entry even if that ability has multiple problems use a single entry
                         var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
                         if (TryParseScene(abilityObj.scene, out Spell spell))
                         {
-                            spell.Name = "combat";
                             spell.SpellCategory = SpellCategory.Offensive;
-                            spell.DamageElement = CombatDamage.Physical;
-                            if (!string.IsNullOrWhiteSpace(abilityObj.element) && WikiToElements.ContainsKey(abilityObj.element.ToLower()))
-                                spell.DamageElement = WikiToElements[abilityObj.element.ToLower()];
+                            ParseElement(abilityObj.element, spell);
 
-                            if (TryParseRange(abilityObj.damage, out int min, out int max))
+                            if (spell.Name == "combat" && TryParseRange(abilityObj.damage, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
+                                mon.Attacks.Add(spell);
                             }
-                            else
+                            else if (spell.Name == "condition")
+                            {
+                                // Too hard to parse the none standard string entries. We need a standard condition ability template.
+                            }
+                            else if (spell.Name == "combat")
                             {
                                 // Could guess defaults based on creature HP, EXP, and bestiary difficulty
                             }
-                            mon.Attacks.Add(spell);
                         }
                         else
                         {
@@ -1086,6 +1087,211 @@ namespace MonsterConverterTibiaWiki
                         System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
                     }
                 }
+            }
+        }
+
+        private static void ParseElement(string element, Spell spell)
+        {
+            // Wiki assumes physical if element is not provided
+            if (string.IsNullOrWhiteSpace(element))
+                element = "physical";
+
+            // Fill set of possible icons pulled from https://tibia.fandom.com/wiki/Template:Icon
+            // Most icons are expended to be invalid and not applicable to spells
+            switch (element.ToLower()) {
+                case "armor": break;
+                case "charm": break;
+                case "experience": break;
+                case "health": break;
+                case "speed": break;
+                case "magic level": break;
+                case "sword": break;
+                case "axe": break;
+                case "club": break;
+                case "distance": break;
+                case "fist": break;
+                case "shielding": break;
+                case "fishing": break;
+                case "physical":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Physical;
+                        break;
+                    }
+                case "fire":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Fire;
+                        break;
+                    }
+                case "earth":
+                case "poison":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Earth;
+                        break;
+                    }
+                case "ice":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Ice;
+                        break;
+                    }
+                case "energy":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Energy;
+                        break;
+                    }
+                case "death":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Death;
+                        break;
+                    }
+                case "holy":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Holy;
+                        break;
+                    }
+                case "drown":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Drown;
+                        break;
+                    }
+                case "manadrain":
+                case "mana drain":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.ManaDrain;
+                        break;
+                    }
+                case "lifedrain":
+                case "life drain":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.LifeDrain;
+                        break;
+                    }
+                case "healing":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Healing;
+                        break;
+                    }
+                case "paralyze":
+                case "slowed":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Paralyze;
+                        break;
+                    }
+                case "drunk":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Drunk;
+                        break;
+                    }
+                case "bleed":
+                case "bleeding":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Bleeding;
+                        break;
+                    }
+                case "burning":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Fire;
+                        break;
+                    }
+                case "cursed":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Cursed;
+                        break;
+                    }
+                case "dazzled":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Dazzled;
+                        break;
+                    }
+                case "drowning":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Drown;
+                        break;
+                    }
+                case "electrified":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Energy;
+                        break;
+                    }
+                case "feared": break;
+                case "freezing":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Freezing;
+                        break;
+                    }
+                case "hexed": break;
+                case "lesser hex": break;
+                case "intense hex": break;
+                case "greater hex": break;
+                case "poisoned":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Poison;
+                        break;
+                    }
+                case "rooted": break;
+                case "strengthened": break;
+                case "buff": break;
+                case "goshnar's taints 5": break;
+                case "goshnar5": break;
+                case "protection zone block": break;
+                case "pzblock": break;
+                case "within protection zone": break;
+                case "pz": break;
+                case "within active resting area": break;
+                case "active resting area": break;
+                case "within resting area": break;
+                case "resting area": break;
+                case "haste": break;
+                case "hasted": break;
+                case "hungry": break;
+                case "logout block": break;
+                case "magic shield": break;
+                case "magic shield spell": break;
+                case "fiendish": break;
+                case "influenced": break;
+                case "ranged challenged": break;
+                case "sap strength": break;
+                case "expose weakness": break;
+                case "invisible": break;
+                case "invisibility": break;
+                case "teleport": break;
+                case "spellwand": break;
+                case "shapeshifting": break;
+                case "summon": break;
+                case "No Attack": break;
+                case "debuff": break;
+                case "gold": break;
+                case "tibia coin": break;
+                case "transferable tibia coin": break;
+                case "transferrable tibia coin": break;
+                case "tournament coin": break;
+                case "gold token": break;
+                case "druid": break;
+                case "knight": break;
+                case "sorcerer": break;
+                case "paladin": break;
+                case "no vocation": break;
+                case "?": break;
             }
         }
 

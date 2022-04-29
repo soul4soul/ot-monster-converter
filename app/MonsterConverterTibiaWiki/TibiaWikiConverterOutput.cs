@@ -268,9 +268,9 @@ namespace MonsterConverterTibiaWiki
                         melee.name = wikiName;
                     }
                     melee.damage = damage;
-                    if (WikiToElements.Reverse.ContainsKey(s.DamageElement))
+                    if (WikiToElements.ContainsKey(s.DamageElement))
                     {
-                        melee.element = WikiToElements.Reverse[s.DamageElement];
+                        melee.element = WikiToElements[s.DamageElement];
                     }
                     melee.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(melee));
@@ -300,7 +300,7 @@ namespace MonsterConverterTibiaWiki
                         wikiName = "Creates [[Fire Field|Fire]]";
                     }
                     ability.name = wikiName;
-                    ability.element = WikiToElements.Reverse[CombatDamage.Fire];
+                    ability.element = WikiToElements[CombatDamage.Fire];
                     ability.scene = GenericSpellToScene(s, mon.Name, "Fire");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -312,7 +312,7 @@ namespace MonsterConverterTibiaWiki
                         wikiName = "Creates [[Energy Field|Energy_Field_(Field)]]";
                     }
                     ability.name = wikiName;
-                    ability.element = WikiToElements.Reverse[CombatDamage.Energy];
+                    ability.element = WikiToElements[CombatDamage.Energy];
                     ability.scene = GenericSpellToScene(s, mon.Name, "Energy_Field_(Field)");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -324,7 +324,7 @@ namespace MonsterConverterTibiaWiki
                         wikiName = "Creates [[Poison Field|Poison_Gas]]";
                     }
                     ability.name = wikiName;
-                    ability.element = WikiToElements.Reverse[CombatDamage.Earth];
+                    ability.element = WikiToElements[CombatDamage.Earth];
                     ability.scene = GenericSpellToScene(s, mon.Name, "Poison_Gas");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -348,13 +348,21 @@ namespace MonsterConverterTibiaWiki
                         AbilityTemplate ability = new AbilityTemplate();
                         ability.name = wikiName;
                         ability.damage = damage;
-                        if (WikiToElements.Reverse.ContainsKey(s.DamageElement))
+                        if (WikiToElements.ContainsKey(s.DamageElement))
                         {
-                            ability.element = WikiToElements.Reverse[s.DamageElement];
+                            ability.element = WikiToElements[s.DamageElement];
                         }
                         ability.scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(ability));
                     }
+                }
+                else if (s.Name == "condition")
+                {
+                    AbilityTemplate ability = new AbilityTemplate();
+                    ability.name = wikiName;
+                    // condition crap is mostly in a random string
+                    ability.scene = GenericSpellToScene(s, mon.Name);
+                    abilities.Add(TemplateParser.Serialize(ability));
                 }
                 else if (s.Name == "invisible")
                 {
