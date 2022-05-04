@@ -1199,36 +1199,47 @@ namespace MonsterConverterTibiaWiki
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Bleeding;
+                        spell.Tick = 4000;
                         break;
                     }
                 case "burning":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Fire;
+                        spell.Tick = 9000;
+                        //spell.StartDamage = 10;
                         break;
                     }
                 case "cursed":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Cursed;
+                        spell.Tick = 4000;
                         break;
                     }
                 case "dazzled":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Dazzled;
+                        spell.Tick = 11000;
                         break;
                     }
                 case "drowning":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Drown;
+                        spell.Tick = 6000; // Unknown tick
+                        //spell.StartDamage = 8;
+                        // Fixed damage and interval?
                         break;
                     }
                 case "electrified":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Energy;
+                        spell.Tick = 11000;
+                        spell.StartDamage = 25;
+                        // Fixed damage and interval?
                         break;
                     }
                 case "feared": break;
@@ -1236,6 +1247,8 @@ namespace MonsterConverterTibiaWiki
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Freezing;
+                        spell.Tick = 8000; // Need confirmation TW says 4 turns
+                        // Fixed damage and interval?
                         break;
                     }
                 case "hexed": break;
@@ -1246,6 +1259,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Poison;
+                        spell.Tick = 4000;
                         break;
                     }
                 case "rooted": break;
