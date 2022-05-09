@@ -208,7 +208,7 @@ namespace MonsterConverterTibiaWiki
                     {
                         if (m.Groups["name"].Success)
                         {
-                            string parameterName = m.Groups["name"].Value;
+                            string parameterName = m.Groups["name"].Value.ToLower();
                             if (!indexedPropertyNames.ContainsKey(parameterName))
                             {
                                 System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
@@ -290,7 +290,7 @@ namespace MonsterConverterTibiaWiki
                         if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Position))
                             propInfoDic.Add(templateParmAttr.Index.ToString(), pi);
                         if (templateParmAttr.Indicator.HasFlag(ParameterIndicator.Name))
-                            propInfoDic.Add(loopUpName, pi);
+                            propInfoDic.Add(loopUpName.ToLower(), pi);
                     }
                 }
             }
