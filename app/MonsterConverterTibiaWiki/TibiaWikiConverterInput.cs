@@ -1072,9 +1072,25 @@ namespace MonsterConverterTibiaWiki
                             {
                                 // Too hard to parse the none standard string entries. We need a standard condition ability template.
                             }
-                            else if (spell.Name == "combat")
+                            else if (spell.Name == "invisible")
                             {
-                                // Could guess defaults based on creature HP, EXP, and bestiary difficulty
+                                spell.SpellCategory = SpellCategory.Defensive;
+                                spell.Duration = 7500;
+                                mon.Attacks.Add(spell);
+                            }
+                            else if (spell.Name == "drunk")
+                            {
+                                spell.Drunkenness = 0.5;
+                                spell.Duration = 15000;
+                                mon.Attacks.Add(spell);
+                            }
+                            else if (spell.Name == "paralyze")
+                            {
+                                spell.Name = "speed";
+                                spell.MinSpeedChange = -400;
+                                spell.MaxSpeedChange = -400;
+                                spell.Duration = 20000;
+                                mon.Attacks.Add(spell);
                             }
                         }
                         else
@@ -1096,8 +1112,8 @@ namespace MonsterConverterTibiaWiki
             if (string.IsNullOrWhiteSpace(element))
                 element = "physical";
 
-            // Fill set of possible icons pulled from https://tibia.fandom.com/wiki/Template:Icon
-            // Most icons are expended to be invalid and not applicable to spells
+            // Full set of possible icons pulled from https://tibia.fandom.com/wiki/Template:Icon
+            // Most icons are expected to be invalid and not applicable to spells
             switch (element.ToLower()) {
                 case "armor": break;
                 case "charm": break;
@@ -1184,13 +1200,13 @@ namespace MonsterConverterTibiaWiki
                 case "paralyze":
                 case "slowed":
                     {
-                        spell.Name = "condition";
+                        spell.Name = "paralyze";
                         spell.Condition = ConditionType.Paralyze;
                         break;
                     }
                 case "drunk":
                     {
-                        spell.Name = "condition";
+                        spell.Name = "drunk";
                         spell.Condition = ConditionType.Drunk;
                         break;
                     }
@@ -1199,47 +1215,36 @@ namespace MonsterConverterTibiaWiki
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Bleeding;
-                        spell.Tick = 4000;
                         break;
                     }
                 case "burning":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Fire;
-                        spell.Tick = 9000;
-                        //spell.StartDamage = 10;
                         break;
                     }
                 case "cursed":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Cursed;
-                        spell.Tick = 4000;
                         break;
                     }
                 case "dazzled":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Dazzled;
-                        spell.Tick = 11000;
                         break;
                     }
                 case "drowning":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Drown;
-                        spell.Tick = 6000; // Unknown tick
-                        //spell.StartDamage = 8;
-                        // Fixed damage and interval?
                         break;
                     }
                 case "electrified":
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Energy;
-                        spell.Tick = 11000;
-                        spell.StartDamage = 25;
-                        // Fixed damage and interval?
                         break;
                     }
                 case "feared": break;
@@ -1247,8 +1252,6 @@ namespace MonsterConverterTibiaWiki
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Freezing;
-                        spell.Tick = 8000; // Need confirmation TW says 4 turns
-                        // Fixed damage and interval?
                         break;
                     }
                 case "hexed": break;
@@ -1259,7 +1262,6 @@ namespace MonsterConverterTibiaWiki
                     {
                         spell.Name = "condition";
                         spell.Condition = ConditionType.Poison;
-                        spell.Tick = 4000;
                         break;
                     }
                 case "rooted": break;
@@ -1286,8 +1288,12 @@ namespace MonsterConverterTibiaWiki
                 case "ranged challenged": break;
                 case "sap strength": break;
                 case "expose weakness": break;
-                case "invisible": break;
-                case "invisibility": break;
+                case "invisible":
+                case "invisibility":
+                    {
+                        spell.Name = "invisible";
+                        break;
+                    }
                 case "teleport": break;
                 case "spellwand": break;
                 case "shapeshifting": break;
