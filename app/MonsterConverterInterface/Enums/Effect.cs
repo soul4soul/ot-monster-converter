@@ -140,6 +140,17 @@ namespace MonsterConverterInterface.MonsterTypes
         RedTeleport,
         OrangeTeleport,
         GreyTeleport,
-        LightBlueTeleport
+        LightBlueTeleport,
+        Onslaught = 230,
+        Ruse,
+        Momentum,
+        FireworksStar = 233,
+        FireworksCircle,
+        FerumbrasVessel,
+        Gazharagoth,
+        MadMage,
+        Horestis,
+        Devovorga,
+        Ferumbras2,
     }
 }
