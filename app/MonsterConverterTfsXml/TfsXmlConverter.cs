@@ -136,6 +136,8 @@ namespace MonsterConverterTfsXml
             {"floatingblock", Effect.FloatingBlock},
             {"block", Effect.Block},
             {"rooting", Effect.Rooting},
+            //{"TODO", Effect.SunPriest}, // Missing from TFS
+            //{"TODO", Effect.Werelion},  // Missing from TFS
             {"ghostlyscratch", Effect.GhostlyScratch},
             {"ghostlybite", Effect.GhostlyBite},
             {"bigscratching", Effect.BigScratching},
@@ -154,7 +156,7 @@ namespace MonsterConverterTfsXml
             {"hourglass", Effect.Momentum},
             //{"TODO", Effect.FireworksStar}, // Missing from TFS
             //{"TODO", Effect.FireworksCircle},  // Missing from TFS
-            {"ferumbras1", Effect.Ferumbras},
+            {"ferumbras1", Effect.FerumbrasVessel},
             {"gazharagoth", Effect.Gazharagoth},
             {"madmage", Effect.MadMage},
             {"horestis", Effect.Horestis},
@@ -213,7 +215,11 @@ namespace MonsterConverterTfsXml
             {"drillbolt",           Missile.DrillBolt},
             {"envenomedarrow",      Missile.EnvenomedArrow},
             {"gloothspear",         Missile.GloothSpear},
-            {"simplearrow",         Missile.SimpleArrow}
+            {"simplearrow",         Missile.SimpleArrow},
+            {"leafstar",            Missile.LeafStar},
+            {"diamondarrow",        Missile.DiamondArrow},
+            {"spectralbolt",        Missile.SpectralBolt},
+            {"royalstar",           Missile.RoyalStar},
         };
 
         private readonly IDictionary<string, CombatDamage> combatNamesToCombatDamage = new Dictionary<string, CombatDamage>
