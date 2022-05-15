@@ -183,8 +183,12 @@ namespace MonsterConverterTibiaWiki
                     {
                         System.Diagnostics.Debug.WriteLine($"template {templateName} no matching BeforeCaptureProperty found");
                     }
-                    prop = indexedPropertyNames[attr.BeforeCaptureProperty];
-                    prop.SetValue(output, m.Groups["before"].Value.Trim(), null);
+                    else
+                    {
+
+                        prop = indexedPropertyNames[attr.BeforeCaptureProperty];
+                        prop.SetValue(output, m.Groups["before"].Value.Trim(), null);
+                    }
                 }
 
                 if ((attr != null) && (attr.AfterCaptureProperty != null) && (m.Groups["after"].Success))
@@ -193,8 +197,11 @@ namespace MonsterConverterTibiaWiki
                     {
                         System.Diagnostics.Debug.WriteLine($"template {templateName} no matching AfterCaptureProperty found");
                     }
-                    prop = indexedPropertyNames[attr.AfterCaptureProperty];
-                    prop.SetValue(output, m.Groups["after"].Value.Trim(), null);
+                    else
+                    {
+                        prop = indexedPropertyNames[attr.AfterCaptureProperty];
+                        prop.SetValue(output, m.Groups["after"].Value.Trim(), null);
+                    }
                 }
 
                 PropertyInfo arrayProp = null;
