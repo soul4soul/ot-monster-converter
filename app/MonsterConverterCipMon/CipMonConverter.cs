@@ -408,12 +408,11 @@ namespace MonsterConverterCipMon
                     {
                         spell.Name = "drunk";
                         spell.SpellCategory = SpellCategory.Offensive;
-                        // NOTE: forumla for drunkness strength is unknown, the only values used by cip are 3 (rest of the monsters) ,6 (djinns), and 7 (bazir only)
-                        spell.Drunkenness = double.Parse(actionParams[0]) / 10.0;
+                        double strength = double.Parse(actionParams[0]);
+                        // It's a mistake that some monsters have drunkenness strength more then 6
+                        strength = (strength > 6) ? 6 : strength;
+                        spell.Drunkenness = 1 / (7 - strength);
                         spell.Duration = int.Parse(actionParams[2]) * 1000;
-
-                        result.AppendMessage($"Unknown how to handle drunkness strength {match.Value}");
-                        result.IncreaseError(ConvertError.Warning);
                     }
                     else if (action == "outfit")
                     {
