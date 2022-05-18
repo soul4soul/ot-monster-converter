@@ -999,7 +999,7 @@ namespace MonsterConverterTfsXml
                         Name = summon.name,
                         Chance = Math.Min(1, summon.chance / 100),
                         Interval = (summon.interval > 0) ? summon.interval : summon.speed,
-                        Max = summon.max,
+                        Max = (summon.max > 0) ? summon.max : monster.MaxSummons,
                         Force = summon.force
                     });
                 }

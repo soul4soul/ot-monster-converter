@@ -47,6 +47,11 @@ namespace MonsterConverterCipMon
         /// </summary>
         private readonly int SPEED_OFFSET = 120;
 
+        /// <summary>
+        /// Interval at which abilities will happen
+        /// </summary>
+        private readonly int INTERVAL = 2000;
+
         public override string ConverterName { get => "Cip Mon"; }
 
         public override string FileExt { get => "mon"; }
@@ -254,7 +259,7 @@ namespace MonsterConverterCipMon
                 Spell meleeAttack = new Spell()
                 {
                     Name = "melee",
-                    Interval = 2000,
+                    Interval = INTERVAL,
                     Chance = 1,
                     Range = 1,
                     AttackValue = attack,
@@ -276,7 +281,7 @@ namespace MonsterConverterCipMon
                     string[] actionParams = match.Groups[4].Value.Split(',');
 
                     Spell spell = new Spell() {
-                        Interval = 2000,
+                        Interval = INTERVAL,
                         Chance = chance
                     };
 
@@ -457,7 +462,8 @@ namespace MonsterConverterCipMon
                         {
                             Name = raceIdNameMap[raceId],
                             Max = count,
-                            Chance = chance
+                            Chance = chance,
+                            Interval = INTERVAL
                         });
                         monster.MaxSummons += count;
                         continue;

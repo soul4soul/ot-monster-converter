@@ -1006,14 +1006,14 @@ namespace MonsterConverterTibiaWiki
                         int maxSummons = 1;
                         TryParseRange(summon.amount, out int min, out maxSummons);
                         mon.MaxSummons += maxSummons;
-                        string firstSummonName = summon.creature;
-                        mon.Summons.Add(new Summon() { Name = firstSummonName });
+                        mon.Summons.Add(new Summon() { Name = summon.creature, Max = maxSummons, Interval = 2000, Chance = 0.15 });
 
                         if (summon.creatures != null)
                         {
                             foreach (var name in summon.creatures)
                             {
-                                mon.Summons.Add(new Summon() { Name = name });
+                                mon.MaxSummons += maxSummons;
+                                mon.Summons.Add(new Summon() { Name = name, Max = maxSummons, Interval = 2000, Chance = 0.15 });
                             }
                         }
                     }
