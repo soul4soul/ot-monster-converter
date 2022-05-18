@@ -126,8 +126,8 @@ namespace MonsterConverterInterface.MonsterTypes
         FloatingBlock = 208,
         Block,
         Rooting,
-        SunPriest,
-        Werelion,
+        SunPriest, // Removed from client
+        Werelion, // Removed from client
         GhostlyScratch,
         GhostlyBite,
         BigScratching,

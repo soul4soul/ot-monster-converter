@@ -172,8 +172,8 @@ namespace MonsterConverterTfsRevScriptSys
             {Effect.FloatingBlock, "CONST_ME_FLOATINGBLOCK"},
             {Effect.Block, "CONST_ME_BLOCK"},
             {Effect.Rooting, "CONST_ME_ROOTING"},
-            //{Effect.SunPriest, "TODO"}, missing from TFS
-            //{Effect.Werelion, "TODO"}, missing from TFS
+            {Effect.SunPriest, "CONST_ME_SUNPRIEST"},
+            {Effect.Werelion, "CONST_ME_WERELION"},
             {Effect.GhostlyScratch, "CONST_ME_GHOSTLYSCRATCH"},
             {Effect.GhostlyBite, "CONST_ME_GHOSTLYBITE"},
             {Effect.BigScratching, "CONST_ME_BIGSCRATCHING"},
@@ -190,8 +190,8 @@ namespace MonsterConverterTfsRevScriptSys
             {Effect.Onslaught, "CONST_ME_FATAL"},
             {Effect.Ruse, "CONST_ME_DODGE"},
             {Effect.Momentum, "CONST_ME_HOURGLASS"},
-            //{Effect.FireworksStar, "TODO"},  missing from TFS
-            //{Effect.FireworksCircle, "TODO"}, missing from TFS
+            {Effect.FireworksStar, "CONST_ME_FIREWORKSSTAR"},
+            {Effect.FireworksCircle, "CONST_ME_FIREWORKSCIRCLE"},
             {Effect.FerumbrasVessel, "CONST_ME_FERUMBRAS_1"},
             {Effect.Gazharagoth, "CONST_ME_GAZHARAGOTH"},
             {Effect.MadMage, "CONST_ME_MAD_MAGE"},

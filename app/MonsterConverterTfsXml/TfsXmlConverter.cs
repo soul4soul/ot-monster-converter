@@ -136,8 +136,8 @@ namespace MonsterConverterTfsXml
             {"floatingblock", Effect.FloatingBlock},
             {"block", Effect.Block},
             {"rooting", Effect.Rooting},
-            //{"TODO", Effect.SunPriest}, // Missing from TFS
-            //{"TODO", Effect.Werelion},  // Missing from TFS
+            {"sunpriest", Effect.SunPriest},
+            {"werelion", Effect.Werelion},
             {"ghostlyscratch", Effect.GhostlyScratch},
             {"ghostlybite", Effect.GhostlyBite},
             {"bigscratching", Effect.BigScratching},
@@ -154,8 +154,8 @@ namespace MonsterConverterTfsXml
             {"fatal", Effect.Onslaught},
             {"dodge", Effect.Ruse},
             {"hourglass", Effect.Momentum},
-            //{"TODO", Effect.FireworksStar}, // Missing from TFS
-            //{"TODO", Effect.FireworksCircle},  // Missing from TFS
+            {"fireworksstar", Effect.FireworksStar},
+            {"fireworkscircle", Effect.FireworksCircle},
             {"ferumbras1", Effect.FerumbrasVessel},
             {"gazharagoth", Effect.Gazharagoth},
             {"madmage", Effect.MadMage},
