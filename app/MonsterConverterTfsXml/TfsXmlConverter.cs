@@ -1,4 +1,4 @@
-﻿using MonsterConverterInterface;
+using MonsterConverterInterface;
 using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
@@ -518,7 +518,6 @@ namespace MonsterConverterTfsXml
                 {
                     ability.Add(new XAttribute("name", spell.Name));
                     ability.Add(new XAttribute("interval", spell.Interval));
-                    ability.Add(new XAttribute("chance", Math.Round(spell.Chance * 100)));
 
                     if ((spell.MinDamage != null) && (spell.MaxDamage != null))
                     {
@@ -754,12 +753,12 @@ namespace MonsterConverterTfsXml
                 item.Add(new XAttribute("name", loot.Name));
             }
 
-            item.Add(new XAttribute("chance", Math.Round(loot.Chance * MAX_LOOTCHANCE)));
-
             if (loot.Count > 1)
             {
                 item.Add(new XAttribute("countmax", loot.Count));
             }
+
+            item.Add(new XAttribute("chance", Math.Round(loot.Chance * MAX_LOOTCHANCE)));
 
             if (loot.SubType > 0)
             {
