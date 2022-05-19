@@ -365,6 +365,7 @@ namespace MonsterConverterTfsXml
                 XElement monsterElement = new XElement("monster",
                     new XAttribute("name", monster.Name),
                     new XAttribute("nameDescription", monster.Description ?? ""),
+                    new XAttribute("race", GenericToTfsRace(monster.Race)),
                     new XAttribute("experience", monster.Experience),
                     new XAttribute("speed", monster.Speed),
                     new XAttribute("manacost", monster.SummonCost),
@@ -1588,7 +1589,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private string GenerictoTfsBlood(Blood race)
+        private string GenericToTfsRace(Blood race)
         {
             string bloodName = "blood";
 
