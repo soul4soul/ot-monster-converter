@@ -692,6 +692,7 @@ namespace MonsterConverterTibiaWiki
 
             int intVal;
             bool boolVal;
+            bool isArenaBoss = false;
 
             var monsterPage = RequestData(monsterurl).Result;
             // Replace html on page with nothing, the data inside the tags isn't needed and the template parser can choke on it
@@ -702,7 +703,7 @@ namespace MonsterConverterTibiaWiki
             monster.FileName = filename;
             if (!string.IsNullOrWhiteSpace(creature.name)) { monster.RegisteredName = creature.name; }
             if (!string.IsNullOrWhiteSpace(creature.actualname)) { monster.Name = creature.actualname; }
-            if (!string.IsNullOrWhiteSpace(creature.article)) { ParseArticle(monster, creature.article); }
+            if (creature.article != null) { ParseArticle(monster, creature.article); }
             if (RobustTryParse(creature.hp, out intVal)) { monster.Health = intVal; }
             if (RobustTryParse(creature.exp, out intVal)) { monster.Experience = intVal; }
             if (RobustTryParse(creature.armor, out intVal)) { monster.TotalArmor = monster.Shielding = intVal; }
@@ -712,6 +713,7 @@ namespace MonsterConverterTibiaWiki
             if (RobustTryParse(creature.convince, out intVal)) { monster.ConvinceCost = intVal; }
             if (RobustTryParse(creature.illusionable, out boolVal)) { monster.IsIllusionable = boolVal; }
             if (RobustTryParse(creature.isboss, out boolVal)) { monster.IsBoss = boolVal; }
+            RobustTryParse(creature.isarenaboss, out isArenaBoss);
             if (!string.IsNullOrWhiteSpace(creature.primarytype)) { monster.HideHealth = creature.primarytype.ToLower().Contains("trap"); }
             if (!string.IsNullOrWhiteSpace(creature.bestiaryclass)) { monster.Bestiary.Class = creature.bestiaryclass; }
             if (!string.IsNullOrWhiteSpace(creature.bestiarylevel) && !string.IsNullOrWhiteSpace(creature.occurrence))
@@ -746,7 +748,6 @@ namespace MonsterConverterTibiaWiki
                 }
                 else
                 {
-                    result.IncreaseError(ConvertError.Warning);
                     result.AppendMessage("Look type not found");
                 }
             }
@@ -764,13 +765,33 @@ namespace MonsterConverterTibiaWiki
                 monster.Race = Blood.undead;
             }
 
-            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            // Article wasn't included on wiki try our best to guess it
+            if (string.IsNullOrEmpty(monster.Description) && !string.IsNullOrWhiteSpace(monster.Name))
+            {
+                if ((monster.IsBoss) || (isArenaBoss))
+                {
+                    ParseArticle(monster, "");
+                }
+                else if (Regex.IsMatch(monster.Name, "[aio]", RegexOptions.IgnoreCase))
+                {
+                    ParseArticle(monster, "an");
+                }
+                else if (Regex.IsMatch(monster.Name, "[bcdgkpqtvworzflmnrsorx]", RegexOptions.IgnoreCase))
+                {
+                    ParseArticle(monster, "a");
+                }
+                result.IncreaseError(ConvertError.Warning);
+                result.AppendMessage("Guessed description");
+            }
+
+            // Creature name is an important field, guessing is better then nothing
             if (string.IsNullOrWhiteSpace(monster.Name) && !string.IsNullOrWhiteSpace(monster.FileName))
             {
-                // Better then nothing guess
+                result.IncreaseError(ConvertError.Warning);
                 result.AppendMessage("Guessed creature name");
                 monster.Name = monster.FileName;
             }
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
             monster.Name = textInfo.ToTitleCase(monster.Name);
 
             return result;

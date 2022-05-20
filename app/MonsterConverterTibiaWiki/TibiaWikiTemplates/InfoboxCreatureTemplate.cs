@@ -62,6 +62,9 @@
         [TemplateParameter(Index = 21, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string isboss { get; set; }
 
+        [TemplateParameter(Index = 22, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string isarenaboss { get; set; }
+
         [TemplateParameter(Index = 23, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string abilities { get; set; }
 
