@@ -952,7 +952,6 @@ namespace MonsterConverterTibiaWiki
                         }
                         else if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
                         {
-                            // TODO, report errors converting abilities each ability should be a single error entry even if that ability has multiple problems use a single entry
                             var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
                             if (TryParseScene(abilityObj.scene, out Spell spell))
                             {
@@ -968,6 +967,7 @@ namespace MonsterConverterTibiaWiki
                                 else if (spell.Name == "condition")
                                 {
                                     // Too hard to parse the none standard string entries. We need a standard condition ability template.
+                                    System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\" since its a condition");
                                 }
                                 else if (spell.Name == "invisible")
                                 {
@@ -988,6 +988,10 @@ namespace MonsterConverterTibiaWiki
                                     spell.MaxSpeedChange = -400;
                                     spell.Duration = 20000;
                                     mon.Attacks.Add(spell);
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\"");
                                 }
                             }
                             else

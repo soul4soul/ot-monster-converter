@@ -56,6 +56,9 @@
         [TemplateParameter(Index = 18, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string attacktype { get; set; }
 
+        [TemplateParameter(Index = 19, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string usespells { get; set; }
+
         [TemplateParameter(Index = 20, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string spawntype { get; set; }
 

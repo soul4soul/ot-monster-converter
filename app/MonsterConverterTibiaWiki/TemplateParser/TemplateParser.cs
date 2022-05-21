@@ -181,11 +181,10 @@ namespace MonsterConverterTibiaWiki
                 {
                     if (!indexedPropertyNames.ContainsKey(attr.BeforeCaptureProperty))
                     {
-                        System.Diagnostics.Debug.WriteLine($"template {templateName} no matching BeforeCaptureProperty found");
+                        //System.Diagnostics.Debug.WriteLine($"template {templateName} no matching BeforeCaptureProperty found");
                     }
                     else
                     {
-
                         prop = indexedPropertyNames[attr.BeforeCaptureProperty];
                         prop.SetValue(output, m.Groups["before"].Value.Trim(), null);
                     }
@@ -195,7 +194,7 @@ namespace MonsterConverterTibiaWiki
                 {
                     if (!indexedPropertyNames.ContainsKey(attr.AfterCaptureProperty))
                     {
-                        System.Diagnostics.Debug.WriteLine($"template {templateName} no matching AfterCaptureProperty found");
+                        //System.Diagnostics.Debug.WriteLine($"template {templateName} no matching AfterCaptureProperty found");
                     }
                     else
                     {
@@ -218,7 +217,7 @@ namespace MonsterConverterTibiaWiki
                             string parameterName = m.Groups["name"].Value.ToLower();
                             if (!indexedPropertyNames.ContainsKey(parameterName))
                             {
-                                System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
+                                //System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
                                 continue;
                             }
                             prop = indexedPropertyNames[parameterName];
