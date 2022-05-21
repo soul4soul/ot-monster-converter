@@ -686,7 +686,7 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
-            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Corpses id missing, blood type guessed, and limited ability parsing.");
+            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Corpses id missing and limited ability parsing.");
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
 
@@ -748,11 +748,12 @@ namespace MonsterConverterTibiaWiki
                 }
                 else
                 {
+                    result.IncreaseError(ConvertError.Warning);
                     result.AppendMessage("Look type not found");
                 }
             }
             if (!string.IsNullOrWhiteSpace(creature.sounds)) { ParseSoundList(monster, creature.sounds); }
-            if (!string.IsNullOrWhiteSpace(creature.abilities)) { ParseAbilities(monster, creature.abilities, result); }
+            if (!string.IsNullOrWhiteSpace(creature.abilities)) { ParseAbilityList(monster, creature.abilities, result); }
             if (!string.IsNullOrWhiteSpace(creature.location)) { monster.Bestiary.Location = creature.location; }
             if (!string.IsNullOrWhiteSpace(creature.loot)) { ParseLoot(monster, creature.loot, filename, result); }
 
@@ -764,6 +765,11 @@ namespace MonsterConverterTibiaWiki
             {
                 monster.Race = Blood.undead;
             }
+            else
+            {
+                result.IncreaseError(ConvertError.Warning);
+                result.AppendMessage("Race type unknown defaulting to blood");
+            }
 
             // Article wasn't included on wiki try our best to guess it
             if (string.IsNullOrEmpty(monster.Description) && !string.IsNullOrWhiteSpace(monster.Name))
@@ -771,17 +777,26 @@ namespace MonsterConverterTibiaWiki
                 if ((monster.IsBoss) || (isArenaBoss))
                 {
                     ParseArticle(monster, "");
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Guessed description");
                 }
                 else if (Regex.IsMatch(monster.Name, "[aio]", RegexOptions.IgnoreCase))
                 {
                     ParseArticle(monster, "an");
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Guessed description");
                 }
                 else if (Regex.IsMatch(monster.Name, "[bcdgkpqtvworzflmnrsorx]", RegexOptions.IgnoreCase))
                 {
                     ParseArticle(monster, "a");
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Guessed description");
                 }
-                result.IncreaseError(ConvertError.Warning);
-                result.AppendMessage("Guessed description");
+                else
+                {
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Unable to parse description");
+                }
             }
 
             // Creature name is an important field, guessing is better then nothing
@@ -874,90 +889,38 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void ParseAbilities(Monster mon, string abilities, ConvertResultEventArgs result)
+        private static void ParseAbilityList(Monster mon, string abilities, ConvertResultEventArgs result)
         {
             if (TemplateParser.IsTemplateMatch<AbilityListTemplate>(abilities))
-                ParseAbilityList(mon, abilities, result);
-            else
-                ParseLegacyAbilities(mon, abilities, result);
-        }
-
-        /// <summary>
-        /// Historically abilities were a comma seperate list of losely conforming english
-        /// The TibiaWiki admins have replaced this format with a standard template.
-        /// Eventually everything will switch to the ability list template and this function can be removed
-        /// </summary>
-        /// <param name="mon"></param>
-        /// <param name="abilities"></param>
-        private static void ParseLegacyAbilities(Monster mon, string abilities, ConvertResultEventArgs result)
-        {
-            abilities = abilities.ToLower().Replace("\r", "").Replace("\n", "").Trim();
-            if (string.IsNullOrWhiteSpace(abilities) || abilities.Contains("none") || abilities.Contains("unknown") || abilities == "?")
-                return;
-
-            // Generally we find each ability is seperated by a comma expect those inside ()'s
-            var splitAbilities = abilities.SplitTopLevel(',');
-
-            // Due our best to parse the none standard ability information
-            foreach (string ability in splitAbilities)
             {
-                string cleanedAbility = ability.Trim().TrimEnd('.');
-                switch (cleanedAbility)
+                var abilityList = TemplateParser.Deserialize<AbilityListTemplate>(abilities);
+
+                if (abilityList.ability != null)
                 {
-                    case var _ when new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").IsMatch(cleanedAbility):
+                    foreach (string ability in abilityList.ability)
+                    {
+                        if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
                         {
-                            var match = new Regex(@"\[\[melee\]\](\s*\((?<damage>[0-9- ]+))?").Match(cleanedAbility);
+                            var melee = TemplateParser.Deserialize<MeleeTemplate>(ability);
                             var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                            if (TryParseRange(match.Groups["damage"].Value, out int min, out int max))
+                            if (TryParseRange(melee.damage, out int min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
+                                mon.Attacks.Add(spell);
                             }
                             else
                             {
                                 // Could guess defaults based on creature HP, EXP, and bestiary difficulty
+                                result.AppendMessage($"Missing damage range for {ability}");
+                                result.IncreaseError(ConvertError.Warning);
                             }
-                            mon.Attacks.Add(spell);
-                            break;
                         }
-
-                    // Effect might need to be optional
-                    case var _ when new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").IsMatch(cleanedAbility):
+                        else if (TemplateParser.IsTemplateMatch<HealingTemplate>(ability))
                         {
-                            var match = new Regex(@"\[\[distance fighting\|(?<effect>[a-z ]+)\]\]s?\s*\((?<damage>[0-9- ]+)(\+?~)?\)").Match(cleanedAbility);
-                            var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Offensive, DamageElement = CombatDamage.Physical, Interval = 2000, Chance = 1, Range = 7, ShootEffect = TibiaWikiToAnimation(match.Groups["effect"].Value) };
-                            if (TryParseRange(match.Groups["damage"].Value, out int min, out int max))
-                            {
-                                spell.MinDamage = -min;
-                                spell.MaxDamage = -max;
-                            }
-                            else
-                            {
-                                // Could guess defaults based on creature HP, EXP, and bestiary difficulty
-                            }
-                            mon.Attacks.Add(spell);
-                            break;
-                        }
-
-                    case var _ when new Regex(@"\[\[haste\]\]").IsMatch(cleanedAbility):
-                        {
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = 300, MaxSpeedChange = 300, AreaEffect = Effect.MagicRed, Duration = 7000 };
-                            mon.Attacks.Add(spell);
-                            break;
-                        }
-
-                    case var _ when new Regex(@"\[\[strong haste\]\]").IsMatch(cleanedAbility):
-                        {
-                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = 450, MaxSpeedChange = 450, AreaEffect = Effect.MagicRed, Duration = 4000 };
-                            mon.Attacks.Add(spell);
-                            break;
-                        }
-
-                    case var _ when new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").IsMatch(cleanedAbility):
-                        {
-                            var match = new Regex(@"\[\[(self-? ?healing)\]\](\s*\((?<damage>[0-9- ]+))?").Match(cleanedAbility);
+                            var healing = TemplateParser.Deserialize<HealingTemplate>(ability);
                             var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                            if (TryParseRange(match.Groups["damage"].Value, out int min, out int max))
+                            if (TryParseRange(healing.damage, out int min, out int max))
                             {
                                 spell.MinDamage = min;
                                 spell.MaxDamage = max;
@@ -965,127 +928,313 @@ namespace MonsterConverterTibiaWiki
                             else
                             {
                                 // Guess defaults based on creature HP
+                                result.AppendMessage($"Guessed healing range for ability {ability}");
+                                result.IncreaseError(ConvertError.Warning);
                                 spell.MinDamage = (int?)(mon.Health * 0.1);
                                 spell.MaxDamage = (int?)(mon.Health * 0.25);
                             }
                             mon.Attacks.Add(spell);
-                            break;
                         }
+                        else if (TemplateParser.IsTemplateMatch<SummonTemplate>(ability))
+                        {
+                            var summon = TemplateParser.Deserialize<SummonTemplate>(ability);
+                            int maxSummons = 1;
+                            TryParseRange(summon.amount, out int min, out maxSummons);
+                            mon.MaxSummons += maxSummons;
+                            mon.Summons.Add(new Summon() { Name = summon.creature, Max = maxSummons, Interval = 2000, Chance = 0.15 });
 
-                    default:
-                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} legacy ability not parsed \"{cleanedAbility}\"");
-                        break;
+                            if (summon.creatures != null)
+                            {
+                                foreach (var name in summon.creatures)
+                                {
+                                    mon.MaxSummons += maxSummons;
+                                    mon.Summons.Add(new Summon() { Name = name, Max = maxSummons, Interval = 2000, Chance = 0.15 });
+                                }
+                            }
+                        }
+                        else if (TemplateParser.IsTemplateMatch<HasteTemplate>(ability))
+                        {
+                            var haste = TemplateParser.Deserialize<HasteTemplate>(ability);
+                            int MinSpeedChange = 300;
+                            int MaxSpeedChange = 300;
+                            int Duration = 7000;
+                            if ((!string.IsNullOrWhiteSpace(haste.name) && haste.name.Contains("strong")))
+                            {
+                                MinSpeedChange = 450;
+                                MaxSpeedChange = 450;
+                                Duration = 4000;
+                            }
+                            var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
+                            mon.Attacks.Add(spell);
+                        }
+                        else if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
+                        {
+                            var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
+                            if (TryParseScene(abilityObj.scene, out Spell spell))
+                            {
+                                spell.SpellCategory = SpellCategory.Offensive;
+                                ParseElement(abilityObj.element, spell);
+
+                                if (spell.Name == "combat" && TryParseRange(abilityObj.damage, out int min, out int max))
+                                {
+                                    spell.MinDamage = -min;
+                                    spell.MaxDamage = -max;
+                                    mon.Attacks.Add(spell);
+                                }
+                                else if (spell.Name == "condition")
+                                {
+                                    // Too hard to parse the none standard string entries. We need a standard condition ability template.
+                                    System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\" since its a condition");
+                                }
+                                else if (spell.Name == "invisible")
+                                {
+                                    spell.SpellCategory = SpellCategory.Defensive;
+                                    spell.Duration = 7500;
+                                    mon.Attacks.Add(spell);
+                                }
+                                else if (spell.Name == "drunk")
+                                {
+                                    spell.Drunkenness = 0.5;
+                                    spell.Duration = 15000;
+                                    mon.Attacks.Add(spell);
+                                }
+                                else if (spell.Name == "paralyze")
+                                {
+                                    spell.Name = "speed";
+                                    spell.MinSpeedChange = -400;
+                                    spell.MaxSpeedChange = -400;
+                                    spell.Duration = 20000;
+                                    mon.Attacks.Add(spell);
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\"");
+                                }
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\", likely scene is missing");
+                            }
+                        }
+                        else if (TemplateParser.IsTemplateMatch<DebuffTemplate>(ability))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\", debuff abilities not supported");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
+                        }
+                    }
                 }
             }
         }
 
-        private static void ParseAbilityList(Monster mon, string abilities, ConvertResultEventArgs result)
+        private static void ParseElement(string element, Spell spell)
         {
-            var abilityList = TemplateParser.Deserialize<AbilityListTemplate>(abilities);
+            // Wiki assumes physical if element is not provided
+            if (string.IsNullOrWhiteSpace(element))
+                element = "physical";
 
-            if (abilityList.ability != null)
-            {
-                foreach (string ability in abilityList.ability)
-                {
-                    if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
+            // Full set of possible icons pulled from https://tibia.fandom.com/wiki/Template:Icon
+            // Most icons are expected to be invalid and not applicable to spells
+            switch (element.ToLower()) {
+                case "armor": break;
+                case "charm": break;
+                case "experience": break;
+                case "health": break;
+                case "speed": break;
+                case "magic level": break;
+                case "sword": break;
+                case "axe": break;
+                case "club": break;
+                case "distance": break;
+                case "fist": break;
+                case "shielding": break;
+                case "fishing": break;
+                case "physical":
                     {
-                        var melee = TemplateParser.Deserialize<MeleeTemplate>(ability);
-                        var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                        if (TryParseRange(melee.damage, out int min, out int max))
-                        {
-                            spell.MinDamage = -min;
-                            spell.MaxDamage = -max;
-                        }
-                        else
-                        {
-                            // Could guess defaults based on creature HP, EXP, and bestiary difficulty
-                        }
-                        mon.Attacks.Add(spell);
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Physical;
+                        break;
                     }
-                    if (TemplateParser.IsTemplateMatch<HealingTemplate>(ability))
+                case "fire":
                     {
-                        var healing = TemplateParser.Deserialize<HealingTemplate>(ability);
-                        var spell = new Spell() { Name = "combat", SpellCategory = SpellCategory.Defensive, DamageElement = CombatDamage.Healing, Interval = 2000, Chance = 0.2 };
-                        if (TryParseRange(healing.damage, out int min, out int max))
-                        {
-                            spell.MinDamage = min;
-                            spell.MaxDamage = max;
-                        }
-                        else
-                        {
-                            // Guess defaults based on creature HP
-                            result.AppendMessage($"Guessing health range for ability {ability}");
-                            result.IncreaseError(ConvertError.Warning);
-                            spell.MinDamage = (int?)(mon.Health * 0.1);
-                            spell.MaxDamage = (int?)(mon.Health * 0.25);
-                        }
-                        mon.Attacks.Add(spell);
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Fire;
+                        break;
                     }
-                    if (TemplateParser.IsTemplateMatch<SummonTemplate>(ability))
+                case "earth":
+                case "poison":
                     {
-                        var summon = TemplateParser.Deserialize<SummonTemplate>(ability);
-                        int maxSummons = 1;
-                        TryParseRange(summon.amount, out int min, out maxSummons);
-                        mon.MaxSummons += maxSummons;
-                        mon.Summons.Add(new Summon() { Name = summon.creature, Max = maxSummons, Interval = 2000, Chance = 0.15 });
-
-                        if (summon.creatures != null)
-                        {
-                            foreach (var name in summon.creatures)
-                            {
-                                mon.MaxSummons += maxSummons;
-                                mon.Summons.Add(new Summon() { Name = name, Max = maxSummons, Interval = 2000, Chance = 0.15 });
-                            }
-                        }
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Earth;
+                        break;
                     }
-                    if (TemplateParser.IsTemplateMatch<HasteTemplate>(ability))
+                case "ice":
                     {
-                        var haste = TemplateParser.Deserialize<HasteTemplate>(ability);
-                        int MinSpeedChange = 300;
-                        int MaxSpeedChange = 300;
-                        int Duration = 7000;
-                        if ((!string.IsNullOrWhiteSpace(haste.name) && haste.name.Contains("strong")))
-                        {
-                            MinSpeedChange = 450;
-                            MaxSpeedChange = 450;
-                            Duration = 4000;
-                        }
-                        var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
-                        mon.Attacks.Add(spell);
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Ice;
+                        break;
                     }
-                    if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
+                case "energy":
                     {
-                        // TODO, report errors converting abilities each ability should be a single error entry even if that ability has multiple problems use a single entry
-                        var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
-                        if (TryParseScene(abilityObj.scene, out Spell spell))
-                        {
-                            spell.Name = "combat";
-                            spell.SpellCategory = SpellCategory.Offensive;
-                            spell.DamageElement = CombatDamage.Physical;
-                            if (!string.IsNullOrWhiteSpace(abilityObj.element) && WikiToElements.ContainsKey(abilityObj.element.ToLower()))
-                                spell.DamageElement = WikiToElements[abilityObj.element.ToLower()];
-
-                            if (TryParseRange(abilityObj.damage, out int min, out int max))
-                            {
-                                spell.MinDamage = -min;
-                                spell.MaxDamage = -max;
-                            }
-                            else
-                            {
-                                // Could guess defaults based on creature HP, EXP, and bestiary difficulty
-                            }
-                            mon.Attacks.Add(spell);
-                        }
-                        else
-                        {
-                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\", likely scene is missing");
-                        }
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Energy;
+                        break;
                     }
-                    else
+                case "death":
                     {
-                        System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\"");
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Death;
+                        break;
                     }
-                }
+                case "holy":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Holy;
+                        break;
+                    }
+                case "drown":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Drown;
+                        break;
+                    }
+                case "manadrain":
+                case "mana drain":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.ManaDrain;
+                        break;
+                    }
+                case "lifedrain":
+                case "life drain":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.LifeDrain;
+                        break;
+                    }
+                case "healing":
+                    {
+                        spell.Name = "combat";
+                        spell.DamageElement = CombatDamage.Healing;
+                        break;
+                    }
+                case "paralyze":
+                case "slowed":
+                    {
+                        spell.Name = "paralyze";
+                        spell.Condition = ConditionType.Paralyze;
+                        break;
+                    }
+                case "drunk":
+                    {
+                        spell.Name = "drunk";
+                        spell.Condition = ConditionType.Drunk;
+                        break;
+                    }
+                case "bleed":
+                case "bleeding":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Bleeding;
+                        break;
+                    }
+                case "burning":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Fire;
+                        break;
+                    }
+                case "cursed":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Cursed;
+                        break;
+                    }
+                case "dazzled":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Dazzled;
+                        break;
+                    }
+                case "drowning":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Drown;
+                        break;
+                    }
+                case "electrified":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Energy;
+                        break;
+                    }
+                case "feared": break;
+                case "freezing":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Freezing;
+                        break;
+                    }
+                case "hexed": break;
+                case "lesser hex": break;
+                case "intense hex": break;
+                case "greater hex": break;
+                case "poisoned":
+                    {
+                        spell.Name = "condition";
+                        spell.Condition = ConditionType.Poison;
+                        break;
+                    }
+                case "rooted": break;
+                case "strengthened": break;
+                case "buff": break;
+                case "goshnar's taints 5": break;
+                case "goshnar5": break;
+                case "protection zone block": break;
+                case "pzblock": break;
+                case "within protection zone": break;
+                case "pz": break;
+                case "within active resting area": break;
+                case "active resting area": break;
+                case "within resting area": break;
+                case "resting area": break;
+                case "haste": break;
+                case "hasted": break;
+                case "hungry": break;
+                case "logout block": break;
+                case "magic shield": break;
+                case "magic shield spell": break;
+                case "fiendish": break;
+                case "influenced": break;
+                case "ranged challenged": break;
+                case "sap strength": break;
+                case "expose weakness": break;
+                case "invisible":
+                case "invisibility":
+                    {
+                        spell.Name = "invisible";
+                        break;
+                    }
+                case "teleport": break;
+                case "spellwand": break;
+                case "shapeshifting": break;
+                case "summon": break;
+                case "No Attack": break;
+                case "debuff": break;
+                case "gold": break;
+                case "tibia coin": break;
+                case "transferable tibia coin": break;
+                case "transferrable tibia coin": break;
+                case "tournament coin": break;
+                case "gold token": break;
+                case "druid": break;
+                case "knight": break;
+                case "sorcerer": break;
+                case "paladin": break;
+                case "no vocation": break;
+                case "?": break;
             }
         }
 
