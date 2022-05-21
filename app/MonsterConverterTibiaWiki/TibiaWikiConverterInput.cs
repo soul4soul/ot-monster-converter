@@ -686,7 +686,7 @@ namespace MonsterConverterTibiaWiki
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
-            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Corpses id missing, blood type guessed, and limited ability parsing.");
+            ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Corpses id missing and limited ability parsing.");
 
             string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
 
@@ -748,6 +748,7 @@ namespace MonsterConverterTibiaWiki
                 }
                 else
                 {
+                    result.IncreaseError(ConvertError.Warning);
                     result.AppendMessage("Look type not found");
                 }
             }
@@ -764,6 +765,11 @@ namespace MonsterConverterTibiaWiki
             {
                 monster.Race = Blood.undead;
             }
+            else
+            {
+                result.IncreaseError(ConvertError.Warning);
+                result.AppendMessage("Race type unknown defaulting to blood");
+            }
 
             // Article wasn't included on wiki try our best to guess it
             if (string.IsNullOrEmpty(monster.Description) && !string.IsNullOrWhiteSpace(monster.Name))
@@ -771,17 +777,26 @@ namespace MonsterConverterTibiaWiki
                 if ((monster.IsBoss) || (isArenaBoss))
                 {
                     ParseArticle(monster, "");
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Guessed description");
                 }
                 else if (Regex.IsMatch(monster.Name, "[aio]", RegexOptions.IgnoreCase))
                 {
                     ParseArticle(monster, "an");
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Guessed description");
                 }
                 else if (Regex.IsMatch(monster.Name, "[bcdgkpqtvworzflmnrsorx]", RegexOptions.IgnoreCase))
                 {
                     ParseArticle(monster, "a");
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Guessed description");
                 }
-                result.IncreaseError(ConvertError.Warning);
-                result.AppendMessage("Guessed description");
+                else
+                {
+                    result.IncreaseError(ConvertError.Warning);
+                    result.AppendMessage("Unable to parse description");
+                }
             }
 
             // Creature name is an important field, guessing is better then nothing
@@ -892,12 +907,14 @@ namespace MonsterConverterTibiaWiki
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
+                                mon.Attacks.Add(spell);
                             }
                             else
                             {
                                 // Could guess defaults based on creature HP, EXP, and bestiary difficulty
+                                result.AppendMessage($"Missing damage range for {ability}");
+                                result.IncreaseError(ConvertError.Warning);
                             }
-                            mon.Attacks.Add(spell);
                         }
                         else if (TemplateParser.IsTemplateMatch<HealingTemplate>(ability))
                         {
@@ -911,7 +928,7 @@ namespace MonsterConverterTibiaWiki
                             else
                             {
                                 // Guess defaults based on creature HP
-                                result.AppendMessage($"Guessing health range for ability {ability}");
+                                result.AppendMessage($"Guessed healing range for ability {ability}");
                                 result.IncreaseError(ConvertError.Warning);
                                 spell.MinDamage = (int?)(mon.Health * 0.1);
                                 spell.MaxDamage = (int?)(mon.Health * 0.25);
@@ -998,6 +1015,10 @@ namespace MonsterConverterTibiaWiki
                             {
                                 System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\", likely scene is missing");
                             }
+                        }
+                        else if (TemplateParser.IsTemplateMatch<DebuffTemplate>(ability))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\", debuff abilities not supported");
                         }
                         else
                         {
