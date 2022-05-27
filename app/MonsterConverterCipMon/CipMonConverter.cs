@@ -502,6 +502,11 @@ namespace MonsterConverterCipMon
                         volume = SoundLevel.Yell;
                         sound = sound.Substring(3);
                     }
+                    else if (sound.StartsWith("#W") || sound.StartsWith("#w"))
+                    {
+                        volume = SoundLevel.Whisper;
+                        sound = sound.Substring(3);
+                    }
                     monster.Voices.Add(new Voice(sound, volume));
                 }
             }
