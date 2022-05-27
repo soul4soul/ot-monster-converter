@@ -297,10 +297,10 @@ namespace MonsterConverterTibiaWiki
                     AbilityTemplate ability = new AbilityTemplate();
                     if (wikiName == s.Name)
                     {
-                        wikiName = "Creates [[Fire Field|Fire]]";
+                        wikiName = "Creates Fire Fields";
                     }
                     ability.name = wikiName;
-                    ability.element = WikiToElements[CombatDamage.Fire];
+                    ability.element = "fire field";
                     ability.scene = GenericSpellToScene(s, mon.Name, "Fire");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -309,10 +309,10 @@ namespace MonsterConverterTibiaWiki
                     AbilityTemplate ability = new AbilityTemplate();
                     if (wikiName == s.Name)
                     {
-                        wikiName = "Creates [[Energy Field|Energy_Field_(Field)]]";
+                        wikiName = "Creates Energy Fields";
                     }
                     ability.name = wikiName;
-                    ability.element = WikiToElements[CombatDamage.Energy];
+                    ability.element = "energy field";
                     ability.scene = GenericSpellToScene(s, mon.Name, "Energy_Field_(Field)");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -321,10 +321,10 @@ namespace MonsterConverterTibiaWiki
                     AbilityTemplate ability = new AbilityTemplate();
                     if (wikiName == s.Name)
                     {
-                        wikiName = "Creates [[Poison Field|Poison_Gas]]";
+                        wikiName = "Creates Poison Fields";
                     }
                     ability.name = wikiName;
-                    ability.element = WikiToElements[CombatDamage.Earth];
+                    ability.element = "poison field";
                     ability.scene = GenericSpellToScene(s, mon.Name, "Poison_Gas");
                     abilities.Add(TemplateParser.Serialize(ability));
                 }

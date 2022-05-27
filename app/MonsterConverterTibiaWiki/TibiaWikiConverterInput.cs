@@ -1006,6 +1006,10 @@ namespace MonsterConverterTibiaWiki
                                     spell.Duration = 20000;
                                     mon.Attacks.Add(spell);
                                 }
+                                else if ((spell.Name == "firefield") || (spell.Name == "poisonfield") || (spell.Name == "energyfield"))
+                                {
+                                    mon.Attacks.Add(spell);
+                                }
                                 else
                                 {
                                     System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\"");
@@ -1234,6 +1238,21 @@ namespace MonsterConverterTibiaWiki
                 case "sorcerer": break;
                 case "paladin": break;
                 case "no vocation": break;
+                case "fire field":
+                    {
+                        spell.Name = "firefield";
+                        break;
+                    }
+                case "poison field":
+                    {
+                        spell.Name = "poisonfield";
+                        break;
+                    }
+                case "energy field":
+                    {
+                        spell.Name = "energyfield";
+                        break;
+                    }
                 case "?": break;
             }
         }
