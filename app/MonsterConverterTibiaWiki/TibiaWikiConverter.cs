@@ -159,7 +159,7 @@ namespace MonsterConverterTibiaWiki
                 return;
             }
 
-            string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Missles&prop=text";
+            string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Missiles&prop=text";
             var missileTable = RequestData(missilelisturl).Result.Text.Empty;
 
             var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
