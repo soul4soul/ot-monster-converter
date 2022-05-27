@@ -386,6 +386,11 @@ namespace MonsterConverterTfsRevScriptSys
                     {
                         yell = true;
                     }
+                    if (monster.Voices[i].SoundLevel == SoundLevel.Whisper)
+                    {
+                        result.AppendMessage("Whisper sound not supported, defaulting to say");
+                        result.IncreaseError(ConvertError.Warning);
+                    }
                     string voice = $"	{{text = \"{monster.Voices[i].Sound}\", yell = {yell.ToString().ToLower()}}},";
                     if (i == monster.Voices.Count - 1)
                     {

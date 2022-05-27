@@ -377,7 +377,7 @@ namespace MonsterConverterTfsXml
                     new XElement("health",
                         new XAttribute("now", monster.Health),
                         new XAttribute("max", monster.Health)),
-                    LookGenericToTfsXml(monster.Look, ref result),
+                    LookGenericToTfsXml(monster.Look, result),
                     new XElement("targetchange",
                         new XAttribute("interval", monster.RetargetInterval),
                         new XAttribute("chance", Math.Round(monster.RetargetChance * 100))),
@@ -449,7 +449,7 @@ namespace MonsterConverterTfsXml
                     );
                 AbilitiesGenericToTfsXmlAttacks(monster, monsterElement);
                 monsterElement.Add(AbilitiesGenericToTfsXmlDefense(monster));
-                VoiceGenericToTfsXml(monster, monsterElement);
+                VoiceGenericToTfsXml(monster, monsterElement, result);
                 SummonGenericToTfsXml(monster, monsterElement);
                 LootGenericToTfsXml(monster.Items, monsterElement);
                 XDocument doc = new XDocument(monsterElement);
@@ -688,7 +688,7 @@ namespace MonsterConverterTfsXml
             return Math.Round(value);
         }
 
-        private static XElement LookGenericToTfsXml(LookData look, ref ConvertResultEventArgs result)
+        private static XElement LookGenericToTfsXml(LookData look, ConvertResultEventArgs result)
         {
             if (look.LookType == LookType.Outfit)
             {
@@ -716,7 +716,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private static void VoiceGenericToTfsXml(Monster monster, XElement monsterElement)
+        private static void VoiceGenericToTfsXml(Monster monster, XElement monsterElement, ConvertResultEventArgs result)
         {
             XElement voices = new XElement("voices",
                 new XAttribute("interval", monster.VoiceInterval),
@@ -726,6 +726,11 @@ namespace MonsterConverterTfsXml
                 voices.Add(new XElement("voice", 
                     new XAttribute("sentence", v.Sound),
                     new XAttribute("yell", v.SoundLevel == SoundLevel.Yell)));
+                if (v.SoundLevel == SoundLevel.Whisper)
+                {
+                    result.AppendMessage("Whisper sound not supported, defaulting to say");
+                    result.IncreaseError(ConvertError.Warning);
+                }
             }
             if (voices.HasElements)
             {
