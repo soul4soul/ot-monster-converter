@@ -208,7 +208,9 @@ namespace MonsterConverterCipMon
             m = Regex.Match(fileContents, @"Armor\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success) { monster.TotalArmor = int.Parse(m.Groups[1].Value); }
 
-            //m = Regex.Match(fileContents, @"Poison\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            int meleePoison = 0;
+            m = Regex.Match(fileContents, @"Poison\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (m.Success) { meleePoison = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"LoseTarget\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success) { monster.RetargetChance = int.Parse(m.Groups[1].Value) / 100.0; }
@@ -265,6 +267,12 @@ namespace MonsterConverterCipMon
                     AttackValue = attack,
                     Skill = skill
                 };
+                if (meleePoison > 0)
+                {
+                    meleeAttack.Condition = ConditionType.Poison;
+                    meleeAttack.StartDamage = meleePoison;
+                    meleeAttack.Tick = 4000; // Default cipbia poison tick
+                }
                 monster.Attacks.Add(meleeAttack);
             }
 
