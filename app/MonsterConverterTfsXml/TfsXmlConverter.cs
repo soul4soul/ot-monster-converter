@@ -351,8 +351,13 @@ namespace MonsterConverterTfsXml
             }
             if ((monster.SummonCost > 0) && (monster.ConvinceCost > 0) && (monster.SummonCost != monster.ConvinceCost))
             {
-                result.AppendMessage("format doesn't support summon and coninvce mana costs being different");
+                result.AppendMessage("format doesn't support summon and coninvce mana costs being different, defaulting to highest value");
                 result.IncreaseError(ConvertError.Warning);
+            }
+            int manaCost = monster.SummonCost;
+            if (monster.ConvinceCost > manaCost)
+            {
+                manaCost = monster.ConvinceCost;
             }
 
             XmlWriterSettings xws = new XmlWriterSettings();
@@ -368,7 +373,7 @@ namespace MonsterConverterTfsXml
                     new XAttribute("race", GenericToTfsRace(monster.Race)),
                     new XAttribute("experience", monster.Experience),
                     new XAttribute("speed", monster.Speed),
-                    new XAttribute("manacost", monster.SummonCost),
+                    new XAttribute("manacost", manaCost),
                     new XElement("health",
                         new XAttribute("now", monster.Health),
                         new XAttribute("max", monster.Health)),
