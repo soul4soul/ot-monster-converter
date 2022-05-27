@@ -430,7 +430,7 @@ namespace MonsterConverterCipMon
                     else if (action == "outfit")
                     {
                         spell.Name = "outfit";
-                        spell.SpellCategory = (castType == "actor") ? SpellCategory.Offensive : SpellCategory.Defensive;
+                        spell.SpellCategory = (castType == "victim") ? SpellCategory.Offensive : SpellCategory.Defensive;
 
                         Match outfitMatch = Regex.Match(match.Value, @"(?<type>\d+), (?<head>\d+)-(?<body>\d+)-(?<legs>\d+)-(?<feet>\d+)\), (?<duration>\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                         if (outfitMatch.Success)
