@@ -282,6 +282,17 @@ namespace MonsterConverterTfsXml
             {ConditionType.Cursed, "cursecondition"}
         };
 
+        private readonly IDictionary<ConditionType, string> conditionTypeToMeleeCondition = new Dictionary<ConditionType, string>
+        {
+            {ConditionType.Bleeding, "bleed"},
+            {ConditionType.Energy, "energy"},
+            {ConditionType.Poison, "poison"},
+            {ConditionType.Fire, "fire"},
+            {ConditionType.Drown, "drown"},
+            {ConditionType.Freezing, "freeze"},
+            {ConditionType.Cursed, "curse"}
+        };
+
         private readonly IDictionary<ConditionType, int> conditionDefaultTick = new Dictionary<ConditionType, int>
         {
             {ConditionType.Bleeding,    4000},
@@ -544,7 +555,7 @@ namespace MonsterConverterTfsXml
 
                     if (spell.Condition != ConditionType.None)
                     {
-                        ability.Add(new XAttribute(conditionTypeToAttackName[spell.Condition], spell.StartDamage));
+                        ability.Add(new XAttribute(conditionTypeToMeleeCondition[spell.Condition], spell.StartDamage));
                         ability.Add(new XAttribute("tick", spell.Tick));
                     }
                 }
