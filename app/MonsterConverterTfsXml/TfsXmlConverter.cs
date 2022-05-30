@@ -1014,16 +1014,19 @@ namespace MonsterConverterTfsXml
             if (tfsMonster.summons != null)
             {
                 monster.MaxSummons = tfsMonster.summons.maxSummons;
-                foreach (TFSXmlSummon summon in tfsMonster.summons.summon)
+                if (tfsMonster.summons.summon != null)
                 {
-                    monster.Summons.Add(new Summon()
+                    foreach (TFSXmlSummon summon in tfsMonster.summons.summon)
                     {
-                        Name = summon.name,
-                        Chance = Math.Min(1, summon.chance / 100),
-                        Interval = (summon.interval > 0) ? summon.interval : summon.speed,
-                        Max = (summon.max > 0) ? summon.max : monster.MaxSummons,
-                        Force = summon.force
-                    });
+                        monster.Summons.Add(new Summon()
+                        {
+                            Name = summon.name,
+                            Chance = Math.Min(1, summon.chance / 100),
+                            Interval = (summon.interval > 0) ? summon.interval : summon.speed,
+                            Max = (summon.max > 0) ? summon.max : monster.MaxSummons,
+                            Force = summon.force
+                        });
+                    }
                 }
             }
             else
