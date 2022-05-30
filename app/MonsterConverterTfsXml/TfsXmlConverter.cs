@@ -265,7 +265,7 @@ namespace MonsterConverterTfsXml
             {"icecondition",         ConditionType.Freezing},
             {"freezecondition",      ConditionType.Freezing},
             {"holycondition",        ConditionType.Dazzled},
-            {"dazzledcondition",     ConditionType.Dazzled},
+            {"dazzlecondition",     ConditionType.Dazzled},
             {"cursecondition",       ConditionType.Cursed},
             {"deathcondition",       ConditionType.Cursed}
         };
