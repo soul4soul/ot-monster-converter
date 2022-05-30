@@ -800,7 +800,7 @@ namespace MonsterConverterTfsXml
 
             if (!string.IsNullOrWhiteSpace(loot.Description))
             {
-                item.Add(new XAttribute("description", loot.Description));
+                item.Add(new XAttribute("description2", loot.Description));
             }
 
             if (loot.NestedLoot.Count > 0)

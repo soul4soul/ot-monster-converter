@@ -624,7 +624,7 @@ namespace MonsterConverterTfsRevScriptSys
 
             if (!string.IsNullOrWhiteSpace(loot.Description))
             {
-                rssLootLine += $", description = \"{loot.Description}\"";
+                rssLootLine += $", description2 = \"{loot.Description}\"";
             }
 
             if (loot.NestedLoot.Count > 0)
