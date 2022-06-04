@@ -208,7 +208,9 @@ namespace MonsterConverterCipMon
             m = Regex.Match(fileContents, @"Armor\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success) { monster.TotalArmor = int.Parse(m.Groups[1].Value); }
 
-            //m = Regex.Match(fileContents, @"Poison\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            int meleePoison = 0;
+            m = Regex.Match(fileContents, @"Poison\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (m.Success) { meleePoison = int.Parse(m.Groups[1].Value); }
 
             m = Regex.Match(fileContents, @"LoseTarget\s+= (\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if (m.Success) { monster.RetargetChance = int.Parse(m.Groups[1].Value) / 100.0; }
@@ -265,6 +267,12 @@ namespace MonsterConverterCipMon
                     AttackValue = attack,
                     Skill = skill
                 };
+                if (meleePoison > 0)
+                {
+                    meleeAttack.Condition = ConditionType.Poison;
+                    meleeAttack.StartDamage = meleePoison;
+                    meleeAttack.Tick = 4000; // Default cipbia poison tick
+                }
                 monster.Attacks.Add(meleeAttack);
             }
 
@@ -422,7 +430,7 @@ namespace MonsterConverterCipMon
                     else if (action == "outfit")
                     {
                         spell.Name = "outfit";
-                        spell.SpellCategory = (castType == "actor") ? SpellCategory.Offensive : SpellCategory.Defensive;
+                        spell.SpellCategory = (castType == "victim") ? SpellCategory.Offensive : SpellCategory.Defensive;
 
                         Match outfitMatch = Regex.Match(match.Value, @"(?<type>\d+), (?<head>\d+)-(?<body>\d+)-(?<legs>\d+)-(?<feet>\d+)\), (?<duration>\d+)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                         if (outfitMatch.Success)
@@ -500,6 +508,11 @@ namespace MonsterConverterCipMon
                     if (sound.StartsWith("#Y") || sound.StartsWith("#y"))
                     {
                         volume = SoundLevel.Yell;
+                        sound = sound.Substring(3);
+                    }
+                    else if (sound.StartsWith("#W") || sound.StartsWith("#w"))
+                    {
+                        volume = SoundLevel.Whisper;
                         sound = sound.Substring(3);
                     }
                     monster.Voices.Add(new Voice(sound, volume));

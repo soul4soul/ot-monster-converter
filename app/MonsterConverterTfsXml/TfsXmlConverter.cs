@@ -265,7 +265,7 @@ namespace MonsterConverterTfsXml
             {"icecondition",         ConditionType.Freezing},
             {"freezecondition",      ConditionType.Freezing},
             {"holycondition",        ConditionType.Dazzled},
-            {"dazzledcondition",     ConditionType.Dazzled},
+            {"dazzlecondition",     ConditionType.Dazzled},
             {"cursecondition",       ConditionType.Cursed},
             {"deathcondition",       ConditionType.Cursed}
         };
@@ -280,6 +280,17 @@ namespace MonsterConverterTfsXml
             {ConditionType.Freezing, "icecondition"},
             {ConditionType.Dazzled, "holycondition"},
             {ConditionType.Cursed, "cursecondition"}
+        };
+
+        private readonly IDictionary<ConditionType, string> conditionTypeToMeleeCondition = new Dictionary<ConditionType, string>
+        {
+            {ConditionType.Bleeding, "bleed"},
+            {ConditionType.Energy, "energy"},
+            {ConditionType.Poison, "poison"},
+            {ConditionType.Fire, "fire"},
+            {ConditionType.Drown, "drown"},
+            {ConditionType.Freezing, "freeze"},
+            {ConditionType.Cursed, "curse"}
         };
 
         private readonly IDictionary<ConditionType, int> conditionDefaultTick = new Dictionary<ConditionType, int>
@@ -351,8 +362,13 @@ namespace MonsterConverterTfsXml
             }
             if ((monster.SummonCost > 0) && (monster.ConvinceCost > 0) && (monster.SummonCost != monster.ConvinceCost))
             {
-                result.AppendMessage("format doesn't support summon and coninvce mana costs being different");
+                result.AppendMessage("format doesn't support summon and coninvce mana costs being different, defaulting to highest value");
                 result.IncreaseError(ConvertError.Warning);
+            }
+            int manaCost = monster.SummonCost;
+            if (monster.ConvinceCost > manaCost)
+            {
+                manaCost = monster.ConvinceCost;
             }
 
             XmlWriterSettings xws = new XmlWriterSettings();
@@ -368,11 +384,11 @@ namespace MonsterConverterTfsXml
                     new XAttribute("race", GenericToTfsRace(monster.Race)),
                     new XAttribute("experience", monster.Experience),
                     new XAttribute("speed", monster.Speed),
-                    new XAttribute("manacost", monster.SummonCost),
+                    new XAttribute("manacost", manaCost),
                     new XElement("health",
                         new XAttribute("now", monster.Health),
                         new XAttribute("max", monster.Health)),
-                    LookGenericToTfsXml(monster.Look, ref result),
+                    LookGenericToTfsXml(monster.Look, result),
                     new XElement("targetchange",
                         new XAttribute("interval", monster.RetargetInterval),
                         new XAttribute("chance", Math.Round(monster.RetargetChance * 100))),
@@ -444,7 +460,7 @@ namespace MonsterConverterTfsXml
                     );
                 AbilitiesGenericToTfsXmlAttacks(monster, monsterElement);
                 monsterElement.Add(AbilitiesGenericToTfsXmlDefense(monster));
-                VoiceGenericToTfsXml(monster, monsterElement);
+                VoiceGenericToTfsXml(monster, monsterElement, result);
                 SummonGenericToTfsXml(monster, monsterElement);
                 LootGenericToTfsXml(monster.Items, monsterElement);
                 XDocument doc = new XDocument(monsterElement);
@@ -539,7 +555,7 @@ namespace MonsterConverterTfsXml
 
                     if (spell.Condition != ConditionType.None)
                     {
-                        ability.Add(new XAttribute(conditionTypeToAttackName[spell.Condition], spell.StartDamage));
+                        ability.Add(new XAttribute(conditionTypeToMeleeCondition[spell.Condition], spell.StartDamage));
                         ability.Add(new XAttribute("tick", spell.Tick));
                     }
                 }
@@ -683,7 +699,7 @@ namespace MonsterConverterTfsXml
             return Math.Round(value);
         }
 
-        private static XElement LookGenericToTfsXml(LookData look, ref ConvertResultEventArgs result)
+        private static XElement LookGenericToTfsXml(LookData look, ConvertResultEventArgs result)
         {
             if (look.LookType == LookType.Outfit)
             {
@@ -711,7 +727,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private static void VoiceGenericToTfsXml(Monster monster, XElement monsterElement)
+        private static void VoiceGenericToTfsXml(Monster monster, XElement monsterElement, ConvertResultEventArgs result)
         {
             XElement voices = new XElement("voices",
                 new XAttribute("interval", monster.VoiceInterval),
@@ -721,6 +737,11 @@ namespace MonsterConverterTfsXml
                 voices.Add(new XElement("voice", 
                     new XAttribute("sentence", v.Sound),
                     new XAttribute("yell", v.SoundLevel == SoundLevel.Yell)));
+                if (v.SoundLevel == SoundLevel.Whisper)
+                {
+                    result.AppendMessage("Whisper sound not supported, defaulting to say");
+                    result.IncreaseError(ConvertError.Warning);
+                }
             }
             if (voices.HasElements)
             {
@@ -779,7 +800,7 @@ namespace MonsterConverterTfsXml
 
             if (!string.IsNullOrWhiteSpace(loot.Description))
             {
-                item.Add(new XAttribute("description", loot.Description));
+                item.Add(new XAttribute("description2", loot.Description));
             }
 
             if (loot.NestedLoot.Count > 0)
@@ -993,16 +1014,19 @@ namespace MonsterConverterTfsXml
             if (tfsMonster.summons != null)
             {
                 monster.MaxSummons = tfsMonster.summons.maxSummons;
-                foreach (TFSXmlSummon summon in tfsMonster.summons.summon)
+                if (tfsMonster.summons.summon != null)
                 {
-                    monster.Summons.Add(new Summon()
+                    foreach (TFSXmlSummon summon in tfsMonster.summons.summon)
                     {
-                        Name = summon.name,
-                        Chance = Math.Min(1, summon.chance / 100),
-                        Interval = (summon.interval > 0) ? summon.interval : summon.speed,
-                        Max = (summon.max > 0) ? summon.max : monster.MaxSummons,
-                        Force = summon.force
-                    });
+                        monster.Summons.Add(new Summon()
+                        {
+                            Name = summon.name,
+                            Chance = Math.Min(1, summon.chance / 100),
+                            Interval = (summon.interval > 0) ? summon.interval : summon.speed,
+                            Max = (summon.max > 0) ? summon.max : monster.MaxSummons,
+                            Force = summon.force
+                        });
+                    }
                 }
             }
             else

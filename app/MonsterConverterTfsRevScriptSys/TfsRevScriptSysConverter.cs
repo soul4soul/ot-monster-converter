@@ -282,6 +282,21 @@ namespace MonsterConverterTfsRevScriptSys
         {
             string fileName = Path.Combine(directory, monster.FileName + "." + FileExt);
             ConvertResultEventArgs result = new ConvertResultEventArgs(fileName);
+            if (monster.TargetStrategy.Random != 100)
+            {
+                result.AppendMessage("unsupported target strategy, only random is supported");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            if ((monster.SummonCost > 0) && (monster.ConvinceCost > 0) && (monster.SummonCost != monster.ConvinceCost))
+            {
+                result.AppendMessage("format doesn't support summon and coninvce mana costs being different, defaulting to highest value");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            int manaCost = monster.SummonCost;
+            if (monster.ConvinceCost > manaCost)
+            {
+                manaCost = monster.ConvinceCost;
+            }
 
             using (var fstream = File.OpenWrite(fileName))
             using (var dest = new StreamWriter(fstream))
@@ -323,7 +338,7 @@ namespace MonsterConverterTfsRevScriptSys
                 dest.WriteLine($"monster.race = \"{BloodToRace[monster.Race]}\"");
                 dest.WriteLine($"monster.corpse = {monster.Look.CorpseId}");
                 dest.WriteLine($"monster.speed = {monster.Speed}");
-                dest.WriteLine($"monster.summonCost = {monster.SummonCost}");
+                dest.WriteLine($"monster.summonCost = {manaCost}");
                 dest.WriteLine("");
 
                 dest.WriteLine("monster.changeTarget = {");
@@ -370,6 +385,11 @@ namespace MonsterConverterTfsRevScriptSys
                     if (monster.Voices[i].SoundLevel == SoundLevel.Yell)
                     {
                         yell = true;
+                    }
+                    if (monster.Voices[i].SoundLevel == SoundLevel.Whisper)
+                    {
+                        result.AppendMessage("Whisper sound not supported, defaulting to say");
+                        result.IncreaseError(ConvertError.Warning);
                     }
                     string voice = $"	{{text = \"{monster.Voices[i].Sound}\", yell = {yell.ToString().ToLower()}}},";
                     if (i == monster.Voices.Count - 1)
@@ -604,7 +624,7 @@ namespace MonsterConverterTfsRevScriptSys
 
             if (!string.IsNullOrWhiteSpace(loot.Description))
             {
-                rssLootLine += $", description = \"{loot.Description}\"";
+                rssLootLine += $", description2 = \"{loot.Description}\"";
             }
 
             if (loot.NestedLoot.Count > 0)
