@@ -680,28 +680,39 @@ namespace MonsterConverterTibiaWiki
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 5))
             {
                 scene.spell = "5sqmstrike";
-                scene.MissileDistance = "3/3";
+                scene.MissileDistance = "5/5";
+                scene.MissileDirection = "south-east";
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 7))
+            {
+                scene.spell = "7sqmstrike";
+                scene.MissileDistance = "7/7";
                 scene.MissileDirection = "south-east";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
                 scene.spell = "great_explosion";
+                scene.EffectOnTarget = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 3))
             {
                 scene.spell = "3x3spell";
+                scene.EffectOnTarget = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 2))
             {
                 scene.spell = "plusspell";
+                scene.EffectOnTarget = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 2))
             {
                 scene.spell = "xspell";
+                scene.EffectOnTarget = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 3))
