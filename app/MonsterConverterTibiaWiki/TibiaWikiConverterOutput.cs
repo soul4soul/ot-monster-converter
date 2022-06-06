@@ -294,7 +294,15 @@ namespace MonsterConverterTibiaWiki
                     }
                     else
                     {
-                        // Use ability or debuff template
+                        AbilityTemplate ability = new AbilityTemplate();
+                        if (wikiName == s.Name)
+                        {
+                            wikiName = "Paralyze";
+                        }
+                        ability.name = wikiName;
+                        ability.element = "paralyze";
+                        ability.scene = GenericSpellToScene(s, mon.Name);
+                        abilities.Add(TemplateParser.Serialize(ability));
                     }
                 }
                 else if (s.Name == "firefield")
