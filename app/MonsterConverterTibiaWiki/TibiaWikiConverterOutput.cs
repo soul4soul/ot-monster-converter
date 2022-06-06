@@ -424,17 +424,17 @@ namespace MonsterConverterTibiaWiki
                     AbilityTemplate ability = new AbilityTemplate();
                     if (s.Name == wikiName)
                     {
-                        wikiName = "Creature Illusion";
+                        wikiName = "Polymorphism";
                     }
                     ability.name = wikiName;
 
                     if (s.SpellCategory == SpellCategory.Offensive)
                     {
-                        ability.damage = $"Turns you into {transform}";
+                        ability.damage = $"Turns victim into {transform}";
                     }
                     else
                     {
-                        ability.damage = $"Shapeshifts into {transform}";
+                        ability.damage = $"Changes into {transform}";
                     }
                     ability.element = "shapeshifting";
                     ability.scene = GenericSpellToScene(s, mon.Name);
