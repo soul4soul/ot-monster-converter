@@ -280,11 +280,16 @@ namespace MonsterConverterTibiaWiki
                     if (s.SpellCategory == SpellCategory.Defensive)
                     {
                         HasteTemplate haste = new HasteTemplate();
-                        if (wikiName == s.Name)
+                        if ((s.MinSpeedChange > STRONG_HASTE_SPEED) || (s.MaxSpeedChange > STRONG_HASTE_SPEED))
+                        {
+                            wikiName = "[[Strong Haste]]";
+                        }
+                        else
                         {
                             wikiName = null; // Let TibiaWiki handle it
                         }
                         haste.name = wikiName;
+                        haste.scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(haste));
                     }
                     else

@@ -19,6 +19,7 @@ namespace MonsterConverterTibiaWiki
     {
         private record TibiaWikiItemData(string Name, string ActualName, string Ids) { }
 
+        private const int STRONG_HASTE_SPEED = 450;
         private const decimal DEFAULT_LOOT_CHANCE = 0.2M;
         private const int DEFAULT_LOOT_COUNT = 1;
 

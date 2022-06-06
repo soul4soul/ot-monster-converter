@@ -960,8 +960,8 @@ namespace MonsterConverterTibiaWiki
                             int Duration = 7000;
                             if ((!string.IsNullOrWhiteSpace(haste.name) && haste.name.Contains("strong")))
                             {
-                                MinSpeedChange = 450;
-                                MaxSpeedChange = 450;
+                                MinSpeedChange = STRONG_HASTE_SPEED;
+                                MaxSpeedChange = STRONG_HASTE_SPEED;
                                 Duration = 4000;
                             }
                             var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
