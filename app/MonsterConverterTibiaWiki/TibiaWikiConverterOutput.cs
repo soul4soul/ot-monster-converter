@@ -756,7 +756,11 @@ namespace MonsterConverterTibiaWiki
             {
                 return TemplateParser.Serialize(scene);
             }
-            return null;
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Can't generate scene for spell {spell}");
+                return null;
+            }
         }
     }
 }
