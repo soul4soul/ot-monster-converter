@@ -34,6 +34,7 @@ namespace MonsterConverterInterface.MonsterTypes
         Exhaust_heal, // unused
         Pacified,
         SpellCoolDown,
-        SpellGroupCoolDown
+        SpellGroupCoolDown,
+        Root
     }
 }

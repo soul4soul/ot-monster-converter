@@ -25,8 +25,8 @@ namespace MonsterConverterTibiaWiki
 
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // <damage type, element name>
-        private static Dictionary<CombatDamage, string> WikiToElements = new Dictionary<CombatDamage, string>
+        // <damage type, wiki element name>
+        private static Dictionary<CombatDamage, string> DamageTypeToWikiElement = new Dictionary<CombatDamage, string>
         {
             {CombatDamage.Physical, "physical"},
             {CombatDamage.Energy, "energy"},
@@ -39,6 +39,20 @@ namespace MonsterConverterTibiaWiki
             {CombatDamage.Ice, "ice"},
             {CombatDamage.Holy, "holy"},
             {CombatDamage.Death, "death"}
+        };
+
+        // <condition type, wiki condition name>
+        private static Dictionary<ConditionType, string> ConditionTypeToWikiElement = new Dictionary<ConditionType, string>
+        {
+            {ConditionType.Poison, "poisoned"},
+            {ConditionType.Fire, "burning"},
+            {ConditionType.Energy, "electrified"},
+            {ConditionType.Bleeding, "bleeding"},
+            {ConditionType.Drown, "drowning"},
+            {ConditionType.Freezing, "freezing"},
+            {ConditionType.Dazzled, "dazzled"},
+            {ConditionType.Cursed, "cursed"},
+            {ConditionType.Root, "rooted"},
         };
 
         // <item name, data>

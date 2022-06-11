@@ -361,9 +361,15 @@ namespace MonsterConverterTibiaWiki
                         AbilityTemplate ability = new AbilityTemplate();
                         ability.name = wikiName;
                         ability.damage = damage;
-                        if (WikiToElements.ContainsKey(s.DamageElement))
+                        if (DamageTypeToWikiElement.ContainsKey(s.DamageElement))
                         {
-                            ability.element = WikiToElements[s.DamageElement];
+                            ability.element = DamageTypeToWikiElement[s.DamageElement];
+                        }
+                        else
+                        {
+                            result.AppendMessage($"Can't convert ability {s} unknown combat type");
+                            result.IncreaseError(ConvertError.Warning);
+                            continue;
                         }
                         ability.scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(ability));
@@ -373,6 +379,16 @@ namespace MonsterConverterTibiaWiki
                 {
                     AbilityTemplate ability = new AbilityTemplate();
                     ability.name = wikiName;
+                    if (ConditionTypeToWikiElement.ContainsKey(s.Condition))
+                    {
+                        ability.element = ConditionTypeToWikiElement[s.Condition];
+                    }
+                    else
+                    {
+                        result.AppendMessage($"Can't convert ability {s} unknown condition type");
+                        result.IncreaseError(ConvertError.Warning);
+                        continue;
+                    }
                     // condition crap is mostly in a random string
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
