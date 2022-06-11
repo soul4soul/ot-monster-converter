@@ -1489,6 +1489,13 @@ namespace MonsterConverterTfsXml
                         spell.IsDirectional = (attack.direction == 1);
                     }
 
+                    // Default to spell shape when only range is defined
+                    if (attack.range > 0 && attack.radius == 0 && attack.ring == 0)
+                    {
+                        spell.Radius = 1;
+                        spell.OnTarget = true;
+                    }
+
                     if (attack.name == "melee")
                     {
                         if ((attack.attack > 0) && (attack.skill > 0))
