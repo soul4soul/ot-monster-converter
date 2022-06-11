@@ -629,31 +629,37 @@ namespace MonsterConverterTibiaWiki
             else if ((spell.OnTarget == false) && (spell.Radius == 1))
             {
                 scene.spell = "singleeffect";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 4))
             {
                 scene.spell = "2sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
                 scene.spell = "3sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 6))
             {
                 scene.spell = "4sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 7))
             {
                 scene.spell = "5sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 8))
             {
                 scene.spell = "6sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 1))
@@ -694,25 +700,24 @@ namespace MonsterConverterTibiaWiki
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
                 scene.spell = "great_explosion";
-                scene.EffectOnTarget = "yes";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 3))
             {
                 scene.spell = "3x3spell";
-                scene.EffectOnTarget = "yes";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 2))
             {
                 scene.spell = "plusspell";
-                scene.EffectOnTarget = "yes";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 2))
             {
                 scene.spell = "xspell";
-                scene.EffectOnTarget = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 3))
