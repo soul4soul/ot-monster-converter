@@ -11,6 +11,8 @@
         public string name { get; set; }
         [TemplateParameter(Index = 3, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string scene { get; set; }
+        [TemplateParameter(Index = 4, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string poison { get; set; }
         [TemplateParameter(Indicator = ParameterIndicator.Name)]
         public string BeforeText { get; set; }
         [TemplateParameter(Indicator = ParameterIndicator.Name)]

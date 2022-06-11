@@ -268,9 +268,19 @@ namespace MonsterConverterTibiaWiki
                         melee.name = wikiName;
                     }
                     melee.damage = damage;
-                    if (WikiToElements.ContainsKey(s.DamageElement))
+                    if (DamageTypeToWikiElement.ContainsKey(s.DamageElement))
                     {
-                        melee.element = WikiToElements[s.DamageElement];
+                        melee.element = DamageTypeToWikiElement[s.DamageElement];
+                    }
+                    if (s.Condition == ConditionType.Poison)
+                    {
+                        melee.poison = s.StartDamage.ToString();
+                    }
+                    else if (s.Condition != ConditionType.None)
+                    {
+                        result.AppendMessage($"Can't convert ability {s} unsupported condition {s.Condition}");
+                        result.IncreaseError(ConvertError.Warning);
+                        continue;
                     }
                     melee.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(melee));
