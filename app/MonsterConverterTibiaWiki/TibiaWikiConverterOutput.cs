@@ -693,6 +693,7 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "1sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 2))
@@ -700,6 +701,7 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "2sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 3))
@@ -707,6 +709,7 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "3sqmstrike";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 5))
@@ -714,6 +717,7 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "5sqmstrike";
                 scene.MissileDistance = "5/5";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 7))
@@ -721,6 +725,7 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "7sqmstrike";
                 scene.MissileDistance = "7/7";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
