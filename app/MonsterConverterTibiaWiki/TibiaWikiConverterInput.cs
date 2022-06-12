@@ -1488,38 +1488,6 @@ namespace MonsterConverterTibiaWiki
             return true;
         }
 
-        private static Missile TibiaWikiToAnimation(string missile)
-        {
-            if ((missile == "spear") || (missile == "spears"))
-            {
-                return Missile.Spear;
-            }
-            else if ((missile == "throwing knives") || (missile == "throwing knife"))
-            {
-                return Missile.ThrowingKnife;
-            }
-            else if ((missile == "bolt") || (missile == "bolts"))
-            {
-                return Missile.Bolt;
-            }
-            else if ((missile == "arrow") || (missile == "arrows"))
-            {
-                return Missile.Arrow;
-            }
-            else if (missile.Contains("boulder"))
-            {
-                return Missile.LargeRock;
-            }
-            else if (missile.Contains("stone"))
-            {
-                return Missile.SmallStone;
-            }
-            else
-            {
-                return Missile.None;
-            }
-        }
-
         private static void ParseLoot(Monster monster, string lootTable, string filename, ConvertResultEventArgs result)
         {
             var lootTableTemplate = TemplateParser.Deserialize<LootTableTemplate>(lootTable);
