@@ -538,9 +538,9 @@ namespace MonsterConverterTibiaWiki
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 0))
+            else if ((spell.IsDirectional == true) && (spell.Length == 9) && (spell.Spread == 0))
             {
-                scene.spell = "8sqmbeam";
+                scene.spell = "9sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
@@ -565,6 +565,12 @@ namespace MonsterConverterTibiaWiki
             else if ((spell.IsDirectional == true) && (spell.Length == 4) && (spell.Spread == 0))
             {
                 scene.spell = "4sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 2) && (spell.Spread == 0))
+            {
+                scene.spell = "2sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
