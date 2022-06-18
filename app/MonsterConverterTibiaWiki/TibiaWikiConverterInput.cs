@@ -1503,6 +1503,7 @@ namespace MonsterConverterTibiaWiki
                     if (lootsectionsRegEx.IsMatch(elements))
                     {
                         var lootsection = lootsectionsRegEx.Match(elements);
+                        // Only parse loot from the first table found
                         string loots = lootsection.Captures[0].Value;
 
                         var killsmatch = new Regex(@"\|kills=(?<kills>\d+)").Match(loots);
@@ -1530,13 +1531,17 @@ namespace MonsterConverterTibiaWiki
                                 }
                                 count = (count > 0) ? count : 1;
 
-                                // Two items have redirects, which can be verified by checking the source at the link below
+                                // A few items have redirects, which can be verified by checking the source at the link below
                                 // https://tibia.fandom.com/wiki/Template:Loot2/List?veaction=editsource
                                 // Parsing the html output is a pain so for now we can map those two items here
-                                if (item == "skull")
-                                    item = "skull (item)";
+                                if (item == "rusty armor")
+                                    item = "rusty armor (common)";
+                                if (item == "rusty legs")
+                                    item = "rusty legs (common)";
                                 if (item == "black skull")
                                     item = "black skull (item)";
+                                if (item == "skull")
+                                    item = "skull (item)";
 
                                 LootItem lootItem = new LootItem()
                                 {
@@ -1599,7 +1604,6 @@ namespace MonsterConverterTibiaWiki
                                     monster.Items.Add(genericLootItem);
                                 }
                             }
-
                         }
                     }
                 }
