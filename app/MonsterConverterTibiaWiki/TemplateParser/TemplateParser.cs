@@ -206,32 +206,32 @@ namespace MonsterConverterTibiaWiki
                 PropertyInfo arrayProp = null;
                 Array arrayval = null;
                 int arrayIndex = 0;
+                int anonymousIndex = 0;
                 var parts = m.Groups["template"].Value.SplitTopLevel('|');
                 for (int i = 1; i < parts.Length; i++)
                 {
                     m = templatePartRegex.Match(parts[i]);
                     if ((arrayProp == null) && (arrayval == null))
                     {
+                        string parameterName;
                         if (m.Groups["name"].Success)
                         {
-                            string parameterName = m.Groups["name"].Value.ToLower();
-                            if (!indexedPropertyNames.ContainsKey(parameterName))
-                            {
-                                //System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
-                                continue;
-                            }
-                            prop = indexedPropertyNames[parameterName];
+                            // This should cover numbered and named parameters
+                            parameterName = m.Groups["name"].Value.ToLower();
                         }
                         else
                         {
-                            string adjustedIndex = (i - 1).ToString();
-                            if (!indexedPropertyNames.ContainsKey(adjustedIndex))
-                            {
-                                System.Diagnostics.Debug.WriteLine($"template {templateName} index {adjustedIndex} not parsed");
-                                continue;
-                            }
-                            prop = indexedPropertyNames[adjustedIndex];
+                            anonymousIndex++;
+                            parameterName = anonymousIndex.ToString();
                         }
+
+                        if (!indexedPropertyNames.ContainsKey(parameterName))
+                        {
+                            //System.Diagnostics.Debug.WriteLine($"template {templateName} index {parameterName} not parsed");
+                            continue;
+                        }
+                        prop = indexedPropertyNames[parameterName];
+
                         if (prop.PropertyType.IsArray)
                         {
                             arrayProp = prop;

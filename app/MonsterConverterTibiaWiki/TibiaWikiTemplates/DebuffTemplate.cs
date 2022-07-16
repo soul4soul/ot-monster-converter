@@ -3,13 +3,13 @@
     [TemplateName("Debuff", Url = "https://tibia.fandom.com/wiki/Template:Debuff", BeforeCaptureProperty = "BeforeText", AfterCaptureProperty = "AfterText")]
     class DebuffTemplate
     {
-        [TemplateParameter(Index = 0, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position | ParameterIndicator.Name)]
+        [TemplateParameter(Index = 1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position | ParameterIndicator.Name)]
         public string name { get; set; }
 
-        [TemplateParameter(Index = 1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position | ParameterIndicator.Name)]
+        [TemplateParameter(Index = 2, Required = ParameterRequired.No, Indicator = ParameterIndicator.Position | ParameterIndicator.Name)]
         public string effect { get; set; }
 
-        [TemplateParameter(Index = 1, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 3, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string scene { get; set; }
 
         [TemplateParameter(Indicator = ParameterIndicator.Name)]
