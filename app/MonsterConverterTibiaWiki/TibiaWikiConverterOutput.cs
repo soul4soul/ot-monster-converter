@@ -570,6 +570,12 @@ namespace MonsterConverterTibiaWiki
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
+            else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 0))
+            {
+                scene.spell = "3sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
             else if ((spell.IsDirectional == true) && (spell.Length == 2) && (spell.Spread == 0))
             {
                 scene.spell = "2sqmbeam";

@@ -1429,6 +1429,11 @@ namespace MonsterConverterTibiaWiki
                     spell.Length = 2;
                     spell.Spread = 0;
                     break;
+                case "3sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 3;
+                    spell.Spread = 0;
+                    break;
                 case "4sqmbeam":
                     spell.IsDirectional = true;
                     spell.Length = 4;
@@ -1474,6 +1479,8 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "5sqmtwavenarrow":
                     break;
+                case "6sqmtwave":
+                    break;
                 case "chainspell":
                     break;
                 case "8sqmwavewide":
@@ -1484,6 +1491,8 @@ namespace MonsterConverterTibiaWiki
                     spell.IsDirectional = true;
                     spell.Length = 9;
                     spell.Spread = 0;
+                    break;
+                case "heart_fireworks":
                     break;
             }
 
