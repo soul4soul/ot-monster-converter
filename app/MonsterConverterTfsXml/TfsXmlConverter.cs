@@ -553,9 +553,12 @@ namespace MonsterConverterTfsXml
                     }
                     //else continue which we should never hit?
 
-                    if (spell.Condition != ConditionType.None)
+                    if (spell.Condition != ConditionType.None && spell.StartDamage != null)
                     {
                         ability.Add(new XAttribute(conditionTypeToMeleeCondition[spell.Condition], spell.StartDamage));
+                    }
+                    if (spell.Tick != null)
+                    {
                         ability.Add(new XAttribute("tick", spell.Tick));
                     }
                 }
