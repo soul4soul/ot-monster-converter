@@ -901,7 +901,12 @@ namespace MonsterConverterTibiaWiki
                 {
                     foreach (string ability in abilityList.ability)
                     {
-                        if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
+
+                        if (ability.ToLower() == "none")
+                        {
+                            continue;
+                        }
+                        else if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
                         {
                             var melee = TemplateParser.Deserialize<MeleeTemplate>(ability);
                             var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
