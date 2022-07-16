@@ -722,6 +722,8 @@ namespace MonsterConverterTibiaWiki
             }
             if (!string.IsNullOrWhiteSpace(creature.attacktype)) { monster.TargetDistance = creature.attacktype.ToLower().Contains("distance") ? 4 : 1; }
             if (!string.IsNullOrWhiteSpace(creature.spawntype)) { monster.IgnoreSpawnBlock = creature.spawntype.ToLower().Contains("unblockable"); }
+            if (RobustTryParse(creature.lightcolor, out intVal)) { monster.LightColor = intVal; }
+            if (RobustTryParse(creature.lightradius, out intVal)) { monster.LightLevel = intVal; }
             if (RobustTryParse(creature.pushable, out boolVal)) { monster.IsPushable = boolVal; }
             // In cipbia ability to push objects means ability to push creatures too
             if (RobustTryParse(creature.pushobjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }

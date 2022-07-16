@@ -66,81 +66,90 @@
         public string isboss { get; set; }
 
         [TemplateParameter(Index = 23, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string isarenaboss { get; set; }
+        public string bosstiaryclass { get; set; }
 
         [TemplateParameter(Index = 24, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string isarenaboss { get; set; }
+
+        [TemplateParameter(Index = 25, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string abilities { get; set; }
 
-        [TemplateParameter(Index = 27, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string pushable { get; set; }
-
         [TemplateParameter(Index = 28, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string pushobjects { get; set; }
+        public string lightcolor { get; set; }
 
         [TemplateParameter(Index = 29, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string walksaround { get; set; }
+        public string lightradius { get; set; }
 
         [TemplateParameter(Index = 30, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string walksthrough { get; set; }
+        public string pushable { get; set; }
 
         [TemplateParameter(Index = 31, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string paraimmune { get; set; }
+        public string pushobjects { get; set; }
 
         [TemplateParameter(Index = 32, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string senseinvis { get; set; }
+        public string walksaround { get; set; }
 
         [TemplateParameter(Index = 33, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string physicaldmgmod { get; set; }
+        public string walksthrough { get; set; }
 
         [TemplateParameter(Index = 34, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string earthdmgmod { get; set; }
+        public string paraimmune { get; set; }
 
         [TemplateParameter(Index = 35, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string firedmgmod { get; set; }
+        public string senseinvis { get; set; }
 
         [TemplateParameter(Index = 36, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string deathdmgmod { get; set; }
+        public string physicaldmgmod { get; set; }
 
         [TemplateParameter(Index = 37, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string energydmgmod { get; set; }
+        public string earthdmgmod { get; set; }
 
         [TemplateParameter(Index = 38, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string holydmgmod { get; set; }
+        public string firedmgmod { get; set; }
 
         [TemplateParameter(Index = 39, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string icedmgmod { get; set; }
+        public string deathdmgmod { get; set; }
 
         [TemplateParameter(Index = 40, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string healmod { get; set; }
+        public string energydmgmod { get; set; }
 
-        [TemplateParameter(Index = 41, Name = "hpDrainDmgMod", Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string lifedraindmgmod { get; set; }
+        [TemplateParameter(Index = 41, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string holydmgmod { get; set; }
 
         [TemplateParameter(Index = 42, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
-        public string drowndmgmod { get; set; }
+        public string icedmgmod { get; set; }
+
+        [TemplateParameter(Index = 43, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string healmod { get; set; }
+
+        [TemplateParameter(Index = 44, Name = "hpDrainDmgMod", Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string lifedraindmgmod { get; set; }
 
         [TemplateParameter(Index = 45, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        public string drowndmgmod { get; set; }
+
+        [TemplateParameter(Index = 48, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string sounds { get; set; }
 
-        [TemplateParameter(Index = 47, Name = "race_id", Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 50, Name = "race_id", Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string raceid { get; set; }
 
         [TemplateParameter(Index = 48, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string notes { get; set; }
 
-        [TemplateParameter(Index = 49, Name = "behaviour", Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 52, Name = "behaviour", Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string behavior { get; set; }
 
-        [TemplateParameter(Index = 50, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 53, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string runsat { get; set; }
 
-        [TemplateParameter(Index = 51, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 54, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string speed { get; set; }
 
-        [TemplateParameter(Index = 54, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 56, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string location { get; set; }
 
-        [TemplateParameter(Index = 55, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
+        [TemplateParameter(Index = 57, Required = ParameterRequired.No, Indicator = ParameterIndicator.Name)]
         public string loot { get; set; }
     }
 }

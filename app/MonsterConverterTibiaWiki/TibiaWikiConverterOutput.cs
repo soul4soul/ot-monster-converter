@@ -45,6 +45,8 @@ namespace MonsterConverterTibiaWiki
                 attacktype = monster.TargetDistance > 1 ? "Distance" : "Melee",
                 spawntype = monster.IgnoreSpawnBlock ? "Unblockable" : "",
                 isboss = monster.IsBoss ? "yes" : "no",
+                lightcolor = monster.LightColor.ToString(),
+                lightradius = monster.LightLevel.ToString(),
                 pushable = monster.IsPushable ? "yes" : "no",
                 pushobjects = monster.PushItems ? "yes" : "no",
                 walksaround = GenericToTibiaWikiWalkAround(monster),
