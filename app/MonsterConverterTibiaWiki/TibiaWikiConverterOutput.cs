@@ -274,9 +274,9 @@ namespace MonsterConverterTibiaWiki
                     {
                         melee.element = DamageTypeToWikiElement[s.DamageElement];
                     }
-                    if (s.Condition == ConditionType.Poison)
+                    if ((s.Condition == ConditionType.Poison) && (s.StartDamage != null) && (s.StartDamage > 0))
                     {
-                        melee.poison = s.StartDamage.ToString();
+                        melee.poison = CalculateStartOfLogDamageOverTime((int)s.StartDamage, 0).ToString();
                     }
                     else if (s.Condition != ConditionType.None)
                     {
@@ -790,6 +790,16 @@ namespace MonsterConverterTibiaWiki
                 System.Diagnostics.Debug.WriteLine($"Can't generate scene for spell {spell}");
                 return null;
             }
+        }
+
+        // Note: Formula taken from TFS Engine
+        private static int CalculateStartOfLogDamageOverTime(int amount, int start)
+        {
+            if (start == 0)
+            {
+                start = (int)Math.Max(1, Math.Ceiling(amount / 20.0));
+            }
+            return start;
         }
     }
 }

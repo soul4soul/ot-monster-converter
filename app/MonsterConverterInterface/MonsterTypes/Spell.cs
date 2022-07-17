@@ -38,6 +38,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public int? Skill { get; set; }
         // Spell Condition stuff (used for condition only + melee conditions)
         public int? Tick { get; set; }
+        // For melee attacks which include conditions start damage here is treated as the max total damage of the condition, not the start damage
         public int? StartDamage { get; set; }
         public ConditionType Condition { get; set; }
         // Outfit stuff

@@ -891,6 +891,24 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
+        private static int CalculateTotalOfLogDamageOverTime(int startDamage)
+        {
+            int n = 0;
+            int totalDamage = 0;
+            int value = startDamage;
+
+            while (value > 0) {
+                value = (int)Math.Floor(startDamage * Math.Pow(2.718281828459, -0.05 * n) + 0.5);
+
+                if (value != 0) {
+                    totalDamage += value;
+                    n = n + 1;
+                }
+            }
+
+            return totalDamage;
+        }
+
         private static void ParseAbilityList(Monster mon, string abilities, ConvertResultEventArgs result)
         {
             if (TemplateParser.IsTemplateMatch<AbilityListTemplate>(abilities))
@@ -910,7 +928,14 @@ namespace MonsterConverterTibiaWiki
                         {
                             var melee = TemplateParser.Deserialize<MeleeTemplate>(ability);
                             var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                            if (TryParseRange(melee.damage, out int min, out int max))
+
+                            if (TryParseRange(melee.poison, out int min, out int startTick))
+                            {
+                                spell.Condition = ConditionType.Poison;
+                                spell.StartDamage = CalculateTotalOfLogDamageOverTime(startTick);
+                            }
+
+                            if (TryParseRange(melee.damage, out min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
