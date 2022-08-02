@@ -122,7 +122,13 @@ namespace MonsterConverterTibiaWiki
                 return;
             }
 
-            string itemlisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text";
+            GetItemIds("https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text");
+            // Non-pickable items are needed for shapeshifting abilities using items such as snowball, football, and concooned victimed
+            GetItemIds("https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Non-Pickupable_Objects&prop=text");
+        }
+
+        private static void GetItemIds(string itemlisturl)
+        {
             var itemTable = RequestData(itemlisturl).Result.Text.Empty;
 
             var itemMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<actualname>.*?)\n<\\/td>\n<td>(?<itemid>.*?)\n<\\/td>").Matches(itemTable);

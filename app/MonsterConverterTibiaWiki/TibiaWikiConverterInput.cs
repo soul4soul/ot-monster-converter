@@ -999,6 +999,20 @@ namespace MonsterConverterTibiaWiki
                             var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
                             mon.Attacks.Add(spell);
                         }
+                        else if (TemplateParser.IsTemplateMatch<OutfitTemplate>(ability))
+                        {
+                            var outfit = TemplateParser.Deserialize<OutfitTemplate>(ability);
+                            SpellCategory spellCategory = outfit.victim.ToLower() == "yes" ? SpellCategory.Offensive : SpellCategory.Defensive;
+                            AddOutfitAbility(mon, result, outfit.thing, spellCategory);
+
+                            if (outfit.things != null)
+                            {
+                                foreach (var thing in outfit.things)
+                                {
+                                    AddOutfitAbility(mon, result, thing, spellCategory);
+                                }
+                            }
+                        }
                         else if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
                         {
                             var abilityObj = TemplateParser.Deserialize<AbilityTemplate>(ability);
@@ -1062,6 +1076,19 @@ namespace MonsterConverterTibiaWiki
                         }
                     }
                 }
+            }
+        }
+
+        private static void AddOutfitAbility(Monster mon, ConvertResultEventArgs result, string thing, SpellCategory spellCategory)
+        {
+            ushort? itemId = GetItemId(thing, ref result);
+            if (itemId != null)
+            {
+                mon.Attacks.Add(new Spell() { Name = "outfit", SpellCategory = spellCategory, Interval = 2000, Chance = 0.15, Duration = 5000, ItemId = itemId });
+            }
+            else
+            {
+                mon.Attacks.Add(new Spell() { Name = "outfit", SpellCategory = spellCategory, Interval = 2000, Chance = 0.15, Duration = 5000, MonsterName = thing });
             }
         }
 
@@ -1590,7 +1617,12 @@ namespace MonsterConverterTibiaWiki
                                     Chance = (decimal)percent,
                                     Count = count
                                 };
-                                SetItemId(ref lootItem, ref result);
+
+                                ushort? itemId = GetItemId(lootItem.Name, ref result);
+                                if (itemId != null)
+                                {
+                                    lootItem.Id = (ushort)itemId;
+                                }
 
                                 monster.Items.Add(lootItem);
                             }
@@ -1640,7 +1672,11 @@ namespace MonsterConverterTibiaWiki
 
                                 if (genericLootItem != null)
                                 {
-                                    SetItemId(ref genericLootItem, ref result);
+                                    ushort? itemId = GetItemId(genericLootItem.Name, ref result);
+                                    if (itemId != null)
+                                    {
+                                        genericLootItem.Id = (ushort)itemId;
+                                    }
 
                                     monster.Items.Add(genericLootItem);
                                 }
@@ -1651,31 +1687,32 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
-        private static void SetItemId(ref LootItem item, ref ConvertResultEventArgs result)
+        private static ushort? GetItemId(string itemName, ref ConvertResultEventArgs result)
         {
-            string loweredName = item.Name.ToLower();
-            if (itemsByName.ContainsKey(loweredName))
+            itemName = itemName.ToLower();
+            if (itemsByName.ContainsKey(itemName))
             {
-                if (ushort.TryParse(itemsByName[loweredName].Ids, out ushort _))
+                if (ushort.TryParse(itemsByName[itemName].Ids, out ushort _))
                 {
-                    item.Id = ushort.Parse(itemsByName[loweredName].Ids);
+                    return ushort.Parse(itemsByName[itemName].Ids);
                 }
-                else if (string.IsNullOrWhiteSpace(itemsByName[loweredName].Ids))
+                else if (string.IsNullOrWhiteSpace(itemsByName[itemName].Ids))
                 {
-                    string message = $"TibiaWiki is missing item id for item {loweredName}";
+                    string message = $"TibiaWiki is missing item id for item {itemName}";
                     result.AppendMessage(message);
                 }
                 else
                 {
-                    string message = $"TibiaWiki has malformatted or multiple ids {itemsByName[loweredName].Ids} for item {loweredName}";
+                    string message = $"TibiaWiki has malformatted or multiple ids {itemsByName[itemName].Ids} for item {itemName}";
                     result.AppendMessage(message);
                 }
             }
             else
             {
-                string message = $"TibiaWiki has no data for item name {loweredName}";
+                string message = $"TibiaWiki has no data for item name {itemName}";
                 result.AppendMessage(message);
             }
+            return null;
         }
 
         private static bool TryParseTibiaWikiRarity(string input, out decimal chance)

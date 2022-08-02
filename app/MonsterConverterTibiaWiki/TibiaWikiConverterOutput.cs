@@ -429,41 +429,25 @@ namespace MonsterConverterTibiaWiki
                 }
                 else if (s.Name == "outfit")
                 {
-                    string transform;
+                    OutfitTemplate ability = new OutfitTemplate();
+                    ability.victim = (s.SpellCategory == SpellCategory.Offensive) ? "yes" : "no";
+
                     if (s.ItemId != null)
                     {
                         int id = (int)s.ItemId;
                         if (!itemsById.ContainsKey(id))
                         {
-                            // Sometimes mobs turn you into immovable and unpickable items such as, a snowman, football, and cocooned victim
-                            // Would have to change wiki table from pickable items to all items to handle those items
                             result.AppendMessage($"Can't convert ability {s}, outfit with item id {id}");
                             result.IncreaseError(ConvertError.Warning);
                             continue;
                         }
-                        transform = $"[[{itemsById[id].Name}]]";
+                        ability.thing = itemsById[id].Name;
                     }
                     else
                     {
-                        transform = $"[[{s.MonsterName}]]";
+                        ability.thing = s.MonsterName;
                     }
 
-                    AbilityTemplate ability = new AbilityTemplate();
-                    if (s.Name == wikiName)
-                    {
-                        wikiName = "Polymorphism";
-                    }
-                    ability.name = wikiName;
-
-                    if (s.SpellCategory == SpellCategory.Offensive)
-                    {
-                        ability.damage = $"Turns victim into {transform}";
-                    }
-                    else
-                    {
-                        ability.damage = $"Changes into {transform}";
-                    }
-                    ability.element = "shapeshifting";
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
