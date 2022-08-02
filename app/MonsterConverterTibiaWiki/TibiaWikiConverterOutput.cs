@@ -284,7 +284,6 @@ namespace MonsterConverterTibiaWiki
                         result.IncreaseError(ConvertError.Warning);
                         continue;
                     }
-                    melee.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(melee));
                 }
                 else if (s.Name == "speed")
