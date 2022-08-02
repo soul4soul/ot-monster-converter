@@ -919,8 +919,7 @@ namespace MonsterConverterTibiaWiki
                 {
                     foreach (string ability in abilityList.ability)
                     {
-
-                        if (ability.ToLower() == "none")
+                        if ((string.IsNullOrWhiteSpace(ability)) || (ability.ToLower() == "none"))
                         {
                             continue;
                         }
