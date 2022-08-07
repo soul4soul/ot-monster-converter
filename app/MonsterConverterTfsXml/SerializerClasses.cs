@@ -153,7 +153,7 @@ namespace MonsterConverterTfsXml
         [XmlAttribute]
         public int chance = 100; //defaults to 100 if missing
         [XmlAttribute]
-        public int range = 0; //defaults to 0 if missing
+        public int range = 0; //defaults to 0 if missing, its constrainted by viewport, meaningless for defensive spells, and the spell won't be used if set to 0 for attack spells
         [XmlAttribute]
         public int min = 0; //defaults to 0 if missing
         [XmlAttribute]

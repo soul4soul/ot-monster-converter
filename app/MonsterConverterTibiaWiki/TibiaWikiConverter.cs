@@ -19,13 +19,14 @@ namespace MonsterConverterTibiaWiki
     {
         private record TibiaWikiItemData(string Name, string ActualName, string Ids) { }
 
+        private const int STRONG_HASTE_SPEED = 450;
         private const decimal DEFAULT_LOOT_CHANCE = 0.2M;
         private const int DEFAULT_LOOT_COUNT = 1;
 
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // <damage type, element name>
-        private static Dictionary<CombatDamage, string> WikiToElements = new Dictionary<CombatDamage, string>
+        // <damage type, wiki element name>
+        private static Dictionary<CombatDamage, string> DamageTypeToWikiElement = new Dictionary<CombatDamage, string>
         {
             {CombatDamage.Physical, "physical"},
             {CombatDamage.Energy, "energy"},
@@ -38,6 +39,20 @@ namespace MonsterConverterTibiaWiki
             {CombatDamage.Ice, "ice"},
             {CombatDamage.Holy, "holy"},
             {CombatDamage.Death, "death"}
+        };
+
+        // <condition type, wiki condition name>
+        private static Dictionary<ConditionType, string> ConditionTypeToWikiElement = new Dictionary<ConditionType, string>
+        {
+            {ConditionType.Poison, "poisoned"},
+            {ConditionType.Fire, "burning"},
+            {ConditionType.Energy, "electrified"},
+            {ConditionType.Bleeding, "bleeding"},
+            {ConditionType.Drown, "drowning"},
+            {ConditionType.Freezing, "freezing"},
+            {ConditionType.Dazzled, "dazzled"},
+            {ConditionType.Cursed, "cursed"},
+            {ConditionType.Root, "rooted"},
         };
 
         // <item name, data>
@@ -107,7 +122,13 @@ namespace MonsterConverterTibiaWiki
                 return;
             }
 
-            string itemlisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text";
+            GetItemIds("https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text");
+            // Non-pickable items are needed for shapeshifting abilities using items such as snowball, football, and concooned victimed
+            GetItemIds("https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Non-Pickupable_Objects&prop=text");
+        }
+
+        private static void GetItemIds(string itemlisturl)
+        {
             var itemTable = RequestData(itemlisturl).Result.Text.Empty;
 
             var itemMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<actualname>.*?)\n<\\/td>\n<td>(?<itemid>.*?)\n<\\/td>").Matches(itemTable);

@@ -45,6 +45,8 @@ namespace MonsterConverterTibiaWiki
                 attacktype = monster.TargetDistance > 1 ? "Distance" : "Melee",
                 spawntype = monster.IgnoreSpawnBlock ? "Unblockable" : "",
                 isboss = monster.IsBoss ? "yes" : "no",
+                lightcolor = monster.LightColor.ToString(),
+                lightradius = monster.LightLevel.ToString(),
                 pushable = monster.IsPushable ? "yes" : "no",
                 pushobjects = monster.PushItems ? "yes" : "no",
                 walksaround = GenericToTibiaWikiWalkAround(monster),
@@ -268,11 +270,20 @@ namespace MonsterConverterTibiaWiki
                         melee.name = wikiName;
                     }
                     melee.damage = damage;
-                    if (WikiToElements.ContainsKey(s.DamageElement))
+                    if (DamageTypeToWikiElement.ContainsKey(s.DamageElement))
                     {
-                        melee.element = WikiToElements[s.DamageElement];
+                        melee.element = DamageTypeToWikiElement[s.DamageElement];
                     }
-                    melee.scene = GenericSpellToScene(s, mon.Name);
+                    if ((s.Condition == ConditionType.Poison) && (s.StartDamage != null) && (s.StartDamage > 0))
+                    {
+                        melee.poison = CalculateStartOfLogDamageOverTime((int)s.StartDamage, 0).ToString();
+                    }
+                    else if (s.Condition != ConditionType.None)
+                    {
+                        result.AppendMessage($"Can't convert ability {s} unsupported condition {s.Condition}");
+                        result.IncreaseError(ConvertError.Warning);
+                        continue;
+                    }
                     abilities.Add(TemplateParser.Serialize(melee));
                 }
                 else if (s.Name == "speed")
@@ -280,16 +291,29 @@ namespace MonsterConverterTibiaWiki
                     if (s.SpellCategory == SpellCategory.Defensive)
                     {
                         HasteTemplate haste = new HasteTemplate();
-                        if (wikiName == s.Name)
+                        if ((s.MinSpeedChange > STRONG_HASTE_SPEED) || (s.MaxSpeedChange > STRONG_HASTE_SPEED))
+                        {
+                            wikiName = "[[Strong Haste]]";
+                        }
+                        else
                         {
                             wikiName = null; // Let TibiaWiki handle it
                         }
                         haste.name = wikiName;
+                        haste.scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(haste));
                     }
                     else
                     {
-                        // Use ability or debuff template
+                        AbilityTemplate ability = new AbilityTemplate();
+                        if (wikiName == s.Name)
+                        {
+                            wikiName = "Paralyze";
+                        }
+                        ability.name = wikiName;
+                        ability.element = "paralyze";
+                        ability.scene = GenericSpellToScene(s, mon.Name);
+                        abilities.Add(TemplateParser.Serialize(ability));
                     }
                 }
                 else if (s.Name == "firefield")
@@ -348,9 +372,15 @@ namespace MonsterConverterTibiaWiki
                         AbilityTemplate ability = new AbilityTemplate();
                         ability.name = wikiName;
                         ability.damage = damage;
-                        if (WikiToElements.ContainsKey(s.DamageElement))
+                        if (DamageTypeToWikiElement.ContainsKey(s.DamageElement))
                         {
-                            ability.element = WikiToElements[s.DamageElement];
+                            ability.element = DamageTypeToWikiElement[s.DamageElement];
+                        }
+                        else
+                        {
+                            result.AppendMessage($"Can't convert ability {s} unknown combat type");
+                            result.IncreaseError(ConvertError.Warning);
+                            continue;
                         }
                         ability.scene = GenericSpellToScene(s, mon.Name);
                         abilities.Add(TemplateParser.Serialize(ability));
@@ -360,6 +390,16 @@ namespace MonsterConverterTibiaWiki
                 {
                     AbilityTemplate ability = new AbilityTemplate();
                     ability.name = wikiName;
+                    if (ConditionTypeToWikiElement.ContainsKey(s.Condition))
+                    {
+                        ability.element = ConditionTypeToWikiElement[s.Condition];
+                    }
+                    else
+                    {
+                        result.AppendMessage($"Can't convert ability {s} unknown condition type");
+                        result.IncreaseError(ConvertError.Warning);
+                        continue;
+                    }
                     // condition crap is mostly in a random string
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
@@ -389,41 +429,25 @@ namespace MonsterConverterTibiaWiki
                 }
                 else if (s.Name == "outfit")
                 {
-                    string transform;
+                    OutfitTemplate ability = new OutfitTemplate();
+                    ability.victim = (s.SpellCategory == SpellCategory.Offensive) ? "yes" : "no";
+
                     if (s.ItemId != null)
                     {
                         int id = (int)s.ItemId;
                         if (!itemsById.ContainsKey(id))
                         {
-                            // Sometimes mobs turn you into immovable and unpickable items such as, a snowman, football, and cocooned victim
-                            // Would have to change wiki table from pickable items to all items to handle those items
                             result.AppendMessage($"Can't convert ability {s}, outfit with item id {id}");
                             result.IncreaseError(ConvertError.Warning);
                             continue;
                         }
-                        transform = $"[[{itemsById[id].Name}]]";
+                        ability.thing = itemsById[id].Name;
                     }
                     else
                     {
-                        transform = $"[[{s.MonsterName}]]";
+                        ability.thing = s.MonsterName;
                     }
 
-                    AbilityTemplate ability = new AbilityTemplate();
-                    if (s.Name == wikiName)
-                    {
-                        wikiName = "Creature Illusion";
-                    }
-                    ability.name = wikiName;
-
-                    if (s.SpellCategory == SpellCategory.Offensive)
-                    {
-                        ability.damage = $"Turns you into {transform}";
-                    }
-                    else
-                    {
-                        ability.damage = $"Shapeshifts into {transform}";
-                    }
-                    ability.element = "shapeshifting";
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -436,6 +460,18 @@ namespace MonsterConverterTibiaWiki
                     }
                     ability.name = wikiName;
                     ability.element = "drunk";
+                    ability.scene = GenericSpellToScene(s, mon.Name);
+                    abilities.Add(TemplateParser.Serialize(ability));
+                }
+                else if (s.Name == "effect")
+                {
+                    AbilityTemplate ability = new AbilityTemplate();
+                    if (s.Name == wikiName)
+                    {
+                        wikiName = "Unknown Effect";
+                    }
+                    ability.name = wikiName;
+                    ability.element = "?";
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -487,9 +523,9 @@ namespace MonsterConverterTibiaWiki
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
-            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 0))
+            else if ((spell.IsDirectional == true) && (spell.Length == 9) && (spell.Spread == 0))
             {
-                scene.spell = "8sqmbeam";
+                scene.spell = "9sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
@@ -514,6 +550,18 @@ namespace MonsterConverterTibiaWiki
             else if ((spell.IsDirectional == true) && (spell.Length == 4) && (spell.Spread == 0))
             {
                 scene.spell = "4sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 3) && (spell.Spread == 0))
+            {
+                scene.spell = "3sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 2) && (spell.Spread == 0))
+            {
+                scene.spell = "2sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
@@ -604,31 +652,37 @@ namespace MonsterConverterTibiaWiki
             else if ((spell.OnTarget == false) && (spell.Radius == 1))
             {
                 scene.spell = "singleeffect";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 4))
             {
                 scene.spell = "2sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
                 scene.spell = "3sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 6))
             {
                 scene.spell = "4sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 7))
             {
                 scene.spell = "5sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 8))
             {
                 scene.spell = "6sqmballself";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 1))
@@ -636,6 +690,7 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "1sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 2))
@@ -643,6 +698,7 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "2sqmstrike";
                 scene.MissileDistance = "2/2";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 3))
@@ -650,28 +706,41 @@ namespace MonsterConverterTibiaWiki
                 scene.spell = "3sqmstrike";
                 scene.MissileDistance = "3/3";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 5))
             {
                 scene.spell = "5sqmstrike";
-                scene.MissileDistance = "3/3";
+                scene.MissileDistance = "5/5";
                 scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 7))
+            {
+                scene.spell = "7sqmstrike";
+                scene.MissileDistance = "7/7";
+                scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
                 scene.spell = "great_explosion";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 3))
             {
                 scene.spell = "3x3spell";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 2))
             {
                 scene.spell = "plusspell";
+                scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
             else if ((spell.OnTarget == false) && (spell.Ring == 2))
@@ -699,7 +768,21 @@ namespace MonsterConverterTibiaWiki
             {
                 return TemplateParser.Serialize(scene);
             }
-            return null;
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Can't generate scene for spell {spell}");
+                return null;
+            }
+        }
+
+        // Note: Formula taken from TFS Engine
+        private static int CalculateStartOfLogDamageOverTime(int amount, int start)
+        {
+            if (start == 0)
+            {
+                start = (int)Math.Max(1, Math.Ceiling(amount / 20.0));
+            }
+            return start;
         }
     }
 }

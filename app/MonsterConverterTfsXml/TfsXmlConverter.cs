@@ -553,9 +553,12 @@ namespace MonsterConverterTfsXml
                     }
                     //else continue which we should never hit?
 
-                    if (spell.Condition != ConditionType.None)
+                    if (spell.Condition != ConditionType.None && spell.StartDamage != null)
                     {
                         ability.Add(new XAttribute(conditionTypeToMeleeCondition[spell.Condition], spell.StartDamage));
+                    }
+                    if (spell.Tick != null)
+                    {
                         ability.Add(new XAttribute("tick", spell.Tick));
                     }
                 }
@@ -1487,6 +1490,13 @@ namespace MonsterConverterTfsXml
                     if (attack.direction != -1)
                     {
                         spell.IsDirectional = (attack.direction == 1);
+                    }
+
+                    // Default to spell shape when only range is defined
+                    if (attack.range > 0 && attack.radius == 0 && attack.ring == 0)
+                    {
+                        spell.Radius = 1;
+                        spell.OnTarget = true;
                     }
 
                     if (attack.name == "melee")

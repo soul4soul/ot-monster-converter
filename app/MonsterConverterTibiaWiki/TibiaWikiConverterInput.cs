@@ -722,6 +722,8 @@ namespace MonsterConverterTibiaWiki
             }
             if (!string.IsNullOrWhiteSpace(creature.attacktype)) { monster.TargetDistance = creature.attacktype.ToLower().Contains("distance") ? 4 : 1; }
             if (!string.IsNullOrWhiteSpace(creature.spawntype)) { monster.IgnoreSpawnBlock = creature.spawntype.ToLower().Contains("unblockable"); }
+            if (RobustTryParse(creature.lightcolor, out intVal)) { monster.LightColor = intVal; }
+            if (RobustTryParse(creature.lightradius, out intVal)) { monster.LightLevel = intVal; }
             if (RobustTryParse(creature.pushable, out boolVal)) { monster.IsPushable = boolVal; }
             // In cipbia ability to push objects means ability to push creatures too
             if (RobustTryParse(creature.pushobjects, out boolVal)) { monster.PushItems = monster.PushCreatures = boolVal; }
@@ -889,6 +891,24 @@ namespace MonsterConverterTibiaWiki
             }
         }
 
+        private static int CalculateTotalOfLogDamageOverTime(int startDamage)
+        {
+            int n = 0;
+            int totalDamage = 0;
+            int value = startDamage;
+
+            while (value > 0) {
+                value = (int)Math.Floor(startDamage * Math.Pow(2.718281828459, -0.05 * n) + 0.5);
+
+                if (value != 0) {
+                    totalDamage += value;
+                    n = n + 1;
+                }
+            }
+
+            return totalDamage;
+        }
+
         private static void ParseAbilityList(Monster mon, string abilities, ConvertResultEventArgs result)
         {
             if (TemplateParser.IsTemplateMatch<AbilityListTemplate>(abilities))
@@ -899,11 +919,22 @@ namespace MonsterConverterTibiaWiki
                 {
                     foreach (string ability in abilityList.ability)
                     {
-                        if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
+                        if ((string.IsNullOrWhiteSpace(ability)) || (ability.ToLower() == "none"))
+                        {
+                            continue;
+                        }
+                        else if (TemplateParser.IsTemplateMatch<MeleeTemplate>(ability))
                         {
                             var melee = TemplateParser.Deserialize<MeleeTemplate>(ability);
                             var spell = new Spell() { Name = "melee", SpellCategory = SpellCategory.Offensive, Interval = 2000, Chance = 1 };
-                            if (TryParseRange(melee.damage, out int min, out int max))
+
+                            if (TryParseRange(melee.poison, out int min, out int startTick))
+                            {
+                                spell.Condition = ConditionType.Poison;
+                                spell.StartDamage = CalculateTotalOfLogDamageOverTime(startTick);
+                            }
+
+                            if (TryParseRange(melee.damage, out min, out int max))
                             {
                                 spell.MinDamage = -min;
                                 spell.MaxDamage = -max;
@@ -960,12 +991,26 @@ namespace MonsterConverterTibiaWiki
                             int Duration = 7000;
                             if ((!string.IsNullOrWhiteSpace(haste.name) && haste.name.Contains("strong")))
                             {
-                                MinSpeedChange = 450;
-                                MaxSpeedChange = 450;
+                                MinSpeedChange = STRONG_HASTE_SPEED;
+                                MaxSpeedChange = STRONG_HASTE_SPEED;
                                 Duration = 4000;
                             }
                             var spell = new Spell() { Name = "speed", SpellCategory = SpellCategory.Defensive, Interval = 2000, Chance = 0.15, MinSpeedChange = MinSpeedChange, MaxSpeedChange = MaxSpeedChange, AreaEffect = Effect.MagicRed, Duration = Duration };
                             mon.Attacks.Add(spell);
+                        }
+                        else if (TemplateParser.IsTemplateMatch<OutfitTemplate>(ability))
+                        {
+                            var outfit = TemplateParser.Deserialize<OutfitTemplate>(ability);
+                            SpellCategory spellCategory = outfit.victim.ToLower() == "yes" ? SpellCategory.Offensive : SpellCategory.Defensive;
+                            AddOutfitAbility(mon, result, outfit.thing, spellCategory);
+
+                            if (outfit.things != null)
+                            {
+                                foreach (var thing in outfit.things)
+                                {
+                                    AddOutfitAbility(mon, result, thing, spellCategory);
+                                }
+                            }
                         }
                         else if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
                         {
@@ -1030,6 +1075,19 @@ namespace MonsterConverterTibiaWiki
                         }
                     }
                 }
+            }
+        }
+
+        private static void AddOutfitAbility(Monster mon, ConvertResultEventArgs result, string thing, SpellCategory spellCategory)
+        {
+            ushort? itemId = GetItemId(thing, ref result);
+            if (itemId != null)
+            {
+                mon.Attacks.Add(new Spell() { Name = "outfit", SpellCategory = spellCategory, Interval = 2000, Chance = 0.15, Duration = 5000, ItemId = itemId });
+            }
+            else
+            {
+                mon.Attacks.Add(new Spell() { Name = "outfit", SpellCategory = spellCategory, Interval = 2000, Chance = 0.15, Duration = 5000, MonsterName = thing });
             }
         }
 
@@ -1313,6 +1371,11 @@ namespace MonsterConverterTibiaWiki
                     spell.Range = 5;
                     spell.Radius = 1;
                     break;
+                case "7sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 7;
+                    spell.Radius = 1;
+                    break;
                 case "great_explosion":
                     spell.Radius = 5;
                     break;
@@ -1334,12 +1397,15 @@ namespace MonsterConverterTibiaWiki
                     spell.Length = 3;
                     spell.Spread = 2;
                     break;
+                case "3sqmtwave":
+                    break;
                 case "3sqmwavewide":
                     spell.IsDirectional = true;
                     spell.Length = 3;
                     spell.Spread = 1;
                     break;
                 case "5sqmwavenarrow":
+                case "5sqmwavechessnarrow": // TODO confirm this is the same, but just visiually different for the wiki
                     spell.IsDirectional = true;
                     spell.Length = 5;
                     spell.Spread = 3;
@@ -1396,6 +1462,12 @@ namespace MonsterConverterTibiaWiki
                     spell.Radius = 5;
                     spell.OnTarget = false;
                     break;
+
+                case "3sqmball2self":
+                    break;
+                case "3sqmchess2x2self":  // TODO confirm this is the same as 3sqmball2self, but just visiually different for the wiki
+                    break;
+
                 case "4sqmballself":
                     spell.Radius = 6;
                     spell.OnTarget = false;
@@ -1407,6 +1479,16 @@ namespace MonsterConverterTibiaWiki
                 case "6sqmballself":
                     spell.Radius = 8;
                     spell.OnTarget = false;
+                    break;
+                case "2sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 2;
+                    spell.Spread = 0;
+                    break;
+                case "3sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 3;
+                    spell.Spread = 0;
                     break;
                 case "4sqmbeam":
                     spell.IsDirectional = true;
@@ -1441,41 +1523,36 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "chivalrous_challenge":
                     break;
+                case "buffspell":
+                    break;
+                case "4sqmball2self":
+                    break;
+                case "4sqmwave":
+                    break;
+                case "4sqmtwave":
+                    break;
+                case "4sqmtwave2":
+                    break;
+                case "5sqmtwavenarrow":
+                    break;
+                case "6sqmtwave":
+                    break;
+                case "chainspell":
+                    break;
+                case "8sqmwavewide":
+                    break;
+                case "17sqmwave":
+                    break;
+                case "9sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 9;
+                    spell.Spread = 0;
+                    break;
+                case "heart_fireworks":
+                    break;
             }
 
             return true;
-        }
-
-        private static Missile TibiaWikiToAnimation(string missile)
-        {
-            if ((missile == "spear") || (missile == "spears"))
-            {
-                return Missile.Spear;
-            }
-            else if ((missile == "throwing knives") || (missile == "throwing knife"))
-            {
-                return Missile.ThrowingKnife;
-            }
-            else if ((missile == "bolt") || (missile == "bolts"))
-            {
-                return Missile.Bolt;
-            }
-            else if ((missile == "arrow") || (missile == "arrows"))
-            {
-                return Missile.Arrow;
-            }
-            else if (missile.Contains("boulder"))
-            {
-                return Missile.LargeRock;
-            }
-            else if (missile.Contains("stone"))
-            {
-                return Missile.SmallStone;
-            }
-            else
-            {
-                return Missile.None;
-            }
         }
 
         private static void ParseLoot(Monster monster, string lootTable, string filename, ConvertResultEventArgs result)
@@ -1493,6 +1570,7 @@ namespace MonsterConverterTibiaWiki
                     if (lootsectionsRegEx.IsMatch(elements))
                     {
                         var lootsection = lootsectionsRegEx.Match(elements);
+                        // Only parse loot from the first table found
                         string loots = lootsection.Captures[0].Value;
 
                         var killsmatch = new Regex(@"\|kills=(?<kills>\d+)").Match(loots);
@@ -1520,13 +1598,17 @@ namespace MonsterConverterTibiaWiki
                                 }
                                 count = (count > 0) ? count : 1;
 
-                                // Two items have redirects, which can be verified by checking the source at the link below
+                                // A few items have redirects, which can be verified by checking the source at the link below
                                 // https://tibia.fandom.com/wiki/Template:Loot2/List?veaction=editsource
                                 // Parsing the html output is a pain so for now we can map those two items here
-                                if (item == "skull")
-                                    item = "skull (item)";
+                                if (item == "rusty armor")
+                                    item = "rusty armor (common)";
+                                if (item == "rusty legs")
+                                    item = "rusty legs (common)";
                                 if (item == "black skull")
                                     item = "black skull (item)";
+                                if (item == "skull")
+                                    item = "skull (item)";
 
                                 LootItem lootItem = new LootItem()
                                 {
@@ -1534,7 +1616,12 @@ namespace MonsterConverterTibiaWiki
                                     Chance = (decimal)percent,
                                     Count = count
                                 };
-                                SetItemId(ref lootItem, ref result);
+
+                                ushort? itemId = GetItemId(lootItem.Name, ref result);
+                                if (itemId != null)
+                                {
+                                    lootItem.Id = (ushort)itemId;
+                                }
 
                                 monster.Items.Add(lootItem);
                             }
@@ -1584,43 +1671,47 @@ namespace MonsterConverterTibiaWiki
 
                                 if (genericLootItem != null)
                                 {
-                                    SetItemId(ref genericLootItem, ref result);
+                                    ushort? itemId = GetItemId(genericLootItem.Name, ref result);
+                                    if (itemId != null)
+                                    {
+                                        genericLootItem.Id = (ushort)itemId;
+                                    }
 
                                     monster.Items.Add(genericLootItem);
                                 }
                             }
-
                         }
                     }
                 }
             }
         }
 
-        private static void SetItemId(ref LootItem item, ref ConvertResultEventArgs result)
+        private static ushort? GetItemId(string itemName, ref ConvertResultEventArgs result)
         {
-            string loweredName = item.Name.ToLower();
-            if (itemsByName.ContainsKey(loweredName))
+            itemName = itemName.ToLower();
+            if (itemsByName.ContainsKey(itemName))
             {
-                if (ushort.TryParse(itemsByName[loweredName].Ids, out ushort _))
+                if (ushort.TryParse(itemsByName[itemName].Ids, out ushort _))
                 {
-                    item.Id = ushort.Parse(itemsByName[loweredName].Ids);
+                    return ushort.Parse(itemsByName[itemName].Ids);
                 }
-                else if (string.IsNullOrWhiteSpace(itemsByName[loweredName].Ids))
+                else if (string.IsNullOrWhiteSpace(itemsByName[itemName].Ids))
                 {
-                    string message = $"TibiaWiki is missing item id for item {loweredName}";
+                    string message = $"TibiaWiki is missing item id for item {itemName}";
                     result.AppendMessage(message);
                 }
                 else
                 {
-                    string message = $"TibiaWiki has malformatted or multiple ids {itemsByName[loweredName].Ids} for item {loweredName}";
+                    string message = $"TibiaWiki has malformatted or multiple ids {itemsByName[itemName].Ids} for item {itemName}";
                     result.AppendMessage(message);
                 }
             }
             else
             {
-                string message = $"TibiaWiki has no data for item name {loweredName}";
+                string message = $"TibiaWiki has no data for item name {itemName}";
                 result.AppendMessage(message);
             }
+            return null;
         }
 
         private static bool TryParseTibiaWikiRarity(string input, out decimal chance)
