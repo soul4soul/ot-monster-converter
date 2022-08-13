@@ -303,6 +303,7 @@ namespace MonsterConverterCipMon
                         spell.ShootEffect = animationFromString(castTypeParams[1]);
                         spell.AreaEffect = effectFromString(castTypeParams[2]);
                         spell.OnTarget = true;
+                        spell.Radius = 1;
                     }
                     else if (castType == "origin")
                     {
@@ -323,6 +324,7 @@ namespace MonsterConverterCipMon
                         spell.Length = int.Parse(castTypeParams[1]);
                         spell.Spread = int.Parse(castTypeParams[0]) / 10;
                         spell.AreaEffect = effectFromString(castTypeParams[2]);
+                        spell.IsDirectional = true;
                     }
                     // else There are no other castTypes in the 7.7 monster pack
 
