@@ -1070,9 +1070,13 @@ namespace MonsterConverterTibiaWiki
                                 System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\", likely scene is missing");
                             }
                         }
+                        else if (TemplateParser.IsTemplateMatch<Debuff2Template>(ability))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\", debuff2 abilities not supported");
+                        }
                         else if (TemplateParser.IsTemplateMatch<DebuffTemplate>(ability))
                         {
-                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\", debuff abilities not supported");
+                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\", debuff temlpate deprecated");
                         }
                         else
                         {
