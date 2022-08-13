@@ -321,6 +321,18 @@ namespace MonsterConverterTibiaWiki
                         {
                             wikiName = "Paralyze";
                         }
+
+                        int timeSecVal = (s.Duration == null) ? 1 : (int)s.Duration / 1000;
+                        string timeStr = (timeSecVal > 1) ? $"{timeSecVal} seconds" : "1 second";
+                        if (s.MinSpeedChange == s.MaxSpeedChange)
+                        {
+                            ability.damage = $"{Math.Abs((double)s.MaxSpeedChange)} points for {timeStr}";
+                        }
+                        else
+                        {
+                            ability.damage = $"{Math.Abs((double)s.MinSpeedChange)}-{Math.Abs((double)s.MaxSpeedChange)} points for {timeStr}";
+                        }
+
                         ability.name = wikiName;
                         ability.element = "paralyze";
                         ability.scene = GenericSpellToScene(s, mon.Name);
@@ -475,8 +487,21 @@ namespace MonsterConverterTibiaWiki
                     AbilityTemplate ability = new AbilityTemplate();
                     if (s.Name == wikiName)
                     {
-                        wikiName = "Causes [[Drunkenness]]";
+                        wikiName = "Drunkenness";
                     }
+
+                    int timeSecVal = (s.Duration == null) ? 1 : (int)s.Duration / 1000;
+                    string timeStr = (timeSecVal > 1) ? $"{timeSecVal} seconds" : "1 second";
+
+                    if (s.Drunkenness >= 5)
+                    {
+                        ability.damage = $"Heavy, {timeStr}";
+                    }
+                    else
+                    {
+                        ability.damage = timeStr;
+                    }
+
                     ability.name = wikiName;
                     ability.element = "drunk";
                     ability.scene = GenericSpellToScene(s, mon.Name);
