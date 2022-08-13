@@ -1004,12 +1004,17 @@ namespace MonsterConverterTibiaWiki
                             SpellCategory spellCategory = outfit.victim.ToLower() == "yes" ? SpellCategory.Offensive : SpellCategory.Defensive;
                             AddOutfitAbility(mon, result, outfit.thing, spellCategory);
 
-                            if (outfit.things != null)
+                            if (outfit.thing2 != null)
                             {
-                                foreach (var thing in outfit.things)
-                                {
-                                    AddOutfitAbility(mon, result, thing, spellCategory);
-                                }
+                                AddOutfitAbility(mon, result, outfit.thing2, spellCategory);
+                            }
+                            if (outfit.thing3 != null)
+                            {
+                                AddOutfitAbility(mon, result, outfit.thing3, spellCategory);
+                            }
+                            if (outfit.thing4 != null)
+                            {
+                                AddOutfitAbility(mon, result, outfit.thing4, spellCategory);
                             }
                         }
                         else if (TemplateParser.IsTemplateMatch<AbilityTemplate>(ability))
