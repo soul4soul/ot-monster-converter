@@ -296,6 +296,8 @@ namespace MonsterConverterCipMon
                     if (castType == "actor")
                     {
                         spell.AreaEffect = effectFromString(castTypeParams[0]);
+                        spell.OnTarget = false;
+                        spell.Radius = 1;
                     }
                     else if (castType == "victim")
                     {
