@@ -269,7 +269,18 @@ namespace MonsterConverterTibiaWiki
                     {
                         melee.name = wikiName;
                     }
-                    melee.damage = damage;
+                    if ((s.AttackValue != null) && (s.Skill != null) && (s.AttackValue > 0) && (s.Skill > 0))
+                    {
+                        double attack = (double)s.AttackValue;
+                        double skill = (double)s.Skill;
+                        // Note: Formula taken from TFS Engine
+                        var max = Math.Ceiling((skill * (attack * 0.05)) + (attack * 0.5));
+                        melee.damage = $"0-{max}";
+                    }
+                    else
+                    {
+                        melee.damage = damage;
+                    }
                     if (DamageTypeToWikiElement.ContainsKey(s.DamageElement))
                     {
                         melee.element = DamageTypeToWikiElement[s.DamageElement];
@@ -393,6 +404,15 @@ namespace MonsterConverterTibiaWiki
                     if (ConditionTypeToWikiElement.ContainsKey(s.Condition))
                     {
                         ability.element = ConditionTypeToWikiElement[s.Condition];
+                        if ((s.Condition == ConditionType.Bleeding) || (s.Condition == ConditionType.Poison))
+                        {
+                            int totalDamage = Math.Abs(Math.Min(s.MinDamage ?? 0, s.MaxDamage ?? 0));
+                            ability.damage = $"up to {CalculateStartOfLogDamageOverTime(totalDamage, s.StartDamage ?? 0)} hp/turn";
+                        }
+                        else
+                        {
+                            ability.damage = damage;
+                        }
                     }
                     else
                     {
@@ -400,7 +420,6 @@ namespace MonsterConverterTibiaWiki
                         result.IncreaseError(ConvertError.Warning);
                         continue;
                     }
-                    // condition crap is mostly in a random string
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
@@ -526,6 +545,12 @@ namespace MonsterConverterTibiaWiki
             else if ((spell.IsDirectional == true) && (spell.Length == 9) && (spell.Spread == 0))
             {
                 scene.spell = "9sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 0))
+            {
+                scene.spell = "8sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
