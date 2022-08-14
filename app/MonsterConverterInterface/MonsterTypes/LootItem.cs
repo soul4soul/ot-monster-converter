@@ -50,6 +50,13 @@ namespace MonsterConverterInterface.MonsterTypes
         /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// Basic reward chest implementation for now, cipbia has a more advanced system with partcipation tiers
+        /// https://tibia.fandom.com/wiki/Cooperative_Loot_System but no open source server support such concepts
+        /// The existing open source engines barely support loot chests and usually at bests support unique rares
+        /// </summary>
+        public bool RewardChest { get; set; }
+
         public override string ToString()
         {
             if (NestedLoot.Count > 0)

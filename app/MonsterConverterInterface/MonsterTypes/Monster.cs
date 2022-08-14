@@ -150,7 +150,7 @@ namespace MonsterConverterInterface.MonsterTypes
         public bool IgnoreBleed { get; set; }
 
         // Loot
-        public IList<LootItem> Items { get; }
+        public List<LootItem> Items { get; }
 
         // Attached Scripts
         public IList<Script> Scripts { get; }

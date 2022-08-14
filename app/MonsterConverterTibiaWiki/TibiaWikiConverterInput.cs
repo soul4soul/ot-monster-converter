@@ -1136,7 +1136,7 @@ namespace MonsterConverterTibiaWiki
 
         private static void AddOutfitAbility(Monster mon, ConvertResultEventArgs result, string thing, SpellCategory spellCategory)
         {
-            ushort? itemId = GetItemId(thing, ref result);
+            ushort? itemId = GetItemId(thing, result);
             if (itemId != null)
             {
                 mon.Attacks.Add(new Spell() { Name = "outfit", SpellCategory = spellCategory, Interval = 2000, Chance = 0.15, Duration = 5000, ItemId = itemId });
@@ -1616,133 +1616,158 @@ namespace MonsterConverterTibiaWiki
             var lootTableTemplate = TemplateParser.Deserialize<LootTableTemplate>(lootTable);
             if ((lootTableTemplate.loot != null) && (lootTableTemplate.loot.Length >= 1) && (!string.IsNullOrWhiteSpace(lootTableTemplate.loot[0])))
             {
+                // Parse information from loot table as an attempt to get a base of all items dropped by the creature
+                // Loots statistics are great, but if an known drop hasn't been added to the statistics it would be missing
+                foreach (string loot in lootTableTemplate.loot)
+                {
+                    // Could be loot item template or just a list of items according to code but in practice only LootItemTemplate is used
+                    if (TemplateParser.IsTemplateMatch<LootItemTemplate>(loot))
+                    {
+                        LootItemTemplate lootItem = TemplateParser.Deserialize<LootItemTemplate>(loot);
+                        if (lootItem.parts != null)
+                        {
+                            LootItem genericLootItem = null;
+                            if (lootItem.parts.Length == 1)
+                            {
+                                // template name only
+                                genericLootItem = new LootItem() { Name = lootItem.parts[0].ToLower(), Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT };
+                            }
+                            else if (lootItem.parts.Length == 2)
+                            {
+                                // template name + rarity OR count + name
+                                // Assumes first combination if parts[1] matches a rarity description
+                                if (TryParseTibiaWikiRarity(lootItem.parts[1], out decimal chance))
+                                {
+                                    genericLootItem = new LootItem() { Name = lootItem.parts[0].ToLower(), Chance = chance, Count = DEFAULT_LOOT_COUNT };
+                                }
+                                else
+                                {
+                                    if (!TryParseRange(lootItem.parts[0], out int min, out int max))
+                                        max = DEFAULT_LOOT_COUNT;
+                                    genericLootItem = new LootItem() { Name = lootItem.parts[1].ToLower(), Chance = DEFAULT_LOOT_CHANCE, Count = max };
+                                }
+                            }
+                            else if (lootItem.parts.Length == 3)
+                            {
+                                // template name + rarity + count
+                                if (!TryParseRange(lootItem.parts[0], out int min, out int max))
+                                    max = DEFAULT_LOOT_COUNT;
+                                TryParseTibiaWikiRarity(lootItem.parts[2], out decimal chance);
+                                genericLootItem = new LootItem() { Name = lootItem.parts[1].ToLower(), Chance = chance, Count = max };
+                            }
+
+                            if (genericLootItem != null)
+                            {
+                                ushort? itemId = GetItemId(genericLootItem.Name, result);
+                                if (itemId != null)
+                                {
+                                    genericLootItem.Id = (ushort)itemId;
+                                }
+
+                                monster.Items.Add(genericLootItem);
+                            }
+                        }
+                    }
+                }
+
                 // Request for full loot stats now that we are sure monster has loot
+                // Update items added from loot table with more specific stats or add new items as needed
                 string looturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=Loot_Statistics:{filename}&prop=wikitext";
                 var lootPage = RequestData(looturl).Result;
                 if (lootPage != null)
                 {
                     string elements = lootPage.Wikitext.Empty.ToLower();
-                    var lootsectionsRegEx = new Regex("{{loot2(?<loots>.*?)}}", RegexOptions.Singleline);
-                    if (lootsectionsRegEx.IsMatch(elements))
+
+                    var loot2TemplateRegEx = new Regex("{{loot2(?<loots>.*?)}}", RegexOptions.Singleline);
+                    if (loot2TemplateRegEx.IsMatch(elements))
                     {
-                        var lootsection = lootsectionsRegEx.Match(elements);
-                        // Only parse loot from the first table found
-                        string loots = lootsection.Captures[0].Value;
+                        // Only parse loot from the first table found which is the newest data
+                        string loot2TemplateRaw = loot2TemplateRegEx.Match(elements).Captures[0].Value;
+                        Loot2TemplateParser(monster, loot2TemplateRaw, false, result);
+                    }
 
-                        var killsmatch = new Regex(@"\|kills=(?<kills>\d+)").Match(loots);
-                        double.TryParse(killsmatch.Groups["kills"].Value, out double kills);
-                        // sometimes TibiaWiki doesn't show the amount field
-                        var lootregex = new Regex(@"\|\s*(?<itemname>[a-z'.() ]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
-                        var matches = lootregex.Matches(loots);
-                        foreach (Match loot in matches)
+                    var loot2RCTemplateRegex = new Regex("{{loot2_rc(?<loots>.*?)}}", RegexOptions.Singleline);
+                    if (loot2RCTemplateRegex.IsMatch(elements))
+                    {
+                        // Only parse loot from the first table found which is the newest data
+                        var loot2RCTemplateRaw = loot2RCTemplateRegex.Match(elements).Captures[0].Value;
+                        Loot2TemplateParser(monster, loot2RCTemplateRaw, true, result);
+                    }
+
+                    monster.Items.Sort(new Comparison<LootItem>((a, b) => Decimal.Compare(b.Chance, a.Chance)));
+                }
+            }
+        }
+
+        private static void Loot2TemplateParser(Monster monster, string loot2Template, bool isRewardChest, ConvertResultEventArgs result)
+        {
+            var killsmatch = new Regex(@"\|kills=(?<kills>\d+)").Match(loot2Template);
+            double.TryParse(killsmatch.Groups["kills"].Value, out double kills);
+            // sometimes TibiaWiki doesn't show the amount field
+            var lootregex = new Regex(@"\|\s*(?<itemname>[a-z'.() ]*),\s*times:\s*(?<times>\d+)(, amount:\s*(?<amount>[0-9-]+))?");
+            var matches = lootregex.Matches(loot2Template);
+            foreach (Match loot in matches)
+            {
+                string item = loot.Groups["itemname"].Value;
+                double.TryParse(loot.Groups["times"].Value, out double times);
+                string amount = loot.Groups["amount"].Value;
+
+                if (item != "empty")
+                {
+                    double percent = times / kills;
+
+                    if (!int.TryParse(amount, out int count))
+                    {
+                        var amounts = amount.Split("-");
+                        if (amounts.Length >= 2)
                         {
-                            string item = loot.Groups["itemname"].Value;
-                            double.TryParse(loot.Groups["times"].Value, out double times);
-                            string amount = loot.Groups["amount"].Value;
-
-                            if (item != "empty")
-                            {
-                                double percent = times / kills;
-
-                                if (!int.TryParse(amount, out int count))
-                                {
-                                    var amounts = amount.Split("-");
-                                    if (amounts.Length >= 2)
-                                    {
-                                        int.TryParse(amounts[1], out count);
-                                    }
-                                }
-                                count = (count > 0) ? count : 1;
-
-                                // A few items have redirects, which can be verified by checking the source at the link below
-                                // https://tibia.fandom.com/wiki/Template:Loot2/List?veaction=editsource
-                                // Parsing the html output is a pain so for now we can map those two items here
-                                if (item == "rusty armor")
-                                    item = "rusty armor (common)";
-                                if (item == "rusty legs")
-                                    item = "rusty legs (common)";
-                                if (item == "black skull")
-                                    item = "black skull (item)";
-                                if (item == "skull")
-                                    item = "skull (item)";
-
-                                LootItem lootItem = new LootItem()
-                                {
-                                    Name = item,
-                                    Chance = (decimal)percent,
-                                    Count = count
-                                };
-
-                                ushort? itemId = GetItemId(lootItem.Name, ref result);
-                                if (itemId != null)
-                                {
-                                    lootItem.Id = (ushort)itemId;
-                                }
-
-                                monster.Items.Add(lootItem);
-                            }
+                            int.TryParse(amounts[1], out count);
                         }
                     }
-                }
-                else
-                {
-                    // Creature has loot but no loot statistics. Use information from loot table to generate the loot
-                    // Could be loot item template or just a list of items....
-                    foreach (string loot in lootTableTemplate.loot)
+                    count = (count > 0) ? count : 1;
+
+                    // A few items have redirects, which can be verified by checking the source at the link below
+                    // https://tibia.fandom.com/wiki/Template:Loot2/List?veaction=editsource
+                    // Parsing the html output is a pain so for now we can map these few items here 
+                    if (item == "rusty armor")
+                        item = "rusty armor (common)";
+                    if (item == "rusty legs")
+                        item = "rusty legs (common)";
+                    if (item == "black skull")
+                        item = "black skull (item)";
+                    if (item == "skull")
+                        item = "skull (item)";
+
+                    LootItem lootItem = new LootItem()
                     {
-                        if (TemplateParser.IsTemplateMatch<LootItemTemplate>(loot))
-                        {
-                            LootItemTemplate lootItem = TemplateParser.Deserialize<LootItemTemplate>(loot);
-                            if (lootItem.parts != null)
-                            {
-                                LootItem genericLootItem = null;
-                                if (lootItem.parts.Length == 1)
-                                {
-                                    // template name only
-                                    genericLootItem = new LootItem() { Name = lootItem.parts[0], Chance = DEFAULT_LOOT_CHANCE, Count = DEFAULT_LOOT_COUNT };
-                                }
-                                else if (lootItem.parts.Length == 2)
-                                {
-                                    // template name + rarity OR count + name
-                                    // Assumes first combination if parts[1] matches a rarity description
-                                    if (TryParseTibiaWikiRarity(lootItem.parts[1], out decimal chance))
-                                    {
-                                        genericLootItem = new LootItem() { Name = lootItem.parts[0], Chance = chance, Count = DEFAULT_LOOT_COUNT };
-                                    }
-                                    else
-                                    {
-                                        if (!TryParseRange(lootItem.parts[0], out int min, out int max))
-                                            max = DEFAULT_LOOT_COUNT;
-                                        genericLootItem = new LootItem() { Name = lootItem.parts[1], Chance = DEFAULT_LOOT_CHANCE, Count = max };
-                                    }
-                                }
-                                else if (lootItem.parts.Length == 3)
-                                {
-                                    // template name + rarity + count
-                                    if (!TryParseRange(lootItem.parts[0], out int min, out int max))
-                                        max = DEFAULT_LOOT_COUNT;
-                                    TryParseTibiaWikiRarity(lootItem.parts[2], out decimal chance);
-                                    genericLootItem = new LootItem() { Name = lootItem.parts[1], Chance = chance, Count = max };
-                                }
+                        Name = item,
+                        Chance = (decimal)percent,
+                        Count = count,
+                        RewardChest = isRewardChest
+                    };
 
-                                if (genericLootItem != null)
-                                {
-                                    ushort? itemId = GetItemId(genericLootItem.Name, ref result);
-                                    if (itemId != null)
-                                    {
-                                        genericLootItem.Id = (ushort)itemId;
-                                    }
+                    ushort? itemId = GetItemId(lootItem.Name, result);
+                    if (itemId != null)
+                    {
+                        lootItem.Id = (ushort)itemId;
+                    }
 
-                                    monster.Items.Add(genericLootItem);
-                                }
-                            }
-                        }
+                    // Update existing item or add new
+                    LootItem existing = monster.Items.FirstOrDefault(li => li.Name == lootItem.Name);
+                    if (existing != null)
+                    {
+                        existing.Chance = lootItem.Chance;
+                        existing.Count = Math.Max(existing.Count, lootItem.Count);
+                    }
+                    else
+                    {
+                        monster.Items.Add(lootItem);
                     }
                 }
             }
         }
 
-        private static ushort? GetItemId(string itemName, ref ConvertResultEventArgs result)
+        private static ushort? GetItemId(string itemName, ConvertResultEventArgs result)
         {
             itemName = itemName.ToLower();
             if (itemsByName.ContainsKey(itemName))
