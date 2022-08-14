@@ -326,7 +326,7 @@ namespace MonsterConverterTibiaWiki
                         string timeStr = (timeSecVal > 1) ? $"{timeSecVal} seconds" : "1 second";
                         if (s.MinSpeedChange == s.MaxSpeedChange)
                         {
-                            ability.damage = $"{Math.Abs((double)s.MaxSpeedChange)} points for {timeStr}";
+                            ability.damage = $"reduces {Math.Abs((double)s.MaxSpeedChange)} speed points for {timeStr}";
                         }
                         else
                         {
@@ -419,7 +419,7 @@ namespace MonsterConverterTibiaWiki
                         if ((s.Condition == ConditionType.Bleeding) || (s.Condition == ConditionType.Poison))
                         {
                             int totalDamage = Math.Abs(Math.Min(s.MinDamage ?? 0, s.MaxDamage ?? 0));
-                            ability.damage = $"up to {CalculateStartOfLogDamageOverTime(totalDamage, s.StartDamage ?? 0)} hp/turn";
+                            ability.damage = $"starting up to {CalculateStartOfLogDamageOverTime(totalDamage, s.StartDamage ?? 0)} hp/turn";
                         }
                         else
                         {
