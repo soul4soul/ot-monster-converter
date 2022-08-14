@@ -1072,7 +1072,54 @@ namespace MonsterConverterTibiaWiki
                         }
                         else if (TemplateParser.IsTemplateMatch<Debuff2Template>(ability))
                         {
-                            System.Diagnostics.Debug.WriteLine($"{mon.FileName} ability not parsed \"{ability}\", debuff2 abilities not supported");
+                            var debuff = TemplateParser.Deserialize<Debuff2Template>(ability);
+                            if (TryParseScene(debuff.scene, out Spell spell))
+                            {
+                                spell.Name = "strength";
+                                spell.Duration = 5;
+                                if (TryParseRange(debuff.duration, out int min, out int max))
+                                {
+                                    spell.Duration = max;
+                                }
+
+                                spell.MinSkillChange = 30;
+                                spell.MinSkillChange = 60;
+                                if (TryParseRange(debuff.value, out min, out max))
+                                {
+                                    spell.MinSkillChange = min;
+                                    spell.MaxSkillChange = max;
+                                }
+
+                                if (debuff.melee == "yes")
+                                {
+                                    spell.Strengths |= StrengthSkills.Melee;
+                                }
+                                if (debuff.distance == "yes")
+                                {
+                                    spell.Strengths |= StrengthSkills.Distance;
+                                }
+                                if (debuff.magic == "yes")
+                                {
+                                    spell.Strengths |= StrengthSkills.Magic;
+                                }
+                                if (debuff.shielding == "yes")
+                                {
+                                    spell.Strengths |= StrengthSkills.Shielding;
+                                }
+
+                                if (spell.Strengths == StrengthSkills.None)
+                                {
+                                    result.AppendMessage($"Missing skills for {ability}");
+                                    result.IncreaseError(ConvertError.Warning);
+                                    continue;
+                                }
+
+                                mon.Attacks.Add(spell);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine($"{mon.FileName} couldn't parse scene for ability \"{ability}\", likely scene is missing");
+                            }
                         }
                         else if (TemplateParser.IsTemplateMatch<DebuffTemplate>(ability))
                         {

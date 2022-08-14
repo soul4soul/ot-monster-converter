@@ -708,6 +708,12 @@ namespace MonsterConverterTfsRevScriptSys
                 }
                 else
                 {
+                    if (spell.Name == "strength")
+                    {
+                        error = ConvertError.Warning;
+                        attack = $"Can't convert abilitiy name {spell} with flags {spell.Strengths} range {spell.MinSkillChange}-{spell.MaxSkillChange}";
+                        return new(error, attack);
+                    }
                     if (spell.Name == "speed")
                     {
                         attack += $", speed = {{min = {spell.MinSpeedChange}, max = {spell.MaxSpeedChange}}}";

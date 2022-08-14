@@ -46,6 +46,10 @@ namespace MonsterConverterInterface.MonsterTypes
         public ushort? ItemId { get; set; }
         // Drunk
         public double? Drunkenness { get; set; }
+        // Strength
+        public StrengthSkills Strengths { get; set; }
+        public int? MinSkillChange { get; set; }
+        public int? MaxSkillChange { get; set; }
 
         public override string ToString()
         {

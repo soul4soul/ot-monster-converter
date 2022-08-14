@@ -458,8 +458,8 @@ namespace MonsterConverterTfsXml
                         new XElement("element",
                                     new XAttribute("deathPercent", ElemementPercentGenericToTfsXml(monster.DeathDmgMod))))
                     );
-                AbilitiesGenericToTfsXmlAttacks(monster, monsterElement);
-                monsterElement.Add(AbilitiesGenericToTfsXmlDefense(monster));
+                AbilitiesGenericToTfsXmlAttacks(monster, monsterElement, result);
+                monsterElement.Add(AbilitiesGenericToTfsXmlDefense(monster, result));
                 VoiceGenericToTfsXml(monster, monsterElement, result);
                 SummonGenericToTfsXml(monster, monsterElement);
                 LootGenericToTfsXml(monster.Items, monsterElement);
@@ -470,14 +470,22 @@ namespace MonsterConverterTfsXml
             return result;
         }
 
-        private void AbilitiesGenericToTfsXmlAttacks(Monster monster, XElement monsterElement)
+        private void AbilitiesGenericToTfsXmlAttacks(Monster monster, XElement monsterElement, ConvertResultEventArgs result)
         {
             XElement attacks = new XElement("attacks");
             foreach (var s in monster.Attacks)
             {
                 if (s.SpellCategory == SpellCategory.Offensive)
                 {
-                    attacks.Add(SpellGenericToTfsXml(s, "attack"));
+                    if (s.Name != "strength")
+                    {
+                        attacks.Add(SpellGenericToTfsXml(s, "attack"));
+                    }
+                    else
+                    {
+                        result.AppendMessage($"Can't convert abilitiy name {s} with flags {s.Strengths} range {s.MinSkillChange}-{s.MaxSkillChange}");
+                        result.IncreaseError(ConvertError.Warning);
+                    }
                 }
             }
             if (attacks.HasElements)
@@ -486,7 +494,7 @@ namespace MonsterConverterTfsXml
             }
         }
 
-        private XElement AbilitiesGenericToTfsXmlDefense(Monster monster)
+        private XElement AbilitiesGenericToTfsXmlDefense(Monster monster, ConvertResultEventArgs result)
         {
             XElement defenses = new XElement("defenses",
                 new XAttribute("armor", monster.TotalArmor),
@@ -495,7 +503,15 @@ namespace MonsterConverterTfsXml
             {
                 if (s.SpellCategory == SpellCategory.Defensive)
                 {
-                    defenses.Add(SpellGenericToTfsXml(s, "defense"));
+                    if (s.Name != "strength")
+                    {
+                        defenses.Add(SpellGenericToTfsXml(s, "defense"));
+                    }
+                    else
+                    {
+                        result.AppendMessage($"Can't convert abilitiy name {s} with flags {s.Strengths} range {s.MinSkillChange}-{s.MaxSkillChange}");
+                        result.IncreaseError(ConvertError.Warning);
+                    }
                 }
             }
             return defenses;

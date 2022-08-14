@@ -519,6 +519,109 @@ namespace MonsterConverterTibiaWiki
                     ability.scene = GenericSpellToScene(s, mon.Name);
                     abilities.Add(TemplateParser.Serialize(ability));
                 }
+                else if (s.Name == "strength")
+                {
+                    int timeSecVal = (s.Duration == null) ? 1 : (int)s.Duration / 1000;
+                    string timeStr = (timeSecVal > 1) ? $"{timeSecVal} seconds" : "1 second";
+                    string value;
+                    if (s.MinSkillChange == s.MaxSkillChange)
+                    {
+                        value = $"{Math.Abs((double)s.MinSkillChange)}";
+                    }
+                    else
+                    {
+                        value = $"{Math.Abs((double)s.MinSkillChange)}-{Math.Abs((double)s.MaxSkillChange)}";
+                    }
+
+                    if (s.SpellCategory == SpellCategory.Offensive)
+                    {
+                        Debuff2Template ability = new Debuff2Template();
+                        if (s.Name == wikiName)
+                        {
+                            wikiName = "Debuff";
+                        }
+                        ability.name = wikiName;
+                        ability.value = value;
+                        ability.duration = timeSecVal.ToString();
+
+                        if (s.Strengths.HasFlag(StrengthSkills.Melee))
+                        {
+                            ability.melee = "yes";
+                        }
+                        else if (s.Strengths.HasFlag(StrengthSkills.Fist) | s.Strengths.HasFlag(StrengthSkills.Axe) | s.Strengths.HasFlag(StrengthSkills.Club) | s.Strengths.HasFlag(StrengthSkills.Sword))
+                        {
+                            result.AppendMessage($"Can't convert abilitiy name {s} with range {value} because individual melee skill flags set");
+                            result.IncreaseError(ConvertError.Warning);
+                            continue;
+                        }
+
+                        if (s.Strengths.HasFlag(StrengthSkills.Distance))
+                        {
+                            ability.distance = "yes";
+                        }
+                        if (s.Strengths.HasFlag(StrengthSkills.Shielding))
+                        {
+                            ability.shielding = "yes";
+                        }
+                        if (s.Strengths.HasFlag(StrengthSkills.Magic))
+                        {
+                            ability.magic = "yes";
+                        }
+
+                        ability.scene = GenericSpellToScene(s, mon.Name);
+                        abilities.Add(TemplateParser.Serialize(ability));
+                    }
+                    else
+                    {
+                        AbilityTemplate ability = new AbilityTemplate();
+                        if (s.Name == wikiName)
+                        {
+                            wikiName = "Buff";
+                        }
+                        ability.name = wikiName;
+
+                        string effectedSkills = "";
+                        if (s.Strengths.HasFlag(StrengthSkills.Melee))
+                        {
+                            effectedSkills += "melee";
+                        }
+                        else
+                        {
+                            if (s.Strengths.HasFlag(StrengthSkills.Fist))
+                            {
+                                effectedSkills += "fist";
+                            }
+                            if (s.Strengths.HasFlag(StrengthSkills.Axe))
+                            {
+                                effectedSkills += "axe";
+                            }
+                            if (s.Strengths.HasFlag(StrengthSkills.Club))
+                            {
+                                effectedSkills += "club";
+                            }
+                            if (s.Strengths.HasFlag(StrengthSkills.Sword))
+                            {
+                                effectedSkills += "sword";
+                            }
+                        }
+                        if (s.Strengths.HasFlag(StrengthSkills.Shielding))
+                        {
+                            effectedSkills += "shielding";
+                        }
+                        if (s.Strengths.HasFlag(StrengthSkills.Magic))
+                        {
+                            effectedSkills += "magic";
+                        }
+                        if (s.Strengths.HasFlag(StrengthSkills.Distance))
+                        {
+                            effectedSkills += "distance";
+                        }
+
+                        ability.damage = $"Increases {effectedSkills} by {value} for {timeStr}";
+                        ability.scene = GenericSpellToScene(s, mon.Name);
+                        abilities.Add(TemplateParser.Serialize(ability));
+                    }
+                }
                 else
                 {
                     result.AppendMessage($"Can't convert ability {s}");
