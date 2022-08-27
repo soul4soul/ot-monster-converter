@@ -688,13 +688,11 @@ namespace MonsterConverterTibiaWiki
         {
             ConvertResultEventArgs result = new ConvertResultEventArgs(filename, ConvertError.Warning, "Corpses id missing and limited ability parsing.");
 
-            string monsterurl = $" https://tibia.fandom.com/api.php?action=parse&format=json&page={filename}&prop=wikitext";
-
             int intVal;
             bool boolVal;
             bool isArenaBoss = false;
 
-            var monsterPage = RequestData(monsterurl).Result;
+            var monsterPage = GetWikiPage(filename, "wikitext");
             // Replace html on page with nothing, the data inside the tags isn't needed and the template parser can choke on it
             var textWithoutHtml = Regex.Replace(monsterPage.Wikitext.Empty, @"<([A-z0-9]*)\b[^>]*>.*?<\/\1>", "", RegexOptions.Singleline | RegexOptions.Compiled);
 
@@ -1672,8 +1670,7 @@ namespace MonsterConverterTibiaWiki
 
                 // Request for full loot stats now that we are sure monster has loot
                 // Update items added from loot table with more specific stats or add new items as needed
-                string looturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=Loot_Statistics:{filename}&prop=wikitext";
-                var lootPage = RequestData(looturl).Result;
+                var lootPage = GetWikiPage($"Loot_Statistics:{filename}", "wikitext");
                 if (lootPage != null)
                 {
                     string elements = lootPage.Wikitext.Empty.ToLower();

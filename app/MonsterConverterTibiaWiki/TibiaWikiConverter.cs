@@ -3,6 +3,7 @@ using MonsterConverterInterface.MonsterTypes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace MonsterConverterTibiaWiki
         private const int DEFAULT_LOOT_COUNT = 1;
 
         private static readonly HttpClient httpClient = new HttpClient();
+        private const string TW_ENDPOINT = "https://tibia.fandom.com/";
 
         // <damage type, wiki element name>
         private static Dictionary<CombatDamage, string> DamageTypeToWikiElement = new Dictionary<CombatDamage, string>
@@ -81,9 +83,8 @@ namespace MonsterConverterTibiaWiki
         public override string[] GetFilesForConversion(string directory)
         {
             // directory parameter is ignored for this format...
-            string monsterlisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=List_of_Creatures_(Ordered)&prop=text";
             IList<string> names = new List<string>();
-            var monsterTable = RequestData(monsterlisturl).Result.Text.Empty;
+            var monsterTable = GetWikiPage("List_of_Creatures_(Ordered)", "text").Text.Empty;
 
             // Links are HTML encoded
             // %27 is HTML encode for ' character
@@ -105,13 +106,40 @@ namespace MonsterConverterTibiaWiki
             return names.ToArray();
         }
 
-        private static async Task<Parse> RequestData(string endpoint)
+        private static async Task<string> RequestData(string endpoint)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
+            return await httpClient.GetStringAsync(endpoint);
+        }
 
-            var streamTask = httpClient.GetStreamAsync(endpoint);
-            var repositories = await JsonSerializer.DeserializeAsync<Root>(await streamTask);
-            return repositories.Parse;
+        private static Parse GetWikiPage(string page, string prop)
+        {
+            string directoryToSearch = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            directoryToSearch = Path.Combine(directoryToSearch, "tw_cache");
+            if (!Directory.Exists(directoryToSearch))
+            {
+                Directory.CreateDirectory(directoryToSearch);
+            }
+
+            string pageData = string.Empty;
+            string cacheFile = Path.Combine(directoryToSearch, $"{CoerceValidFileName(page)}.json");
+            if (File.Exists(cacheFile))
+            {
+                DateTime lastAccess = File.GetLastWriteTime(cacheFile);
+                TimeSpan fileAge = System.DateTime.Now - lastAccess;
+                if (fileAge < TimeSpan.FromDays(1))
+                {
+                    pageData = File.ReadAllText(cacheFile);
+                }
+            }
+
+            if (string.IsNullOrEmpty(pageData))
+            {
+                string endpoint = $"{TW_ENDPOINT}/api.php?action=parse&format=json&page={page}&prop={prop}";
+                pageData = Task.Run(async () => await RequestData(endpoint)).Result;
+                File.WriteAllText(cacheFile, pageData);
+            }
+            return JsonSerializer.Deserialize<Root>(pageData).Parse;
         }
 
         private static void GetItemIds()
@@ -122,14 +150,14 @@ namespace MonsterConverterTibiaWiki
                 return;
             }
 
-            GetItemIds("https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Pickupable_Items&prop=text");
+            GetItemIds("User:Soul4Soul/List_of_Pickupable_Items", "text");
             // Non-pickable items are needed for shapeshifting abilities using items such as snowball, football, and concooned victimed
-            GetItemIds("https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_of_Non-Pickupable_Objects&prop=text");
+            GetItemIds("User:Soul4Soul/List_of_Non-Pickupable_Objects", "text");
         }
 
-        private static void GetItemIds(string itemlisturl)
+        private static void GetItemIds(string page, string prop)
         {
-            var itemTable = RequestData(itemlisturl).Result.Text.Empty;
+            var itemTable = GetWikiPage(page, prop).Text.Empty;
 
             var itemMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<actualname>.*?)\n<\\/td>\n<td>(?<itemid>.*?)\n<\\/td>").Matches(itemTable);
             foreach (Match match in itemMatches)
@@ -180,8 +208,7 @@ namespace MonsterConverterTibiaWiki
                 return;
             }
 
-            string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Missiles&prop=text";
-            var missileTable = RequestData(missilelisturl).Result.Text.Empty;
+            var missileTable = GetWikiPage("User:Soul4Soul/List_Of_Missiles", "text").Text.Empty;
 
             var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
             foreach (Match match in missileMatches)
@@ -200,11 +227,10 @@ namespace MonsterConverterTibiaWiki
                 return;
             }
 
-                string missilelisturl = $"https://tibia.fandom.com/api.php?action=parse&format=json&page=User:Soul4Soul/List_Of_Effects&prop=text";
-            var missileTable = RequestData(missilelisturl).Result.Text.Empty;
+            var effectTable = GetWikiPage("User:Soul4Soul/List_Of_Effects", "text").Text.Empty;
 
-            var missileMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(missileTable);
-            foreach (Match match in missileMatches)
+            var effectMatches = new Regex("\">(?<name>.*?)<\\/a><\\/td>\n<td>(?<id>.*?)\n<\\/td>\n<td>(?<implemented>.*?)\n<\\/td>").Matches(effectTable);
+            foreach (Match match in effectMatches)
             {
                 string name = match.Groups["name"].Value;
                 string id = match.Groups["id"].Value;
@@ -213,6 +239,36 @@ namespace MonsterConverterTibiaWiki
                     effectIds.Add(name, effect);
                 }
             }
+        }
+
+
+
+        /// <summary>
+        /// Strip illegal chars and reserved words from a candidate filename (should not include the directory path)
+        /// </summary>
+        /// <remarks>
+        /// http://stackoverflow.com/questions/309485/c-sharp-sanitize-file-name
+        /// </remarks>
+        private static string CoerceValidFileName(string filename)
+        {
+            var invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+            var invalidReStr = string.Format(@"[{0}]+", invalidChars);
+
+            var reservedWords = new[]
+            {
+                "CON", "PRN", "AUX", "CLOCK$", "NUL", "COM0", "COM1", "COM2", "COM3", "COM4",
+                "COM5", "COM6", "COM7", "COM8", "COM9", "LPT0", "LPT1", "LPT2", "LPT3", "LPT4",
+                "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+            };
+
+            var sanitisedNamePart = Regex.Replace(filename, invalidReStr, "_");
+            foreach (var reservedWord in reservedWords)
+            {
+                var reservedWordPattern = string.Format("^{0}\\.", reservedWord);
+                sanitisedNamePart = Regex.Replace(sanitisedNamePart, reservedWordPattern, "_reservedWord_.", RegexOptions.IgnoreCase);
+            }
+
+            return sanitisedNamePart;
         }
     }
 }
