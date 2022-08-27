@@ -1420,9 +1420,19 @@ namespace MonsterConverterTibiaWiki
                     spell.Range = 3;
                     spell.Radius = 1;
                     break;
+                case "4sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 4;
+                    spell.Radius = 1;
+                    break;
                 case "5sqmstrike":
                     spell.OnTarget = true;
                     spell.Range = 5;
+                    spell.Radius = 1;
+                    break;
+                case "6sqmstrike":
+                    spell.OnTarget = true;
+                    spell.Range = 6;
                     spell.Radius = 1;
                     break;
                 case "7sqmstrike":
@@ -1518,8 +1528,7 @@ namespace MonsterConverterTibiaWiki
                     break;
 
                 case "3sqmball2self":
-                    break;
-                case "3sqmchess2x2self":  // TODO confirm this is the same as 3sqmball2self, but just visiually different for the wiki
+                case "3sqmchess2x2self": // this is the same as 3sqmball2self, but just visiually different for the wiki
                     break;
 
                 case "4sqmballself":
@@ -1533,6 +1542,11 @@ namespace MonsterConverterTibiaWiki
                 case "6sqmballself":
                     spell.Radius = 8;
                     spell.OnTarget = false;
+                    break;
+                case "1sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 1;
+                    spell.Spread = 0;
                     break;
                 case "2sqmbeam":
                     spell.IsDirectional = true;

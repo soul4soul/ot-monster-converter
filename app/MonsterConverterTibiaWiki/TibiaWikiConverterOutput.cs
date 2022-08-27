@@ -718,6 +718,12 @@ namespace MonsterConverterTibiaWiki
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
+            else if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 0))
+            {
+                scene.spell = "1sqmbeam";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
             else if ((spell.IsDirectional == true) && (spell.Length == 8) && (spell.Spread == 3))
             {
                 scene.spell = "8sqmwave";
@@ -862,10 +868,26 @@ namespace MonsterConverterTibiaWiki
                 scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
             }
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 4))
+            {
+                scene.spell = "4sqmstrike";
+                scene.MissileDistance = "4/4";
+                scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
+                hasSceneData = true;
+            }
             else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 5))
             {
                 scene.spell = "5sqmstrike";
                 scene.MissileDistance = "5/5";
+                scene.MissileDirection = "south-east";
+                scene.EffectOnTarget = scene.effect;
+                hasSceneData = true;
+            }
+            else if ((spell.OnTarget == true) && (spell.Radius == 1) && (spell.Range == 6))
+            {
+                scene.spell = "6sqmstrike";
+                scene.MissileDistance = "6/6";
                 scene.MissileDirection = "south-east";
                 scene.EffectOnTarget = scene.effect;
                 hasSceneData = true;
