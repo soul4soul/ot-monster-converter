@@ -485,10 +485,10 @@ namespace MonsterConverterCipMon
                         spell.Name = "strength";
                         if (actionParams[0] == "1") { spell.Strengths = StrengthSkills.Melee; }
                         else if (actionParams[0] == "2") { spell.Strengths = StrengthSkills.Distance; }
-                        else if (actionParams[0] == "3") { spell.Strengths = StrengthSkills.Melee & StrengthSkills.Distance; }
+                        else if (actionParams[0] == "3") { spell.Strengths = StrengthSkills.Melee | StrengthSkills.Distance; }
                         else if (actionParams[0] == "4") { spell.Strengths = StrengthSkills.Shielding; }
-                        else if (actionParams[0] == "5") { spell.Strengths = StrengthSkills.Melee & StrengthSkills.Shielding; }
-                        else if (actionParams[0] == "6") { spell.Strengths = StrengthSkills.Melee & StrengthSkills.Distance & StrengthSkills.Shielding; }
+                        else if (actionParams[0] == "5") { spell.Strengths = StrengthSkills.Melee | StrengthSkills.Shielding; }
+                        else if (actionParams[0] == "6") { spell.Strengths = StrengthSkills.Melee | StrengthSkills.Distance | StrengthSkills.Shielding; }
                         int baseVal = int.Parse(actionParams[1]);
                         int variation = int.Parse(actionParams[2]);
                         spell.Duration = int.Parse(actionParams[3]) * 1000;
