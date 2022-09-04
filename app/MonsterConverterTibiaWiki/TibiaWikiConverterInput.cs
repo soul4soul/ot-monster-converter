@@ -1468,6 +1468,8 @@ namespace MonsterConverterTibiaWiki
                     spell.Length = 3;
                     spell.Spread = 1;
                     break;
+                case "3sqmwaveultrawide":
+                    break;
                 case "5sqmwavenarrow":
                 case "5sqmwavechessnarrow": // TODO confirm this is the same, but just visiually different for the wiki
                     spell.IsDirectional = true;
@@ -1478,6 +1480,8 @@ namespace MonsterConverterTibiaWiki
                     spell.IsDirectional = true;
                     spell.Length = 5;
                     spell.Spread = 2;
+                    break;
+                case "5sqmtwavenarrow2":
                     break;
                 case "1sqmballtarget":
                     spell.Radius = 3;
@@ -1535,6 +1539,8 @@ namespace MonsterConverterTibiaWiki
                     spell.Radius = 6;
                     spell.OnTarget = false;
                     break;
+                case "4sqmball2self":
+                    break;
                 case "5sqmballself":
                     spell.Radius = 7;
                     spell.OnTarget = false;
@@ -1583,6 +1589,16 @@ namespace MonsterConverterTibiaWiki
                     spell.Length = 8;
                     spell.Spread = 0;
                     break;
+                case "9sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 9;
+                    spell.Spread = 0;
+                    break;
+                case "10sqmbeam":
+                    spell.IsDirectional = true;
+                    spell.Length = 10;
+                    spell.Spread = 0;
+                    break;
                 case "energy_wall_north_diag_area":
                     break;
                 case "energy_wall_south_diag_area":
@@ -1593,8 +1609,6 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "buffspell":
                     break;
-                case "4sqmball2self":
-                    break;
                 case "4sqmwave":
                     break;
                 case "4sqmtwave":
@@ -1603,7 +1617,15 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "5sqmtwavenarrow":
                     break;
+                case "6sqmwave":
+                    break;
+                case "6sqmwavewide":
+                    break;
                 case "6sqmtwave":
+                    break;
+                case "7sqmwave":
+                    break;
+                case "7sqmwavewide":
                     break;
                 case "chainspell":
                     break;
@@ -1611,10 +1633,11 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "17sqmwave":
                     break;
-                case "9sqmbeam":
-                    spell.IsDirectional = true;
-                    spell.Length = 9;
-                    spell.Spread = 0;
+                case "2sqmring2":
+                    break;
+                case "3sqmring2":
+                    break;
+                case "5sqmring":
                     break;
                 case "heart_fireworks":
                     break;

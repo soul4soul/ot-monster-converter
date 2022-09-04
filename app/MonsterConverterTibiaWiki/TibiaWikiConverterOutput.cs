@@ -526,11 +526,11 @@ namespace MonsterConverterTibiaWiki
                     string value;
                     if (s.MinSkillChange == s.MaxSkillChange)
                     {
-                        value = $"{Math.Abs((double)s.MinSkillChange)}";
+                        value = $"{Math.Abs((double)s.MinSkillChange)}%";
                     }
                     else
                     {
-                        value = $"{Math.Abs((double)s.MinSkillChange)}-{Math.Abs((double)s.MaxSkillChange)}";
+                        value = $"{Math.Abs((double)s.MinSkillChange)}-{Math.Abs((double)s.MaxSkillChange)}%";
                     }
 
                     if (s.SpellCategory == SpellCategory.Offensive)
@@ -667,6 +667,12 @@ namespace MonsterConverterTibiaWiki
             if ((spell.IsDirectional == true) && (spell.Length == 1) && (spell.Spread == 1))
             {
                 scene.spell = "front_sweep";
+                scene.LookDirection = "east";
+                hasSceneData = true;
+            }
+            else if ((spell.IsDirectional == true) && (spell.Length == 10) && (spell.Spread == 0))
+            {
+                scene.spell = "10sqmbeam";
                 scene.LookDirection = "east";
                 hasSceneData = true;
             }
@@ -810,7 +816,7 @@ namespace MonsterConverterTibiaWiki
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 1))
             {
-                scene.spell = "singleeffect";
+                scene.spell = "buffspell";
                 scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
@@ -822,7 +828,7 @@ namespace MonsterConverterTibiaWiki
             }
             else if ((spell.OnTarget == false) && (spell.Radius == 5))
             {
-                scene.spell = "3sqmballself";
+                scene.spell = "3sqmball2self";
                 scene.EffectOnCaster = "yes";
                 hasSceneData = true;
             }
