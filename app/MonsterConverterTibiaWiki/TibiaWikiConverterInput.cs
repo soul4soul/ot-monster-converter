@@ -1714,7 +1714,7 @@ namespace MonsterConverterTibiaWiki
                 {
                     string elements = lootPage.Wikitext.Empty.ToLower();
 
-                    var loot2TemplateRegEx = new Regex("{{loot2(?<loots>.*?)}}", RegexOptions.Singleline);
+                    var loot2TemplateRegEx = new Regex(@"{{loot2\n(?<loots>.*?)}}", RegexOptions.Singleline);
                     if (loot2TemplateRegEx.IsMatch(elements))
                     {
                         // Only parse loot from the first table found which is the newest data
@@ -1722,7 +1722,7 @@ namespace MonsterConverterTibiaWiki
                         Loot2TemplateParser(monster, loot2TemplateRaw, false, result);
                     }
 
-                    var loot2RCTemplateRegex = new Regex("{{loot2_rc(?<loots>.*?)}}", RegexOptions.Singleline);
+                    var loot2RCTemplateRegex = new Regex(@"{{loot2_rc\n(?<loots>.*?)}}", RegexOptions.Singleline);
                     if (loot2RCTemplateRegex.IsMatch(elements))
                     {
                         // Only parse loot from the first table found which is the newest data
