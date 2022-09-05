@@ -1629,6 +1629,8 @@ namespace MonsterConverterTibiaWiki
                     break;
                 case "chainspell":
                     break;
+                case "chainadjacent":
+                    break;
                 case "8sqmwavewide":
                     break;
                 case "17sqmwave":
