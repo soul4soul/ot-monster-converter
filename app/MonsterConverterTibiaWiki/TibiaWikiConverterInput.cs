@@ -1393,6 +1393,10 @@ namespace MonsterConverterTibiaWiki
             {
                 spell.AreaEffect = effectIds[scene.effect];
             }
+            if (scene.EffectOnTarget != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Scene {input} is outdated");
+            }
 
             switch (scene.spell)
             {
