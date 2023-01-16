@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MonsterConverterTibiaWiki
 {
-    public partial class Root
+    public partial class ParseActionRoot
     {
         [JsonPropertyName("parse")]
         public Parse Parse { get; set; }

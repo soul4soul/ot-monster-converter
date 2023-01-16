@@ -25,7 +25,8 @@ namespace MonsterConverterTibiaWiki
         private const int DEFAULT_LOOT_COUNT = 1;
 
         private static readonly HttpClient httpClient = new HttpClient();
-        private const string TW_ENDPOINT = "https://tibia.fandom.com/";
+        private const string TW_DOMAIN = "https://tibia.fandom.com/";
+        private static readonly TimeSpan MAX_CACHE_AGE = TimeSpan.FromDays(1);
 
         // <damage type, wiki element name>
         private static Dictionary<CombatDamage, string> DamageTypeToWikiElement = new Dictionary<CombatDamage, string>
@@ -127,7 +128,7 @@ namespace MonsterConverterTibiaWiki
             {
                 DateTime lastAccess = File.GetLastWriteTime(cacheFile);
                 TimeSpan fileAge = System.DateTime.Now - lastAccess;
-                if (fileAge < TimeSpan.FromDays(1))
+                if (fileAge < MAX_CACHE_AGE)
                 {
                     pageData = File.ReadAllText(cacheFile);
                 }
@@ -135,11 +136,11 @@ namespace MonsterConverterTibiaWiki
 
             if (string.IsNullOrEmpty(pageData))
             {
-                string endpoint = $"{TW_ENDPOINT}/api.php?action=parse&format=json&page={page}&prop={prop}";
+                string endpoint = $"{TW_DOMAIN}/api.php?action=parse&format=json&page={page}&prop={prop}";
                 pageData = Task.Run(async () => await RequestData(endpoint)).Result;
                 File.WriteAllText(cacheFile, pageData);
             }
-            return JsonSerializer.Deserialize<Root>(pageData).Parse;
+            return JsonSerializer.Deserialize<ParseActionRoot>(pageData).Parse;
         }
 
         private static void GetItemIds()
@@ -240,8 +241,6 @@ namespace MonsterConverterTibiaWiki
                 }
             }
         }
-
-
 
         /// <summary>
         /// Strip illegal chars and reserved words from a candidate filename (should not include the directory path)
