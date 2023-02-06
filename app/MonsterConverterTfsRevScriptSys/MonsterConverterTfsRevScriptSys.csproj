@@ -15,7 +15,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Scripts\#example.lua" />
+    <None Remove="Scripts\compat.lua" />
+    <None Remove="Scripts\creature_functions.lua" />
+    <None Remove="Scripts\register_monster_type.lua" />
+    <None Remove="Scripts\register_monster_type_work_left.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\#example.lua" />
+    <EmbeddedResource Include="Scripts\compat.lua" />
+    <EmbeddedResource Include="Scripts\creature_functions.lua" />
+    <EmbeddedResource Include="Scripts\register_monster_type_work_left.lua" />
+    <EmbeddedResource Include="Scripts\register_monster_type.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.4.16" />
+    <PackageReference Include="MoonSharp" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

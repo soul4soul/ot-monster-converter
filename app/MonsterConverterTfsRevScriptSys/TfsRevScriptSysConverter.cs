@@ -1,10 +1,13 @@
 ﻿using MonsterConverterInterface;
 using MonsterConverterInterface.MonsterTypes;
+using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.IO;
+using MoonSharp.Interpreter.Loaders;
+using System.Diagnostics;
 
 namespace MonsterConverterTfsRevScriptSys
 {
@@ -274,9 +277,91 @@ namespace MonsterConverterTfsRevScriptSys
 
         public override ItemIdType ItemIdType { get => ItemIdType.Server; }
 
-        public override bool IsReadSupported { get => false; }
+        public override bool IsReadSupported { get => true; }
 
         public override bool IsWriteSupported { get => true; }
+
+        public override string[] GetFilesForConversion(string directory)
+        {
+            // For first run lua environment needs to be inited
+
+            // interesting c++ file for comparison
+            // https://github.com/otland/forgottenserver/blob/075755051c3c55cf6b95d244417643f618f966cc/src/script.cpp
+
+            // TODO how to do the binding of funs between lua and c# environment?
+
+            //UserData.RegisterAssembly();
+            UserData.RegisterType<MockTfsMonsterType>();
+            UserData.RegisterType<MockTfsGame>();
+            MoonSharp.Interpreter.Script script = new MoonSharp.Interpreter.Script();
+            script.Options.DebugPrint = s => { Debug.WriteLine(s); };
+
+            //script.Globals["Game"] = new Game();
+            script.Globals["Game"] = typeof(MockTfsGame);
+
+            script.DoString(@"
+local mType = Game.createMonsterType(""example"")
+local monster = {}
+monster.description = ""an example""
+monster.experience = 1
+monster.outfit = {
+	lookType = 37
+}
+
+monster.health = 99200
+monster.maxHealth = monster.health
+monster.race = ""fire""
+monster.corpse = 5995
+monster.speed = 280
+monster.maxSummons = 2
+
+monster.changeTarget = {
+	interval = 4 * 1000,
+	chance = 20
+}
+
+monster.flags = {
+	summonable = false,
+	attackable = true,
+	hostile = true,
+	challengeable = true,
+	convinceable = false,
+	ignoreSpawnBlock = false,
+	illusionable = false,
+	canPushItems = true,
+	canPushCreatures = true,
+	targetDistance = 1,
+	staticAttackChance = 70
+}
+
+monster.summons = {
+	{name = ""demon"", chance = 10, interval = 2 * 1000}
+}
+
+
+monster.voices = {
+	interval = 5000,
+	chance = 10,
+	{text = ""I'm an example"", yell = false},
+	{text = ""You shall bow"", yell = false}
+}
+
+monster.loot = {
+	{id = ""gold coin"", chance = 60000, maxCount = 100},
+	{id = 1987, chance = 60000, -- bag
+		child = {
+			{id = ""platinum coin"", chance = 60000, maxCount = 100},
+			{id = ""crystal coin"", chance = 60000, maxCount = 100}
+		}
+	}
+}
+
+mType:register(monster)
+");
+
+
+            return base.GetFilesForConversion(directory);
+        }
 
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
@@ -641,6 +726,7 @@ namespace MonsterConverterTfsRevScriptSys
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
+            // control loading of monster files one at a time
             throw new NotImplementedException();
         }
 
