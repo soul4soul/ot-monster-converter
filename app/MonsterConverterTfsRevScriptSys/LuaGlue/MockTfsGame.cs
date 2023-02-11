@@ -1,4 +1,6 @@
-﻿using MoonSharp.Interpreter;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
+using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,14 @@ namespace MonsterConverterTfsRevScriptSys
     [MoonSharpUserData]
     class MockTfsGame
     {
+        static Queue<Tuple<Monster, ConvertResultEventArgs>> convertedMonsters = new Queue<Tuple<Monster, ConvertResultEventArgs>>(1);
+
+        public static Queue<Tuple<Monster, ConvertResultEventArgs>> ConvertedMonsters
+		{
+			private set { ; }
+			get { return convertedMonsters; }
+		}
+
         public static MockTfsMonsterType createMonsterType(string name)
         {
 			/*

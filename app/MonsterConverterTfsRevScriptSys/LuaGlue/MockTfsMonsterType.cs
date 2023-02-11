@@ -1,10 +1,12 @@
-﻿using MonsterConverterInterface.MonsterTypes;
+﻿using MonsterConverterInterface;
+using MonsterConverterInterface.MonsterTypes;
 using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace MonsterConverterTfsRevScriptSys
@@ -12,17 +14,27 @@ namespace MonsterConverterTfsRevScriptSys
     [MoonSharpUserData]
     internal class MockTfsMonsterType
     {
+        const int MAX_LOOTCHANCE = 100000;
+
         public string Name { get; set; }
 
         public MockTfsMonsterType(string name)
         {
-            name = Name;
+            Name = name;
         }
+
+        // TODO
+        public object onThink { get; set; }
+        public object onAppear { get; set; }
+        public object onDisappear { get; set; }
+        public object onMove { get; set; }
+        public object onSay { get; set; }
 
         public void register(Table t)
         {
             Monster mon = new Monster();
             DynValue dv;
+            ConvertResultEventArgs result = new ConvertResultEventArgs("temp");
 
             dv = t.Get("description");
             if (dv.Type == DataType.String)
@@ -277,9 +289,533 @@ namespace MonsterConverterTfsRevScriptSys
                 }
             }
 
-            // use signal/event to get data out of this function?
+            // Valid Elements are from enum CombatType_t
+            dv = t.Get("elements");
+            if (dv.Type == DataType.Table)
+            {
+                Table elements = dv.Table;
+
+                for (int i = 1; i <= elements.Length; i++)
+                {
+                    dv = elements.Get(i);
+                    if (dv.Type == DataType.Table)
+                    {
+                        Table element = dv.Table;
+                        double percent = 0;
+
+                        dv = element.Get("percent");
+                        if (dv.Type == DataType.Number)
+                        {
+                            percent = dv.Number;
+                        }
+
+                        dv = element.Get("type");
+                        if (dv.Type == DataType.Number)
+                        {
+                            CombatDamage damageType = (CombatDamage)dv.Number;
+                            if (damageType == CombatDamage.Physical)
+                            {
+                                mon.PhysicalDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Energy)
+                            {
+                                mon.EnergyDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Earth)
+                            {
+                                mon.EarthDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Fire)
+                            {
+                                mon.FireDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.LifeDrain)
+                            {
+                                mon.LifeDrainDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.ManaDrain)
+                            {
+                                mon.ManaDrainDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Healing)
+                            {
+                                mon.HealingMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Drown)
+                            {
+                                mon.DrownDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Ice)
+                            {
+                                mon.IceDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Holy)
+                            {
+                                mon.HolyDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                            else if (damageType == CombatDamage.Death)
+                            {
+                                mon.DeathDmgMod = TfsRevScriptSysToGenericElementalPercent(dv.Number);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Valid immunities
+            // For combat LuaScriptInterface::luaMonsterTypeCombatImmunities
+            // For condition LuaScriptInterface::luaMonsterTypeConditionImmunities
+            dv = t.Get("immunities");
+            if (dv.Type == DataType.Table)
+            {
+                Table immunities = dv.Table;
+
+                for (int i = 1; i <= immunities.Length; i++)
+                {
+                    dv = immunities.Get(i);
+                    if (dv.Type == DataType.Table)
+                    {
+                        Table immunity = dv.Table;
+                        Boolean combatImmune = false;
+                        Boolean conditionImmune = false;
+
+                        dv = immunity.Get("combat");
+                        if (dv.Type == DataType.Boolean)
+                        {
+                            combatImmune = dv.Boolean;
+                        }
+
+                        dv = immunity.Get("condition");
+                        if (dv.Type == DataType.Boolean)
+                        {
+                            conditionImmune = dv.Boolean;
+                        }
+
+                        dv = immunity.Get("type");
+                        if (dv.Type == DataType.String)
+                        {
+                            if (dv.String == "physical")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.PhysicalDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "energy")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.EnergyDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "fire")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.FireDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "poison" || dv.String == "earth")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.EarthDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "drown")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.DrownDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "ice")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.IceDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "holy")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.HolyDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "death")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.DeathDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "lifedrain")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.LifeDrainDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "manadrain")
+                            {
+                                if (combatImmune)
+                                {
+                                    mon.ManaDrainDmgMod = 0;
+                                }
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                            else if (dv.String == "outfit")
+                            {
+                                mon.IgnoreOutfit = conditionImmune;
+                            }
+                            else if (dv.String == "drunk")
+                            {
+                                mon.IgnoreDrunk = conditionImmune;
+                            }
+                            else if (dv.String == "invisible" || dv.String == "invisibility")
+                            {
+                                mon.IgnoreInvisible = conditionImmune;
+                            }
+                            else if (dv.String == "bleed")
+                            {
+                                if (conditionImmune)
+                                {
+                                    result.AppendMessage($"Condition immunity {dv.String} not supported");
+                                    result.IncreaseError(ConvertError.Warning);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            dv = t.Get("loot");
+            if (dv.Type == DataType.Table)
+            {
+                Table loot = dv.Table;
+
+                for (int i = 1; i <= loot.Length; i++)
+                {
+                    dv = loot.Get(i);
+                    if (dv.Type == DataType.Table)
+                    {
+                        Table lootItemTable = dv.Table;
+                        LootItem lootItem = ParseLootItem(lootItemTable);
+
+                        dv = lootItemTable.Get("child");
+                        if (dv.Type == DataType.Table)
+                        {
+                            Table child = dv.Table;
+
+                            for (int j = 1; j <= child.Length; j++)
+                            {
+                                dv = child.Get(j);
+                                lootItem.NestedLoot.Add(ParseLootItem(dv.Table));
+                            }
+                        }
+
+                        mon.Items.Add(lootItem);
+                    }
+                }
+            }
+
+            dv = t.Get("attacks");
+            if (dv.Type == DataType.Table)
+            {
+                Table attacks = dv.Table;
+
+                for (int i = 1; i <= attacks.Length; i++)
+                {
+                    dv = attacks.Get(i);
+                    if (dv.Type == DataType.Table)
+                    {
+                        Table attack = dv.Table;
+                        mon.Attacks.Add(ParseSpell(attack, SpellCategory.Offensive));
+                    }
+                }
+            }
+
+            dv = t.Get("defenses");
+            if (dv.Type == DataType.Table)
+            {
+                Table defenses = dv.Table;
+
+                dv = defenses.Get("defense");
+                if (dv.Type == DataType.Number)
+                {
+                    mon.Shielding = (int)dv.Number;
+                }
+
+                dv = defenses.Get("armor");
+                if (dv.Type == DataType.Number)
+                {
+                    mon.TotalArmor = (int)dv.Number;
+                }
+
+                for (int i = 1; i <= defenses.Length; i++)
+                {
+                    dv = defenses.Get(i);
+                    if (dv.Type == DataType.Table)
+                    {
+                        Table defense = dv.Table;
+                        mon.Attacks.Add(ParseSpell(defense, SpellCategory.Defensive));
+                    }
+                }
+            }
+
+            MockTfsGame.ConvertedMonsters.Enqueue(new Tuple<Monster, ConvertResultEventArgs>(mon, result));
 
             return;
+        }
+
+        private Spell ParseSpell(Table t, SpellCategory category)
+        {
+            DynValue dv;
+            Spell spell = new Spell();
+            spell.SpellCategory = category;
+
+            dv = t.Get("chance");
+            if (dv.Type == DataType.Number)
+            {
+                spell.Chance = dv.Number / 100.0;
+            }
+
+            dv = t.Get("interval");
+            if (dv.Type == DataType.Number)
+            {
+                spell.Interval = (int)dv.Number;
+            }
+
+            dv = t.Get("name");
+            if (dv.Type == DataType.String)
+            {
+                spell.DefinitionStyle = SpellDefinition.Raw;
+                spell.Name = dv.String;
+
+                if (spell.Name == "melee")
+                {
+                    dv = t.Get("attack");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.AttackValue = (int)dv.Number;
+                    }
+
+                    dv = t.Get("skill");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Skill = (int)dv.Number;
+                    }
+
+                    dv = t.Get("effect");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.AreaEffect = (Effect)dv.Number;
+                    }
+
+                    // TODO condition table
+                }
+                else
+                {
+                    dv = t.Get("range");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Range = (int)dv.Number;
+                    }
+
+                    dv = t.Get("duration");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Duration = (int)dv.Number;
+                    }
+
+                    // todo confirm no range support
+                    dv = t.Get("speed");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.MinSpeedChange = (int)dv.Number;
+                        spell.MaxSpeedChange = (int)dv.Number;
+                    }
+
+                    dv = t.Get("target");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.OnTarget = dv.Boolean;
+                    }
+
+                    dv = t.Get("length");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Length = (int)dv.Number;
+                    }
+
+                    dv = t.Get("spread");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Spread = (int)dv.Number;
+                    }
+
+                    dv = t.Get("radius");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Radius = (int)dv.Number;
+                    }
+
+                    dv = t.Get("effect");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.AreaEffect = (Effect)dv.Number;
+                    }
+
+                    dv = t.Get("shootEffect");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.ShootEffect = (Missile)dv.Number;
+                    }
+                }
+            }
+
+            dv = t.Get("script");
+            if (dv.Type == DataType.String)
+            {
+                spell.DefinitionStyle = SpellDefinition.TfsLuaScript;
+                spell.Name = dv.String;
+
+                dv = t.Get("minDamage");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.MinDamage = (int)dv.Number;
+                }
+
+                dv = t.Get("maxDamage");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.MaxDamage = (int)dv.Number;
+                }
+
+                dv = t.Get("target");
+                if (dv.Type == DataType.Boolean)
+                {
+                    spell.OnTarget = dv.Boolean;
+                }
+            }
+
+            return spell;
+        }
+
+        private LootItem ParseLootItem(Table t)
+        {
+            DynValue dv;
+            LootItem lootItem = new LootItem();
+
+            dv = t.Get("id");
+            if (dv.Type == DataType.Number)
+            {
+                lootItem.Id = (ushort)dv.Number;
+            }
+            else if (dv.Type == DataType.String)
+            {
+                lootItem.Name = dv.String;
+            }
+
+            dv = t.Get("chance");
+            if (dv.Type == DataType.Number)
+            {
+                lootItem.Chance = (decimal)dv.Number / MAX_LOOTCHANCE;
+            }
+
+            dv = t.Get("maxCount");
+            if (dv.Type == DataType.Number)
+            {
+                lootItem.Count = (int)dv.Number;
+            }
+
+            dv = t.Get("aid");
+            if (dv.Type == DataType.Number)
+            {
+                lootItem.ActionId = (int)dv.Number;
+            }
+
+            dv = t.Get("actionId");
+            if (dv.Type == DataType.Number)
+            {
+                lootItem.ActionId = (int)dv.Number;
+            }
+
+            dv = t.Get("subType");
+            if (dv.Type == DataType.Number)
+            {
+                lootItem.SubType = (int)dv.Number;
+            }
+
+            dv = t.Get("charges");
+            if (dv.Type == DataType.Number)
+            {
+                lootItem.SubType = (int)dv.Number;
+            }
+
+            dv = t.Get("text");
+            if (dv.Type == DataType.String)
+            {
+                lootItem.Text = dv.String;
+            }
+
+            dv = t.Get("description");
+            if (dv.Type == DataType.String)
+            {
+                lootItem.Text = dv.String;
+            }
+
+            return lootItem;
         }
 
         private Voice GetVoice(Table t)
@@ -325,6 +861,10 @@ namespace MonsterConverterTfsRevScriptSys
             return summon;
         }
 
+        private double TfsRevScriptSysToGenericElementalPercent(double percent)
+        {
+            return (1 - (percent / 100.0));
+        }
 
         private Blood TfsRevScriptSysRaceToGenericBlood(DynValue blood)
         {
