@@ -46,6 +46,7 @@ namespace MonsterConverterTfsRevScriptSys
 
         IDictionary<CombatDamage, string> CombatDamageNames = new Dictionary<CombatDamage, string>
         {
+            {CombatDamage.None,         "COMBAT_NONE"},
             {CombatDamage.Physical,     "COMBAT_PHYSICALDAMAGE"},
             {CombatDamage.Energy,       "COMBAT_ENERGYDAMAGE"},
             {CombatDamage.Earth,        "COMBAT_EARTHDAMAGE"},
@@ -295,212 +296,22 @@ namespace MonsterConverterTfsRevScriptSys
 
                 script.Globals["Game"] = typeof(MockTfsGame);
 
-                script.Globals["COMBAT_NONE"] = CombatDamage.None;
-                script.Globals["COMBAT_PHYSICALDAMAGE"] = CombatDamage.Physical;
-                script.Globals["COMBAT_ENERGYDAMAGE"] = CombatDamage.Energy;
-                script.Globals["COMBAT_EARTHDAMAGE"] = CombatDamage.Earth;
-                script.Globals["COMBAT_FIREDAMAGE"] = CombatDamage.Fire;
-                //script.Globals["COMBAT_UNDEFINEDDAMAGE"] = CombatDamage.None;
-                script.Globals["COMBAT_LIFEDRAIN"] = CombatDamage.LifeDrain;
-                script.Globals["COMBAT_MANADRAIN"] = CombatDamage.ManaDrain;
-                script.Globals["COMBAT_HEALING"] = CombatDamage.Healing;
-                script.Globals["COMBAT_DROWNDAMAGE"] = CombatDamage.Drown;
-                script.Globals["COMBAT_ICEDAMAGE"] = CombatDamage.Ice;
-                script.Globals["COMBAT_HOLYDAMAGE"] = CombatDamage.Holy;
-                script.Globals["COMBAT_DEATHDAMAGE"] = CombatDamage.Death;
-
-                script.Globals["CONST_ME_NONE"] = Effect.None;
-                script.Globals["CONST_ME_DRAWBLOOD"] = Effect.DrawBlood;
-                script.Globals["CONST_ME_LOSEENERGY"] = Effect.LoseEnergy;
-                script.Globals["CONST_ME_POFF"] = Effect.Poff;
-                script.Globals["CONST_ME_BLOCKHIT"] = Effect.BlockHit;
-                script.Globals["CONST_ME_EXPLOSIONAREA"] = Effect.ExplosionArea;
-                script.Globals["CONST_ME_EXPLOSIONHIT"] = Effect.ExplosionHit;
-                script.Globals["CONST_ME_FIREAREA"] = Effect.FireArea;
-                script.Globals["CONST_ME_YELLOW_RINGS"] = Effect.YellowRings;
-                script.Globals["CONST_ME_GREEN_RINGS"] = Effect.GreenRings;
-                script.Globals["CONST_ME_HITAREA"] = Effect.HitArea;
-                script.Globals["CONST_ME_TELEPORT"] = Effect.Teleport;
-                script.Globals["CONST_ME_ENERGYHIT"] = Effect.EnergyHit;
-                script.Globals["CONST_ME_MAGIC_BLUE"] = Effect.MagicBlue;
-                script.Globals["CONST_ME_MAGIC_RED"] = Effect.MagicRed;
-                script.Globals["CONST_ME_MAGIC_GREEN"] = Effect.MagicGreen;
-                script.Globals["CONST_ME_HITBYFIRE"] = Effect.HitByFire;
-                script.Globals["CONST_ME_HITBYPOISON"] = Effect.HitByPoison;
-                script.Globals["CONST_ME_MORTAREA"] = Effect.MortArea;
-                script.Globals["CONST_ME_SOUND_GREEN"] = Effect.SoundGreen;
-                script.Globals["CONST_ME_SOUND_RED"] = Effect.SoundRed;
-                script.Globals["CONST_ME_POISONAREA"] = Effect.PoisonArea;
-                script.Globals["CONST_ME_SOUND_YELLOW"] = Effect.SoundYellow;
-                script.Globals["CONST_ME_SOUND_PURPLE"] = Effect.SoundPurple;
-                script.Globals["CONST_ME_SOUND_BLUE"] = Effect.SoundBlue;
-                script.Globals["CONST_ME_SOUND_WHITE"] = Effect.SoundWhite;
-                script.Globals["CONST_ME_BUBBLES"] = Effect.Bubbles;
-                script.Globals["CONST_ME_CRAPS"] = Effect.Craps;
-                script.Globals["CONST_ME_GIFT_WRAPS"] = Effect.GiftWraps;
-                script.Globals["CONST_ME_FIREWORK_YELLOW"] = Effect.FireworkYellow;
-                script.Globals["CONST_ME_FIREWORK_RED"] = Effect.FireworkRed;
-                script.Globals["CONST_ME_FIREWORK_BLUE"] = Effect.FireworkBlue;
-                script.Globals["CONST_ME_STUN"] = Effect.Stun;
-                script.Globals["CONST_ME_SLEEP"] = Effect.Sleep;
-                script.Globals["CONST_ME_WATERCREATURE"] = Effect.WaterCreature;
-                script.Globals["CONST_ME_GROUNDSHAKER"] = Effect.GroundShaker;
-                script.Globals["CONST_ME_HEARTS"] = Effect.Hearts;
-                script.Globals["CONST_ME_FIREATTACK"] = Effect.FireAttack;
-                script.Globals["CONST_ME_ENERGYAREA"] = Effect.EnergyArea;
-                script.Globals["CONST_ME_SMALLCLOUDS"] = Effect.SmallClouds;
-                script.Globals["CONST_ME_HOLYDAMAGE"] = Effect.HolyDamage;
-                script.Globals["CONST_ME_BIGCLOUDS"] = Effect.BigClouds;
-                script.Globals["CONST_ME_ICEAREA"] = Effect.IceArea;
-                script.Globals["CONST_ME_ICETORNADO"] = Effect.IceTornado;
-                script.Globals["CONST_ME_ICEATTACK"] = Effect.IceAttack;
-                script.Globals["CONST_ME_STONES"] = Effect.Stones;
-                script.Globals["CONST_ME_SMALLPLANTS"] = Effect.SmallPlants;
-                script.Globals["CONST_ME_CARNIPHILA"] = Effect.Carniphila;
-                script.Globals["CONST_ME_PURPLEENERGY"] = Effect.PurpleEnergy;
-                script.Globals["CONST_ME_YELLOWENERGY"] = Effect.YellowRings;
-                script.Globals["CONST_ME_HOLYAREA"] = Effect.HolyArea;
-                script.Globals["CONST_ME_BIGPLANTS"] = Effect.BigPlants;
-                script.Globals["CONST_ME_CAKE"] = Effect.Cake;
-                script.Globals["CONST_ME_GIANTICE"] = Effect.GiantIce;
-                script.Globals["CONST_ME_WATERSPLASH"] = Effect.WaterSplash;
-                script.Globals["CONST_ME_PLANTATTACK"] = Effect.PlantAttack;
-                script.Globals["CONST_ME_TUTORIALARROW"] = Effect.TutorialArrow;
-                script.Globals["CONST_ME_TUTORIALSQUARE"] = Effect.TutorialSquare;
-                script.Globals["CONST_ME_MIRRORHORIZONTAL"] = Effect.MirrorHorizontal;
-                script.Globals["CONST_ME_MIRRORVERTICAL"] = Effect.MirrorVertical;
-                script.Globals["CONST_ME_SKULLHORIZONTAL"] = Effect.SkullHorizontal;
-                script.Globals["CONST_ME_SKULLVERTICAL"] = Effect.SkullVertical;
-                script.Globals["CONST_ME_ASSASSIN"] = Effect.Assassin;
-                script.Globals["CONST_ME_STEPSHORIZONTAL"] = Effect.StepsHorizontal;
-                script.Globals["CONST_ME_BLOODYSTEPS"] = Effect.BloodySteps;
-                script.Globals["CONST_ME_STEPSVERTICAL"] = Effect.StepsVertical;
-                script.Globals["CONST_ME_YALAHARIGHOST"] = Effect.YalahariGhost;
-                script.Globals["CONST_ME_BATS"] = Effect.Bats;
-                script.Globals["CONST_ME_SMOKE"] = Effect.Smoke;
-                script.Globals["CONST_ME_INSECTS"] = Effect.Insects;
-                script.Globals["CONST_ME_DRAGONHEAD"] = Effect.Dragonhead;
-                script.Globals["CONST_ME_ORCSHAMAN"] = Effect.OrcShaman;
-                script.Globals["CONST_ME_ORCSHAMAN_FIRE"] = Effect.OrcShamanFire;
-                script.Globals["CONST_ME_THUNDER"] = Effect.Thunder;
-                script.Globals["CONST_ME_FERUMBRAS"] = Effect.Ferumbras;
-                script.Globals["CONST_ME_CONFETTI_HORIZONTAL"] = Effect.ConfettiHorizontal;
-                script.Globals["CONST_ME_CONFETTI_VERTICAL"] = Effect.ConfettiVertical;
-                script.Globals["CONST_ME_BLACKSMOKE"] = Effect.BlackSmoke;
-                script.Globals["CONST_ME_REDSMOKE"] = Effect.RedSmoke;
-                script.Globals["CONST_ME_YELLOWSMOKE"] = Effect.YellowSmoke;
-                script.Globals["CONST_ME_GREENSMOKE"] = Effect.GreenSmoke;
-                script.Globals["CONST_ME_PURPLESMOKE"] = Effect.PurpleSmoke;
-                script.Globals["CONST_ME_EARLY_THUNDER"] = Effect.EarlyThunder;
-                script.Globals["CONST_ME_RAGIAZ_BONECAPSULE"] = Effect.RagiazBoneCapsule;
-                script.Globals["CONST_ME_CRITICAL_DAMAGE"] = Effect.CriticalDamage;
-                script.Globals["CONST_ME_PLUNGING_FISH"] = Effect.PlungingFish;
-                script.Globals["CONST_ME_BLUECHAIN"] = Effect.BlueChain;
-                script.Globals["CONST_ME_ORANGECHAIN"] = Effect.OrangeChain;
-                script.Globals["CONST_ME_GREENCHAIN"] = Effect.GreenChain;
-                script.Globals["CONST_ME_PURPLECHAIN"] = Effect.PurpleChain;
-                script.Globals["CONST_ME_GREYCHAIN"] = Effect.GreyChain;
-                script.Globals["CONST_ME_YELLOWCHAIN"] = Effect.YellowChain;
-                script.Globals["CONST_ME_YELLOWSPARKLES"] = Effect.YellowSparkles;
-                script.Globals["CONST_ME_FAEEXPLOSION"] = Effect.FaeExplosion;
-                script.Globals["CONST_ME_FAECOMING"] = Effect.FaeComing;
-                script.Globals["CONST_ME_FAEGOING"] = Effect.FaeGoing;
-                script.Globals["CONST_ME_BIGCLOUDSSINGLESPACE"] = Effect.BigCloudsSingleSpace;
-                script.Globals["CONST_ME_STONESSINGLESPACE"] = Effect.StonesSingleSpace;
-                script.Globals["CONST_ME_BLUEGHOST"] = Effect.BlueGhost;
-                script.Globals["CONST_ME_POINTOFINTEREST"] = Effect.PointOfInterest;
-                script.Globals["CONST_ME_MAPEFFECT"] = Effect.MapEffect;
-                script.Globals["CONST_ME_PINKSPARK"] = Effect.PointOfInterestFound;
-                script.Globals["CONST_ME_FIREWORK_GREEN"] = Effect.GreenFirework;
-                script.Globals["CONST_ME_FIREWORK_ORANGE"] = Effect.OrangeFirework;
-                script.Globals["CONST_ME_FIREWORK_PURPLE"] = Effect.PurpleFirework;
-                script.Globals["CONST_ME_FIREWORK_TURQUOISE"] = Effect.TurquoiseFirework;
-                script.Globals["CONST_ME_THECUBE"] = Effect.TheCube;
-                script.Globals["CONST_ME_DRAWINK"] = Effect.BlackBlood;
-                script.Globals["CONST_ME_PRISMATICSPARKLES"] = Effect.PrismaticSparkles;
-                script.Globals["CONST_ME_THAIAN"] = Effect.Thaian;
-                script.Globals["CONST_ME_THAIANGHOST"] = Effect.ThaianGhost;
-                script.Globals["CONST_ME_GHOSTSMOKE"] = Effect.GhostSmoke;
-                script.Globals["CONST_ME_FLOATINGBLOCK"] = Effect.FloatingBlock;
-                script.Globals["CONST_ME_BLOCK"] = Effect.Block;
-                script.Globals["CONST_ME_ROOTING"] = Effect.Rooting;
-                script.Globals["CONST_ME_GHOSTLYSCRATCH"] = Effect.GhostlyScratch;
-                script.Globals["CONST_ME_GHOSTLYBITE"] = Effect.GhostlyBite;
-                script.Globals["CONST_ME_BIGSCRATCHING"] = Effect.BigScratching;
-                script.Globals["CONST_ME_SLASH"] = Effect.Slash;
-                script.Globals["CONST_ME_BITE"] = Effect.Bite;
-                script.Globals["CONST_ME_CHIVALRIOUSCHALLENGE"] = Effect.Challenge;
-                script.Globals["CONST_ME_DIVINEDAZZLE"] = Effect.DivineDazzle;
-                script.Globals["CONST_ME_ELECTRICALSPARK"] = Effect.ElectricalSpark;
-                script.Globals["CONST_ME_PURPLETELEPORT"] = Effect.PurpleTeleport;
-                script.Globals["CONST_ME_REDTELEPORT"] = Effect.RedTeleport;
-                script.Globals["CONST_ME_ORANGETELEPORT"] = Effect.OrangeTeleport;
-                script.Globals["CONST_ME_GREYTELEPORT"] = Effect.GreyTeleport;
-                script.Globals["CONST_ME_LIGHTBLUETELEPORT"] = Effect.LightBlueTeleport;
-                script.Globals["CONST_ME_FATAL"] = Effect.Onslaught;
-                script.Globals["CONST_ME_DODGE"] = Effect.Ruse;
-                script.Globals["CONST_ME_HOURGLASS"] = Effect.Momentum;
-                script.Globals["CONST_ME_FERUMBRAS_1"] = Effect.FerumbrasVessel;
-                script.Globals["CONST_ME_GAZHARAGOTH"] = Effect.Gazharagoth;
-                script.Globals["CONST_ME_MAD_MAGE"] = Effect.MadMage;
-                script.Globals["CONST_ME_HORESTIS"] = Effect.Horestis;
-                script.Globals["CONST_ME_DEVOVORGA"] = Effect.Devovorga;
-                script.Globals["CONST_ME_FERUMBRAS_2"] = Effect.Ferumbras2;
-
-                script.Globals["CONST_ANI_SPEAR"] = Missile.Spear;
-                script.Globals["CONST_ANI_BOLT"] = Missile.Bolt;
-                script.Globals["CONST_ANI_ARROW"] = Missile.Arrow;
-                script.Globals["CONST_ANI_FIRE"] = Missile.Fire;
-                script.Globals["CONST_ANI_ENERGY"] = Missile.Energy;
-                script.Globals["CONST_ANI_POISONARROW"] = Missile.PoisonArrow;
-                script.Globals["CONST_ANI_BURSTARROW"] = Missile.BurstArrow;
-                script.Globals["CONST_ANI_THROWINGSTAR"] = Missile.ThrowingStar;
-                script.Globals["CONST_ANI_THROWINGKNIFE"] = Missile.ThrowingKnife;
-                script.Globals["CONST_ANI_SMALLSTONE"] = Missile.SmallStone;
-                script.Globals["CONST_ANI_DEATH"] = Missile.Death;
-                script.Globals["CONST_ANI_LARGEROCK"] = Missile.LargeRock;
-                script.Globals["CONST_ANI_SNOWBALL"] = Missile.Snowball;
-                script.Globals["CONST_ANI_POWERBOLT"] = Missile.PowerBolt;
-                script.Globals["CONST_ANI_POISON"] = Missile.Poison;
-                script.Globals["CONST_ANI_INFERNALBOLT"] = Missile.InfernalBolt;
-                script.Globals["CONST_ANI_HUNTINGSPEAR"] = Missile.HuntingSpear;
-                script.Globals["CONST_ANI_ENCHANTEDSPEAR"] = Missile.EnchantedSpear;
-                script.Globals["CONST_ANI_REDSTAR"] = Missile.RedStar;
-                script.Globals["CONST_ANI_GREENSTAR"] = Missile.GreenStar;
-                script.Globals["CONST_ANI_ROYALSPEAR"] = Missile.RoyalSpear;
-                script.Globals["CONST_ANI_SNIPERARROW"] = Missile.SniperArrow;
-                script.Globals["CONST_ANI_ONYXARROW"] = Missile.OnyxArrow;
-                script.Globals["CONST_ANI_PIERCINGBOLT"] = Missile.PiercingBolt;
-                script.Globals["CONST_ANI_WHIRLWINDSWORD"] = Missile.WhirlwindSword;
-                script.Globals["CONST_ANI_WHIRLWINDAXE"] = Missile.WhirlwindAxe;
-                script.Globals["CONST_ANI_WHIRLWINDCLUB"] = Missile.WhirlwindClub;
-                script.Globals["CONST_ANI_ETHEREALSPEAR"] = Missile.EtherealSpear;
-                script.Globals["CONST_ANI_ICE"] = Missile.Ice;
-                script.Globals["CONST_ANI_EARTH"] = Missile.Earth;
-                script.Globals["CONST_ANI_HOLY"] = Missile.Holy;
-                script.Globals["CONST_ANI_SUDDENDEATH"] = Missile.SuddenDeath;
-                script.Globals["CONST_ANI_FLASHARROW"] = Missile.FlashArrow;
-                script.Globals["CONST_ANI_FLAMMINGARROW"] = Missile.FlammingArrow;
-                script.Globals["CONST_ANI_SHIVERARROW"] = Missile.ShiverArrow;
-                script.Globals["CONST_ANI_ENERGYBALL"] = Missile.EnergyBall;
-                script.Globals["CONST_ANI_SMALLICE"] = Missile.SmallIce;
-                script.Globals["CONST_ANI_SMALLHOLY"] = Missile.SmallHoly;
-                script.Globals["CONST_ANI_SMALLEARTH"] = Missile.SmallEarth;
-                script.Globals["CONST_ANI_EARTHARROW"] = Missile.EarthArrow;
-                script.Globals["CONST_ANI_EXPLOSION"] = Missile.Explosion;
-                script.Globals["CONST_ANI_CAKE"] = Missile.Cake;
-                script.Globals["CONST_ANI_TARSALARROW"] = Missile.TarsalArrow;
-                script.Globals["CONST_ANI_VORTEXBOLT"] = Missile.VortexBolt;
-                script.Globals["CONST_ANI_PRISMATICBOLT"] = Missile.PrismaticBolt;
-                script.Globals["CONST_ANI_CRYSTALLINEARROW"] = Missile.CrystallineArrow;
-                script.Globals["CONST_ANI_DRILLBOLT"] = Missile.DrillBolt;
-                script.Globals["CONST_ANI_ENVENOMEDARROW"] = Missile.EnvenomedArrow;
-                script.Globals["CONST_ANI_GLOOTHSPEAR"] = Missile.GloothSpear;
-                script.Globals["CONST_ANI_SIMPLEARROW"] = Missile.SimpleArrow;
-                script.Globals["CONST_ANI_LEAFSTAR"] = Missile.LeafStar;
-                script.Globals["CONST_ANI_DIAMONDARROW"] = Missile.DiamondArrow;
-                script.Globals["CONST_ANI_SPECTRALBOLT"] = Missile.SpectralBolt;
-                script.Globals["CONST_ANI_ROYALSTAR"] = Missile.RoyalStar;
+                foreach (var kv in CombatDamageNames)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
+                foreach (var kv in magicEffectNames)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
+                foreach (var kv in shootTypeNames)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
+                foreach (var kv in ConditionToTfsConstant)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
             }
 
             return base.GetFilesForConversion(directory);
