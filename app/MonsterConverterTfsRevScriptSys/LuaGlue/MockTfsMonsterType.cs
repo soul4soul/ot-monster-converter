@@ -23,7 +23,7 @@ namespace MonsterConverterTfsRevScriptSys
             Name = name;
         }
 
-        // TODO
+        // TODO Events?
         public object onThink { get; set; }
         public object onAppear { get; set; }
         public object onDisappear { get; set; }
@@ -35,6 +35,12 @@ namespace MonsterConverterTfsRevScriptSys
             Monster mon = new Monster();
             DynValue dv;
             ConvertResultEventArgs result = new ConvertResultEventArgs("temp");
+
+            dv = t.Get("name");
+            if (dv.Type == DataType.String)
+            {
+                mon.Name = dv.String;
+            }
 
             dv = t.Get("description");
             if (dv.Type == DataType.String)
@@ -48,18 +54,17 @@ namespace MonsterConverterTfsRevScriptSys
                 mon.Experience = (int)dv.Number;
             }
 
-            /*
             dv = t.Get("maxHealth");
             if (dv.Type == DataType.Number)
             {
                 mon.Health = (int)dv.Number;
             }
-            */
 
             dv = t.Get("health");
             if (dv.Type == DataType.Number)
             {
-                mon.Health = (int)dv.Number;
+                result.AppendMessage("Health field not supported defaulting to max health");
+                result.IncreaseError(ConvertError.Warning);
             }
 
             dv = t.Get("runHealth");
@@ -131,6 +136,18 @@ namespace MonsterConverterTfsRevScriptSys
                     mon.HideHealth = dv.Boolean;
                 }
 
+                dv = flags.Get("boss");
+                if (dv.Type == DataType.Boolean)
+                {
+                    mon.IsBoss = dv.Boolean;
+                }
+
+                dv = flags.Get("challengeable");
+                if (dv.Type == DataType.Boolean)
+                {
+                    // not supported
+                }
+
                 dv = flags.Get("convinceable");
                 if (dv.Type == DataType.Boolean)
                 {
@@ -141,6 +158,12 @@ namespace MonsterConverterTfsRevScriptSys
                 if (dv.Type == DataType.Boolean)
                 {
                     mon.SummonCost = summonCost;
+                }
+
+                dv = flags.Get("ignoreSpawnBlock");
+                if (dv.Type == DataType.Boolean)
+                {
+                    mon.IgnoreSpawnBlock = dv.Boolean;
                 }
 
                 dv = flags.Get("illusionable");
@@ -184,6 +207,31 @@ namespace MonsterConverterTfsRevScriptSys
                 {
                     mon.StaticAttackChance = (int)dv.Number;
                 }
+
+                dv = flags.Get("canWalkOnEnergy");
+                if (dv.Type == DataType.Boolean)
+                {
+                    mon.AvoidEnergy = !dv.Boolean;
+                }
+
+                dv = flags.Get("canWalkOnFire");
+                if (dv.Type == DataType.Boolean)
+                {
+                    mon.AvoidFire = !dv.Boolean;
+                }
+
+                dv = flags.Get("canWalkOnPoison");
+                if (dv.Type == DataType.Boolean)
+                {
+                    mon.AvoidPoison = dv.Boolean;
+                }
+            }
+
+            dv = t.Get("skull");
+            if (dv.Type == DataType.Number)
+            {
+                result.AppendMessage("Skull field not supported");
+                result.IncreaseError(ConvertError.Warning);
             }
 
             dv = t.Get("corpse");
@@ -613,6 +661,32 @@ namespace MonsterConverterTfsRevScriptSys
                 }
             }
 
+            if (onAppear != null)
+            {
+                result.AppendMessage("OnAppear script can't be converted");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            if (onDisappear != null)
+            {
+                result.AppendMessage("onDisappear script can't be converted");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            if (onMove != null)
+            {
+                result.AppendMessage("onMove script can't be converted");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            if (onThink != null)
+            {
+                result.AppendMessage("onThink script can't be converted");
+                result.IncreaseError(ConvertError.Warning);
+            }
+            if (onSay != null)
+            {
+                result.AppendMessage("onSay script can't be converted");
+                result.IncreaseError(ConvertError.Warning);
+            }
+
             MockTfsGame.ConvertedMonsters.Enqueue(new Tuple<Monster, ConvertResultEventArgs>(mon, result));
 
             return;
@@ -634,6 +708,18 @@ namespace MonsterConverterTfsRevScriptSys
             if (dv.Type == DataType.Number)
             {
                 spell.Interval = (int)dv.Number;
+            }
+
+            dv = t.Get("minDamage");
+            if (dv.Type == DataType.Number)
+            {
+                spell.MinDamage = (int)dv.Number;
+            }
+
+            dv = t.Get("maxDamage");
+            if (dv.Type == DataType.Number)
+            {
+                spell.MaxDamage = (int)dv.Number;
             }
 
             dv = t.Get("name");
@@ -661,11 +747,15 @@ namespace MonsterConverterTfsRevScriptSys
                     {
                         spell.AreaEffect = (Effect)dv.Number;
                     }
-
-                    // TODO condition table
                 }
                 else
                 {
+                    dv = t.Get("type");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.DamageElement = (CombatDamage)dv.Number;
+                    }
+
                     dv = t.Get("range");
                     if (dv.Type == DataType.Number)
                     {
@@ -678,16 +768,30 @@ namespace MonsterConverterTfsRevScriptSys
                         spell.Duration = (int)dv.Number;
                     }
 
-                    // todo confirm no range support
                     dv = t.Get("speed");
-                    if (dv.Type == DataType.Number)
+                    if (dv.Type == DataType.Table)
+                    {
+                        Table speed = dv.Table;
+
+                        dv = speed.Get("max");
+                        if (dv.Type == DataType.Number)
+                        {
+                            spell.MaxSpeedChange = (int)dv.Number;
+                        }
+                        dv = speed.Get("min");
+                        if (dv.Type == DataType.Number)
+                        {
+                            spell.MinSpeedChange = (int)dv.Number;
+                        }
+                    }
+                    else if (dv.Type == DataType.Number)
                     {
                         spell.MinSpeedChange = (int)dv.Number;
                         spell.MaxSpeedChange = (int)dv.Number;
                     }
 
                     dv = t.Get("target");
-                    if (dv.Type == DataType.Number)
+                    if (dv.Type == DataType.Boolean)
                     {
                         spell.OnTarget = dv.Boolean;
                     }
@@ -710,6 +814,12 @@ namespace MonsterConverterTfsRevScriptSys
                         spell.Radius = (int)dv.Number;
                     }
 
+                    dv = t.Get("ring");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Ring = (int)dv.Number;
+                    }
+
                     dv = t.Get("effect");
                     if (dv.Type == DataType.Number)
                     {
@@ -721,6 +831,74 @@ namespace MonsterConverterTfsRevScriptSys
                     {
                         spell.ShootEffect = (Missile)dv.Number;
                     }
+
+                    dv = t.Get("outfit");
+                    if (dv.Type == DataType.Table)
+                    {
+                        // todo error not supported
+                    }
+                    else if (dv.Type == DataType.Number)
+                    {
+                        spell.ItemId = (ushort)dv.Number;
+                    }
+                    else if (dv.Type == DataType.String)
+                    {
+                        spell.MonsterName = dv.String;
+                    }
+
+                    dv = t.Get("drunk");
+                    if (dv.Type != DataType.Nil)
+                    {
+                        spell.Condition = ConditionType.Drunk;
+                    }
+
+                    dv = t.Get("drunkenness");
+                    if (dv.Type == DataType.Number)
+                    {
+                        spell.Drunkenness = dv.Number / 100.0;
+                    }
+                }
+            }
+
+            dv = t.Get("condition");
+            if (dv.Type == DataType.Table)
+            {
+                Table condition = dv.Table;
+
+                dv = condition.Get("type");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.Condition = (ConditionType)dv.Number;
+                }
+
+                dv = condition.Get("startDamage");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.StartDamage = (int)dv.Number;
+                }
+
+                dv = condition.Get("minDamage");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.MinDamage = (int)dv.Number;
+                }
+
+                dv = condition.Get("maxDamage");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.MaxDamage = (int)dv.Number;
+                }
+
+                dv = condition.Get("duration");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.Duration = (int)dv.Number;
+                }
+
+                dv = condition.Get("interval");
+                if (dv.Type == DataType.Number)
+                {
+                    spell.Interval = (int)dv.Number;
                 }
             }
 
@@ -730,22 +908,16 @@ namespace MonsterConverterTfsRevScriptSys
                 spell.DefinitionStyle = SpellDefinition.TfsLuaScript;
                 spell.Name = dv.String;
 
-                dv = t.Get("minDamage");
-                if (dv.Type == DataType.Number)
-                {
-                    spell.MinDamage = (int)dv.Number;
-                }
-
-                dv = t.Get("maxDamage");
-                if (dv.Type == DataType.Number)
-                {
-                    spell.MaxDamage = (int)dv.Number;
-                }
-
                 dv = t.Get("target");
                 if (dv.Type == DataType.Boolean)
                 {
                     spell.OnTarget = dv.Boolean;
+                }
+
+                dv = t.Get("direction");
+                if (dv.Type == DataType.Boolean)
+                {
+                    spell.IsDirectional = dv.Boolean;
                 }
             }
 
@@ -856,6 +1028,11 @@ namespace MonsterConverterTfsRevScriptSys
             if (dv.Type == DataType.Number)
             {
                 summon.Chance = dv.Number;
+            }
+            dv = t.Get("max");
+            if (dv.Type == DataType.Number)
+            {
+                summon.Max = (int)dv.Number;
             }
 
             return summon;

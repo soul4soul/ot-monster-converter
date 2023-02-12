@@ -883,6 +883,7 @@ namespace MonsterConverterTfsRevScriptSys
                 else
                 {
                     monster = result.Item1;
+                    result.Item2.File = filename;
                     return result.Item2;
                 }
             }
