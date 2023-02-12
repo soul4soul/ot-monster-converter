@@ -10,11 +10,11 @@ namespace MonsterConverterTfsRevScriptSys
     {
         const int MAX_LOOTCHANCE = 100000;
 
-        public string Name { get; set; }
+        private Monster mon = new Monster();
 
         public MockTfsMonsterType(string name)
         {
-            Name = name;
+            mon.RegisteredName = name;
         }
 
         public object onThink { get; set; }
@@ -25,7 +25,6 @@ namespace MonsterConverterTfsRevScriptSys
 
         public void register(Table t)
         {
-            Monster mon = new Monster();
             DynValue dv;
             ConvertResultEventArgs result = new ConvertResultEventArgs("temp");
 
@@ -33,6 +32,10 @@ namespace MonsterConverterTfsRevScriptSys
             if (dv.Type == DataType.String)
             {
                 mon.Name = dv.String;
+            }
+            else
+            {
+                mon.Name = mon.RegisteredName;
             }
 
             dv = t.Get("description");

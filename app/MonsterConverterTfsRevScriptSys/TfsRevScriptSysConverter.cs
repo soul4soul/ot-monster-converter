@@ -693,6 +693,7 @@ namespace MonsterConverterTfsRevScriptSys
                 }
                 else
                 {
+                    result.Item1.FileName = Path.GetFileNameWithoutExtension(filename);
                     monster = result.Item1;
                     result.Item2.File = filename;
                     return result.Item2;
