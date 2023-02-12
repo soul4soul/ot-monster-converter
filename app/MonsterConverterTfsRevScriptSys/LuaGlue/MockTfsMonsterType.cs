@@ -2,12 +2,6 @@
 using MonsterConverterInterface.MonsterTypes;
 using MoonSharp.Interpreter;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace MonsterConverterTfsRevScriptSys
 {
@@ -23,7 +17,6 @@ namespace MonsterConverterTfsRevScriptSys
             Name = name;
         }
 
-        // TODO Events?
         public object onThink { get; set; }
         public object onAppear { get; set; }
         public object onDisappear { get; set; }
@@ -628,7 +621,7 @@ namespace MonsterConverterTfsRevScriptSys
                     if (dv.Type == DataType.Table)
                     {
                         Table attack = dv.Table;
-                        mon.Attacks.Add(ParseSpell(attack, SpellCategory.Offensive));
+                        mon.Attacks.Add(ParseSpell(attack, SpellCategory.Offensive, result));
                     }
                 }
             }
@@ -656,11 +649,17 @@ namespace MonsterConverterTfsRevScriptSys
                     if (dv.Type == DataType.Table)
                     {
                         Table defense = dv.Table;
-                        mon.Attacks.Add(ParseSpell(defense, SpellCategory.Defensive));
+                        mon.Attacks.Add(ParseSpell(defense, SpellCategory.Defensive, result));
                     }
                 }
             }
 
+            dv = t.Get("events");
+            if (dv.Type == DataType.Table)
+            {
+                result.AppendMessage("Events script can't be converted");
+                result.IncreaseError(ConvertError.Warning);
+            }
             if (onAppear != null)
             {
                 result.AppendMessage("OnAppear script can't be converted");
@@ -692,7 +691,7 @@ namespace MonsterConverterTfsRevScriptSys
             return;
         }
 
-        private Spell ParseSpell(Table t, SpellCategory category)
+        private Spell ParseSpell(Table t, SpellCategory category, ConvertResultEventArgs result)
         {
             DynValue dv;
             Spell spell = new Spell();
@@ -835,7 +834,8 @@ namespace MonsterConverterTfsRevScriptSys
                     dv = t.Get("outfit");
                     if (dv.Type == DataType.Table)
                     {
-                        // todo error not supported
+                        result.AppendMessage("Can't convert full outfits");
+                        result.IncreaseError(ConvertError.Warning);
                     }
                     else if (dv.Type == DataType.Number)
                     {
