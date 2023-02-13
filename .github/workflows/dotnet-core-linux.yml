@@ -28,10 +28,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.SolutionPath }}
-
     - name: Build
-      run: dotnet build ${{ env.SolutionPath }} --no-restore --configuration=${{ env.Configuration }}
+      run: dotnet build ${{ env.SolutionPath }} --configuration=${{ env.Configuration }}
       env:
         Configuration: ${{ matrix.configuration }}
