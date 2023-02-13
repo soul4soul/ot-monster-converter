@@ -1,16 +1,21 @@
 ﻿using MonsterConverterInterface;
 using MonsterConverterInterface.MonsterTypes;
+using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.IO;
+using MoonSharp.Interpreter.Loaders;
+using System.Diagnostics;
 
 namespace MonsterConverterTfsRevScriptSys
 {
     [Export(typeof(IMonsterConverter))]
     public class TfsRevScriptSysConverter : MonsterConverter
     {
+        MoonSharp.Interpreter.Script script = null;
+
         const uint MAX_LOOTCHANCE = 100000;
 
         IDictionary<ConditionType, string> ConditionToTfsConstant = new Dictionary<ConditionType, string>
@@ -19,7 +24,7 @@ namespace MonsterConverterTfsRevScriptSys
             {ConditionType.Fire,        "CONDITION_FIRE"},
             {ConditionType.Energy,      "CONDITION_ENERGY"},
             {ConditionType.Bleeding,    "CONDITION_BLEEDING"},
-            {ConditionType.Paralyze,    "CONDITION_POISON"},
+            {ConditionType.Paralyze,    "CONDITION_PARALYZE"},
             {ConditionType.Drown,       "CONDITION_DROWN"},
             {ConditionType.Freezing,    "CONDITION_FREEZING"},
             {ConditionType.Dazzled,     "CONDITION_DAZZLED"},
@@ -41,6 +46,7 @@ namespace MonsterConverterTfsRevScriptSys
 
         IDictionary<CombatDamage, string> CombatDamageNames = new Dictionary<CombatDamage, string>
         {
+            {CombatDamage.None,         "COMBAT_NONE"},
             {CombatDamage.Physical,     "COMBAT_PHYSICALDAMAGE"},
             {CombatDamage.Energy,       "COMBAT_ENERGYDAMAGE"},
             {CombatDamage.Earth,        "COMBAT_EARTHDAMAGE"},
@@ -274,9 +280,42 @@ namespace MonsterConverterTfsRevScriptSys
 
         public override ItemIdType ItemIdType { get => ItemIdType.Server; }
 
-        public override bool IsReadSupported { get => false; }
+        public override bool IsReadSupported { get => true; }
 
         public override bool IsWriteSupported { get => true; }
+
+        public override string[] GetFilesForConversion(string directory)
+        {
+             // Init lua environment
+            if (script == null)
+            {
+                UserData.RegisterType<MockTfsMonsterType>();
+                UserData.RegisterType<MockTfsGame>();
+                script = new MoonSharp.Interpreter.Script();
+                script.Options.DebugPrint = s => { Debug.WriteLine(s); };
+
+                script.Globals["Game"] = typeof(MockTfsGame);
+
+                foreach (var kv in CombatDamageNames)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
+                foreach (var kv in magicEffectNames)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
+                foreach (var kv in shootTypeNames)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
+                foreach (var kv in ConditionToTfsConstant)
+                {
+                    script.Globals[kv.Value] = kv.Key;
+                }
+            }
+
+            return base.GetFilesForConversion(directory);
+        }
 
         public override ConvertResultEventArgs WriteMonster(string directory, ref Monster monster)
         {
@@ -641,7 +680,30 @@ namespace MonsterConverterTfsRevScriptSys
 
         public override ConvertResultEventArgs ReadMonster(string filename, out Monster monster)
         {
-            throw new NotImplementedException();
+            MockTfsGame.ConvertedMonsters.Clear();
+
+            script.DoFile(filename);
+
+            if (MockTfsGame.ConvertedMonsters.TryDequeue(out var result))
+            {
+                if (MockTfsGame.ConvertedMonsters.Count >= 1)
+                {
+                    monster = null;
+                    return new ConvertResultEventArgs(filename, ConvertError.Error, "Unable to convert multiple monsters from the same file");
+                }
+                else
+                {
+                    result.Item1.FileName = Path.GetFileNameWithoutExtension(filename);
+                    monster = result.Item1;
+                    result.Item2.File = filename;
+                    return result.Item2;
+                }
+            }
+            else
+            {
+                monster = null;
+                return new ConvertResultEventArgs(filename, ConvertError.Error, "No monster data found within file");
+            }
         }
 
         double GenericToTfsRevScriptSysElemementPercent(double percent)
