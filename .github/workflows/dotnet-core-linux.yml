@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SolutionPath: app/otmc/otmc.csproj
+      SolutionPath: app/OTMonsterConverter.sln
 
     steps:
     - name: Checkout
