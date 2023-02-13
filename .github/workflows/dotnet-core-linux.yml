@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SolutionPath: app
+      SolutionPath: app/otmc/otmc.csproj
 
     steps:
     - name: Checkout
