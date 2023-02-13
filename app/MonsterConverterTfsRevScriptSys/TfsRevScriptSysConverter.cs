@@ -24,7 +24,7 @@ namespace MonsterConverterTfsRevScriptSys
             {ConditionType.Fire,        "CONDITION_FIRE"},
             {ConditionType.Energy,      "CONDITION_ENERGY"},
             {ConditionType.Bleeding,    "CONDITION_BLEEDING"},
-            {ConditionType.Paralyze,    "CONDITION_POISON"},
+            {ConditionType.Paralyze,    "CONDITION_PARALYZE"},
             {ConditionType.Drown,       "CONDITION_DROWN"},
             {ConditionType.Freezing,    "CONDITION_FREEZING"},
             {ConditionType.Dazzled,     "CONDITION_DAZZLED"},
